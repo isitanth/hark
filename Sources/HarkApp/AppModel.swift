@@ -613,7 +613,7 @@ final class AppModel {
     /// `-HarkDebugPreview ask…`: the Ask panel pinned in one state, for screenshots.
     func showAskPreview() {
         askPanel.configure(config.config.effectiveLLM)
-        askPanel.showPreview(debugPreview)
+        askPanel.showPreview(debugPreview, over: previousApp)
     }
 
     /// Text on the clipboard, a capture cut at the length limit, a recording cancelled by a change of microphone and

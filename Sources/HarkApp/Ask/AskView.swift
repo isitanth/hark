@@ -14,9 +14,13 @@ struct AskView: View {
     private static let scrollerWidth = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
 
     var body: some View {
+        // The header, the quote and the status lines take no clicks, so a press there reaches the background and
+        // drags the panel, as a title bar would.
         VStack(alignment: .leading, spacing: 12) {
             header
+                .allowsHitTesting(false)
             quote
+                .allowsHitTesting(false)
             content
             footer
         }
@@ -46,7 +50,6 @@ struct AskView: View {
                 Text(verbatim: instruction)
                     .font(.headline)
                     .lineLimit(3)
-                    .textSelection(.enabled)
             } else {
                 Text(L("ask.title"))
                     .font(.headline)
@@ -83,8 +86,22 @@ struct AskView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 
+    /// The answer takes clicks; every other state is a status line that lets a press drag the panel.
     @ViewBuilder
     private var content: some View {
+        switch model.state {
+        case .streaming:
+            answer(editable: false)
+        case .reviewing:
+            answer(editable: true)
+        default:
+            status
+                .allowsHitTesting(false)
+        }
+    }
+
+    @ViewBuilder
+    private var status: some View {
         switch model.state {
         case .listening:
             VStack(alignment: .leading, spacing: 4) {
@@ -106,10 +123,6 @@ struct AskView: View {
             }
         case .thinking:
             progress(namesServer ? L("ask.thinking.server \(model.server)") : L("ask.thinking"))
-        case .streaming:
-            answer(editable: false)
-        case .reviewing:
-            answer(editable: true)
         case .failed(let failure):
             Label {
                 Text(failure.popupText)
@@ -118,7 +131,7 @@ struct AskView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
             }
-        case .closed:
+        case .streaming, .reviewing, .closed:
             EmptyView()
         }
     }

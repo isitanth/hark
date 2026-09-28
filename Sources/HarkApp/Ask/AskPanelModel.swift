@@ -100,7 +100,7 @@ final class AskPanelModel {
         if next == .closed, wasOpen {
             close()
         } else if !wasOpen {
-            panel.open()
+            panel.open(over: caller)
         }
     }
 
@@ -171,7 +171,7 @@ final class AskPanelModel {
 extension AskPanelModel {
     /// `-HarkDebugPreview ask`, `ask-listening`, `ask-thinking`, `ask-streaming` or `ask-error`, plus `ask-remote`: the
     /// panel pinned in one state with sample text in the preview's language, for screenshots. Esc closes it.
-    func showPreview(_ names: Set<String>) {
+    func showPreview(_ names: Set<String>, over caller: AppIdentity?) {
         let french = Locale.preferredLanguages.first?.hasPrefix("fr") == true
         let pinnedState: AskPanelState? =
             if names.contains("ask-listening") {
@@ -201,7 +201,7 @@ extension AskPanelModel {
             remoteHost = "api.example.com"
         }
         state = pinnedState
-        panel.open()
+        panel.open(over: caller)
     }
 
     private func closePreview() {
