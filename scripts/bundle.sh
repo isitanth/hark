@@ -176,8 +176,12 @@ if (( install )); then
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$target"
     languages=(${(u)${(f)"$(defaults read -g AppleLanguages 2>/dev/null | tr -d ' ",()' | sed '/^$/d; s/-.*//')"}})
     (( ${#languages} )) || languages=(en)
-    /System/Library/CoreServices/pbs -flush
-    /System/Library/CoreServices/pbs -update $languages
-    print "==> Services menu rebuilt for: $languages"
+    # pbs prints every service on the Mac as it rebuilds; only a failure is worth showing.
+    if /System/Library/CoreServices/pbs -flush >/dev/null 2>&1 \
+        && /System/Library/CoreServices/pbs -update $languages >/dev/null 2>&1; then
+        print "==> Services menu rebuilt for: $languages"
+    else
+        print -u2 "bundle.sh: pbs could not rebuild the Services menu; run pbs -flush, then pbs -update $languages"
+    fi
     print "==> installed; start it with: open ${(q)target}"
 fi
