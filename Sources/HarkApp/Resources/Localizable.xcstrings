@@ -5141,13 +5141,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saved in the Keychain"
+            "value": "Saved"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enregistrée dans le trousseau"
+            "value": "Enregistrée"
           }
         }
       }
@@ -5175,13 +5175,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste the server’s key"
+            "value": "Paste the key"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collez la clé du serveur"
+            "value": "Collez la clé"
           }
         }
       }
@@ -5209,13 +5209,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The key stays in your login Keychain. It is never written to commands.yaml or to the log."
+            "value": "The key stays in your login Keychain and is never shown again. It is never written to commands.yaml or to the log."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La clé reste dans votre trousseau de session. Elle n’est jamais écrite dans commands.yaml ni dans le journal."
+            "value": "La clé reste dans votre trousseau de session et n’est plus jamais affichée. Elle n’est jamais écrite dans commands.yaml ni dans le journal."
           }
         }
       }

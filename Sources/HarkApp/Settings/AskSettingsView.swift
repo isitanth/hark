@@ -148,9 +148,10 @@ struct AskSettingsView: View {
         }
     }
 
+    /// Verbatim once localized: a message can quote an address, and Markdown would turn it into a link.
     private func warning(_ text: LocalizedStringResource) -> some View {
         Label {
-            Text(text)
+            Text(verbatim: String(localized: text))
                 .fixedSize(horizontal: false, vertical: true)
         } icon: {
             Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
