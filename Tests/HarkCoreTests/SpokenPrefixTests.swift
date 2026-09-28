@@ -22,7 +22,9 @@ struct PrefixCase: Sendable, CustomTestStringConvertible {
         .init(raw: "Arc , combien de jours", request: "combien de jours"),
         .init(raw: "— Arc, raconte-moi une blague", request: "raconte-moi une blague"),
         .init(raw: "  Hark,   explique TLS  ", request: "explique TLS  "),
-        .init(raw: "Hark,quelle heure est-il", request: "quelle heure est-il"),
+        .init(raw: "Hark, -3 fois 4 ?", request: "-3 fois 4 ?"),
+        .init(raw: "Arc, « bonjour » en anglais", request: "« bonjour » en anglais"),
+        .init(raw: "Hark: #42 en binaire", request: "#42 en binaire"),
         // The prefix alone: an empty request, which the resolver discards.
         .init(raw: "Hark.", request: ""),
         .init(raw: "Arc", request: ""),
@@ -36,6 +38,11 @@ struct PrefixCase: Sendable, CustomTestStringConvertible {
         .init(raw: "Huck, what is the capital of Peru?", request: nil),
         .init(raw: "Hey Hark, what time is it?", request: nil),
         .init(raw: "Arcade Fire est un groupe.", request: nil),
+        // A compound is one word, not the prefix and more.
+        .init(raw: "Arc-en-ciel au-dessus du lac.", request: nil),
+        .init(raw: "Arc-boutant de la cathédrale", request: nil),
+        .init(raw: "Hark's settings are open.", request: nil),
+        .init(raw: "Hark,quelle heure est-il", request: nil),
         .init(raw: "", request: nil),
     ]
 

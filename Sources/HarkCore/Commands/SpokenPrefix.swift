@@ -19,7 +19,10 @@ public struct SpokenPrefix: Sendable, Equatable {
     public static let standard = SpokenPrefix(AssistantConfig.defaultPrefix)
 
     /// What follows the prefix, cut from `raw` so the request keeps its accents and punctuation; nil when `raw` does
-    /// not start with a prefix. Empty when nothing but punctuation follows it: "Hark." alone.
+    /// not start with a prefix. Empty when nothing but separators follows it: "Hark." alone.
+    ///
+    /// The prefix ends where a word of the transcript ends: "Arc-en-ciel" and "Hark's" are not "Arc" or "Hark" followed
+    /// by more words, and stay dictation.
     public func request(in raw: String) -> String? {
         let tokens = raw.split(whereSeparator: \.isWhitespace)
         for prefix in prefixes {
@@ -30,19 +33,14 @@ public struct SpokenPrefix: Sendable, Equatable {
                 words += Normalizer.normalize(String(token)).split(separator: " ")
                 consumed += 1
             }
-            guard words.starts(with: prefix) else { continue }
-            let rest: String
-            if words.count > prefix.count {
-                // A token that runs on past the prefix, "Hark,quelle": its words after the prefix start the request,
-                // in their normalized form.
-                let spill = words[prefix.count...].joined(separator: " ")
-                let after = tokens.dropFirst(consumed).joined(separator: " ")
-                rest = after.isEmpty ? spill : spill + " " + after
-            } else {
-                rest = consumed < tokens.count ? String(raw[tokens[consumed].startIndex...]) : ""
-            }
-            return String(rest.drop { $0.isWhitespace || $0.isPunctuation })
+            guard words == prefix else { continue }
+            let rest = consumed < tokens.count ? raw[tokens[consumed].startIndex...] : ""
+            return String(rest.drop { $0.isWhitespace || Self.separators.contains($0) })
         }
         return nil
     }
+
+    /// What may sit between the prefix and the request: "Hark, …", "Arc : …". A quote, a minus sign or a # after it
+    /// belongs to the request.
+    private static let separators: Set<Character> = [",", ".", ";", ":", "!", "?", "…", "—", "–"]
 }
