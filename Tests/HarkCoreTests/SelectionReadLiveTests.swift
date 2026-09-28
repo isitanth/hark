@@ -115,16 +115,26 @@ struct SelectionReadLiveTests {
             plan: FocusResolver.pastePlan(focus: focus).map { "\($0)" } ?? "none", reads: reads)
     }
 
-    /// The focused application as the Accessibility API sees it. NSWorkspace's answer only moves with a run loop,
-    /// which a test process does not spin.
+    /// The app in front, from Launch Services as `lsappinfo` reports it. NSWorkspace's answer only moves with a run
+    /// loop, which a test process does not spin, and the system-wide AX element refuses the focused-application query
+    /// from here (kAXErrorIllegalArgument).
     private static func frontmostPID() -> Int32? {
-        var value: CFTypeRef?
-        let status = AXUIElementCopyAttributeValue(
-            AXUIElementCreateSystemWide(), kAXFocusedApplicationAttribute as CFString, &value)
-        guard status == .success, let value, CFGetTypeID(value) == AXUIElementGetTypeID() else { return nil }
-        var pid: pid_t = 0
-        // Checked just above; the cast cannot fail.
-        return AXUIElementGetPid(value as! AXUIElement, &pid) == .success ? pid : nil
+        func lsappinfo(_ arguments: [String]) -> String {
+            let process = Process()
+            let pipe = Pipe()
+            process.executableURL = URL(filePath: "/usr/bin/lsappinfo")
+            process.arguments = arguments
+            process.standardOutput = pipe
+            guard (try? process.run()) != nil else { return "" }
+            process.waitUntilExit()
+            return String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        }
+        let front = lsappinfo(["front"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !front.isEmpty else { return nil }
+        let info = lsappinfo(["info", "-only", "pid", front])
+        // "pid = 123" or "\"pid\"=123", depending on the release.
+        guard let key = info.range(of: "pid") else { return nil }
+        return Int32(String(info[key.upperBound...].drop { !$0.isNumber }.prefix { $0.isNumber }))
     }
 
     private static func append(_ line: Line, to path: String) throws {
