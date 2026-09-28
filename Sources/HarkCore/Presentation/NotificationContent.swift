@@ -36,10 +36,15 @@ public enum ClipboardNotice {
     ///
     /// A `text_clipboard` line writes an `error` exactly when the clipboard is not where the user asked the text to
     /// go, so that is the fallback. A password field the user sent to the clipboard on purpose is not one.
+    ///
+    /// An ask's Copy is a click in the popup, which is answer enough. An ask's text on the clipboard for another
+    /// reason is told without a preview: the line's text is the instruction, not what was copied.
     public static func content(for record: UtteranceRecord, style: NotificationStyle) -> NotificationContent? {
         guard style != .off, record.resolution == .textClipboard else { return nil }
+        let ask = record.actionType == .ask
+        if ask, record.error == nil { return nil }
         return .textCopied(
-            preview: record.rawText.map(preview), fallback: record.error != nil, sound: style == .standard)
+            preview: ask ? nil : record.rawText.map(preview), fallback: record.error != nil, sound: style == .standard)
     }
 
     /// The first `previewLimit` graphemes, with an ellipsis when there is more. Whitespace is collapsed first: a

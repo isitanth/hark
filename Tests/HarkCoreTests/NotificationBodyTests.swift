@@ -39,6 +39,18 @@ private func record(
         #expect(content == .textCopied(preview: "Hello there.", fallback: false, sound: false))
     }
 
+    /// Copy in the Ask panel was a click the user just made; the line's text is the instruction, never the answer.
+    @Test func anAskIsAnnouncedOnlyWhenTheClipboardWasNotItsChoiceAndNeverWithItsText() {
+        let copied = UtteranceRecord(
+            context: F.askContext(), transcript: F.instruction, outcome: .textClipboard(.chosen))
+        #expect(ClipboardNotice.content(for: copied, style: .standard) == nil)
+        let changed = UtteranceRecord(
+            context: F.askContext(), transcript: F.instruction, outcome: .textClipboard(.fallback(.selectionChanged)))
+        #expect(
+            ClipboardNotice.content(for: changed, style: .standard)
+                == .textCopied(preview: nil, fallback: true, sound: true))
+    }
+
     @Test func offSaysNothing() {
         #expect(ClipboardNotice.content(for: record(.textClipboard(.chosen)), style: .off) == nil)
     }

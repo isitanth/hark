@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// The recording HUD, and the app's only NSPanel (CLAUDE.md). It must never become key or main: if it took focus,
-/// the text field the user is dictating into would lose it. Every property below is there for that.
+/// The recording HUD, the first of the app's two NSPanels (CLAUDE.md). It must never become key or main: if it took
+/// focus, the text field the user is dictating into would lose it. Every property below is there for that.
 final class HUDPanel: NSPanel {
     static let size = NSSize(width: 280, height: 64)
     private static let fade: TimeInterval = 0.12

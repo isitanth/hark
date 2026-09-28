@@ -96,6 +96,7 @@ private struct MenuBarLabel: View {
                 if model.debugPreview.contains("panel") { openWindow(id: PanelView.previewWindowID) }
                 if model.debugPreview.contains("settings") { openSettings() }
                 model.showHUDPreview()
+                model.showAskPreview()
                 model.refreshPermissions()
                 guard model.needsOnboarding else { return }
                 openWindow(id: OnboardingView.windowID)

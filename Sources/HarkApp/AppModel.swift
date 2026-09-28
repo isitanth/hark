@@ -78,6 +78,8 @@ final class AppModel {
     /// The Ask engine: the LLM client, the Keychain, and what the last call to the model server came to.
     let ask = AskModel()
     @ObservationIgnored private var askService: AskService?
+    /// The Ask panel: what it shows, and the panel itself.
+    @ObservationIgnored let askPanel: AskPanelModel
     /// The Model tab's state. Held here because the engine it drives is the one the pipeline was built with.
     @ObservationIgnored let models: ModelsModel
     /// The live text's own Small, beside the final's engine so a partial never queues behind a final.
@@ -211,6 +213,7 @@ final class AppModel {
             workspace: workspace, pasteboard: pasteboard, focus: focusProbe, audio: audio, engine: engine,
             resolver: UtteranceResolver(settings: resolution), inserter: inserter, actions: actions)
         controller = PipelineController(environment: environment, log: UtteranceLog(directory: paths.logs))
+        askPanel = AskPanelModel(controller: controller, workspace: workspace, pasteboard: pasteboard)
         pinnedIcon = defaults.string(forKey: "HarkDebugIconState").flatMap(MenuBarIconState.init(rawValue:))
         // The volume first, so a quit past the deadline still gives it back; then the pipeline, so the utterance in
         // flight writes its line; then the engines, so nothing loads again.
@@ -229,6 +232,11 @@ final class AppModel {
                 self?.apply(snapshot)
             }
         }
+        Task { [weak self, controller] in
+            for await update in controller.askUpdates {
+                self?.askPanel.update(update)
+            }
+        }
         Task { [weak self, partial] in
             for await result in partial.results {
                 self?.hudModel.show(result)
@@ -238,6 +246,7 @@ final class AppModel {
             await configStore.start()
             for await snapshot in configStore.snapshots {
                 self?.config = snapshot
+                self?.askPanel.configure(snapshot.config.effectiveLLM)
                 // The last good config, so a broken file keeps the overrides and commands that were in force.
                 resolution.update(apps: snapshot.config.apps)
                 resolution.update(commands: snapshot.config)
@@ -355,8 +364,11 @@ final class AppModel {
     }
 
     /// The text of `entry` is what the clipboard holds: it was copied by this run, not read back from the log.
+    /// An ask's line holds the instruction, and the clipboard its answer: there is nothing of the line to paste.
     private func canPaste(_ entry: LogEntry) -> Bool {
-        guard entry.id.hasPrefix(LogEntry.liveIDPrefix), entry.resolution == .textClipboard else { return false }
+        guard entry.id.hasPrefix(LogEntry.liveIDPrefix), entry.resolution == .textClipboard,
+            entry.actionType != LoggedAction.askRawValue
+        else { return false }
         return !(entry.rawText ?? "").isEmpty
     }
 
@@ -502,6 +514,7 @@ final class AppModel {
         self.snapshot = snapshot
         hudModel.update(snapshot)
         hud.setVisible(hudModel.state != .hidden)
+        askPanel.update(snapshot)
         drivePartial(snapshot)
     }
 
@@ -509,8 +522,10 @@ final class AppModel {
     /// `.capturing`: key up, the limit, a cancel, a failure. The stop aborts a partial still decoding, so the final
     /// shares the hardware with at most one partial: 18 ms when the stop cancels it, as it typically does, and 37 ms
     /// when the stop is lost (docs/acceptance/M7.md, row 5).
+    /// An ask has no live line: the HUD that would show it stays down.
     private func drivePartial(_ snapshot: PipelineSnapshot) {
-        let wanted = preferences.partialTranscript && snapshot.phase == .capturing ? snapshot.utterance?.id : nil
+        let live = preferences.partialTranscript && snapshot.phase == .capturing
+        let wanted = live && snapshot.utterance?.intent.isAsk == false ? snapshot.utterance?.id : nil
         guard wanted != partialUtterance else { return }
         partialUtterance = wanted
         let previous = partialControl
@@ -551,6 +566,12 @@ final class AppModel {
                 : "I wanted to summarize this morning's meeting before everyone leaves for the weekend"
         hudModel.pin(pinned.state, time: pinned.time, line: line)
         hud.setVisible(true)
+    }
+
+    /// `-HarkDebugPreview ask…`: the Ask panel pinned in one state, for screenshots.
+    func showAskPreview() {
+        askPanel.configure(config.config.effectiveLLM)
+        askPanel.showPreview(debugPreview)
     }
 
     /// Text on the clipboard, a capture cut at the length limit, a recording cancelled by a change of microphone and

@@ -27,6 +27,8 @@ public enum HUDPresentation {
     ///     until the stop returns, and a long clip is told from this in that gap.
     ///   - handsFree: `TriggerGate.isLatched`: the capture was started by a tap and goes on with the key up.
     public static func state(_ snapshot: PipelineSnapshot, lastLevel: LevelReading?, handsFree: Bool) -> HUDState {
+        // The Ask panel carries an ask's listening state; the HUD would sit under a panel that holds the key focus.
+        if snapshot.utterance?.intent.isAsk == true { return .hidden }
         switch snapshot.phase {
         case .capturing:
             return .listening(handsFree: handsFree)
