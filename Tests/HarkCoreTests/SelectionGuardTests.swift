@@ -92,4 +92,31 @@ private let text = "Le comité se réunira jeudi.\nMerci."
             SelectionSnapshot(text: text, caller: F.textEdit))
         #expect(check.verdict == .otherApp && check.plan == nil)
     }
+
+    /// Safari's web view reports no focused element until its window is key again, just after the Ask panel closes.
+    @Test func aFocusThatComesBackLateIsWaitedFor() async {
+        let workspace = SwitchableWorkspace(F.textEdit)
+        let accessibility = FakeAccessibility()
+        accessibility.set(selectedText: text, for: F.textEdit.processID)
+        let checker = CallerSelectionChecker(
+            workspace: workspace, focus: AXFocusProbe(workspace: workspace, accessibility: accessibility),
+            accessibility: accessibility, settings: ResolutionSettings(), settle: .seconds(2), poll: .milliseconds(5))
+        let check = Task { await checker.check(SelectionSnapshot(text: text, caller: F.textEdit)) }
+        try? await Task.sleep(for: .milliseconds(40))
+        accessibility.set(element: F.backInTextEdit.element, for: F.textEdit.processID)
+        let result = await check.value
+        #expect(result.verdict == .intact && result.plan == .axInsert)
+    }
+
+    /// An app that never reports a focus is given up on after the settle time: the app check alone, nothing to write in.
+    @Test func aFocusThatNeverComesEndsWithNoPlan() async {
+        let workspace = SwitchableWorkspace(F.textEdit)
+        let accessibility = FakeAccessibility()
+        let checker = CallerSelectionChecker(
+            workspace: workspace, focus: AXFocusProbe(workspace: workspace, accessibility: accessibility),
+            accessibility: accessibility, settings: ResolutionSettings(), settle: .milliseconds(30),
+            poll: .milliseconds(5))
+        let result = await checker.check(SelectionSnapshot(text: text, caller: F.textEdit))
+        #expect(result.verdict == .intact && result.plan == nil)
+    }
 }

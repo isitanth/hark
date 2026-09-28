@@ -52,27 +52,35 @@ public protocol SelectionChecking: Sendable {
 public struct CallerSelectionChecker: SelectionChecking {
     /// As long as the panel's Paste waits for an app that is slow to come forward.
     public static let activationTimeout = Duration.seconds(2)
+    /// The Ask panel was key a moment ago and may still be: until the caller's window is key again, a web view answers
+    /// "no focused element" (Safari, measured 2026-09-28), which would read as nothing to write into.
+    public static let focusSettle = Duration.milliseconds(600)
+    public static let focusPoll = Duration.milliseconds(30)
 
     private let workspace: any Workspace
     private let focus: any FocusProbing
     private let accessibility: (any AccessibilityFacade)?
     private let settings: ResolutionSettings
+    private let settle: Duration
+    private let poll: Duration
 
     public init(
         workspace: any Workspace, focus: any FocusProbing, accessibility: (any AccessibilityFacade)?,
-        settings: ResolutionSettings
+        settings: ResolutionSettings, settle: Duration = focusSettle, poll: Duration = focusPoll
     ) {
         self.workspace = workspace
         self.focus = focus
         self.accessibility = accessibility
         self.settings = settings
+        self.settle = settle
+        self.poll = poll
     }
 
     public func check(_ selection: SelectionSnapshot) async -> SelectionCheck {
         if let caller = selection.caller {
             _ = await workspace.activateAndWait(caller, timeout: Self.activationTimeout)
         }
-        let now = await focus.probe()
+        let now = await settledFocus(of: selection.caller)
         var live: String?
         if let pid = now.app?.processID, pid == selection.caller?.processID {
             live = await accessibility?.selectedText(of: pid)
@@ -80,5 +88,18 @@ public struct CallerSelectionChecker: SelectionChecking {
         let verdict = SelectionGuard.verdict(selection, frontmost: now.app, liveSelection: live)
         let plan = verdict == .intact ? FocusResolver.pastePlan(focus: now, apps: settings.current.apps) : nil
         return SelectionCheck(verdict: verdict, focus: now, plan: plan)
+    }
+
+    /// The focus once the caller holds one: probed again while the caller is in front with no focused element, for
+    /// `settle` at most. Another app in front, or an element found, answers at once.
+    private func settledFocus(of caller: AppIdentity?) async -> FocusSnapshot {
+        let clock = ContinuousClock()
+        let deadline = clock.now + settle
+        var now = await focus.probe()
+        while now.element == nil, let caller, now.app?.processID == caller.processID, clock.now < deadline {
+            try? await clock.sleep(for: poll)
+            now = await focus.probe()
+        }
+        return now
     }
 }
