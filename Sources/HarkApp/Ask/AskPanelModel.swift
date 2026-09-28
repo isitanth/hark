@@ -22,6 +22,8 @@ final class AskPanelModel {
     var answer = ""
     /// `127.0.0.1:8002`: the server "Thinking…" names after a moment.
     private(set) var server = ""
+    /// The host of a server off this Mac, shown for as long as the panel is open; nil for a server on this Mac.
+    private(set) var remoteHost: String?
     /// 60% of the screen the panel opened on; a longer answer scrolls.
     var maxAnswerHeight: CGFloat = 480
     /// What the pre-flight found wrong with the server, shown while the user is still speaking.
@@ -53,6 +55,7 @@ final class AskPanelModel {
     /// The active profile's address and the selection cap, from commands.yaml.
     func configure(_ llm: LLMConfig) {
         server = llm.activeProfile?.endpoint ?? ""
+        remoteHost = llm.activeProfile?.remoteHost
         maxSelectionChars = llm.maxSelectionChars
     }
 
@@ -164,8 +167,8 @@ final class AskPanelModel {
 }
 
 extension AskPanelModel {
-    /// `-HarkDebugPreview ask`, `ask-listening`, `ask-thinking`, `ask-streaming` or `ask-error`: the panel pinned in one
-    /// state with sample text in the preview's language, for screenshots. Esc closes it.
+    /// `-HarkDebugPreview ask`, `ask-listening`, `ask-thinking`, `ask-streaming` or `ask-error`, plus `ask-remote`: the
+    /// panel pinned in one state with sample text in the preview's language, for screenshots. Esc closes it.
     func showPreview(_ names: Set<String>) {
         let french = Locale.preferredLanguages.first?.hasPrefix("fr") == true
         let pinnedState: AskPanelState? =
@@ -190,6 +193,8 @@ extension AskPanelModel {
         streamed = pinnedState == .streaming ? String(sample.answer.prefix(70)) : sample.answer
         answer = sample.answer
         if server.isEmpty { server = "127.0.0.1:8002" }
+        // `ask-remote` adds the line a cloud profile shows, with a sample host.
+        if names.contains("ask-remote") { remoteHost = "api.example.com" }
         state = pinnedState
         panel.open()
     }

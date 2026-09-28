@@ -178,9 +178,10 @@ public actor LLMClient {
         request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
         if let key { request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
         // `extra` first and the standard fields over it: the parser refuses a standard name in `extra`, and a profile
-        // built in code cannot turn streaming off or ask for JSON either.
+        // built in code cannot turn streaming off or ask for JSON either. A server off this Mac gets the standard
+        // fields only: `extra` is for the local server's own switches, and a cloud API may refuse what it does not know.
         var body: [String: Any] = [:]
-        for (name, value) in profile.extra {
+        for (name, value) in profile.isLoopback ? profile.extra : [:] {
             switch value {
             case .bool(let flag): body[name] = flag
             case .int(let number): body[name] = number

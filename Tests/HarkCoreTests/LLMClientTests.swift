@@ -79,6 +79,28 @@ let baseURLCases: [BaseURLCase] = [.init(base: "http://127.0.0.1:8002/v1"), .ini
         #expect(body["stream_options"] == nil)
     }
 
+    /// A server off this Mac gets the standard fields only: `enable_thinking` is MTPLX's switch, not a cloud API's.
+    @Test func aServerOffThisMacGetsNoExtraFields() async throws {
+        var profile = H.profile
+        profile.baseURL = URL(string: "https://api.example.com/v1")!
+        profile.extra = ["enable_thinking": .bool(false), "top_k": .int(20)]
+        let body = try body(of: try await request(for: profile))
+        #expect(body["enable_thinking"] == nil && body["top_k"] == nil)
+        #expect(body["stream"] as? Bool == true && body["temperature"] as? Double == ProviderProfile.defaultTemperature)
+        #expect(Set(body.keys) == ["model", "messages", "stream", "max_tokens", "temperature"])
+    }
+
+    @Test(
+        arguments: [
+            ("http://127.0.0.1:8002/v1", nil), ("http://localhost:8000/v1", nil), ("http://[::1]:8000/v1", nil),
+            ("https://api.example.com/v1", "api.example.com"), ("https://10.0.0.2:8443/v1", "10.0.0.2"),
+        ] as [(String, String?)])
+    func theHostIsNamedOnlyWhenTheAskLeavesThisMac(_ url: String, _ host: String?) throws {
+        var profile = H.profile
+        profile.baseURL = try #require(URL(string: url))
+        #expect(profile.remoteHost == host)
+    }
+
     @Test func extraKeepsEachScalarType() async throws {
         var profile = H.profile
         profile.extra = ["top_k": .int(20), "top_p": .double(0.8), "seed_name": .string("hark"), "flag": .bool(true)]

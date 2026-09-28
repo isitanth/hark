@@ -66,6 +66,15 @@ struct AskView: View {
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
+                if let host = model.remoteHost {
+                    Label {
+                        Text(L("ask.remote \(host)"))
+                    } icon: {
+                        Image(systemName: "network")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
             }
         }
         .fixedSize(horizontal: false, vertical: true)

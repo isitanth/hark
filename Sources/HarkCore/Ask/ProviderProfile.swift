@@ -41,7 +41,8 @@ public struct ProviderProfile: Sendable, Equatable {
     public var model: ModelChoice
     public var temperature: Double
     public var maxTokens: Int
-    /// Top-level request fields beyond the standard ones, sent as written: `enable_thinking: false` for MTPLX.
+    /// Top-level request fields beyond the standard ones, sent as written to a server on this Mac only:
+    /// `enable_thinking: false` for MTPLX.
     public var extra: [String: RequestValue]
 
     public init(
@@ -78,6 +79,11 @@ public struct ProviderProfile: Sendable, Equatable {
     /// The request never leaves this Mac: 127.0.0.0/8, ::1 or localhost. Plain http is allowed only then.
     public var isLoopback: Bool {
         Self.isLoopback(host: baseURL.host(percentEncoded: false))
+    }
+
+    /// The host an ask is sent to when it leaves this Mac, which the Ask panel shows; nil for a server on this Mac.
+    public var remoteHost: String? {
+        isLoopback ? nil : baseURL.host(percentEncoded: false)
     }
 
     public static func isLoopback(host: String?) -> Bool {

@@ -5797,6 +5797,23 @@
           }
         }
       }
+    },
+    "ask.remote %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent to %@, outside this Mac"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyé à %@, hors de ce Mac"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
