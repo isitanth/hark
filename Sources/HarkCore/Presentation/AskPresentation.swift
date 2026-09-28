@@ -14,6 +14,16 @@ public enum AskPanelState: Sendable, Equatable {
     case failed(LLMFailure)
 }
 
+/// What the reviewed answer can do besides Copy.
+public enum AskApply: Sendable, Equatable {
+    /// An ask about a selection: the answer goes in its place.
+    case replace
+    /// The assistant with a text field focused at the press: the answer goes in at the caret.
+    case insert
+    /// The assistant with nowhere to write: Copy is the only way out.
+    case copyOnly
+}
+
 /// The Ask panel's state from the pipeline alone, so HarkApp renders it and computes nothing.
 public enum AskPresentation {
     /// How long "Thinking…" stands alone before it names the server it waits for.
@@ -36,6 +46,15 @@ public enum AskPresentation {
             }
         case .idle, .resolving, .confirming, .acting, .inserting, .copying:
             return .closed
+        }
+    }
+
+    /// Insert is offered when the probe at the press found somewhere a paste or an AX insertion would land, the rule
+    /// the panel's Paste follows, and not in a secure field.
+    public static func apply(_ utterance: UtteranceContext?) -> AskApply {
+        switch utterance?.intent {
+        case .assist?: FocusResolver.pastePlan(focus: utterance?.focus) == nil ? .copyOnly : .insert
+        case .ask?, .dictate?, nil: .replace
         }
     }
 

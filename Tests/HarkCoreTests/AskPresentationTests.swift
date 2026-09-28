@@ -41,4 +41,19 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
         let quote = AskPresentation.quote(long, limit: 20)
         #expect(quote.count == 21 && quote.hasSuffix("…"))
     }
+
+    /// Replace for an ask; for the assistant, Insert where the probe found a field and Copy alone elsewhere.
+    @Test func whatTheAnswerCanDo() {
+        var assistant = Fixture.assistContext()
+        #expect(AskPresentation.apply(assistant) == .insert)
+        assistant.focus = FocusSnapshot(app: Fixture.textEdit, element: FocusedElement(role: "AXOutline"))
+        #expect(AskPresentation.apply(assistant) == .copyOnly)
+        assistant.focus = nil
+        #expect(AskPresentation.apply(assistant) == .copyOnly)
+        assistant.focus = FocusSnapshot(
+            app: Fixture.textEdit, element: FocusedElement(role: "AXTextField", subrole: "AXSecureTextField"),
+            isSecureInput: true)
+        #expect(AskPresentation.apply(assistant) == .copyOnly)
+        #expect(AskPresentation.apply(Fixture.askContext()) == .replace)
+    }
 }

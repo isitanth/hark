@@ -137,6 +137,23 @@
         }
       }
     },
+    "settings.general.askTrigger": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark shortcut"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raccourci Demander à Hark"
+          }
+        }
+      }
+    },
     "settings.general.launchAtLogin": {
       "extractionState": "manual",
       "localizations": {
@@ -235,6 +252,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Appuyez pour démarrer, appuyez de nouveau pour arrêter. Si vous la maintenez, la dictée s’arrête au relâchement."
+          }
+        }
+      }
+    },
+    "settings.general.askHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark works on the selected text. With nothing selected, it answers a question or writes for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark agit sur le texte sélectionné. Sans sélection, il répond à une question ou rédige pour vous."
           }
         }
       }
@@ -5628,6 +5662,23 @@
         }
       }
     },
+    "assistant.listening.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask a question or say what to write, then press Return."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posez une question ou dites quoi rédiger, puis appuyez sur Retour."
+          }
+        }
+      }
+    },
     "ask.transcribing": {
       "extractionState": "manual",
       "localizations": {
@@ -5794,6 +5845,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remplacer"
+          }
+        }
+      }
+    },
+    "ask.button.insert": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insert"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insérer"
           }
         }
       }

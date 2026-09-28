@@ -86,7 +86,16 @@ struct GeneralSettingsView: View {
                 } label: {
                     Text(L("settings.general.cancelTrigger"))
                 }
+                LabeledContent {
+                    KeyboardShortcuts.Recorder(for: .ask)
+                } label: {
+                    Text(L("settings.general.askTrigger"))
+                }
                 Text(L("settings.general.triggerHelp"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(L("settings.general.askHelp"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

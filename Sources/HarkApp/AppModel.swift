@@ -114,6 +114,7 @@ final class AppModel {
     @ObservationIgnored private let pasteboard = AppKitPasteboard()
     @ObservationIgnored private let focusProbe: AXFocusProbe
     @ObservationIgnored private let inserter: TextInserter
+    @ObservationIgnored private let selectionReader: SelectionReader
     /// Opens apps for the pipeline and for the Commands tab's Test button.
     @ObservationIgnored private let actions: ActionRunner
     /// One poster for the whole app: it is the notification center's delegate, and one authorization prompt is
@@ -210,6 +211,7 @@ final class AppModel {
         inserter = TextInserter(
             accessibility: accessibility, pasteboard: pasteboard, keystrokes: CGEventKeystrokeSynthesizer(),
             workspace: workspace)
+        selectionReader = SelectionReader(accessibility: accessibility, copier: inserter)
         actions = ActionRunner(workspace: workspace)
         let ask = AskModel()
         self.ask = ask
@@ -296,7 +298,9 @@ final class AppModel {
         HarkAppDelegate.servicesProvider = service
         refreshInputDevices()
         Task { [audio] in await audio.prepare() }
-        hotkeys.start(driving: controller, onLatchChange: { [hudModel] in hudModel.setLatched($0) })
+        hotkeys.start(
+            driving: controller, onAskDown: { [weak self] in await self?.startAskFromKey() },
+            onLatchChange: { [hudModel] in hudModel.setLatched($0) })
         Task { [weak self] in await self?.pollPermissions() }
     }
 
@@ -591,6 +595,20 @@ final class AppModel {
         }
     }
 
+    /// The Ask key. The selection is read before the capture starts, so the ⌘C that some apps need (M9.0) reaches the
+    /// app before the Ask panel takes the keyboard. Text selected: an ask about it, as Services would start. Nothing
+    /// selected: the assistant. The key does not bring Hark forward, so the app in front is the caller, unless Hark's
+    /// own window is. A press while busy reads nothing: its line says busy.
+    private func startAskFromKey() async {
+        let caller = Self.otherApp(NSWorkspace.shared.frontmostApplication) ?? previousApp
+        guard await controller.phase == .idle else {
+            await controller.triggerDown(intent: .assist(caller: caller))
+            return
+        }
+        let selection = await selectionReader.read(from: caller)
+        await controller.triggerDown(intent: selection.isBlank ? .assist(caller: caller) : .ask(selection))
+    }
+
     /// The pre-flight: `GET /models` while the user speaks, so a stopped server says so before the instruction is
     /// spent on it. An ask is the user's request, so a cloud profile is checked too. The result feeds the health row.
     private func preflight() async -> LLMProbeResult? {
@@ -611,7 +629,7 @@ final class AppModel {
         }
     }
 
-    /// `-HarkDebugPreview ask…`: the Ask panel pinned in one state, for screenshots.
+    /// `-HarkDebugPreview ask…` or `assistant…`: the Ask panel pinned in one state, for screenshots.
     func showAskPreview() {
         askPanel.configure(config.config.effectiveLLM)
         askPanel.showPreview(debugPreview)

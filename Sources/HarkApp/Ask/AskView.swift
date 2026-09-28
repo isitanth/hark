@@ -19,8 +19,15 @@ struct AskView: View {
         VStack(alignment: .leading, spacing: 12) {
             header
                 .allowsHitTesting(false)
-            quote
-                .allowsHitTesting(false)
+            if !model.quote.isEmpty {
+                quote
+                    .allowsHitTesting(false)
+            }
+            // The assistant has no quote, and still says when the request leaves this Mac.
+            if model.quote.isEmpty, let host = model.remoteHost {
+                remote(host)
+                    .allowsHitTesting(false)
+            }
             content
             footer
         }
@@ -73,17 +80,21 @@ struct AskView: View {
                         .foregroundStyle(.orange)
                 }
                 if let host = model.remoteHost {
-                    Label {
-                        Text(L("ask.remote \(host)"))
-                    } icon: {
-                        Image(systemName: "network")
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    remote(host)
                 }
             }
         }
         .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func remote(_ host: String) -> some View {
+        Label {
+            Text(L("ask.remote \(host)"))
+        } icon: {
+            Image(systemName: "network")
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
     }
 
     /// The answer takes clicks; every other state is a status line that lets a press drag the panel.
@@ -111,7 +122,7 @@ struct AskView: View {
                     Image(systemName: "waveform")
                 }
                 .font(.body.weight(.medium))
-                Text(L("ask.listening.hint"))
+                Text(model.quote.isEmpty ? L("assistant.listening.hint") : L("ask.listening.hint"))
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 preflight
@@ -215,10 +226,19 @@ struct AskView: View {
                 button(L("ask.button.cancel"), action: model.cancel)
             case .reviewing:
                 button(L("ask.button.cancel"), action: model.cancel)
-                button(L("ask.button.copy"), action: model.copy)
-                button(L("ask.button.replace"), action: model.replace)
+                switch model.apply {
+                case .replace, .insert:
+                    button(L("ask.button.copy"), action: model.copy)
+                    button(
+                        model.apply == .insert ? L("ask.button.insert") : L("ask.button.replace"), action: model.replace
+                    )
                     .keyboardShortcut(.return, modifiers: .command)
                     .buttonStyle(.borderedProminent)
+                case .copyOnly:
+                    button(L("ask.button.copy"), action: model.copy)
+                        .keyboardShortcut(.return, modifiers: .command)
+                        .buttonStyle(.borderedProminent)
+                }
             case .failed:
                 button(L("ask.button.cancel"), action: model.cancel)
                 button(L("ask.button.copyInstruction"), action: model.copyInstruction)

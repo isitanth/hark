@@ -13,7 +13,10 @@ final class AskPanelModel {
     private(set) var state = AskPanelState.closed
     /// The spoken instruction, once transcribed.
     private(set) var instruction: String?
+    /// The selection's opening words; empty for the assistant, which has none.
     private(set) var quote = ""
+    /// Replace, Insert, or Copy alone, from the utterance's intent and the focus at the press.
+    private(set) var apply = AskApply.replace
     /// The selection is longer than the cap and only its start is sent.
     private(set) var truncated = false
     private(set) var maxSelectionChars = LLMConfig.defaultMaxSelectionChars
@@ -90,17 +93,20 @@ final class AskPanelModel {
     func update(_ snapshot: PipelineSnapshot) {
         guard !pinned else { return }
         self.snapshot = snapshot
-        if case .ask(let selection)? = snapshot.utterance?.intent, let next = snapshot.utterance?.id, next != id {
+        if let intent = snapshot.utterance?.intent, intent.isAsk, let next = snapshot.utterance?.id, next != id {
             id = next
-            caller = selection.caller
-            quote = AskPresentation.quote(selection.text)
-            truncated = selection.text.count > maxSelectionChars
+            caller = intent.caller
+            let selection = intent.selection?.text ?? ""
+            quote = AskPresentation.quote(selection)
+            truncated = selection.count > maxSelectionChars
             instruction = nil
             streamed = ""
             answer = ""
             preflightFailure = nil
             check(next)
         }
+        // The assistant's focus arrives with the probe, after the press.
+        if let utterance = snapshot.utterance, utterance.id == id { apply = AskPresentation.apply(utterance) }
         refresh()
     }
 
@@ -177,6 +183,7 @@ final class AskPanelModel {
     }
 
     /// The panel closes and the caller comes back; the pipeline checks the selection, then writes the answer over it.
+    /// Insert is the same path: the check expects nothing selected, and the answer goes in at the caret.
     func replace() {
         guard let id else { return }
         let text = answer
@@ -197,10 +204,12 @@ final class AskPanelModel {
 extension AskPanelModel {
     /// `-HarkDebugPreview ask`, `ask-listening`, `ask-thinking`, `ask-streaming` or `ask-error`, plus `ask-remote`: the
     /// panel pinned in one state with sample text in the preview's language, for screenshots. Esc closes it.
+    /// `assistant`, `assistant-nofield` and `assistant-listening` are the Ask key with nothing selected.
     func showPreview(_ names: Set<String>) {
         let french = Locale.preferredLanguages.first?.hasPrefix("fr") == true
+        let assistant = names.contains { $0.hasPrefix("assistant") }
         let pinnedState: AskPanelState? =
-            if names.contains("ask-listening") {
+            if names.contains("ask-listening") || names.contains("assistant-listening") {
                 .listening
             } else if names.contains("ask-thinking") {
                 .thinking
@@ -208,15 +217,16 @@ extension AskPanelModel {
                 .streaming
             } else if names.contains("ask-error") {
                 .failed(.notRunning(endpoint: "127.0.0.1:8002"))
-            } else if names.contains("ask") {
+            } else if names.contains("ask") || names.contains("assistant") || names.contains("assistant-nofield") {
                 .reviewing
             } else {
                 nil
             }
         guard let pinnedState else { return }
         pinned = true
-        let sample = AskPreviewSample(french: french)
-        quote = AskPresentation.quote(sample.selection)
+        let sample = AskPreviewSample(french: french, assistant: assistant)
+        quote = assistant ? "" : AskPresentation.quote(sample.selection)
+        apply = !assistant ? .replace : names.contains("assistant-nofield") ? .copyOnly : .insert
         instruction = pinnedState == .listening ? nil : sample.instruction
         streamed = pinnedState == .streaming ? String(sample.answer.prefix(70)) : sample.answer
         answer = sample.answer
@@ -242,8 +252,19 @@ private struct AskPreviewSample {
     let instruction: String
     let answer: String
 
-    init(french: Bool) {
-        if french {
+    init(french: Bool, assistant: Bool) {
+        if assistant {
+            selection = ""
+            instruction =
+                french
+                ? "Écris un mail pour décliner la réunion de jeudi." : "Write an email to decline Thursday's meeting."
+            answer =
+                french
+                ? "Bonjour à tous,\n\nJe ne pourrai malheureusement pas assister à la réunion de jeudi. Pouvez-vous me "
+                    + "transmettre le compte rendu ?\n\nMerci, et bonne journée."
+                : "Hi all,\n\nUnfortunately I won't be able to attend Thursday's meeting. Could you send me the notes "
+                    + "afterwards?\n\nThanks, and have a good day."
+        } else if french {
             selection =
                 "Bonjour à tous, je voulais revenir sur la réunion de ce matin. Nous avons validé le budget du troisième "
                 + "trimestre, décidé de décaler le lancement au 14 octobre, et Claire prend en charge la communication."
