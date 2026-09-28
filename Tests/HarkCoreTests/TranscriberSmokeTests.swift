@@ -42,10 +42,23 @@ enum TestModel {
     }
 
     /// `say` to AIFF, `afconvert` to 16 kHz mono float, read back as samples.
+    ///
+    /// `Process` hands arguments over decomposed (NFD), and `say` matches a voice name byte for byte: "Amélie" or
+    /// "Flo (Français (France))" would quietly become the system voice (measured in M9.0). The name reaches `say`
+    /// through `printf` instead, as octal escapes of its composed bytes. The text can stay decomposed; it reads the same.
     static func speech(_ text: String, voice: String, in directory: TemporaryDirectory) throws -> [Float] {
         let aiff = directory.url.appending(path: "\(UUID().uuidString).aiff")
         let wav = aiff.deletingPathExtension().appendingPathExtension("wav")
-        try run("/usr/bin/say", ["-v", voice, "-o", aiff.path(percentEncoded: false), text])
+        let name = voice.precomposedStringWithCanonicalMapping.utf8.map { byte in
+            byte < 0x80 && byte != 0x25 && byte != 0x27 && byte != 0x5C
+                ? String(UnicodeScalar(byte)) : String(format: "\\%03o", byte)
+        }.joined()
+        try run(
+            "/bin/sh",
+            [
+                "-c", "exec /usr/bin/say -v \"$(printf '\(name)')\" -o \"$0\" \"$1\"", aiff.path(percentEncoded: false),
+                text,
+            ])
         try run(
             "/usr/bin/afconvert",
             [
