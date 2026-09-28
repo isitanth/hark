@@ -1,0 +1,12 @@
+data: {"id": "chatcmpl-78f5f81a01ec4de8b5b1bc4a095e3de6", "object": "chat.completion.chunk", "created": 1790597253, "model": "mtplx-bonsai-2-27b-optimized-speed", "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": null}]}
+
+data: {"id": "chatcmpl-78f5f81a01ec4de8b5b1bc4a095e3de6", "object": "chat.completion.chunk", "created": 1790597253, "model": "mtplx-bonsai-2-27b-optimized-speed", "choices": [{"index": 0, "delta": {}, "finish_reason": null}], "mtplx_progress": {"completion_tokens": 1, "decode_elapsed_s": 0.0, "decode_tok_s": null, "request_id": "chatcmpl-78f5f81a01ec4de8b5b1bc4a095e3de6", "session_id": "anon-e84538d2e00dc9ea", "dashboard_progress_published": true, "dashboard_progress_decision_time_s": 2.8750000637955964e-06, "dashboard_progress_registry_update_time_s": 1.2500022421590984e-06, "dashboard_progress_rolling_update_time_s": 0.0, "dashboard_progress_bus_publish_time_s": 7.000002369750291e-06}}
+
+data: {"id": "chatcmpl-78f5f81a01ec4de8b5b1bc4a095e3de6", "object": "chat.completion.chunk", "created": 1790597253, "model": "mtplx-bonsai-2-27b-optimized-speed", "choices": [{"index": 0, "delta": {"content": "L"}, "finish_reason": null}]}
+
+data: {"id": "chatcmpl-78f5f81a01ec4de8b5b1bc4a095e3de6", "object": "chat.completion.chunk", "created": 1790597253, "model": "mtplx-bonsai-2-27b-optimized-speed", "choices": [{"index": 0, "delta": {"content": "yon"}, "finish_reason": null}]}
+
+data: {"id": "chatcmpl-78f5f81a01ec4de8b5b1bc4a095e3de6", "object": "chat.completion.chunk", "created": 1790597253, "model": "mtplx-bonsai-2-27b-optimized-speed", "choices": [{"index": 0, "delta": {"content": " et"}, "finish_reason": null}]}
+
+data: {"error": {"message": "The model crashed while generating", "type": "server_error"}}
+
