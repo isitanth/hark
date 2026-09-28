@@ -87,11 +87,14 @@ public struct LLMTimeouts: Sendable, Equatable {
     public var silence: Duration
     /// From the request to the end of the stream.
     public var total: Duration
+    /// The whole of `GET /models` for Settings' check and the pre-flight: a server that is up answers it at once.
+    public var probe: Duration
 
-    public init(connect: Duration, silence: Duration, total: Duration) {
+    public init(connect: Duration, silence: Duration, total: Duration, probe: Duration = .seconds(5)) {
         self.connect = connect
         self.silence = silence
         self.total = total
+        self.probe = probe
     }
 
     public static let standard = LLMTimeouts(connect: .seconds(2), silence: .seconds(15), total: .seconds(60))
