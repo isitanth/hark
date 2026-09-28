@@ -20,6 +20,16 @@ public enum CaptureIntent: Sendable, Equatable {
         if case .ask(let selection) = self { selection } else { nil }
     }
 
+    /// The app the press came from, when the intent knows it: the Services caller or the app the Ask key was
+    /// pressed in.
+    public var caller: AppIdentity? {
+        switch self {
+        case .dictate: nil
+        case .ask(let selection): selection.caller
+        case .assist(let caller): caller
+        }
+    }
+
     /// What Replace or Insert must still find in the caller before writing: the selection asked about, or for the
     /// assistant, nothing selected. Nil for a dictation.
     public var expectedSelection: SelectionSnapshot? {

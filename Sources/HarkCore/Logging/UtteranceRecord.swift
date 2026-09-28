@@ -43,7 +43,8 @@ public struct UtteranceRecord: Sendable, Equatable {
         normalizedText = secure ? nil : transcript?.normalized
 
         resolution = outcome.resolution
-        targetApp = context.focus?.app?.logName ?? "unknown"
+        // The assistant's app comes from its probe, so a line that ends before the probe answers takes the press's.
+        targetApp = context.focus?.app?.logName ?? context.intent.caller?.logName ?? "unknown"
         switch context.intent {
         case .dictate: actionType = context.action.map(LoggedAction.command)
         case .ask, .assist: actionType = .ask

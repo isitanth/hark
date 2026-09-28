@@ -125,6 +125,21 @@ let illegalAssistTransitions: [IllegalTransition] = [
         #expect(record.rawText == F.request.raw)
     }
 
+    /// Cancelled before the probe answered: the line still names the app the key was pressed in.
+    @Test func aLineWithoutAProbeNamesTheCaller() throws {
+        let cancelled = try reducer.reduce(F.assistCapturing, .cancel).get()
+        let record = try #require(cancelled.effects.last?.record)
+        #expect(record.targetApp == "com.apple.TextEdit")
+    }
+
+    /// No caller known at the press: Insert checks the app the probe found instead of failing as another app.
+    @Test func insertWithNoCallerChecksTheProbedApp() throws {
+        var context = UtteranceContext(id: F.id, pressedAt: F.pressedAt, intent: .assist(caller: nil))
+        context.focus = F.backInTextEdit
+        let checking = try reducer.reduce(.asking(context, F.request, .reviewing), .askReplace(F.id, F.answer)).get()
+        #expect(checking.effects == [.checkSelection(F.id, SelectionSnapshot(text: "", caller: F.textEdit))])
+    }
+
     @Test func aCopiedAnswerHasNoError() throws {
         let copying = try reducer.reduce(F.assistReviewing, .askCopy(F.id, F.answer)).get()
         let record = try #require(try reducer.reduce(copying.state, .copied(F.id)).get().effects.first?.record)

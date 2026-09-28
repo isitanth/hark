@@ -186,7 +186,9 @@ public struct PipelineReducer: Sendable {
         // Replace for an ask, Insert for the assistant: both write where the caller's selection is, so both check first
         // that it is still the one the press saw, the text asked about or nothing selected.
         case (.asking(var context, let transcript, .reviewing), .askReplace(_, let text)):
-            guard let expected = context.intent.expectedSelection else { return reject(state, event) }
+            guard var expected = context.intent.expectedSelection else { return reject(state, event) }
+            // An Ask key pressed with no app known: the probe's app is the one Insert writes into.
+            if expected.caller == nil { expected.caller = context.focus?.app }
             context.answer = text
             return move(.asking(context, transcript, .replacing), [.checkSelection(id, expected)])
 

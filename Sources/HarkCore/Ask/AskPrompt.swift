@@ -33,7 +33,8 @@ public struct AskPrompt: Sendable, Equatable {
         "Rules:",
         "- The request comes from speech recognition and may contain recognition errors or filler words: infer what "
             + "the user wants.",
-        "- If it is a question, answer it briefly. If it asks for a text, write that text, ready to use.",
+        "- If it is a question, answer it, briefly unless the request asks for detail. If it asks for a text, write "
+            + "that text, ready to use.",
         "- Reply in the language of the request.",
         "- Reply with the answer or the text only: no preamble, no closing remarks, no surrounding quotes, no code "
             + "fences.",

@@ -139,7 +139,9 @@ struct PromptCapCase: Sendable, CustomTestStringConvertible {
         .init(
             rule: "- The request comes from speech recognition and may contain recognition errors or filler words: "
                 + "infer what the user wants."),
-        .init(rule: "- If it is a question, answer it briefly. If it asks for a text, write that text, ready to use."),
+        .init(
+            rule: "- If it is a question, answer it, briefly unless the request asks for detail. If it asks for a "
+                + "text, write that text, ready to use."),
         .init(rule: "- Reply in the language of the request."),
         .init(
             rule: "- Reply with the answer or the text only: no preamble, no closing remarks, no surrounding quotes, "
