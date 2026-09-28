@@ -12,6 +12,8 @@ struct PanelView: View {
     /// The window this panel is in: the menu bar extra's, or the preview window's. Paste closes it, rather than
     /// whichever window happens to be key.
     @State private var window: NSWindow?
+    /// The content's height as last measured: the window may arrive after it, and is fitted to it then.
+    @State private var contentHeight: CGFloat = 0
     @State private var confirmingClear = false
 
     var body: some View {
@@ -58,13 +60,19 @@ struct PanelView: View {
         .onGeometryChange(for: CGFloat.self) {
             $0.size.height
         } action: {
-            fit(height: $0)
+            contentHeight = $0
+            fit(window, height: $0)
         }
         .clearHistoryConfirmation(isPresented: $confirmingClear) {
             model.clearHistory()
             window?.close()
         }
-        .background(PanelWindowReader { window = $0 })
+        .background(
+            PanelWindowReader {
+                window = $0
+                fit($0, height: contentHeight)
+            }
+        )
         .onAppear {
             model.refreshPermissions()
             model.refreshInputDevices()
@@ -190,7 +198,7 @@ struct PanelView: View {
     /// The menu bar extra's window grows with its content and never shrinks while open: a health row gone after a
     /// successful Test, RECENT cleared, a shorter LAST (seen 2026-09-28) left the content centred between empty,
     /// see-through strips. The window follows the content's height instead, its top edge kept under the menu bar.
-    private func fit(height: CGFloat) {
+    private func fit(_ window: NSWindow?, height: CGFloat) {
         guard let window, height > 0 else { return }
         let content = window.contentRect(forFrameRect: window.frame)
         guard abs(content.height - height) > 0.5 else { return }
@@ -251,15 +259,30 @@ private struct SectionTitle: View {
 }
 
 /// Hands the panel's window to the view, once it is in a hierarchy.
+///
+/// It reports when its view joins a window, on the next turn of the main actor. Reported from `updateNSView`, the
+/// `@State` it fills was set during a view update, on every update while the panel was open: SwiftUI's "Modifying state
+/// during view update", about a thousand runtime warnings a day.
 private struct PanelWindowReader: NSViewRepresentable {
     let found: (NSWindow) -> Void
 
-    func makeNSView(context: Context) -> NSView {
-        NSView(frame: .zero)
+    func makeNSView(context: Context) -> WindowReportingView {
+        let view = WindowReportingView(frame: .zero)
+        view.found = found
+        return view
     }
 
-    func updateNSView(_ view: NSView, context: Context) {
-        guard let window = view.window else { return }
-        found(window)
+    func updateNSView(_ view: WindowReportingView, context: Context) {
+        view.found = found
+    }
+}
+
+private final class WindowReportingView: NSView {
+    var found: ((NSWindow) -> Void)?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard let window else { return }
+        Task { [found] in found?(window) }
     }
 }
