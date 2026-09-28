@@ -259,7 +259,7 @@ private final class Report {
             .flatMap { try? JSONSerialization.jsonObject(with: Data($0.utf8)) as? [String: Any] }
             .map { Set($0.keys) }
         check(
-            "pipeline.logKeys", keys == Set(UtteranceRecord.keys) && UtteranceRecord.keys.count == 11,
+            "pipeline.logKeys", keys == Set(UtteranceRecord.keys) && UtteranceRecord.keys.count == 13,
             "\(keys?.count ?? 0) keys, model_tier \(record?.modelTier?.rawValue ?? "null")")
     }
 
