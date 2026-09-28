@@ -6,6 +6,7 @@ import os
 final class FakeSecretStore: SecretStore {
     enum Call: Equatable, Sendable {
         case read(String)
+        case check(String)
         case set(String)
         case remove(String)
     }
@@ -35,6 +36,15 @@ final class FakeSecretStore: SecretStore {
         }
         if let failure { throw failure }
         return value
+    }
+
+    func hasSecret(for account: String) async throws(SecretStoreError) -> Bool {
+        let (value, failure) = state.withLock { state in
+            state.calls.append(.check(account))
+            return (state.secrets[account], state.failure)
+        }
+        if let failure { throw failure }
+        return value != nil
     }
 
     func setSecret(_ secret: String, for account: String) async throws(SecretStoreError) {

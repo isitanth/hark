@@ -10,6 +10,9 @@ public enum SecretStoreService {
 public protocol SecretStore: Sendable {
     /// The key stored for `account`, or nil when there is no item.
     func secret(for account: String) async throws(SecretStoreError) -> String?
+    /// Whether there is an item for `account`, without reading the key: Settings shows it without macOS asking
+    /// whether Hark may use an item another tool made.
+    func hasSecret(for account: String) async throws(SecretStoreError) -> Bool
     /// Replaces the item: it is deleted and added again, so its access list names this app rather than the tool
     /// that made it, and macOS stops asking.
     func setSecret(_ secret: String, for account: String) async throws(SecretStoreError)

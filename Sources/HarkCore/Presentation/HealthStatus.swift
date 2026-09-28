@@ -23,11 +23,14 @@ public enum HealthIssue: Sendable, Hashable, CaseIterable {
     case accessibilityOptional
     /// M5 posts a notification when text goes to the clipboard.
     case notificationsDenied
+    /// The last ask or Test connection failed: the model server was not there, refused the key, or did not answer.
+    /// Only an ask depends on it; it stays until the next one succeeds, and Hark never checks in the background.
+    case llmUnreachable
 
     public var severity: HealthSeverity {
         switch self {
         case .configInvalid, .modelNotLoaded, .microphoneDenied, .accessibilityNotTrusted: .error
-        case .accessibilityOptional, .notificationsDenied: .warning
+        case .accessibilityOptional, .notificationsDenied, .llmUnreachable: .warning
         }
     }
 }
@@ -42,7 +45,8 @@ public struct HealthStatus: Sendable, Equatable {
         microphone: MicPermissionStatus,
         accessibilityTrusted: Bool,
         accessibilityNeeded: Bool = true,
-        notificationsDenied: Bool = false
+        notificationsDenied: Bool = false,
+        llmUnreachable: Bool = false
     ) {
         var issues: [HealthIssue] = []
         if configError != nil { issues.append(.configInvalid) }
@@ -52,6 +56,7 @@ public struct HealthStatus: Sendable, Equatable {
             issues.append(accessibilityNeeded ? .accessibilityNotTrusted : .accessibilityOptional)
         }
         if notificationsDenied { issues.append(.notificationsDenied) }
+        if llmUnreachable { issues.append(.llmUnreachable) }
         // Stable: equal severities keep the order above.
         self.issues = issues.enumerated()
             .sorted { ($0.element.severity, -$0.offset) > ($1.element.severity, -$1.offset) }

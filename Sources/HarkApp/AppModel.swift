@@ -75,6 +75,8 @@ final class AppModel {
     }
 
     @ObservationIgnored let controller: PipelineController
+    /// The Ask engine: the LLM client, the Keychain, and what the last call to the model server came to.
+    let ask = AskModel()
     /// The Model tab's state. Held here because the engine it drives is the one the pipeline was built with.
     @ObservationIgnored let models: ModelsModel
     /// The live text's own Small, beside the final's engine so a partial never queues behind a final.
@@ -127,7 +129,8 @@ final class AppModel {
             accessibilityTrusted: accessibilityTrusted,
             accessibilityNeeded: insertionNeedsAccessibility,
             // A refusal costs nothing when the user asked for no notification anyway.
-            notificationsDenied: notificationsDenied && preferences.notificationStyle != .off)
+            notificationsDenied: notificationsDenied && preferences.notificationStyle != .off,
+            llmUnreachable: ask.lastFailure != nil)
     }
 
     /// Clipboard-only mode with no `apps:` entry that types into an app needs no Accessibility at all.
@@ -411,6 +414,41 @@ final class AppModel {
         } catch {
             if case .conflict = error { await configStore.reload() }
             return error
+        }
+    }
+
+    /// Why an address typed in Settings › Ask was not saved or tested.
+    enum ServerAddressProblem: Error, Equatable {
+        /// Not an absolute URL at all.
+        case notAnAddress
+        /// The parser or the store refused it: plain http to another host, a user and password in it, a conflict.
+        case write(ConfigWriteError)
+    }
+
+    /// The active profile with `text` as its base URL, if commands.yaml would take it: what Test connection checks
+    /// before anything is saved, so a key never goes to an address the file would refuse.
+    func profile(forServerAddress text: String) -> Result<ProviderProfile, ServerAddressProblem> {
+        guard let next = config.config.settingServerAddress(text) else { return .failure(.notAnAddress) }
+        do throws(ConfigError) {
+            let parsed = try CommandConfig.parse(Data(next.yaml().utf8))
+            guard let profile = parsed.effectiveLLM.activeProfile else { return .failure(.notAnAddress) }
+            return .success(profile)
+        } catch {
+            return .failure(.write(.invalid(error)))
+        }
+    }
+
+    /// Writes `text` as the active profile's base URL into commands.yaml, based on the config on show, as the
+    /// Commands tab writes its table.
+    func saveServerAddress(_ text: String) async -> ServerAddressProblem? {
+        let snapshot = config
+        guard let next = snapshot.config.settingServerAddress(text) else { return .notAnAddress }
+        do throws(ConfigWriteError) {
+            try await configStore.write(next.yaml(), basedOn: snapshot.diskRevision)
+            return nil
+        } catch {
+            if case .conflict = error { await configStore.reload() }
+            return .write(error)
         }
     }
 

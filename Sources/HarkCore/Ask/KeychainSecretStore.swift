@@ -22,6 +22,18 @@ public struct KeychainSecretStore: SecretStore {
         return String(decoding: data, as: UTF8.self)
     }
 
+    /// Attributes only: reading them does not unlock the key, so no access prompt.
+    public func hasSecret(for account: String) async throws(SecretStoreError) -> Bool {
+        var query = baseQuery(account)
+        query[kSecReturnAttributes as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        if status == errSecItemNotFound { return false }
+        guard status == errSecSuccess else { throw SecretStoreError(status: status) }
+        return true
+    }
+
     /// Deleted, then added: an item updated in place keeps the access list of the tool that made it (`security`, a
     /// scratch script), and macOS would keep asking whether Hark may read it.
     public func setSecret(_ secret: String, for account: String) async throws(SecretStoreError) {

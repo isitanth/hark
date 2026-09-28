@@ -9,6 +9,7 @@ enum SettingsTab: Hashable {
     case audio
     case model
     case commands
+    case ask
     case log
     case about
 }
@@ -35,6 +36,9 @@ struct SettingsView: View {
             CommandsSettingsView(model: model)
                 .tabItem { tab(L("settings.tab.commands"), "terminal") }
                 .tag(SettingsTab.commands)
+            AskSettingsView(model: model)
+                .tabItem { tab(L("settings.tab.ask"), "text.bubble") }
+                .tag(SettingsTab.ask)
             LogSettingsView(model: model)
                 .tabItem { tab(L("settings.tab.log"), "doc.text") }
                 .tag(SettingsTab.log)

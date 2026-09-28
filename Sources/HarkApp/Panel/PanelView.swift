@@ -20,9 +20,12 @@ struct PanelView: View {
             Divider()
 
             if !model.health.issues.isEmpty {
-                HealthRows(model: model, openModelSettings: { showSettings(.model) })
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 11)
+                HealthRows(
+                    model: model, openModelSettings: { showSettings(.model) },
+                    openAskSettings: { showSettings(.ask) }
+                )
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
                 Divider()
             }
 

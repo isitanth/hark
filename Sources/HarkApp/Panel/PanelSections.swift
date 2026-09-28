@@ -6,6 +6,7 @@ import SwiftUI
 struct HealthRows: View {
     let model: AppModel
     let openModelSettings: () -> Void
+    let openAskSettings: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -47,6 +48,15 @@ struct HealthRows: View {
                         text: L("permission.notifications.denied"), action: L("permission.openSystemSettings")
                     ) {
                         model.openNotificationSettings()
+                    }
+                case .llmUnreachable:
+                    if let failure = model.ask.lastFailure {
+                        IssueRow(
+                            symbol: "text.bubble", severity: issue.severity, text: failure.settingsText,
+                            action: L("panel.ask.open")
+                        ) {
+                            openAskSettings()
+                        }
                     }
                 }
             }

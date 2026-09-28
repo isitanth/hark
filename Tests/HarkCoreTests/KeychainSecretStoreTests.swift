@@ -20,7 +20,9 @@ struct KeychainSecretStoreTests {
     /// The item is removed whatever happens in between, so a failure leaves nothing in the login keychain.
     @Test func setReadReplaceRemove() async throws {
         do {
+            #expect(try await !store.hasSecret(for: account))
             try await store.setSecret("first-value", for: account)
+            #expect(try await store.hasSecret(for: account))
             #expect(try await store.secret(for: account) == "first-value")
             try await store.setSecret("second-value", for: account)
             #expect(try await store.secret(for: account) == "second-value")

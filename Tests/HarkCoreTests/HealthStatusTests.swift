@@ -10,32 +10,36 @@ import Testing
         var accessibilityTrusted = true
         var accessibilityNeeded = true
         var notificationsDenied = false
+        var llmUnreachable = false
 
         var status: HealthStatus {
             HealthStatus(
                 configError: configInvalid ? ConfigError(.empty) : nil, modelLoaded: modelLoaded,
                 microphone: microphone, accessibilityTrusted: accessibilityTrusted,
-                accessibilityNeeded: accessibilityNeeded, notificationsDenied: notificationsDenied)
+                accessibilityNeeded: accessibilityNeeded, notificationsDenied: notificationsDenied,
+                llmUnreachable: llmUnreachable)
         }
 
         var testDescription: String {
             "config \(configInvalid ? "bad" : "ok"), model \(modelLoaded), mic \(microphone), "
                 + "ax \(accessibilityTrusted), ax needed \(accessibilityNeeded), "
-                + "notifications denied \(notificationsDenied)"
+                + "notifications denied \(notificationsDenied), llm unreachable \(llmUnreachable)"
         }
 
-        /// 2 x 2 x 3 x 2 x 2 x 2: every input that could change the answer.
+        /// 2 x 2 x 3 x 2 x 2 x 2 x 2: every input that could change the answer.
         static let every: [Inputs] =
             [false, true].flatMap { config in
                 [true, false].flatMap { model in
                     [MicPermissionStatus.granted, .denied, .undetermined].flatMap { microphone in
                         [true, false].flatMap { accessibility in
                             [true, false].flatMap { needed in
-                                [false, true].map { notifications in
-                                    Inputs(
-                                        configInvalid: config, modelLoaded: model, microphone: microphone,
-                                        accessibilityTrusted: accessibility, accessibilityNeeded: needed,
-                                        notificationsDenied: notifications)
+                                [false, true].flatMap { notifications in
+                                    [false, true].map { llm in
+                                        Inputs(
+                                            configInvalid: config, modelLoaded: model, microphone: microphone,
+                                            accessibilityTrusted: accessibility, accessibilityNeeded: needed,
+                                            notificationsDenied: notifications, llmUnreachable: llm)
+                                    }
                                 }
                             }
                         }
@@ -51,6 +55,7 @@ import Testing
         (.accessibilityNotTrusted, .error),
         (.accessibilityOptional, .warning),
         (.notificationsDenied, .warning),
+        (.llmUnreachable, .warning),
     ])
     func severity(_ issue: HealthIssue, _ expected: HealthSeverity) {
         #expect(issue.severity == expected)
@@ -59,7 +64,7 @@ import Testing
     @Test func theSeverityTableCoversEveryIssue() {
         let covered: Set<HealthIssue> = [
             .configInvalid, .modelNotLoaded, .microphoneDenied, .accessibilityNotTrusted, .accessibilityOptional,
-            .notificationsDenied,
+            .notificationsDenied, .llmUnreachable,
         ]
         #expect(covered == Set(HealthIssue.allCases))
     }
@@ -75,6 +80,9 @@ import Testing
         (Inputs(), [HealthIssue](), HealthSeverity.ok),
         (Inputs(microphone: .undetermined), [], .ok),
         (Inputs(notificationsDenied: true), [.notificationsDenied], .warning),
+        (Inputs(llmUnreachable: true), [.llmUnreachable], .warning),
+        (Inputs(notificationsDenied: true, llmUnreachable: true), [.notificationsDenied, .llmUnreachable], .warning),
+        (Inputs(modelLoaded: false, llmUnreachable: true), [.modelNotLoaded, .llmUnreachable], .error),
         (Inputs(accessibilityTrusted: false), [.accessibilityNotTrusted], .error),
         (Inputs(accessibilityTrusted: false, accessibilityNeeded: false), [.accessibilityOptional], .warning),
         (Inputs(accessibilityNeeded: false), [], .ok),
@@ -119,6 +127,7 @@ import Testing
                 inputs.accessibilityTrusted
                     ? nil : inputs.accessibilityNeeded ? .accessibilityNotTrusted : .accessibilityOptional,
                 inputs.notificationsDenied ? .notificationsDenied : nil,
+                inputs.llmUnreachable ? .llmUnreachable : nil,
             ].compactMap { $0 })
         let blocking =
             inputs.configInvalid || !inputs.modelLoaded || inputs.microphone == .denied
