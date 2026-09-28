@@ -94,12 +94,35 @@ struct PanelView: View {
                 Text(modelName)
                     .lineLimit(1)
                     .layoutPriority(1)
+                if let ask = askStatus {
+                    Text(verbatim: "·")
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(ask.color)
+                            .frame(width: 6, height: 6)
+                            .accessibilityHidden(true)
+                        Text(L("panel.ask.status"))
+                            .lineLimit(1)
+                    }
+                    .fixedSize()
+                    .help(Text(ask.detail))
+                    .accessibilityElement(children: .combine)
+                    .accessibilityValue(Text(ask.detail))
+                }
             }
             .font(.system(size: 11))
             .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 11)
+    }
+
+    /// The model server beside the speech model, once a check or an ask has said something about it: green with the
+    /// model id it serves, orange with what went wrong. Nothing before Ask is set up.
+    private var askStatus: (color: Color, detail: LocalizedStringResource)? {
+        if let failure = model.ask.lastFailure { return (.orange, failure.settingsText) }
+        guard let id = model.ask.model else { return nil }
+        return (.green, L("settings.ask.connected \(id)"))
     }
 
     /// The button under LAST, named after the app it would paste into when that app has a name.

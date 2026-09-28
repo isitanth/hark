@@ -5559,6 +5559,23 @@
           }
         }
       }
+    },
+    "panel.ask.status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
