@@ -12,3 +12,10 @@ langchain_integration/
 /CLAUDE.md
 /AGENTS.md
 /.claude/
+
+# Secrets never live in the repo. API keys go in the login Keychain (service com.anthonychambet.hark.llm, one
+# account per provider profile); these patterns only guard against a local env file being committed by mistake.
+.env
+.env.*
+*.secret
+secrets/
