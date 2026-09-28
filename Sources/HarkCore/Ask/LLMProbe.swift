@@ -30,3 +30,16 @@ public struct LLMProbe: Sendable {
         }
     }
 }
+
+extension LLMProbe {
+    /// Whether opening the panel or Settings › Ask may check `profile` on its own (your decision of 2026-09-28): only
+    /// once Ask is set up, a key saved or none needed, and only for a server on this Mac. A server elsewhere is
+    /// contacted only by Test connection or an ask.
+    public static func checksOnOpen(_ profile: ProviderProfile, hasKey: Bool?) -> Bool {
+        guard profile.isLoopback else { return false }
+        switch profile.key {
+        case .none: return true
+        case .keychain: return hasKey == true
+        }
+    }
+}

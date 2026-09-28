@@ -14,6 +14,8 @@ final class AskModel {
     private(set) var model: String?
     /// Whether the active profile has a key in the Keychain. Nil until asked.
     private(set) var hasKey: Bool?
+    /// A check on open is on its way; a second open while it runs asks nothing more.
+    @ObservationIgnored private var checking = false
 
     @ObservationIgnored let secrets: any SecretStore
     @ObservationIgnored let client: LLMClient
@@ -32,6 +34,18 @@ final class AskModel {
         let result = await probe.check(profile)
         record(result)
         return result
+    }
+
+    /// Opening the panel or Settings › Ask: the server's status, fresh whenever it is looked at, once Ask is set up and
+    /// for a server on this Mac only (`LLMProbe.checksOnOpen`). Nil when nothing was checked.
+    @discardableResult
+    func checkOnOpen(_ profile: ProviderProfile) async -> LLMProbeResult? {
+        guard !checking else { return nil }
+        checking = true
+        defer { checking = false }
+        if profile.key == .keychain { await refreshKey(for: profile) }
+        guard LLMProbe.checksOnOpen(profile, hasKey: hasKey) else { return nil }
+        return await test(profile)
     }
 
     /// A check or an ask came back: a failure stands until something succeeds.

@@ -112,9 +112,19 @@ struct AskSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        // Tall enough for the longest state, a French warning of three lines, so the form never scrolls its first
+        // section out of sight.
+        .frame(height: 470)
         .onAppear {
             address = savedAddress
-            if let profile { Task { await model.ask.refreshKey(for: profile) } }
+            guard let profile else { return }
+            Task {
+                switch await model.ask.checkOnOpen(profile) {
+                case .connected(let id)?: status = .connected(id)
+                case .failed(let failure)?: status = .failed(failure)
+                case nil: break
+                }
+            }
         }
         .onChange(of: savedAddress) { _, saved in address = saved }
     }

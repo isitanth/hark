@@ -68,6 +68,9 @@ struct PanelView: View {
         .onAppear {
             model.refreshPermissions()
             model.refreshInputDevices()
+            if let profile = model.config.config.effectiveLLM.activeProfile {
+                Task { await model.ask.checkOnOpen(profile) }
+            }
         }
     }
 
