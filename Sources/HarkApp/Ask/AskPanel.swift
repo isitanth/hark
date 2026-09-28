@@ -6,12 +6,17 @@ import SwiftUI
 /// (M9) leaves the source app in front, and allowed to become key, for typing, Return and Esc. A Services call has
 /// activated Hark already; every close brings the caller back (`AskPanelModel`).
 ///
-/// It opens inside the top-right corner of the caller's front window (`AskPanelPlacement`) and can be dragged by its
-/// background. Its height follows the SwiftUI content, growing downwards from wherever its top edge is.
-final class AskPanel: NSPanel {
+/// It opens at the top right of the screen, or where the user last dragged it (`AskPanelPlacement`); it is dragged by
+/// its background. Its height follows the SwiftUI content, growing downwards from wherever its top edge is.
+final class AskPanel: NSPanel, NSWindowDelegate {
     static let width: CGFloat = 520
 
+    /// The panel's new top-left corner, after the user moved it.
+    var onUserMove: ((NSPoint) -> Void)?
+
     private let model: AskPanelModel
+    /// Set while the panel places or resizes itself, so only the user's moves are reported.
+    private var movingItself = false
 
     init(model: AskPanelModel) {
         self.model = model
@@ -29,6 +34,7 @@ final class AskPanel: NSPanel {
         hasShadow = true
         animationBehavior = .utilityWindow
         isMovableByWindowBackground = true
+        delegate = self
 
         let host = NSHostingController(rootView: AskView(model: model))
         host.sizingOptions = [.preferredContentSize]
@@ -39,25 +45,21 @@ final class AskPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 
-    /// Over `caller`'s front window, or at the top right of the screen under the pointer, and key without activating
-    /// Hark.
-    func open(over caller: AppIdentity?) {
+    /// At `remembered`, the top-left corner the user left it at, while that is on a screen; else at the top right of
+    /// the screen under the pointer. Key without activating Hark.
+    func open(at remembered: NSPoint?) {
         let screens = NSScreen.screens
-        let primaryHeight = screens.first?.frame.maxY ?? 0
-        let window = caller.flatMap { Self.frontWindowBounds(of: $0.processID) }.map {
-            AskPanelPlacement.appKitRect(windowBounds: $0, primaryHeight: primaryHeight)
-        }
         let pointer = NSEvent.mouseLocation
-        let screen =
-            window.flatMap { window in
-                screens.first { $0.frame.contains(NSPoint(x: window.maxX - 1, y: window.maxY - 1)) }
-                    ?? screens.max { $0.frame.intersection(window).area < $1.frame.intersection(window).area }
-            }
-            ?? screens.first { $0.frame.contains(pointer) } ?? NSScreen.main
-        let visible = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        model.maxAnswerHeight = (visible.height * 0.6).rounded()
-        setFrameTopLeftPoint(
-            AskPanelPlacement.topLeft(panelWidth: Self.width, callerWindow: window, visibleFrame: visible))
+        let pointerScreen = screens.first { $0.frame.contains(pointer) } ?? NSScreen.main
+        let fallback = NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let topLeft = AskPanelPlacement.topLeft(
+            panelWidth: Self.width, remembered: remembered, visibleFrames: screens.map(\.visibleFrame),
+            defaultFrame: pointerScreen?.visibleFrame ?? fallback)
+        let screen = screens.first { $0.frame.insetBy(dx: 0, dy: -1).contains(topLeft) } ?? pointerScreen
+        model.maxAnswerHeight = ((screen?.visibleFrame ?? fallback).height * 0.6).rounded()
+        movingItself = true
+        setFrameTopLeftPoint(topLeft)
+        movingItself = false
         makeKeyAndOrderFront(nil)
     }
 
@@ -69,30 +71,24 @@ final class AskPanel: NSPanel {
     /// to the screen's bottom, then the panel moves up. A move, the user's drag, changes no height and passes as is.
     override func setFrame(_ frameRect: NSRect, display flag: Bool) {
         var frame = frameRect
-        if frame.height != self.frame.height {
+        let resizing = frame.height != self.frame.height
+        if resizing {
             frame.origin.y = self.frame.maxY - frame.height
             if let visible = screen?.visibleFrame, frame.minY < visible.minY + 8 {
                 frame.origin.y = visible.minY + 8
             }
         }
+        let wasMovingItself = movingItself
+        movingItself = wasMovingItself || resizing
         super.setFrame(frame, display: flag)
+        movingItself = wasMovingItself
         invalidateShadow()
     }
 
-    /// The bounds of `pid`'s frontmost ordinary window on screen, as the window server lists them front to back. Needs
-    /// no permission: only window names are private.
-    private static func frontWindowBounds(of pid: Int32) -> CGRect? {
-        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
-        guard let windows = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else { return nil }
-        for window in windows {
-            guard (window[kCGWindowOwnerPID as String] as? Int32) == pid,
-                (window[kCGWindowLayer as String] as? Int) == 0,
-                let bounds = window[kCGWindowBounds as String] as? NSDictionary,
-                let rect = CGRect(dictionaryRepresentation: bounds), rect.width > 100, rect.height > 100
-            else { continue }
-            return rect
-        }
-        return nil
+    /// Posted synchronously by the move itself, so `movingItself` still says who moved it.
+    func windowDidMove(_ notification: Notification) {
+        guard !movingItself, isVisible else { return }
+        onUserMove?(NSPoint(x: frame.minX, y: frame.maxY))
     }
 
     /// Esc is Cancel wherever the focus is: a text view would take it for completion.
@@ -131,8 +127,4 @@ private final class DraggableEffectView: NSVisualEffectView {
     override func mouseDown(with event: NSEvent) {
         window?.performDrag(with: event)
     }
-}
-
-extension CGRect {
-    fileprivate var area: CGFloat { isNull ? 0 : width * height }
 }

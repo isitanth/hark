@@ -2,47 +2,42 @@ import CoreGraphics
 import HarkCore
 import Testing
 
-/// A 1512 x 982 display with a 33 pt menu bar and no Dock: the visible frame is everything under the menu bar.
-private let visible = CGRect(x: 0, y: 0, width: 1512, height: 949)
+/// A 1512 x 982 display with a 33 pt menu bar and no Dock, and a 1920 x 1080 one to its right, its menu bar 25 pt.
+private let builtIn = CGRect(x: 0, y: 0, width: 1512, height: 949)
+private let external = CGRect(x: 1512, y: 0, width: 1920, height: 1055)
 private let width: CGFloat = 520
 
+private func place(_ remembered: CGPoint?, pointerOn screen: CGRect = builtIn) -> CGPoint {
+    AskPanelPlacement.topLeft(
+        panelWidth: width, remembered: remembered, visibleFrames: [builtIn, external], defaultFrame: screen)
+}
+
 @Suite struct AskPanelPlacementTests {
-    @Test func insideTheTopRightOfTheCallersWindow() {
-        let window = CGRect(x: 200, y: 150, width: 900, height: 700)
-        let origin = AskPanelPlacement.topLeft(panelWidth: width, callerWindow: window, visibleFrame: visible)
-        #expect(origin == CGPoint(x: 1100 - 12 - 520, y: 850 - 36))
+    @Test func byDefaultTheTopRightOfTheScreenUnderThePointer() {
+        #expect(place(nil) == CGPoint(x: 1512 - 8 - 520, y: 949 - 8))
+        #expect(place(nil, pointerOn: external) == CGPoint(x: 1512 + 1920 - 8 - 520, y: 1055 - 8))
     }
 
-    /// A window narrower than the panel: the panel keeps its right edge on the window's and runs out to the left.
-    @Test func aNarrowWindowStillAnchorsTheRightEdge() {
-        let window = CGRect(x: 700, y: 300, width: 300, height: 400)
-        let origin = AskPanelPlacement.topLeft(panelWidth: width, callerWindow: window, visibleFrame: visible)
-        #expect(origin == CGPoint(x: 1000 - 12 - 520, y: 700 - 36))
+    @Test func whereTheUserLeftItIsKept() {
+        #expect(place(CGPoint(x: 300, y: 600)) == CGPoint(x: 300, y: 600))
+        #expect(place(CGPoint(x: 2000, y: 900), pointerOn: builtIn) == CGPoint(x: 2000, y: 900))
     }
 
-    @Test func aWindowPastTheScreenEdgeKeepsThePanelOnScreen() {
-        let window = CGRect(x: 1200, y: 400, width: 800, height: 600)
-        let origin = AskPanelPlacement.topLeft(panelWidth: width, callerWindow: window, visibleFrame: visible)
-        #expect(origin == CGPoint(x: 1512 - 520 - 8, y: 949 - 8))
+    /// Dragged flush under the menu bar: the top edge on the frame's top line still counts as on the screen.
+    @Test func aTopEdgeOnTheMenuBarLineIsOnTheScreen() {
+        #expect(place(CGPoint(x: 400, y: 949)) == CGPoint(x: 400, y: 949))
     }
 
-    @Test func aWindowAtTheBottomLeavesRoomToListen() {
-        let window = CGRect(x: 100, y: 0, width: 800, height: 120)
-        let origin = AskPanelPlacement.topLeft(panelWidth: width, callerWindow: window, visibleFrame: visible)
-        #expect(origin.y == AskPanelPlacement.minimumRoom)
+    @Test func aSpotPastTheRightEdgeIsPulledBackOnScreen() {
+        #expect(place(CGPoint(x: 1400, y: 700)) == CGPoint(x: 1512 - 520, y: 700))
     }
 
-    @Test func noWindowMeansTheTopRightOfTheScreen() {
-        let origin = AskPanelPlacement.topLeft(panelWidth: width, callerWindow: nil, visibleFrame: visible)
-        #expect(origin == CGPoint(x: 1512 - 8 - 520, y: 949 - 8))
+    @Test func aSpotTooLowIsRaisedToLeaveRoom() {
+        #expect(place(CGPoint(x: 300, y: 40)) == CGPoint(x: 300, y: AskPanelPlacement.minimumRoom))
     }
 
-    /// A second display above the primary one: CG's y grows downward from the primary's top, so it is negative there.
-    @Test(arguments: [
-        (CGRect(x: 100, y: 33, width: 800, height: 600), CGRect(x: 100, y: 349, width: 800, height: 600)),
-        (CGRect(x: 0, y: -1000, width: 400, height: 300), CGRect(x: 0, y: 1682, width: 400, height: 300)),
-    ])
-    func windowListBoundsBecomeAppKitCoordinates(_ bounds: CGRect, _ expected: CGRect) {
-        #expect(AskPanelPlacement.appKitRect(windowBounds: bounds, primaryHeight: 982) == expected)
+    /// The display it was left on is gone: back to the default spot.
+    @Test func aSpotOnNoScreenFallsBackToTheDefault() {
+        #expect(place(CGPoint(x: -900, y: 500)) == CGPoint(x: 1512 - 8 - 520, y: 949 - 8))
     }
 }

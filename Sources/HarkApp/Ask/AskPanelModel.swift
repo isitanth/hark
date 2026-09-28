@@ -34,7 +34,12 @@ final class AskPanelModel {
     @ObservationIgnored private let controller: PipelineController
     @ObservationIgnored private let workspace: AppKitWorkspace
     @ObservationIgnored private let pasteboard: AppKitPasteboard
-    @ObservationIgnored private lazy var panel = AskPanel(model: self)
+    @ObservationIgnored private lazy var panel: AskPanel = {
+        let panel = AskPanel(model: self)
+        panel.onUserMove = { [weak self] topLeft in self?.remember(topLeft) }
+        return panel
+    }()
+    @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var snapshot = PipelineSnapshot(phase: .idle)
     /// The ask on show and the app it came from.
     @ObservationIgnored private var id: UtteranceID?
@@ -48,10 +53,31 @@ final class AskPanelModel {
     /// As long as the panel's Paste waits for an app that is slow to come forward.
     private static let activationTimeout = Duration.seconds(2)
 
-    init(controller: PipelineController, workspace: AppKitWorkspace, pasteboard: AppKitPasteboard) {
+    init(
+        controller: PipelineController, workspace: AppKitWorkspace, pasteboard: AppKitPasteboard,
+        defaults: UserDefaults
+    ) {
         self.controller = controller
         self.workspace = workspace
         self.pasteboard = pasteboard
+        self.defaults = defaults
+    }
+
+    /// Where the user last dragged the panel: its top-left corner, in screen points. Unset, the top right of the screen.
+    private static let positionKey = "HarkAskPanelTopLeft"
+
+    private var rememberedTopLeft: NSPoint? {
+        guard let pair = defaults.array(forKey: Self.positionKey) as? [Double], pair.count == 2 else { return nil }
+        return NSPoint(x: pair[0], y: pair[1])
+    }
+
+    /// A preview is a second process on the same defaults: its drags must not move the real panel's spot.
+    private func remember(_ topLeft: NSPoint) {
+        Self.logger.info(
+            "ask panel moved to \(Int(topLeft.x), privacy: .public), \(Int(topLeft.y), privacy: .public)\(self.pinned ? " (preview, not kept)" : "", privacy: .public)"
+        )
+        guard !pinned else { return }
+        defaults.set([Double(topLeft.x), Double(topLeft.y)], forKey: Self.positionKey)
     }
 
     /// The active profile's address and the selection cap, from commands.yaml.
@@ -100,7 +126,7 @@ final class AskPanelModel {
         if next == .closed, wasOpen {
             close()
         } else if !wasOpen {
-            panel.open(over: caller)
+            panel.open(at: rememberedTopLeft)
         }
     }
 
@@ -171,7 +197,7 @@ final class AskPanelModel {
 extension AskPanelModel {
     /// `-HarkDebugPreview ask`, `ask-listening`, `ask-thinking`, `ask-streaming` or `ask-error`, plus `ask-remote`: the
     /// panel pinned in one state with sample text in the preview's language, for screenshots. Esc closes it.
-    func showPreview(_ names: Set<String>, over caller: AppIdentity?) {
+    func showPreview(_ names: Set<String>) {
         let french = Locale.preferredLanguages.first?.hasPrefix("fr") == true
         let pinnedState: AskPanelState? =
             if names.contains("ask-listening") {
@@ -201,7 +227,7 @@ extension AskPanelModel {
             remoteHost = "api.example.com"
         }
         state = pinnedState
-        panel.open(over: caller)
+        panel.open(at: rememberedTopLeft)
     }
 
     private func closePreview() {

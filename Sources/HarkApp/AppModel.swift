@@ -220,7 +220,8 @@ final class AppModel {
             selection: CallerSelectionChecker(
                 workspace: workspace, focus: focusProbe, accessibility: accessibility, settings: resolution))
         controller = PipelineController(environment: environment, log: UtteranceLog(directory: paths.logs))
-        askPanel = AskPanelModel(controller: controller, workspace: workspace, pasteboard: pasteboard)
+        askPanel = AskPanelModel(
+            controller: controller, workspace: workspace, pasteboard: pasteboard, defaults: defaults)
         pinnedIcon = defaults.string(forKey: "HarkDebugIconState").flatMap(MenuBarIconState.init(rawValue:))
         // The volume first, so a quit past the deadline still gives it back; then the pipeline, so the utterance in
         // flight writes its line; then the engines, so nothing loads again.
@@ -613,7 +614,7 @@ final class AppModel {
     /// `-HarkDebugPreview ask…`: the Ask panel pinned in one state, for screenshots.
     func showAskPreview() {
         askPanel.configure(config.config.effectiveLLM)
-        askPanel.showPreview(debugPreview, over: previousApp)
+        askPanel.showPreview(debugPreview)
     }
 
     /// Text on the clipboard, a capture cut at the length limit, a recording cancelled by a change of microphone and
