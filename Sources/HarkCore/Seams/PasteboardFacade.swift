@@ -23,6 +23,13 @@ public struct PasteboardSnapshot: Sendable, Equatable {
     }
 
     public var items: [Item]
+
+    /// The first item's plain text, as a reader asking for a string would get it.
+    public var plainText: String? {
+        items.first?.representations.first { $0.type == "public.utf8-plain-text" }
+            .map { String(decoding: $0.data, as: UTF8.self) }
+    }
+
     /// `NSPasteboard.changeCount` when the snapshot was taken.
     public var changeCount: Int
 

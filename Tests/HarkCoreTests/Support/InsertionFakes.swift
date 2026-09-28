@@ -158,6 +158,8 @@ final class FakeKeystrokes: KeystrokeSynthesizer {
         var accepts = true
         var posted: [KeyChord] = []
         var target: FakePasteboard?
+        /// What the focused app copies when ⌘C arrives; nil is nothing selected.
+        var selection: String?
     }
 
     private let state = OSAllocatedUnfairLock(initialState: State())
@@ -173,13 +175,17 @@ final class FakeKeystrokes: KeystrokeSynthesizer {
     /// Nothing takes the paste: an unfocused web page, a hung app.
     func noAppReads() { state.withLock { $0.target = nil } }
 
+    /// Text selected in the focused app, which a ⌘C puts on the pasteboard.
+    func select(_ text: String?) { state.withLock { $0.selection = text } }
+
     func post(_ chord: KeyChord) async -> Bool {
-        let (accepted, target) = state.withLock { state -> (Bool, FakePasteboard?) in
-            guard state.accepts else { return (false, nil) }
+        let (accepted, target, copied) = state.withLock { state -> (Bool, FakePasteboard?, String?) in
+            guard state.accepts else { return (false, nil, nil) }
             state.posted.append(chord)
-            return (true, chord == .paste ? state.target : nil)
+            return (true, state.target, chord == .copy ? state.selection : nil)
         }
-        target?.appReads()
+        if chord == .paste { target?.appReads() }
+        if let copied { target?.userCopies(copied) }
         return accepted
     }
 }

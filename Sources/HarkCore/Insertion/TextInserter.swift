@@ -22,6 +22,10 @@ public actor TextInserter: TextInserting {
     /// An app reads the pasteboard when it handles ⌘V on its main thread, in milliseconds. A second without a read
     /// means no app is going to.
     public static let defaultReadDeadline: Duration = .seconds(1)
+    /// How long a ⌘C gets to land on the pasteboard. In M9.0 it landed well inside this, osascript's own launch
+    /// included. With nothing selected it never lands, and this is what the Ask key waits before it says so.
+    public static let defaultCopyDeadline: Duration = .milliseconds(250)
+    private static let copyPoll: Duration = .milliseconds(10)
 
     private struct PendingRestore {
         let original: PasteboardSnapshot
@@ -37,6 +41,7 @@ public actor TextInserter: TextInserting {
     private let clock: any Clock<Duration>
     private let restoreDelay: Duration
     private let readDeadline: Duration
+    private let copyDeadline: Duration
     private var pending: PendingRestore?
 
     private static let logger = Logger(subsystem: HarkLog.subsystem, category: "insertion")
@@ -48,7 +53,8 @@ public actor TextInserter: TextInserting {
         workspace: any Workspace,
         clock: any Clock<Duration> = ContinuousClock(),
         restoreDelay: Duration = TextInserter.defaultRestoreDelay,
-        readDeadline: Duration = TextInserter.defaultReadDeadline
+        readDeadline: Duration = TextInserter.defaultReadDeadline,
+        copyDeadline: Duration = TextInserter.defaultCopyDeadline
     ) {
         self.accessibility = accessibility
         self.pasteboard = pasteboard
@@ -57,6 +63,7 @@ public actor TextInserter: TextInserting {
         self.clock = clock
         self.restoreDelay = restoreDelay
         self.readDeadline = readDeadline
+        self.copyDeadline = copyDeadline
     }
 
     /// Trailing line breaks would send the message in a chat app or run the line in a terminal.
@@ -155,6 +162,43 @@ public actor TextInserter: TextInserting {
             await self.restore(after: written)
         }
         pending = PendingRestore(original: original, written: written, timer: timer)
+    }
+
+    /// The selection of `target`, copied with ⌘C, and the pasteboard given back at once. The Ask key's read where the
+    /// Accessibility API says nothing (web page text, Mail, Chromium and Electron apps; M9.0). Nil when nothing was
+    /// copied within `copyDeadline`, which is what happens with nothing selected.
+    ///
+    /// Here rather than beside the Accessibility read because a paste's restore may still be pending: the user's
+    /// contents are then that restore's snapshot, not the dictation on the pasteboard, and they are what goes back.
+    public func copySelection(from target: AppIdentity) async -> String? {
+        guard await accessibility.isTrusted(),
+            await workspace.frontmostApplication()?.processID == target.processID
+        else { return nil }
+        let original = await originalContents()
+        pending?.timer.cancel()
+        pending = nil
+
+        let before = await pasteboard.changeCount()
+        var copied: String?
+        if await keystrokes.post(.copy) {
+            // An app clears the pasteboard, then writes: the count moves before the text is there.
+            let polls = Int(copyDeadline / Self.copyPoll)
+            for poll in 0...polls {
+                if await pasteboard.changeCount() != before, let text = await pasteboard.snapshot().plainText {
+                    copied = text
+                    break
+                }
+                if poll < polls { try? await clock.sleep(for: Self.copyPoll) }
+            }
+        }
+        let now = await pasteboard.changeCount()
+        if now != original.changeCount, !(await pasteboard.restore(original, ifChangeCountIs: now)) {
+            Self.logger.info("pasteboard changed during the copy; left as it is")
+        }
+        Self.logger.info(
+            "copied the selection of \(target.logName, privacy: .public): \(copied == nil ? "nothing" : "text", privacy: .public)"
+        )
+        return copied
     }
 
     /// The user's own contents. While a restore is pending and nothing else has written, the pasteboard still holds

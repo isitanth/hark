@@ -32,4 +32,5 @@ public struct KeyChord: Sendable, Equatable {
     }
 
     public static let paste = KeyChord(key: .character("v"), modifiers: .command)
+    public static let copy = KeyChord(key: .character("c"), modifiers: .command)
 }
