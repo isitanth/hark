@@ -10,6 +10,9 @@ struct AskView: View {
     @State private var namesServer = false
     @State private var answerHeight: CGFloat = 0
 
+    /// A legacy scroller's width: the editor's text column is this much narrower when scroll bars always show.
+    private static let scrollerWidth = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             header
@@ -167,10 +170,12 @@ struct AskView: View {
         }
         .frame(height: min(max(answerHeight, 44), model.maxAnswerHeight))
         .background(alignment: .topLeading) {
-            // A hidden copy of the text measures the height; the line after it leaves room for the caret.
+            // A hidden copy of the text measures the height; the line after it leaves room for the caret. It wraps
+            // a scroller's width early, as the editor does when scroll bars always show.
             Text(verbatim: text + "\n")
                 .font(.body)
-                .padding(.horizontal, 5)
+                .padding(.leading, 5)
+                .padding(.trailing, 5 + Self.scrollerWidth)
                 .fixedSize(horizontal: false, vertical: true)
                 .hidden()
                 .background(

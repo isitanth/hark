@@ -41,6 +41,8 @@ final class AskPanelModel {
     @ObservationIgnored private var caller: AppIdentity?
     /// `-HarkDebugPreview ask…`: a fixed state that snapshots do not move.
     @ObservationIgnored private var pinned = false
+    /// `-HarkDebugPreview ask-remote`: the sample host stays when commands.yaml loads after the pin.
+    @ObservationIgnored private var pinnedRemote = false
 
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "ask")
     /// As long as the panel's Paste waits for an app that is slow to come forward.
@@ -55,7 +57,7 @@ final class AskPanelModel {
     /// The active profile's address and the selection cap, from commands.yaml.
     func configure(_ llm: LLMConfig) {
         server = llm.activeProfile?.endpoint ?? ""
-        remoteHost = llm.activeProfile?.remoteHost
+        if !pinnedRemote { remoteHost = llm.activeProfile?.remoteHost }
         maxSelectionChars = llm.maxSelectionChars
     }
 
@@ -179,7 +181,7 @@ extension AskPanelModel {
             } else if names.contains("ask-streaming") {
                 .streaming
             } else if names.contains("ask-error") {
-                .failed(.notRunning(endpoint: server.isEmpty ? "127.0.0.1:8002" : server))
+                .failed(.notRunning(endpoint: "127.0.0.1:8002"))
             } else if names.contains("ask") {
                 .reviewing
             } else {
@@ -194,7 +196,10 @@ extension AskPanelModel {
         answer = sample.answer
         if server.isEmpty { server = "127.0.0.1:8002" }
         // `ask-remote` adds the line a cloud profile shows, with a sample host.
-        if names.contains("ask-remote") { remoteHost = "api.example.com" }
+        if names.contains("ask-remote") {
+            pinnedRemote = true
+            remoteHost = "api.example.com"
+        }
         state = pinnedState
         panel.open()
     }
