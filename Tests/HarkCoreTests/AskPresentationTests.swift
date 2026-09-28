@@ -55,5 +55,12 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
             isSecureInput: true)
         #expect(AskPresentation.apply(assistant) == .copyOnly)
         #expect(AskPresentation.apply(Fixture.askContext()) == .replace)
+        // The probe found a field in another app than the one the key was pressed in, or in Hark itself: Copy.
+        var elsewhere = Fixture.assistContext(
+            focus: FocusSnapshot(app: Fixture.mail, element: FocusedElement(role: "AXTextField")))
+        #expect(AskPresentation.apply(elsewhere) == .copyOnly)
+        elsewhere = UtteranceContext(id: Fixture.id, pressedAt: Fixture.pressedAt, intent: .assist(caller: nil))
+        elsewhere.focus = Fixture.backInTextEdit
+        #expect(AskPresentation.apply(elsewhere) == .copyOnly)
     }
 }

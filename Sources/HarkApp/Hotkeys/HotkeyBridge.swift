@@ -65,8 +65,9 @@ final class HotkeyBridge {
                 for await event in KeyboardShortcuts.events(for: .ask) {
                     let key: TriggerGate.Key = event == .keyDown ? .down : .up
                     // Only an ask is this key's to end. Pressed during a dictation it starts a press of its own,
-                    // which the pipeline logs as busy.
+                    // which the pipeline logs as busy. An ask started by Services ends on the next press, as Done.
                     let capturing = await controller.capturingIntent?.isAsk == true
+                    if capturing, gate.isIdle { gate.latch() }
                     let action = gate.handle(key, at: .now, isCapturing: capturing)
                     Self.logger.debug(
                         "ask \(String(describing: event), privacy: .public), capturing \(capturing, privacy: .public) -> \(String(describing: action), privacy: .public)"
@@ -74,6 +75,8 @@ final class HotkeyBridge {
                     switch action {
                     case .start:
                         await onAskDown()
+                        // The key-up waited behind the selection read; a tap must not count that wait as a hold.
+                        gate.restartHold(at: .now)
                     case .stop:
                         await controller.triggerUp()
                     case .ignore:

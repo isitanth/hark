@@ -49,12 +49,16 @@ public enum AskPresentation {
         }
     }
 
-    /// Insert is offered when the probe at the press found somewhere a paste or an AX insertion would land, the rule
-    /// the panel's Paste follows, and not in a secure field.
+    /// Insert is offered when the probe at the press found, in the app the key was pressed in, somewhere a paste or an
+    /// AX insertion would land (the rule the panel's Paste follows), and not in a secure field.
     public static func apply(_ utterance: UtteranceContext?) -> AskApply {
         switch utterance?.intent {
-        case .assist?: FocusResolver.pastePlan(focus: utterance?.focus) == nil ? .copyOnly : .insert
-        case .ask?, .dictate?, nil: .replace
+        case .assist(let caller)?:
+            guard let caller, utterance?.focus?.app?.processID == caller.processID,
+                FocusResolver.pastePlan(focus: utterance?.focus) != nil
+            else { return .copyOnly }
+            return .insert
+        case .ask?, .dictate?, nil: return .replace
         }
     }
 

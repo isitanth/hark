@@ -597,10 +597,11 @@ final class AppModel {
 
     /// The Ask key. The selection is read before the capture starts, so the ⌘C that some apps need (M9.0) reaches the
     /// app before the Ask panel takes the keyboard. Text selected: an ask about it, as Services would start. Nothing
-    /// selected: the assistant. The key does not bring Hark forward, so the app in front is the caller, unless Hark's
-    /// own window is. A press while busy reads nothing: its line says busy.
+    /// selected: the assistant. The key does not bring Hark forward, so the app in front is the caller. With Hark's own
+    /// window in front there is none: nothing is read from an app the user cannot see, and the answer can only be
+    /// copied. A press while busy reads nothing: its line says busy.
     private func startAskFromKey() async {
-        let caller = Self.otherApp(NSWorkspace.shared.frontmostApplication) ?? previousApp
+        let caller = Self.otherApp(NSWorkspace.shared.frontmostApplication)
         guard await controller.phase == .idle else {
             await controller.triggerDown(intent: .assist(caller: caller))
             return

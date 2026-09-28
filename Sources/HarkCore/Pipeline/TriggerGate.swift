@@ -27,6 +27,8 @@ public struct TriggerGate: Sendable, Equatable {
     public let holdThreshold: Duration
     /// A tap started the capture and it goes on with the key up; HotkeyBridge passes it to the HUD's lock glyph.
     public var isLatched: Bool { state == .latched }
+    /// No press of this key is under way: a capture going on now was started by something else.
+    public var isIdle: Bool { state == .idle }
     private var state = State.idle
 
     public init(holdThreshold: Duration = .milliseconds(350)) {
@@ -37,6 +39,12 @@ public struct TriggerGate: Sendable, Equatable {
     /// a tap. Without it that press would be a new utterance, logged `busy`.
     public mutating func latch() {
         state = .latched
+    }
+
+    /// The press is timed from now, not from the key-down: the Ask key reads the selection before the capture starts,
+    /// and that wait is not the user holding the key. Nothing happens unless a press is being held.
+    public mutating func restartHold(at now: ContinuousClock.Instant) {
+        if case .holding = state { state = .holding(now) }
     }
 
     /// `isCapturing` is the pipeline's own view. A capture that ended on its own (the length limit, a failure) resets

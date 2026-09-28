@@ -98,6 +98,26 @@ let triggerSequences: [TriggerSequence] = [
         #expect(gate.isLatched)
     }
 
+    /// The Ask key: 300 ms spent reading the selection, then a 100 ms tap's release. Timed from the read's end, it is
+    /// a tap and latches; timed from the key-down it would have been a 400 ms hold, and stopped the capture at once.
+    @Test func aHoldIsTimedFromItsRestart() {
+        var gate = TriggerGate()
+        let start = ContinuousClock.now
+        #expect(gate.handle(.down, at: start, isCapturing: false) == .start)
+        gate.restartHold(at: start.advanced(by: .milliseconds(300)))
+        #expect(gate.handle(.up, at: start.advanced(by: .milliseconds(400)), isCapturing: true) == .ignore)
+        #expect(gate.isLatched)
+    }
+
+    @Test func aRestartOutsideAHoldChangesNothing() {
+        var gate = TriggerGate()
+        gate.restartHold(at: .now)
+        #expect(gate.isIdle)
+        gate.latch()
+        gate.restartHold(at: .now)
+        #expect(gate.isLatched && !gate.isIdle)
+    }
+
     @Test func aTapLatchesAndTheNextDownStops() {
         var gate = TriggerGate()
         let start = ContinuousClock.now
