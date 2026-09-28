@@ -24,6 +24,10 @@ final class AskPanelModel {
     private(set) var server = ""
     /// 60% of the screen the panel opened on; a longer answer scrolls.
     var maxAnswerHeight: CGFloat = 480
+    /// What the pre-flight found wrong with the server, shown while the user is still speaking.
+    private(set) var preflightFailure: LLMFailure?
+    /// Set by `AppModel`: `GET /models` on the active profile, run when an ask opens.
+    @ObservationIgnored var preflight: (() async -> LLMProbeResult?)?
 
     @ObservationIgnored private let controller: PipelineController
     @ObservationIgnored private let workspace: AppKitWorkspace
@@ -63,6 +67,8 @@ final class AskPanelModel {
             instruction = nil
             streamed = ""
             answer = ""
+            preflightFailure = nil
+            check(next)
         }
         refresh()
     }
@@ -90,6 +96,14 @@ final class AskPanelModel {
             close()
         } else if !wasOpen {
             panel.open()
+        }
+    }
+
+    private func check(_ ask: UtteranceID) {
+        guard let preflight else { return }
+        Task {
+            guard case .failed(let failure)? = await preflight(), id == ask else { return }
+            preflightFailure = failure
         }
     }
 

@@ -35,7 +35,10 @@ final class HotkeyBridge {
                 var gate = TriggerGate()
                 for await event in KeyboardShortcuts.events(for: .pushToTalk) {
                     let key: TriggerGate.Key = event == .keyDown ? .down : .up
-                    let capturing = await controller.phase == .capturing
+                    let intent = await controller.capturingIntent
+                    let capturing = intent != nil
+                    // Services › Ask Hark started this capture: a tap ends it, as Done does.
+                    if intent?.isAsk == true, !gate.isLatched { gate.latch() }
                     let action = gate.handle(key, at: .now, isCapturing: capturing)
                     // Before the switch: the key-up that latches returns `.ignore`, whose branch is `continue`.
                     onLatchChange(gate.isLatched)

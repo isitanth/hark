@@ -85,9 +85,13 @@ struct AskView: View {
                 Text(L("ask.listening.hint"))
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                preflight
             }
         case .transcribing:
-            progress(L("ask.transcribing"))
+            VStack(alignment: .leading, spacing: 4) {
+                progress(L("ask.transcribing"))
+                preflight
+            }
         case .thinking:
             progress(namesServer ? L("ask.thinking.server \(model.server)") : L("ask.thinking"))
         case .streaming:
@@ -104,6 +108,22 @@ struct AskView: View {
             }
         case .closed:
             EmptyView()
+        }
+    }
+
+    /// The pre-flight's finding, before the instruction is sent: the server will not answer it as things stand.
+    @ViewBuilder
+    private var preflight: some View {
+        if let failure = model.preflightFailure {
+            Label {
+                Text(failure.popupText)
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+            }
+            .font(.callout)
+            .padding(.top, 4)
         }
     }
 

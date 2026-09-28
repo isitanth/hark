@@ -33,6 +33,12 @@ public struct TriggerGate: Sendable, Equatable {
         self.holdThreshold = holdThreshold
     }
 
+    /// A capture started elsewhere, by Services › Ask Hark, which the next key-down ends as it would end one started by
+    /// a tap. Without it that press would be a new utterance, logged `busy`.
+    public mutating func latch() {
+        state = .latched
+    }
+
     /// `isCapturing` is the pipeline's own view. A capture that ended on its own (the length limit, a failure) resets
     /// the gate, so the next key-down starts a new one instead of being swallowed.
     public mutating func handle(_ key: Key, at now: ContinuousClock.Instant, isCapturing: Bool) -> Action {

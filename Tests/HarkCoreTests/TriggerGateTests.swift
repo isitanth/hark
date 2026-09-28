@@ -118,4 +118,22 @@ let triggerSequences: [TriggerSequence] = [
         #expect(gate.handle(.down, at: start.advanced(by: .seconds(1_800)), isCapturing: false) == .start)
         #expect(!gate.isLatched)
     }
+
+    /// An ask's capture starts without the key: latched, the next tap ends it, and its key-up does nothing.
+    @Test func aLatchedAskCaptureEndsOnTheNextTap() {
+        var gate = TriggerGate()
+        let start = ContinuousClock.now
+        gate.latch()
+        #expect(gate.isLatched)
+        #expect(gate.handle(.down, at: start, isCapturing: true) == .stop)
+        #expect(gate.handle(.up, at: start.advanced(by: .milliseconds(80)), isCapturing: false) == .ignore)
+        #expect(!gate.isLatched)
+    }
+
+    /// A latch outlived by its capture (Done in the popup, a cancel) is dropped: the next press starts dictation.
+    @Test func aLatchWhoseCaptureEndedStartsAFreshOne() {
+        var gate = TriggerGate()
+        gate.latch()
+        #expect(gate.handle(.down, at: .now, isCapturing: false) == .start)
+    }
 }

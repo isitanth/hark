@@ -76,7 +76,9 @@ final class AppModel {
 
     @ObservationIgnored let controller: PipelineController
     /// The Ask engine: the LLM client, the Keychain, and what the last call to the model server came to.
-    let ask = AskModel()
+    let ask: AskModel
+    /// commands.yaml's `llm:` as the next ask reads it.
+    @ObservationIgnored private let askSettings = AskSettings()
     @ObservationIgnored private var askService: AskService?
     /// The Ask panel: what it shows, and the panel itself.
     @ObservationIgnored let askPanel: AskPanelModel
@@ -209,9 +211,12 @@ final class AppModel {
             accessibility: accessibility, pasteboard: pasteboard, keystrokes: CGEventKeystrokeSynthesizer(),
             workspace: workspace)
         actions = ActionRunner(workspace: workspace)
+        let ask = AskModel()
+        self.ask = ask
         let environment = PipelineEnvironment(
             workspace: workspace, pasteboard: pasteboard, focus: focusProbe, audio: audio, engine: engine,
-            resolver: UtteranceResolver(settings: resolution), inserter: inserter, actions: actions)
+            resolver: UtteranceResolver(settings: resolution), inserter: inserter, actions: actions,
+            asker: AskEngine(client: ask.client, settings: askSettings))
         controller = PipelineController(environment: environment, log: UtteranceLog(directory: paths.logs))
         askPanel = AskPanelModel(controller: controller, workspace: workspace, pasteboard: pasteboard)
         pinnedIcon = defaults.string(forKey: "HarkDebugIconState").flatMap(MenuBarIconState.init(rawValue:))
@@ -242,10 +247,11 @@ final class AppModel {
                 self?.hudModel.show(result)
             }
         }
-        Task { [weak self, configStore, resolution] in
+        Task { [weak self, configStore, resolution, askSettings] in
             await configStore.start()
             for await snapshot in configStore.snapshots {
                 self?.config = snapshot
+                askSettings.update(snapshot.config.effectiveLLM)
                 self?.askPanel.configure(snapshot.config.effectiveLLM)
                 // The last good config, so a broken file keeps the overrides and commands that were in force.
                 resolution.update(apps: snapshot.config.apps)
@@ -281,7 +287,9 @@ final class AppModel {
             }
         }
         let service = AskService { [weak self] in self?.previousApp }
+        service.onAsk = { [weak self] text, caller in self?.startAsk(text, caller: caller) }
         askService = service
+        askPanel.preflight = { [weak self] in await self?.preflight() }
         HarkAppDelegate.servicesProvider = service
         refreshInputDevices()
         Task { [audio] in await audio.prepare() }
@@ -511,6 +519,7 @@ final class AppModel {
                 await ducker.end()
             }
         }
+        recordAsk(snapshot)
         self.snapshot = snapshot
         hudModel.update(snapshot)
         hud.setVisible(hudModel.state != .hidden)
@@ -566,6 +575,37 @@ final class AppModel {
                 : "I wanted to summarize this morning's meeting before everyone leaves for the weekend"
         hudModel.pin(pinned.state, time: pinned.time, line: line)
         hud.setVisible(true)
+    }
+
+    /// Services › Ask Hark: the ask starts as a capture, and the panel opens on its first snapshot. A blank selection
+    /// ends at once with its line and no panel, so the caller is brought back here.
+    private func startAsk(_ text: String, caller: AppIdentity?) {
+        let selection = SelectionSnapshot(text: text, caller: caller)
+        Task { [controller, workspace] in
+            await controller.triggerDown(intent: .ask(selection))
+            guard selection.isBlank, let caller else { return }
+            _ = await workspace.activateAndWait(caller, timeout: Self.activationTimeout)
+        }
+    }
+
+    /// The pre-flight: `GET /models` while the user speaks, so a stopped server says so before the instruction is
+    /// spent on it. An ask is the user's request, so a cloud profile is checked too. The result feeds the health row.
+    private func preflight() async -> LLMProbeResult? {
+        guard let profile = config.config.effectiveLLM.activeProfile else { return nil }
+        return await ask.test(profile)
+    }
+
+    /// What an ask came to, for the panel's health row, as Test connection's result would.
+    private func recordAsk(_ snapshot: PipelineSnapshot) {
+        guard let stage = snapshot.ask?.stage, stage != self.snapshot.ask?.stage else { return }
+        switch stage {
+        case .reviewing:
+            if let model = snapshot.utterance?.llmModel { ask.record(.connected(model: model)) }
+        case .failed(let failure):
+            ask.record(.failed(failure))
+        case .generating:
+            break
+        }
     }
 
     /// `-HarkDebugPreview ask…`: the Ask panel pinned in one state, for screenshots.

@@ -133,6 +133,13 @@ public actor PipelineController {
 
     public var phase: PipelinePhase { state.phase }
 
+    /// What the capture under way is for; nil when nothing is being captured. The talk key reads it to end an ask's
+    /// capture instead of starting a busy utterance.
+    public var capturingIntent: CaptureIntent? {
+        guard case .capturing(let context) = state else { return nil }
+        return context.intent
+    }
+
     private func handle(_ event: AudioInputEvent) {
         switch event {
         case .reachedMaxDuration(let id, _):
