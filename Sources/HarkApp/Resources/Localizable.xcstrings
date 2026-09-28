@@ -5525,6 +5525,40 @@
           }
         }
       }
+    },
+    "settings.ask.insecureAddress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plain http goes only to a server on this Mac. Use https for another computer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le http simple ne va qu’à un serveur de ce Mac. Utilisez https pour un autre ordinateur."
+          }
+        }
+      }
+    },
+    "settings.ask.credentialsInAddress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An address cannot hold a user name or a password. Put the key in the field below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une adresse ne peut contenir ni nom d’utilisateur ni mot de passe. Mettez la clé dans le champ ci-dessous."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

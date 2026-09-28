@@ -39,10 +39,12 @@ struct AskSettingsView: View {
                         }
                         .labelsHidden()
                         .textFieldStyle(.roundedBorder)
+                        .frame(minWidth: 160)
                         .onSubmit(saveAddress)
                         Button(action: saveAddress) {
                             Text(L("settings.ask.save"))
                         }
+                        .fixedSize()
                         .disabled(busy || address.isEmpty || address == savedAddress)
                     }
                 } label: {
@@ -55,15 +57,19 @@ struct AskSettingsView: View {
                         }
                         .labelsHidden()
                         .textFieldStyle(.roundedBorder)
+                        .frame(minWidth: 120)
                         .onSubmit(saveKey)
+                        // Buttons at their own width: in French, Enregistrer was cut to "Enregist…".
                         Button(action: saveKey) {
                             Text(L("settings.ask.save"))
                         }
+                        .fixedSize()
                         .disabled(busy || key.isEmpty)
                         if model.ask.hasKey == true {
                             Button(action: removeKey) {
                                 Text(L("settings.ask.key.remove"))
                             }
+                            .fixedSize()
                             .disabled(busy)
                         }
                     }
@@ -134,6 +140,8 @@ struct AskSettingsView: View {
             warning(failure.settingsText)
         case .address(.notAnAddress)?:
             warning(L("settings.ask.invalidAddress"))
+        case .address(.write(.invalid(let error)))?:
+            warning(Self.addressText(error))
         case .address(.write(let error))?:
             warning(error.text)
         case .keychain(let code)?:
@@ -145,6 +153,17 @@ struct AskSettingsView: View {
             } else {
                 Text(verbatim: "")
             }
+        }
+    }
+
+    /// The address problems in the tab's own words, without the path in commands.yaml; anything else as the file
+    /// would report it.
+    private static func addressText(_ error: ConfigError) -> LocalizedStringResource {
+        switch error.problem {
+        case .insecureURL: L("settings.ask.insecureAddress")
+        case .invalidURL: L("settings.ask.invalidAddress")
+        case .keyInFile: L("settings.ask.credentialsInAddress")
+        default: ConfigWriteError.invalid(error).text
         }
     }
 

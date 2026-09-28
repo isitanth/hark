@@ -55,8 +55,11 @@ struct PanelView: View {
             footer
         }
         .frame(width: 360)
-        // The menu bar extra's window does not shrink while open when RECENT goes away: seen 2026-09-28, the
-        // cleared panel sat in a window of the old size. Closed, it opens next time at its new size.
+        .onGeometryChange(for: CGFloat.self) {
+            $0.size.height
+        } action: {
+            fit(height: $0)
+        }
         .clearHistoryConfirmation(isPresented: $confirmingClear) {
             model.clearHistory()
             window?.close()
@@ -156,6 +159,17 @@ struct PanelView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 14)
         .padding(.vertical, 11)
+    }
+
+    /// The menu bar extra's window grows with its content and never shrinks while open: a health row gone after a
+    /// successful Test, RECENT cleared, a shorter LAST (seen 2026-09-28) left the content centred between empty,
+    /// see-through strips. The window follows the content's height instead, its top edge kept under the menu bar.
+    private func fit(height: CGFloat) {
+        guard let window, height > 0 else { return }
+        let content = window.contentRect(forFrameRect: window.frame)
+        guard abs(content.height - height) > 0.5 else { return }
+        let fitted = NSRect(x: content.minX, y: content.maxY - height, width: content.width, height: height)
+        window.setFrame(window.frameRect(forContentRect: fitted), display: true)
     }
 
     private func showSettings(_ tab: SettingsTab? = nil) {
