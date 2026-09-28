@@ -169,8 +169,9 @@ if (( install )); then
     rm -rf "$target"
     ditto "$app" "$target"
     codesign --verify --deep --strict "$target"
-    # Launch Services learns the new NSServices entry, and pbs rebuilds the Services menu from it.
+    # Launch Services learns the new NSServices entry, and pbs rebuilds the Services menu from it. pbs caches the
+    # titles only for the languages it is given (measured 2026-09-28: a bare -update kept English alone).
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$target"
-    /System/Library/CoreServices/pbs -update
+    /System/Library/CoreServices/pbs -update ${(f)"$(/usr/libexec/PlistBuddy -c 'Print :CFBundleLocalizations' Support/Info.plist | sed -n 's/^ *\([a-z][a-z]\)$/\1/p')"}
     print "==> installed; start it with: open ${(q)target}"
 fi
