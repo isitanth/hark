@@ -37,6 +37,9 @@ public enum PipelineEvent: Sendable, Equatable {
     case askRetry(UtteranceID)
     /// Copy in the popup: `text` is the suggestion as the user left it.
     case askCopy(UtteranceID, String)
+    /// Replace in the popup: `text` goes in place of the selection, once it is checked.
+    case askReplace(UtteranceID, String)
+    case selectionChecked(UtteranceID, SelectionCheck)
 
     public var utteranceID: UtteranceID? {
         switch self {
@@ -44,7 +47,8 @@ public enum PipelineEvent: Sendable, Equatable {
             .transcribed(let id, _, _),
             .resolved(let id, _, _), .confirmed(let id, _), .focusRestored(let id, _), .actionFinished(let id, _),
             .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _),
-            .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _):
+            .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _), .askReplace(let id, _),
+            .selectionChecked(let id, _):
             id
         case .triggerUp, .cancel:
             nil

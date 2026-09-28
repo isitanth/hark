@@ -87,6 +87,15 @@ enum Fixture {
     static let askTranscribing = PipelineState.transcribing(askContext())
     static let generating = PipelineState.asking(askContext(), instruction, .generating)
     static let reviewing = PipelineState.asking(askContext(llmModel: bonsai, llmMs: 2_610), instruction, .reviewing)
+    static let replacing = PipelineState.asking(
+        {
+            var context = askContext(llmModel: bonsai, llmMs: 2_610)
+            context.answer = answer
+            return context
+        }(), instruction, .replacing)
+    /// TextEdit in front again, its text view focused and taking an AX insertion.
+    static let backInTextEdit = FocusSnapshot(
+        app: textEdit, element: FocusedElement(role: "AXTextArea", acceptsSelectedText: true, valueSettable: true))
     static func askFailed(_ failure: LLMFailure, llmMs: Int? = 15_000) -> PipelineState {
         .asking(askContext(llmMs: llmMs), instruction, .failed(failure))
     }
@@ -111,6 +120,7 @@ extension PipelineEffect {
         case .copyToClipboard: "copyToClipboard"
         case .generate: "generate"
         case .cancelGeneration: "cancelGeneration"
+        case .checkSelection: "checkSelection"
         case .writeLog(let record):
             (["log", record.resolution.rawValue] + [record.error].compactMap(\.self)).joined(separator: ":")
         }

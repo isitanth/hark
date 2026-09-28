@@ -110,6 +110,7 @@ final class FakeAccessibility: AccessibilityFacade {
         var report = AXInsertionReport.refused
         var insertions: [(text: String, pid: Int32)] = []
         var before: [Int32: Character] = [:]
+        var selected: [Int32: String] = [:]
     }
 
     private let state = OSAllocatedUnfairLock(initialState: State())
@@ -125,6 +126,9 @@ final class FakeAccessibility: AccessibilityFacade {
         state.withLock { $0.before[pid] = characterBeforeInsertion }
     }
 
+    /// What the focused element says is selected. Unset means the app does not answer.
+    func set(selectedText: String?, for pid: Int32) { state.withLock { $0.selected[pid] = selectedText } }
+
     func isTrusted() async -> Bool { state.withLock { $0.trusted } }
     func focusedElement(of pid: Int32) async -> FocusedElement? { state.withLock { $0.elements[pid] } }
     func isSecureInputEnabled() async -> Bool { state.withLock { $0.secureInput } }
@@ -137,6 +141,7 @@ final class FakeAccessibility: AccessibilityFacade {
     }
 
     func characterBeforeInsertion(of pid: Int32) async -> Character? { state.withLock { $0.before[pid] } }
+    func selectedText(of pid: Int32) async -> String? { state.withLock { $0.selected[pid] } }
 }
 
 /// Polls until `condition` holds, for work a detached task finishes; gives up after about two seconds.

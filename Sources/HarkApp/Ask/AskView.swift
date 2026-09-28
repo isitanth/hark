@@ -189,6 +189,8 @@ struct AskView: View {
             case .reviewing:
                 button(L("ask.button.cancel"), action: model.cancel)
                 button(L("ask.button.copy"), action: model.copy)
+                button(L("ask.button.replace"), action: model.replace)
+                    .keyboardShortcut(.return, modifiers: .command)
                     .buttonStyle(.borderedProminent)
             case .failed:
                 button(L("ask.button.cancel"), action: model.cancel)

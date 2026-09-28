@@ -216,7 +216,9 @@ final class AppModel {
         let environment = PipelineEnvironment(
             workspace: workspace, pasteboard: pasteboard, focus: focusProbe, audio: audio, engine: engine,
             resolver: UtteranceResolver(settings: resolution), inserter: inserter, actions: actions,
-            asker: AskEngine(client: ask.client, settings: askSettings))
+            asker: AskEngine(client: ask.client, settings: askSettings),
+            selection: CallerSelectionChecker(
+                workspace: workspace, focus: focusProbe, accessibility: accessibility, settings: resolution))
         controller = PipelineController(environment: environment, log: UtteranceLog(directory: paths.logs))
         askPanel = AskPanelModel(controller: controller, workspace: workspace, pasteboard: pasteboard)
         pinnedIcon = defaults.string(forKey: "HarkDebugIconState").flatMap(MenuBarIconState.init(rawValue:))
@@ -603,7 +605,7 @@ final class AppModel {
             if let model = snapshot.utterance?.llmModel { ask.record(.connected(model: model)) }
         case .failed(let failure):
             ask.record(.failed(failure))
-        case .generating:
+        case .generating, .replacing:
             break
         }
     }

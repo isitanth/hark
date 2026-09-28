@@ -124,4 +124,65 @@ struct AskPipelineTests {
         await rig.controller.cancel(UtteranceID(2))
         #expect(await rig.controller.phase == .idle)
     }
+
+    /// Replace with the real inserter and checker on fakes: TextEdit in front again, its text view and selection
+    /// scripted. Returns the one record, the AX insertions, and the clipboard.
+    private func replace(
+        selected: String?, edited: String
+    ) async throws -> (UtteranceRecord, [(text: String, pid: Int32)], String?) {
+        let directory = try TemporaryDirectory()
+        let workspace = SwitchableWorkspace(F.textEdit)
+        let accessibility = FakeAccessibility()
+        let pasteboard = FakePasteboard(text: nil)
+        let element = FocusedElement(role: "AXTextArea", acceptsSelectedText: true, valueSettable: true)
+        accessibility.set(element: element, for: F.textEdit.processID)
+        accessibility.set(selectedText: selected, for: F.textEdit.processID)
+        let replaced = F.selectionText.utf16.count
+        let written = edited.utf16.count
+        accessibility.set(
+            report: AXInsertionReport(
+                setSucceeded: true,
+                before: AXTextState(
+                    selectionLocation: 0, selectionLength: replaced,
+                    characterCount: replaced),
+                after: AXTextState(selectionLocation: written, selectionLength: 0, characterCount: written)))
+        let focus = AXFocusProbe(workspace: workspace, accessibility: accessibility)
+        let inserter = TextInserter(
+            accessibility: accessibility, pasteboard: pasteboard, keystrokes: FakeKeystrokes(target: pasteboard),
+            workspace: workspace)
+        let environment = PipelineEnvironment(
+            workspace: workspace, pasteboard: pasteboard, clock: ManualWallClock(F.pressedAt), focus: focus,
+            audio: ScriptedAudioInput(summary: F.speech), engine: FixedTranscriptionEngine(transcript: F.instruction),
+            inserter: inserter,
+            asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished),
+            selection: CallerSelectionChecker(
+                workspace: workspace, focus: focus, accessibility: accessibility, settings: ResolutionSettings()))
+        let controller = PipelineController(
+            environment: environment, log: UtteranceLog(directory: directory.url, timeZone: F.paris))
+        var snapshots = controller.snapshots.makeAsyncIterator()
+
+        await controller.triggerDown(intent: F.ask)
+        let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+        await controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        await controller.replaceSelection(with: edited, for: id)
+        let done = await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }
+        return (try #require(done?.lastRecord), accessibility.insertions, pasteboard.text)
+    }
+
+    @Test func replaceWritesTheEditedAnswerOverAnIntactSelection() async throws {
+        let edited = F.answer + " Merci."
+        let (record, insertions, clipboard) = try await replace(selected: F.selectionText, edited: edited)
+        #expect(record.resolution == .textInserted && record.error == nil && record.actionType == .ask)
+        #expect(record.llmModel == F.bonsai && record.targetApp == "com.apple.TextEdit")
+        #expect(insertions.map(\.text) == [edited] && insertions.map(\.pid) == [F.textEdit.processID])
+        #expect(clipboard == nil)
+    }
+
+    @Test func replaceKeepsTheAnswerOnTheClipboardWhenTheSelectionChanged() async throws {
+        let (record, insertions, clipboard) = try await replace(selected: "Le comité", edited: F.answer)
+        #expect(record.resolution == .textClipboard && record.error == "selection_changed")
+        #expect(insertions.isEmpty)
+        #expect(clipboard == F.answer)
+    }
 }

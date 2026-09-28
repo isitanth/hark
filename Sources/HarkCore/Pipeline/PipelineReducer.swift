@@ -177,6 +177,28 @@ public struct PipelineReducer: Sendable {
             context.answer = text
             return move(.copying(context, transcript, .chosen), [copy(context, transcript)])
 
+        case (.asking(var context, let transcript, .reviewing), .askReplace(_, let text)):
+            guard case .ask(let selection) = context.intent else { return reject(state, event) }
+            context.answer = text
+            return move(.asking(context, transcript, .replacing), [.checkSelection(id, selection)])
+
+        // Intact, the answer goes in as a dictation would, through the same inserter and its fallbacks. Otherwise it is
+        // kept on the clipboard, never written over text the user did not ask about; the line stays the caller's.
+        case (.asking(var context, let transcript, .replacing), .selectionChecked(_, let check)):
+            guard check.verdict == .intact else {
+                return move(
+                    .copying(context, transcript, .fallback(.selectionChanged)), [copy(context, transcript)])
+            }
+            context.focus = check.focus
+            guard let plan = check.plan else {
+                let reason: ClipboardReason = check.focus.isSecureInput ? .secureField : .noTextField
+                return move(.copying(context, transcript, reason), [copy(context, transcript)])
+            }
+            context.clipboardFallback = true
+            return move(
+                .inserting(context, transcript, plan),
+                [.insert(id, text(context, transcript), plan, context.focus, clipboardFallback: true)])
+
         // The engine may still be running (cap reached, converter error): release the microphone.
         case (.capturing(let context), .failed(_, let failure)):
             return finish(context, nil, .failed(failure), cleanup: [.cancelCapture(id)])
@@ -206,7 +228,9 @@ public struct PipelineReducer: Sendable {
         case (.asking(let context, let transcript, .generating), .cancel):
             return finish(context, transcript, .discarded(.cancelled), cleanup: [.cancelGeneration(id)])
 
-        case (.asking(let context, let transcript, .reviewing), .cancel):
+        // The panel has closed by then; only quitting cancels here.
+        case (.asking(let context, let transcript, .reviewing), .cancel),
+            (.asking(let context, let transcript, .replacing), .cancel):
             return finish(context, transcript, .discarded(.cancelled))
 
         // Closing the popup on an error is not the user giving up on a good answer: the line keeps what failed.

@@ -66,6 +66,13 @@ public struct SystemAccessibility: AccessibilityFacade {
         }
     }
 
+    public func selectedText(of pid: Int32) async -> String? {
+        await Self.run {
+            guard let element = Self.focused(in: pid) else { return nil }
+            return Self.string(element, kAXSelectedTextAttribute)
+        }
+    }
+
     // MARK: Internals
 
     private static func run<T: Sendable>(_ work: @escaping @Sendable () -> T) async -> T {

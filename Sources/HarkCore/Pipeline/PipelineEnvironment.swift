@@ -82,6 +82,7 @@ public struct PipelineEnvironment: Sendable {
     public var inserter: any TextInserting
     public var actions: any ActionRunning
     public var asker: any AskGenerating
+    public var selection: any SelectionChecking
 
     public init(
         workspace: any Workspace,
@@ -94,7 +95,8 @@ public struct PipelineEnvironment: Sendable {
         confirmation: any ConfirmationPrompter = NullConfirmationPrompter(),
         inserter: any TextInserting = NullTextInserter(),
         actions: any ActionRunning = NullActionRunner(),
-        asker: any AskGenerating = NullAskGenerator()
+        asker: any AskGenerating = NullAskGenerator(),
+        selection: (any SelectionChecking)? = nil
     ) {
         self.clock = clock
         self.audio = audio
@@ -107,5 +109,9 @@ public struct PipelineEnvironment: Sendable {
         self.inserter = inserter
         self.actions = actions
         self.asker = asker
+        self.selection =
+            selection
+            ?? CallerSelectionChecker(
+                workspace: workspace, focus: self.focus, accessibility: nil, settings: ResolutionSettings())
     }
 }

@@ -131,6 +131,11 @@ public actor PipelineController {
         send(.askCopy(id, text))
     }
 
+    /// Replace in the Ask panel: `text` goes in place of the caller's selection, once it is checked.
+    public func replaceSelection(with text: String, for id: UtteranceID) {
+        send(.askReplace(id, text))
+    }
+
     public var phase: PipelinePhase { state.phase }
 
     /// What the capture under way is for; nil when nothing is being captured. The talk key reads it to end an ask's
@@ -293,6 +298,11 @@ public actor PipelineController {
         case .cancelGeneration:
             generation?.cancel()
             generation = nil
+
+        case .checkSelection(let id, let selection):
+            Task {
+                send(.selectionChecked(id, await env.selection.check(selection)))
+            }
         }
     }
 }

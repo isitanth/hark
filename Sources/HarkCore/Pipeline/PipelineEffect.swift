@@ -23,5 +23,7 @@ public enum PipelineEffect: Sendable, Equatable {
     case generate(UtteranceID, instruction: String, selection: SelectionSnapshot)
     /// Closes the stream, which makes the server stop generating (measured in M8.0).
     case cancelGeneration(UtteranceID)
+    /// Brings the caller back and checks its selection is still the one asked about (`SelectionGuard`).
+    case checkSelection(UtteranceID, SelectionSnapshot)
     case writeLog(UtteranceRecord)
 }

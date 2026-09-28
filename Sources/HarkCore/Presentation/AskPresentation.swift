@@ -32,7 +32,7 @@ public enum AskPresentation {
             case .generating?: return streamed ? .streaming : .thinking
             case .reviewing?: return .reviewing
             case .failed(let failure)?: return .failed(failure)
-            case nil: return .closed
+            case .replacing?, nil: return .closed
             }
         case .idle, .resolving, .confirming, .acting, .inserting, .copying:
             return .closed

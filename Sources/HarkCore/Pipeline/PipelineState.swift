@@ -42,7 +42,7 @@ public enum ConfirmationStage: Sendable, Equatable {
     case restoringFocus
 }
 
-/// Where an ask is after its instruction was heard. M8.5 adds the stages of Replace.
+/// Where an ask is after its instruction was heard.
 public enum AskStage: Sendable, Equatable {
     /// The request is out and the answer streams into the popup, outside the reducer.
     case generating
@@ -50,6 +50,8 @@ public enum AskStage: Sendable, Equatable {
     case reviewing
     /// The server failed. The popup offers Retry; Cancel ends the ask with this failure on its line.
     case failed(LLMFailure)
+    /// Replace was chosen: the caller is being brought back and its selection checked before anything is written.
+    case replacing
 }
 
 public enum PipelineState: Sendable, Equatable {

@@ -64,6 +64,39 @@ let askTransitions: [LegalTransition] =
             name: "reviewing, another ask is busy", state: F.reviewing,
             event: .triggerDown(F.other, at: at, intent: F.ask), phase: .asking, effects: ["log:discarded:busy"]),
         .init(
+            name: "reviewing, Replace: check the selection first", state: F.reviewing,
+            event: .askReplace(F.id, F.answer), phase: .asking, effects: ["checkSelection"]),
+        .init(
+            name: "replacing, intact: insert the answer", state: F.replacing,
+            event: .selectionChecked(F.id, SelectionCheck(verdict: .intact, focus: F.backInTextEdit, plan: .axInsert)),
+            phase: .inserting, effects: ["insert"]),
+        .init(
+            name: "replacing, the selection changed: the clipboard", state: F.replacing,
+            event: .selectionChecked(F.id, SelectionCheck(verdict: .changed, focus: F.backInTextEdit)),
+            phase: .copying, effects: ["copyToClipboard"]),
+        .init(
+            name: "replacing, another app in front: the clipboard", state: F.replacing,
+            event: .selectionChecked(F.id, SelectionCheck(verdict: .otherApp, focus: F.focus)),
+            phase: .copying, effects: ["copyToClipboard"]),
+        .init(
+            name: "replacing, intact but nothing takes text: the clipboard", state: F.replacing,
+            event: .selectionChecked(F.id, SelectionCheck(verdict: .intact, focus: FocusSnapshot(app: F.textEdit))),
+            phase: .copying, effects: ["copyToClipboard"]),
+        .init(
+            name: "replacing, quit", state: F.replacing, event: .cancel, phase: .idle,
+            effects: ["log:discarded:cancelled"]),
+        .init(
+            name: "replacing, talk key is busy", state: F.replacing, event: .triggerDown(F.other, at: at),
+            phase: .asking, effects: ["log:discarded:busy"]),
+        .init(
+            name: "copying an answer, done after the selection changed",
+            state: .copying(F.askContext(), F.instruction, .fallback(.selectionChanged)), event: .copied(F.id),
+            phase: .idle, effects: ["log:text_clipboard:selection_changed"]),
+        .init(
+            name: "inserting an answer, done",
+            state: .inserting(F.askContext(llmModel: F.bonsai, llmMs: 2_610), F.instruction, .axInsert),
+            event: .inserted(F.id), phase: .idle, effects: ["log:text_inserted"]),
+        .init(
             name: "failed, Retry sends it again", state: F.askFailed(.noAnswer), event: .askRetry(F.id),
             phase: .asking, effects: ["generate"]),
         .init(
@@ -96,6 +129,13 @@ let illegalAskTransitions: [IllegalTransition] = [
     .init(name: "reviewing, Retry", state: F.reviewing, event: .askRetry(F.id)),
     .init(name: "reviewing, Copy for another ask", state: F.reviewing, event: .askCopy(F.other, F.answer)),
     .init(name: "failed, Copy", state: F.askFailed(.empty), event: .askCopy(F.id, F.answer)),
+    .init(name: "failed, Replace", state: F.askFailed(.empty), event: .askReplace(F.id, F.answer)),
+    .init(name: "generating, Replace", state: F.generating, event: .askReplace(F.id, F.answer)),
+    .init(name: "replacing, a second Replace", state: F.replacing, event: .askReplace(F.id, F.answer)),
+    .init(name: "replacing, Copy", state: F.replacing, event: .askCopy(F.id, F.answer)),
+    .init(
+        name: "reviewing, a check nobody asked for", state: F.reviewing,
+        event: .selectionChecked(F.id, SelectionCheck(verdict: .intact, focus: F.backInTextEdit, plan: .paste))),
     .init(name: "failed, a late end", state: F.askFailed(.noAnswer), event: .generated(F.id, done)),
     .init(name: "idle, a late Retry", state: .idle, event: .askRetry(F.id)),
     .init(name: "idle, a late Copy", state: .idle, event: .askCopy(F.id, F.answer)),
@@ -228,5 +268,28 @@ extension AskTransitionTests {
                 #expect(!line.contains("comité") && !line.contains("budget"), "\(row.name)")
             }
         }
+    }
+}
+
+extension AskTransitionTests {
+    /// Replace writes the answer as edited, where the check found the focus, with the clipboard to catch a failure.
+    @Test func replaceInsertsTheAnswerIntoTheFieldTheCheckFound() throws {
+        let check = SelectionCheck(verdict: .intact, focus: F.backInTextEdit, plan: .axInsert)
+        let inserting = try reducer.reduce(F.replacing, .selectionChecked(F.id, check)).get()
+        #expect(inserting.effects == [.insert(F.id, F.answer, .axInsert, F.backInTextEdit, clipboardFallback: true)])
+        let failed = try reducer.reduce(inserting.state, .failed(F.id, .insertionFailed)).get()
+        #expect(failed.effects == [.copyToClipboard(F.id, F.answer, concealed: false)])
+        let record = try #require(try reducer.reduce(failed.state, .copied(F.id)).get().effects.first?.record)
+        #expect(record.error == "insertion_failed" && record.actionType == .ask && record.llmMs == 2_610)
+    }
+
+    /// A changed selection keeps the caller on the line: the ask was about it, not about the app now in front.
+    @Test func aChangedSelectionKeepsTheAnswerAndTheCaller() throws {
+        let check = SelectionCheck(verdict: .otherApp, focus: F.focus)
+        let copying = try reducer.reduce(F.replacing, .selectionChecked(F.id, check)).get()
+        #expect(copying.effects == [.copyToClipboard(F.id, F.answer, concealed: false)])
+        let record = try #require(try reducer.reduce(copying.state, .copied(F.id)).get().effects.first?.record)
+        #expect(record.resolution == .textClipboard && record.error == "selection_changed")
+        #expect(record.targetApp == "com.apple.TextEdit")
     }
 }

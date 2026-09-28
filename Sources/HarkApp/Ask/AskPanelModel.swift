@@ -145,6 +145,13 @@ final class AskPanelModel {
         Task { [controller] in await controller.copyAnswer(text, for: id) }
     }
 
+    /// The panel closes and the caller comes back; the pipeline checks the selection, then writes the answer over it.
+    func replace() {
+        guard let id else { return }
+        let text = answer
+        Task { [controller] in await controller.replaceSelection(with: text, for: id) }
+    }
+
     /// After a failure, the instruction is what the user may want to keep: it goes on the clipboard, and the ask ends
     /// with its failure.
     func copyInstruction() {

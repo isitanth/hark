@@ -5,8 +5,17 @@ import Foundation
 public protocol Workspace: Sendable {
     func frontmostApplication() async -> AppIdentity?
     func activate(_ app: AppIdentity) async -> Bool
+    /// Brings `app` forward and waits until it is the active one, or `timeout` passes. False when it did not come.
+    func activateAndWait(_ app: AppIdentity, timeout: Duration) async -> Bool
     /// Launches the application at `url`, or brings it forward if it is running, and says whether it ended up in front.
     func openApplication(at url: URL) async -> ApplicationOpening
+}
+
+extension Workspace {
+    /// For workspaces whose `activate` already answers once the app is in front.
+    public func activateAndWait(_ app: AppIdentity, timeout: Duration) async -> Bool {
+        await activate(app)
+    }
 }
 
 /// What opening an application came to.

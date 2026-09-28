@@ -57,4 +57,7 @@ public protocol AccessibilityFacade: Sendable {
     /// when text is selected — the insertion replaces it rather than continuing from it — and whenever the app does
     /// not answer, which is most of the ones that get a paste. `InsertionSpacing` reads nil as "change nothing".
     func characterBeforeInsertion(of pid: Int32) async -> Character?
+    /// `kAXSelectedTextAttribute` of `pid`'s focused element: what Replace checks before it writes. Empty when there is
+    /// only a caret; nil when the app does not say.
+    func selectedText(of pid: Int32) async -> String?
 }
