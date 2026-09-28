@@ -86,9 +86,9 @@ public struct PipelineReducer: Sendable {
             if transcript.isBlank {
                 return finish(context, transcript, .discarded(.emptyTranscript))
             }
-            // CLAUDE.md draws the ask branching off `resolving`. The resolver has nothing to do for an ask, neither
-            // command matching nor a destination, so the branch is taken here and `resolving` is skipped: the one
-            // thing it would add, the normalized text for the log, is a pure function.
+            // An ask known at the press branches here, not from `resolving` (CLAUDE.md): there is no command to match
+            // and no destination to choose, and the normalized text for the log is a pure function. An ask found in
+            // the words (M9's prefix, M10's routing) will branch from `resolving`.
             if case .ask(let selection) = context.intent {
                 var instruction = transcript
                 instruction.normalized = Normalizer.normalize(transcript.raw)
