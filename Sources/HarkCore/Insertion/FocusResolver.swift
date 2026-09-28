@@ -30,12 +30,18 @@ public enum FocusResolver {
         "com.todesktop.230313mzl4w4u92", "notion.id", "com.hnc.discord", "com.anthropic.claudefordesktop",
     ]
 
+    /// Roles that are text only when their value can be set. Mail's draft body is a web document whose `AXValue` is
+    /// settable and which answers no selected-text attribute; the same role showing a received message says its value
+    /// is not settable (measured in M9.0, when every dictation into a Mail draft had gone to the clipboard).
+    public static let textRolesWhenValueSettable: Set<String> = ["AXWebArea"]
+
     /// JetBrains IDEs answer through Java accessibility.
     public static let alwaysPastePrefixes: [String] = ["com.jetbrains."]
 
     public static func kind(of element: FocusedElement?) -> FocusKind {
         guard let element, let role = element.role else { return .unknown }
-        return element.acceptsSelectedText || textRoles.contains(role) ? .text : .notText
+        if element.acceptsSelectedText || textRoles.contains(role) { return .text }
+        return textRolesWhenValueSettable.contains(role) && element.valueSettable ? .text : .notText
     }
 
     public static func needsPaste(_ app: AppIdentity?) -> Bool {

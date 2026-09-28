@@ -37,6 +37,11 @@ let kindCases: [KindCase] = [
     .init(
         name: "group with settable value only", element: .init(role: "AXGroup", valueSettable: true),
         kind: .notText),
+    .init(
+        name: "web area with settable value: a Mail draft", element: .init(role: "AXWebArea", valueSettable: true),
+        kind: .text),
+    .init(name: "web area, value not settable: a received message", element: .init(role: "AXWebArea"), kind: .notText),
+    .init(name: "slider with settable value", element: .init(role: "AXSlider", valueSettable: true), kind: .notText),
     .init(name: "button", element: button, kind: .notText),
     .init(name: "static text", element: .init(role: "AXStaticText"), kind: .notText),
 ]
@@ -62,6 +67,15 @@ let decideCases: [DecideCase] = [
         name: "2 secure input beats an apps: paste",
         focus: .init(app: claude, element: textArea, isSecureInput: true), global: .accessibility,
         apps: ["com.anthropic.claudefordesktop": .init(insert: .paste)], decision: .copy(.secureField)),
+    // Mail's draft body: a web area whose value is settable takes a paste; a received message does not (M9.0).
+    .init(
+        name: "Mail draft body: paste",
+        focus: .init(app: Fixture.mail, element: .init(role: "AXWebArea", valueSettable: true)),
+        global: .accessibility, decision: .insert(.paste, fallback: true)),
+    .init(
+        name: "Mail received message: the clipboard",
+        focus: .init(app: Fixture.mail, element: .init(role: "AXWebArea")), global: .accessibility,
+        decision: .copy(.noTextField)),
     // 3: clipboard
     .init(
         name: "3 global clipboard", focus: .init(app: Fixture.mail, element: textArea), global: .clipboard,
