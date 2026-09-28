@@ -45,6 +45,9 @@ enum CommandConfigEmitter {
         if let llm = config.llm {
             lines += [""] + self.llm(llm)
         }
+        if let assistant = config.assistant {
+            lines += ["", "assistant:", "  prefix: \(list(assistant.prefix))"]
+        }
         return (lines + [""]).joined(separator: "\n")
     }
 

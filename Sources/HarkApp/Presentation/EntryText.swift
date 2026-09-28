@@ -124,6 +124,7 @@ extension LogEntry {
         case .maxDuration: return L("entry.reason.maxDuration")
         case .clipboardFallbackDisabled: return L("entry.reason.clipboardFallbackDisabled")
         case .emptySelection: return L("entry.reason.emptySelection")
+        case .emptyRequest: return L("entry.reason.emptyRequest")
         case nil:
             let raw = code ?? "?"
             return L("entry.reason.other \(raw)")

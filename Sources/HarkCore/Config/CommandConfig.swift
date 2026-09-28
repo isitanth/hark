@@ -32,6 +32,8 @@ import Foundation
 ///       max_tokens: 1024      # 1...131072
 ///       extra: { enable_thinking: false }      # scalars only, sent as top-level request fields
 ///   max_selection_chars: 12000                 # 1...100000
+/// assistant:                  # optional, version 3 only; see AssistantConfig
+///   prefix: [hark, arc]       # a dictation starting with one of these goes to the assistant
 /// ```
 ///
 /// Any other key is an error, and so is an alias that normalizes to the same text as another command's.
@@ -53,11 +55,13 @@ public struct CommandConfig: Sendable, Equatable {
     /// Nil when the file has no `llm:`. Kept as read, so writing the file back never adds a block the user did not
     /// write; what an ask uses is `effectiveLLM`.
     public var llm: LLMConfig?
+    /// Nil when the file has no `assistant:`, for the same reason; what the resolver uses is `effectiveAssistant`.
+    public var assistant: AssistantConfig?
 
     public init(
         defaults: CommandDefaults = CommandDefaults(), apps: [String: AppOverride] = [:],
         openVerbs: [String: [String]] = [:], fillers: [String: [String]] = [:], commands: [CommandEntry] = [],
-        llm: LLMConfig? = nil
+        llm: LLMConfig? = nil, assistant: AssistantConfig? = nil
     ) {
         self.defaults = defaults
         self.apps = apps
@@ -65,11 +69,17 @@ public struct CommandConfig: Sendable, Equatable {
         self.fillers = fillers
         self.commands = commands
         self.llm = llm
+        self.assistant = assistant
     }
 
     /// What an ask uses: the file's `llm:`, or the local profile alone.
     public var effectiveLLM: LLMConfig {
         llm ?? .standard
+    }
+
+    /// What the resolver uses: the file's `assistant:`, or the prefixes [hark, arc].
+    public var effectiveAssistant: AssistantConfig {
+        assistant ?? .standard
     }
 
     public static let empty = CommandConfig()

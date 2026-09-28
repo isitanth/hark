@@ -7,6 +7,8 @@ public enum Decision: Sendable, Equatable {
     case insert(InsertionPlan, fallback: Bool)
     case copy(ClipboardReason)
     case discard(DiscardReason)
+    /// The transcript starts with the assistant's spoken prefix: `request` is what followed it, as heard (M9.2).
+    case ask(request: String)
 
     /// The usual insertion: a failure falls back to the clipboard.
     public static func insert(_ plan: InsertionPlan) -> Decision { .insert(plan, fallback: true) }

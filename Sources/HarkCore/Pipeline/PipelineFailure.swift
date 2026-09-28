@@ -13,6 +13,8 @@ public enum DiscardReason: String, Sendable, CaseIterable {
     case clipboardFallbackDisabled = "clipboard_fallback_disabled"
     /// Ask Hark was invoked on a selection with no text in it.
     case emptySelection = "empty_selection"
+    /// The assistant's spoken prefix with nothing after it: "Hark." alone.
+    case emptyRequest = "empty_request"
 }
 
 public enum PipelineFailure: Error, Sendable, Equatable {

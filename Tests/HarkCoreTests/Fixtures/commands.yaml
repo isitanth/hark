@@ -66,3 +66,6 @@ llm:                     # Ask Hark: select text, then Services › Ask Hark
       max_tokens: 1024
       extra: { enable_thinking: false }      # thinking on, the first word waits seconds
   max_selection_chars: 12000
+
+assistant:               # "Hark, quelle est la capitale du Pérou" on the talk key asks the assistant
+  prefix: [hark, arc]    # first words, matched exactly; whisper writes a French "Hark" as "Arc"

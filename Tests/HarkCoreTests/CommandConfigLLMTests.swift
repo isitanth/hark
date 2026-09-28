@@ -321,7 +321,9 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
         #expect(config.effectiveLLM == .standard)
         var expected = ConfigFixtures.commands
         expected.llm = nil
+        expected.assistant = nil
         #expect(config == expected)
+        #expect(config.effectiveAssistant == .standard)
         #expect(config.yaml().hasPrefix("version: 3\n"))
     }
 

@@ -254,7 +254,7 @@ let fallbackOffCases: [DecideCase] = [
                             #expect(reason == why, "\(label)")
                         case .insert(let plan, _):
                             #expect(off == .insert(plan, fallback: false), "\(label)")
-                        case .command, .discard:
+                        case .command, .discard, .ask:
                             Issue.record("\(label) -> \(on)")
                         }
                     }
@@ -322,7 +322,7 @@ let fallbackOffCases: [DecideCase] = [
                         let open = FocusSnapshot(app: target, element: element)
                         let decision = FocusResolver.decide(focus: open, global: global, apps: apps)
                         switch decision {
-                        case .command, .discard: Issue.record("\(label) -> \(decision)")
+                        case .command, .discard, .ask: Issue.record("\(label) -> \(decision)")
                         case .insert, .copy: break
                         }
                         if mode == .clipboard { #expect(decision == .copy(.chosen), "\(label)") }

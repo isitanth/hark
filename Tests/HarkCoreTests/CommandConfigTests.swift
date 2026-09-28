@@ -39,7 +39,7 @@ enum ConfigFixtures {
                 aliases: ["settings", "réglages", "réglages système"]),
             CommandEntry(id: "open_terminal", app: "Terminal"),
         ],
-        llm: .standard)
+        llm: .standard, assistant: .standard)
 
     /// Every optional field set, and strings that would each break a naive emitter: quotes, backslashes, `#`, `: `,
     /// leading spaces, YAML keywords, emoji, line breaks, control characters and scripts other than Latin.

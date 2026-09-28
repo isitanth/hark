@@ -131,6 +131,13 @@ public struct PipelineReducer: Sendable {
                 return move(.copying(context, transcript, reason), [copy(context, transcript)])
             case .discard(let reason):
                 return finish(context, transcript, .discarded(reason))
+            // An ask found in the words branches here (CLAUDE.md): the dictation becomes the assistant, for the app it
+            // was said in. The line keeps the whole transcript; the model gets what followed the prefix.
+            case .ask(let request):
+                context.intent = .assist(caller: context.focus?.app)
+                context.request = request
+                return move(
+                    .asking(context, transcript, .generating), [.generate(id, instruction: request, selection: nil)])
             }
 
         case (.confirming(let context, let transcript, let command, .awaitingAnswer), .confirmed(_, let accepted)):
@@ -176,7 +183,7 @@ public struct PipelineReducer: Sendable {
             context.llmMs = nil
             return move(
                 .asking(context, transcript, .generating),
-                [.generate(id, instruction: transcript.raw, selection: context.intent.selection)])
+                [.generate(id, instruction: context.request ?? transcript.raw, selection: context.intent.selection)])
 
         // The user chose the clipboard: `chosen`, so the line's error is null.
         case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):

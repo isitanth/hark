@@ -4999,6 +4999,23 @@
         }
       }
     },
+    "entry.reason.emptyRequest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nothing after “Hark”"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rien après « Hark »"
+          }
+        }
+      }
+    },
     "config.problem.keyInFile %@": {
       "extractionState": "manual",
       "localizations": {

@@ -65,6 +65,15 @@ let assistTransitions: [LegalTransition] = [
     .init(
         name: "reviewing the assistant, cancel", state: F.assistReviewing, event: .cancel, phase: .idle,
         effects: ["log:discarded:cancelled"]),
+    // M9.2: a dictation whose first word is the spoken prefix.
+    .init(
+        name: "resolving a dictation, the prefix: the assistant", state: F.resolving,
+        event: .resolved(F.id, normalized: "arc quelle heure", .ask(request: "quelle heure")), phase: .asking,
+        effects: ["generate"]),
+    .init(
+        name: "resolving a dictation, the prefix alone", state: F.resolving,
+        event: .resolved(F.id, normalized: "hark", .discard(.emptyRequest)), phase: .idle,
+        effects: ["log:discarded:empty_request"]),
 ]
 
 let illegalAssistTransitions: [IllegalTransition] = [

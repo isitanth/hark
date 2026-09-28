@@ -14,7 +14,12 @@ public struct UtteranceID: Hashable, Sendable, CustomStringConvertible {
 public struct UtteranceContext: Sendable, Equatable {
     public let id: UtteranceID
     public let pressedAt: Date
-    public let intent: CaptureIntent
+    /// Fixed at the press, with one exception: a dictation whose words start with the assistant's spoken prefix
+    /// becomes the assistant at `resolving` (M9.2).
+    public var intent: CaptureIntent
+    /// The assistant's request when a spoken prefix led to it: the transcript without the prefix. The log keeps the
+    /// whole transcript; the model gets this. Nil otherwise, when the transcript is the instruction.
+    public var request: String?
     public var releasedAt: Date?
     public var focus: FocusSnapshot?
     public var capture: CaptureSummary?
@@ -92,8 +97,8 @@ public enum PipelineState: Sendable, Equatable {
 
     /// The instruction and the stage while the state is `.asking`, for the popup.
     public var ask: AskProgress? {
-        guard case .asking(_, let transcript, let stage) = self else { return nil }
-        return AskProgress(instruction: transcript.raw, stage: stage)
+        guard case .asking(let context, let transcript, let stage) = self else { return nil }
+        return AskProgress(instruction: context.request ?? transcript.raw, stage: stage)
     }
 }
 

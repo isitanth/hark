@@ -1,0 +1,59 @@
+import Foundation
+import HarkCore
+import Testing
+
+struct PrefixCase: Sendable, CustomTestStringConvertible {
+    let raw: String
+    let request: String?
+    var testDescription: String { raw.isEmpty ? "(empty)" : raw }
+}
+
+/// The spoken prefix on its golden table (M9.2): what whisper writes for "Hark, …", measured in M9.0, and what must
+/// stay dictation.
+@Suite struct SpokenPrefixTests {
+    static let standard: [PrefixCase] = [
+        .init(raw: "Hark, quelle est la capitale du Pérou ?", request: "quelle est la capitale du Pérou ?"),
+        .init(raw: "Arc, quelle est la capitale du Pérou ?", request: "quelle est la capitale du Pérou ?"),
+        .init(
+            raw: "Arc écrit un mail pour décliner la réunion de jeudi.",
+            request: "écrit un mail pour décliner la réunion de jeudi."),
+        .init(raw: "Hark! What is the capital of Peru?", request: "What is the capital of Peru?"),
+        .init(raw: "HARK, translate good morning", request: "translate good morning"),
+        .init(raw: "Arc , combien de jours", request: "combien de jours"),
+        .init(raw: "— Arc, raconte-moi une blague", request: "raconte-moi une blague"),
+        .init(raw: "  Hark,   explique TLS  ", request: "explique TLS  "),
+        .init(raw: "Hark,quelle heure est-il", request: "quelle heure est-il"),
+        // The prefix alone: an empty request, which the resolver discards.
+        .init(raw: "Hark.", request: ""),
+        .init(raw: "Arc", request: ""),
+        .init(raw: "Hark, ...", request: ""),
+        // Stays dictation: not the first word, not the same word, or no fuzzy match.
+        .init(raw: "I asked Hark to write this.", request: nil),
+        .init(raw: "Hard to say, really.", request: nil),
+        .init(raw: "Marc, tu viens ce soir ?", request: nil),
+        .init(raw: "Parc de la Tête d'Or", request: nil),
+        .init(raw: "Harke, quelle heure", request: nil),
+        .init(raw: "Huck, what is the capital of Peru?", request: nil),
+        .init(raw: "Hey Hark, what time is it?", request: nil),
+        .init(raw: "Arcade Fire est un groupe.", request: nil),
+        .init(raw: "", request: nil),
+    ]
+
+    @Test(arguments: standard)
+    func theStandardPrefixes(_ c: PrefixCase) {
+        #expect(SpokenPrefix.standard.request(in: c.raw) == c.request)
+    }
+
+    /// A two-word prefix the user added wins over its first word, and an accented one matches its plain spelling.
+    @Test func aLongerPrefixWinsAndAccentsDoNotMatter() {
+        let prefix = SpokenPrefix(["hey", "hey hark", "Harké"])
+        #expect(prefix.request(in: "Hey Hark, what time is it?") == "what time is it?")
+        #expect(prefix.request(in: "Hey, what time is it?") == "what time is it?")
+        #expect(prefix.request(in: "harke ouvre") == "ouvre")
+    }
+
+    @Test func noPrefixesMatchNothing() {
+        #expect(SpokenPrefix([]).request(in: "Hark, quelle heure") == nil)
+        #expect(SpokenPrefix(["!!"]).request(in: "!! quelle heure") == nil)
+    }
+}

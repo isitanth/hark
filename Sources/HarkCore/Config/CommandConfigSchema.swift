@@ -6,8 +6,9 @@ import Yams
 /// another schema.
 enum CommandConfigSchema {
     static let version2Keys = ["version", "defaults", "apps", "open_verbs", "fillers", "commands"]
-    /// Version 3 adds `llm:`.
-    static let topKeys = version2Keys + ["llm"]
+    /// Version 3 adds `llm:` and `assistant:`.
+    static let topKeys = version2Keys + ["llm", "assistant"]
+    static let assistantKeys = ["prefix"]
     static let defaultsKeys = ["threshold"]
     static let appKeys = ["insert"]
     static let commandKeys = ["id", "action", "app", "aliases"]
@@ -30,6 +31,7 @@ enum CommandConfigSchema {
             case "fillers": config.fillers = try wordLists(value, path: key)
             case "commands": config.commands = try commands(value)
             case "llm": config.llm = try llm(value)
+            case "assistant": config.assistant = try assistant(value)
             default: break
             }
         }
@@ -108,6 +110,28 @@ enum CommandConfigSchema {
             lists[language] = words
         }
         return lists
+    }
+
+    /// A flat list of spoken first words. An empty list sends nothing to the assistant; a field left null keeps the
+    /// standard prefixes, as every other null field keeps its default.
+    private static func assistant(_ node: Node) throws(ConfigError) -> AssistantConfig {
+        var assistant = AssistantConfig()
+        try ConfigNodes.fields(of: node, path: "assistant", allowed: assistantKeys) { key, value throws(ConfigError) in
+            let path = "assistant.\(key)"
+            var words: [String] = []
+            if !ConfigNodes.isNull(value) {
+                for (index, item) in try ConfigNodes.list(value, path: path).enumerated() {
+                    let itemPath = "\(path)[\(index)]"
+                    let item = try ConfigNodes.visit(item)
+                    guard !ConfigNodes.isNull(item) else {
+                        throw ConfigNodes.error(.emptyText(path: itemPath), at: item)
+                    }
+                    words.append(try Self.words(item, path: itemPath).text)
+                }
+            }
+            assistant.prefix = words
+        }
+        return assistant
     }
 
     /// ASCII letters, digits, `-`, `_` and `.`, with at least two components and none of them empty.

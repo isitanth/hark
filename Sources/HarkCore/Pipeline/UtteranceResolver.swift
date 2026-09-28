@@ -23,6 +23,7 @@ public final class ResolutionSettings: Sendable {
     private let lock: OSAllocatedUnfairLock<Values>
     /// Built once per commands.yaml, not once per utterance.
     private let matcher = OSAllocatedUnfairLock(initialState: CommandMatcher.empty)
+    private let spokenPrefix = OSAllocatedUnfairLock(initialState: SpokenPrefix.standard)
 
     public init(_ values: Values = Values()) {
         lock = OSAllocatedUnfairLock(initialState: values)
@@ -36,9 +37,15 @@ public final class ResolutionSettings: Sendable {
         matcher.withLock { $0 }
     }
 
+    public var prefix: SpokenPrefix {
+        spokenPrefix.withLock { $0 }
+    }
+
     public func update(commands config: CommandConfig) {
         let built = CommandMatcher(config: config)
         matcher.withLock { $0 = built }
+        let prefix = SpokenPrefix(config.effectiveAssistant.prefix)
+        spokenPrefix.withLock { $0 = prefix }
     }
 
     public func update(insertionMode: InsertionMode) {
@@ -54,9 +61,10 @@ public final class ResolutionSettings: Sendable {
     }
 }
 
-/// A command first, by your template: an opening verb, then an app (`CommandMatcher`). Anything else is text,
-/// delivered as `FocusResolver` decides. A command runs whatever has focus, a password field included; the log line
-/// still hides what was said there.
+/// The assistant's spoken prefix first ("Hark, …", M9.2), then a command, by your template: an opening verb, then an
+/// app (`CommandMatcher`). Anything else is text, delivered as `FocusResolver` decides. A command runs whatever has
+/// focus, a password field included; the log line still hides what was said there. A password field is never sent to
+/// the assistant: what is said there stays dictation.
 public struct UtteranceResolver: UtteranceResolving {
     private let settings: ResolutionSettings
 
@@ -68,6 +76,9 @@ public struct UtteranceResolver: UtteranceResolving {
         normalized: String?, decision: Decision
     ) {
         let normalized = Normalizer.normalize(transcript.raw)
+        if focus?.isSecureInput != true, let request = settings.prefix.request(in: transcript.raw) {
+            return (normalized, request.isEmpty ? .discard(.emptyRequest) : .ask(request: request))
+        }
         if let found = settings.commands.match(normalized) {
             return (normalized, .command(found.command))
         }
