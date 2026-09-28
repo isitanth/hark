@@ -1,0 +1,30 @@
+version: 1
+
+defaults:
+  match: fuzzy          # exact | fuzzy
+  threshold: 0.85
+  confirm: false
+
+commands:
+  - phrase: "open finder"
+    aliases: ["finder", "ouvre le finder"]
+    action: open
+    target: "/System/Library/CoreServices/Finder.app"
+
+  - phrase: "new note"
+    action: shortcut
+    target: "New Quick Note"
+
+  - phrase: "start the vpn"
+    action: shell
+    target: "/opt/orange/bin/vpn-up.sh"
+    confirm: true        # destructive or slow, ask first
+
+  - phrase: "screenshot region"
+    action: keystroke
+    target: "cmd+shift+4"
+
+  - phrase: "run the foldr sync"
+    action: shell
+    target: "foldr run sync"
+    timeout: 30

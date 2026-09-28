@@ -1,0 +1,73 @@
+import AppKit
+import Foundation
+import HarkCore
+import KeyboardShortcuts
+import os
+
+extension KeyboardShortcuts.Name {
+    /// Tap to start and tap again to stop; hold it instead and dictation ends when the key is let go.
+    static let pushToTalk = Self("pushToTalk", initial: .init(.v, modifiers: [.control, .option]))
+    static let cancelUtterance = Self("cancelUtterance", initial: .init(.escape, modifiers: [.control, .option]))
+}
+
+/// Drives the pipeline from the two shortcuts. The tap-or-hold decision is `TriggerGate` in HarkCore.
+final class HotkeyBridge {
+    /// M1 shipped F13 and F14, and KeyboardShortcuts writes an initial shortcut to defaults on first launch.
+    /// This replaces those stored values once. A shortcut the user recorded is left alone.
+    private static let migrationKey = "HarkTriggerDefaultsV2"
+
+    private var listeners: [Task<Void, Never>] = []
+    private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "hotkey")
+
+    /// `onLatchChange` gets `TriggerGate.isLatched` after every key event: the HUD's lock beside the timer.
+    func start(
+        driving controller: PipelineController, onLatchChange: @escaping @MainActor (Bool) -> Void,
+        defaults: UserDefaults = .standard
+    ) {
+        guard listeners.isEmpty else { return }
+        migrateInitialShortcuts(defaults)
+
+        Self.logger.info(
+            "listeners starting: pushToTalk = \(KeyboardShortcuts.getShortcut(for: .pushToTalk)?.description ?? "none", privacy: .public), cancel = \(KeyboardShortcuts.getShortcut(for: .cancelUtterance)?.description ?? "none", privacy: .public)"
+        )
+        listeners.append(
+            Task {
+                var gate = TriggerGate()
+                for await event in KeyboardShortcuts.events(for: .pushToTalk) {
+                    let key: TriggerGate.Key = event == .keyDown ? .down : .up
+                    let capturing = await controller.phase == .capturing
+                    let action = gate.handle(key, at: .now, isCapturing: capturing)
+                    // Before the switch: the key-up that latches returns `.ignore`, whose branch is `continue`.
+                    onLatchChange(gate.isLatched)
+                    Self.logger.debug(
+                        "event \(String(describing: event), privacy: .public), capturing \(capturing, privacy: .public) -> \(String(describing: action), privacy: .public)"
+                    )
+                    switch action {
+                    case .start:
+                        await controller.triggerDown()
+                    case .stop:
+                        await controller.triggerUp()
+                    case .ignore:
+                        continue
+                    }
+                }
+            })
+        listeners.append(
+            Task {
+                for await event in KeyboardShortcuts.events(for: .cancelUtterance) where event == .keyDown {
+                    await controller.cancel()
+                }
+            })
+    }
+
+    private func migrateInitialShortcuts(_ defaults: UserDefaults) {
+        guard !defaults.bool(forKey: Self.migrationKey) else { return }
+        defaults.set(true, forKey: Self.migrationKey)
+        if KeyboardShortcuts.getShortcut(for: .pushToTalk) == .init(.f13) {
+            KeyboardShortcuts.reset(.pushToTalk)
+        }
+        if KeyboardShortcuts.getShortcut(for: .cancelUtterance) == .init(.f14) {
+            KeyboardShortcuts.reset(.cancelUtterance)
+        }
+    }
+}

@@ -1,0 +1,56 @@
+# Hark voice commands. Start with an opening verb, then name an app: "open Safari", "ouvre le Finder".
+# The first app named after the verb opens and the rest of the sentence is ignored. Anything that does not
+# start with a verb below, or names no app below, is dictated as text.
+version: 2
+
+defaults:
+  threshold: 0.85        # how close a spoken app name has to be, from 0 to 1
+
+open_verbs:
+  en: [open, launch, show, start]
+  fr: [ouvre, ouvrir, lance, lancer, affiche, afficher, démarre, démarrer]
+
+fillers:                 # skipped between the verb and the app
+  en: [the, my, a, an]
+  fr: [le, la, les, l, mon, ma, mes, un, une]
+
+commands:                # app is the application's name, or a path to it; its name is an alias already
+  - id: open_finder
+    action: open_app
+    app: "Finder"
+
+  - id: open_safari
+    action: open_app
+    app: "Safari"
+
+  - id: open_notes
+    action: open_app
+    app: "Notes"
+    aliases: ["note"]
+
+  - id: open_mail
+    action: open_app
+    app: "Mail"
+
+  - id: open_messages
+    action: open_app
+    app: "Messages"
+
+  - id: open_calendar
+    action: open_app
+    app: "Calendar"
+    aliases: ["calendrier"]
+
+  - id: open_music
+    action: open_app
+    app: "Music"
+    aliases: ["musique"]
+
+  - id: open_system_settings
+    action: open_app
+    app: "System Settings"
+    aliases: ["settings", "réglages", "réglages système"]
+
+  - id: open_terminal
+    action: open_app
+    app: "Terminal"

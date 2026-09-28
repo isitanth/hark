@@ -1,0 +1,20 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSAppleEventsUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hark runs the AppleScript actions you define in commands.yaml." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Hark exécute les actions AppleScript que vous définissez dans commands.yaml." } }
+      }
+    },
+    "NSMicrophoneUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hark listens only while you hold the trigger key, and transcribes on this Mac." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Hark n’écoute que lorsque vous maintenez la touche de déclenchement, et transcrit sur ce Mac." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

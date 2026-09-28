@@ -1,0 +1,14 @@
+.build/
+.swiftpm/
+dist/
+.DS_Store
+langchain_integration/
+
+# Kept on this Mac only: the working documentation and the agent files.
+/docs/
+/SPEC.md
+/hark-claude-code-prompt.md
+/hark-claude-design-prompt.md
+/CLAUDE.md
+/AGENTS.md
+/.claude/
