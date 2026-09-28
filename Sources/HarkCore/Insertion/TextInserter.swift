@@ -25,7 +25,13 @@ public actor TextInserter: TextInserting {
     /// How long a ⌘C gets to land on the pasteboard. In M9.0 it landed well inside this, osascript's own launch
     /// included. With nothing selected it never lands, and this is what the Ask key waits before it says so.
     public static let defaultCopyDeadline: Duration = .milliseconds(250)
+    /// After a ⌘C the app may still write: late, or a second time with its rich types, and a clipboard manager may
+    /// rewrite the copy. For this long any change is taken for the copy's, and the user's contents go back over it.
+    public static let copyWatch: Duration = .seconds(1)
     private static let copyPoll: Duration = .milliseconds(10)
+    private static let copyWatchPoll: Duration = .milliseconds(20)
+    /// Puts the contents back at most this many times, so a clipboard manager that rewrites them does not fight on.
+    private static let copyWatchRestores = 2
 
     private struct PendingRestore {
         let original: PasteboardSnapshot
@@ -43,6 +49,10 @@ public actor TextInserter: TextInserting {
     private let readDeadline: Duration
     private let copyDeadline: Duration
     private var pending: PendingRestore?
+    /// The user's contents while a copy's aftermath is watched. A paste or a copy that starts meanwhile takes them as
+    /// its original, since the pasteboard may still hold the selection.
+    private var copyWatch: (original: PasteboardSnapshot, timer: Task<Void, Never>)?
+    private var copyWatches = 0
 
     private static let logger = Logger(subsystem: HarkLog.subsystem, category: "insertion")
 
@@ -195,15 +205,48 @@ public actor TextInserter: TextInserting {
         if now != original.changeCount, !(await pasteboard.restore(original, ifChangeCountIs: now)) {
             Self.logger.info("pasteboard changed during the copy; left as it is")
         }
+        watchAfterCopy(original, from: await pasteboard.changeCount())
         Self.logger.info(
             "copied the selection of \(target.logName, privacy: .public): \(copied == nil ? "nothing" : "text", privacy: .public)"
         )
         return copied
     }
 
+    /// A copy that lands after the deadline, or a second write after the restore, would otherwise stay on the
+    /// user's clipboard for good.
+    private func watchAfterCopy(_ original: PasteboardSnapshot, from count: Int) {
+        copyWatches += 1
+        let watch = copyWatches
+        let timer = Task { [clock] in
+            var last = count
+            var restores = 0
+            for _ in 0..<Int(Self.copyWatch / Self.copyWatchPoll) {
+                do {
+                    try await clock.sleep(for: Self.copyWatchPoll)
+                } catch {
+                    return
+                }
+                let now = await pasteboard.changeCount()
+                guard now != last else { continue }
+                guard restores < Self.copyWatchRestores, await pasteboard.restore(original, ifChangeCountIs: now)
+                else { break }
+                restores += 1
+                last = await pasteboard.changeCount()
+                Self.logger.info("the copy wrote again; the clipboard was put back")
+            }
+            if copyWatches == watch { copyWatch = nil }
+        }
+        copyWatch = (original, timer)
+    }
+
     /// The user's own contents. While a restore is pending and nothing else has written, the pasteboard still holds
     /// the previous paste's text, and the snapshot that restore would have put back is the one to keep.
     private func originalContents() async -> PasteboardSnapshot {
+        if let copyWatch {
+            copyWatch.timer.cancel()
+            self.copyWatch = nil
+            return copyWatch.original
+        }
         if let pending, await pasteboard.changeCount() == pending.written {
             return pending.original
         }

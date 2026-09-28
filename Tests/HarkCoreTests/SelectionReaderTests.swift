@@ -119,6 +119,29 @@ struct SelectionCopyTests {
         #expect(rig.keystrokes.posted.isEmpty)
     }
 
+    /// The app copies after the deadline: the watch puts the user's contents back over it.
+    @Test func aLateCopyIsPutBack() async {
+        let rig = Rig()
+        #expect(await rig.inserter.copySelection(from: F.mail) == nil)
+        rig.pasteboard.userCopies("late selection")
+        await rig.clock.waitForSleeps(1)
+        rig.clock.advance(by: .milliseconds(20))
+        await eventually { rig.pasteboard.text == "original" }
+        #expect(rig.pasteboard.text == "original")
+    }
+
+    /// The app writes a second time after the restore, its rich types after its text: put back again.
+    @Test func aSecondWriteIsPutBack() async {
+        let rig = Rig()
+        rig.keystrokes.select("sélection")
+        #expect(await rig.inserter.copySelection(from: F.mail) == "sélection")
+        rig.pasteboard.userCopies("sélection, en HTML")
+        await rig.clock.waitForSleeps(1)
+        rig.clock.advance(by: .milliseconds(20))
+        await eventually { rig.pasteboard.text == "original" }
+        #expect(rig.pasteboard.text == "original" && rig.pasteboard.restores == 2)
+    }
+
     /// A dictation pasted just before, its restore still pending: the user's contents come back, not the dictation.
     @Test func aPendingRestoreGivesBackTheUsersContents() async throws {
         let rig = Rig()
