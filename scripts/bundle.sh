@@ -105,6 +105,17 @@ print -n "APPL????" > "$contents/PkgInfo"
 xcrun xcstringstool compile Support/InfoPlist.xcstrings --output-directory "$contents/Resources"
 # The Services menu's "Ask Hark": its title per language (ServicesMenu.strings) and its template icon (NSIconName).
 xcrun xcstringstool compile Support/ServicesMenu.xcstrings --output-directory "$contents/Resources"
+# pbs reads a Services title from an old-style .strings file, as UTF-16; xcstringstool writes an XML plist.
+for strings in "$contents"/Resources/*.lproj/ServicesMenu.strings; do
+    plutil -convert json -o - "$strings" | perl -MJSON::PP -0777 -ne '
+        binmode STDOUT, ":encoding(UTF-8)";
+        my $table = JSON::PP->new->utf8->decode($_);
+        for my $key (sort keys %$table) {
+            my ($k, $v) = map { (my $s = $_) =~ s/(["\\])/\\$1/g; $s } ($key, $table->{$key});
+            print "\"$k\" = \"$v\";\n";
+        }' | iconv -f UTF-8 -t UTF-16 > "$strings.tmp"
+    mv "$strings.tmp" "$strings"
+done
 ditto Support/Icon/AskHarkServiceTemplate.png Support/Icon/AskHarkServiceTemplate@2x.png "$contents/Resources"
 # The binary includes whisper.cpp, KeyboardShortcuts and Yams, so their MIT notices travel with it.
 ditto LICENSE THIRD_PARTY_NOTICES.md "$contents/Resources"
