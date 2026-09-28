@@ -63,6 +63,22 @@ let baseURLCases: [BaseURLCase] = [.init(base: "http://127.0.0.1:8002/v1"), .ini
         #expect(body["stream_options"] == nil)
     }
 
+    /// The parser refuses these names in `extra`; a profile built in code gets the standard fields anyway.
+    @Test func extraCannotOverrideTheStandardFields() async throws {
+        var profile = H.profile
+        profile.extra = [
+            "stream": .bool(false), "model": .string("other"), "max_tokens": .int(1), "temperature": .double(2),
+            "response_format": .string("json_object"), "stream_options": .string("x"),
+        ]
+        let body = try body(of: try await request(for: profile))
+        #expect(body["stream"] as? Bool == true)
+        #expect(body["model"] as? String == LLMFixtures.model)
+        #expect(body["max_tokens"] as? Int == ProviderProfile.defaultMaxTokens)
+        #expect(body["temperature"] as? Double == ProviderProfile.defaultTemperature)
+        #expect(body["response_format"] == nil)
+        #expect(body["stream_options"] == nil)
+    }
+
     @Test func extraKeepsEachScalarType() async throws {
         var profile = H.profile
         profile.extra = ["top_k": .int(20), "top_p": .double(0.8), "seed_name": .string("hark"), "flag": .bool(true)]

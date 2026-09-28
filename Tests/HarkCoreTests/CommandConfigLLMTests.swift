@@ -75,7 +75,8 @@ private func local(_ url: String, key: KeySource = .keychain) -> LLMConfig {
 let llmAcceptCases: [LLMAcceptCase] = [
     .init("version 3 without llm", "version: 3\ncommands: []\n", nil),
     .init("version 2 reads as 3 without llm", "version: 2\ncommands: []\n", nil),
-    .init("an empty llm is the standard one", LLMTexts.file(["provider: local"]), .standard),
+    .init("provider alone is the standard profiles", LLMTexts.file(["provider: local"]), .standard),
+    .init("an empty llm is the standard one", "version: 3\ncommands: []\nllm: {}\n", .standard),
     .init("a null llm is no llm", "version: 3\nllm:\n", nil),
     .init("every default filled in", LLMTexts.url("https://example.com/v1"), local("https://example.com/v1")),
     .init(
@@ -106,6 +107,15 @@ let llmAcceptCases: [LLMAcceptCase] = [
         LLMConfig(
             provider: "local",
             profiles: ["local": ProviderProfile(name: "local", baseURL: example, temperature: 0, maxTokens: 1)])),
+    .init(
+        "sampler fields that end in tokens are not secrets",
+        LLMTexts.with("extra: {skip_special_tokens: true, min_tokens: 2}"),
+        LLMConfig(
+            provider: "local",
+            profiles: [
+                "local": ProviderProfile(
+                    name: "local", baseURL: example, extra: ["skip_special_tokens": .bool(true), "min_tokens": .int(2)])
+            ])),
     .init("http to 127.0.0.1", LLMTexts.url("http://127.0.0.1:8002/v1"), local("http://127.0.0.1:8002/v1")),
     .init("http to 127.9.9.9", LLMTexts.url("http://127.9.9.9/v1"), local("http://127.9.9.9/v1")),
     .init("http to localhost", LLMTexts.url("http://localhost:8000/v1"), local("http://localhost:8000/v1")),
@@ -254,6 +264,11 @@ let llmProblemCases: [LLMProblemCase] = [
         "extra auth", LLMTexts.with("extra: {authorization: abc}"),
         .keyInFile(path: "\(profilePath).extra.authorization")),
     .init("extra PASSWORD", LLMTexts.with("extra: {PASSWORD: abc}"), .keyInFile(path: "\(profilePath).extra.PASSWORD")),
+    .init("extra apiKey", LLMTexts.with("extra: {apiKey: abc}"), .keyInFile(path: "\(profilePath).extra.apiKey")),
+    .init("extra oauth", LLMTexts.with("extra: {oauth: abc}"), .keyInFile(path: "\(profilePath).extra.oauth")),
+    .init(
+        "extra max_tokens is a standard field, not a secret", LLMTexts.with("extra: {max_tokens: 5}"),
+        .outOfRange(path: "\(profilePath).extra", value: "max_tokens")),
 ]
 
 struct LLMRoundTripCase: Sendable, CustomTestStringConvertible {

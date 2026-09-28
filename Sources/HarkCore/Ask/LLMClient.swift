@@ -168,21 +168,18 @@ public actor LLMClient {
         }
     }
 
+    /// Nil when the body cannot be written as JSON: a number that is not finite, which no parsed profile holds.
     static func chatRequest(
         _ messages: [ChatMessage], model: String, profile: ProviderProfile, key: String?
-    ) -> URLRequest {
+    ) -> URLRequest? {
         var request = URLRequest(url: profile.baseURL.appending(path: "chat/completions"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
         if let key { request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
-        var body: [String: Any] = [
-            "model": model,
-            "messages": messages.map { ["role": $0.role.rawValue, "content": $0.content] },
-            "stream": true,
-            "max_tokens": profile.maxTokens,
-            "temperature": profile.temperature,
-        ]
+        // `extra` first and the standard fields over it: the parser refuses a standard name in `extra`, and a profile
+        // built in code cannot turn streaming off or ask for JSON either.
+        var body: [String: Any] = [:]
         for (name, value) in profile.extra {
             switch value {
             case .bool(let flag): body[name] = flag
@@ -191,7 +188,17 @@ public actor LLMClient {
             case .string(let text): body[name] = text
             }
         }
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
+        body["model"] = model
+        body["messages"] = messages.map { ["role": $0.role.rawValue, "content": $0.content] }
+        body["stream"] = true
+        body["max_tokens"] = profile.maxTokens
+        body["temperature"] = profile.temperature
+        body["response_format"] = nil
+        body["stream_options"] = nil
+        guard JSONSerialization.isValidJSONObject(body),
+            let data = try? JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
+        else { return nil }
+        request.httpBody = data
         return request
     }
 
@@ -218,7 +225,12 @@ public actor LLMClient {
             continuation.finish()
             return
         }
-        let request = Self.chatRequest(messages, model: model, profile: profile, key: key)
+        guard let request = Self.chatRequest(messages, model: model, profile: profile, key: key) else {
+            Self.logger.error("the request for \(profile.name, privacy: .public) is not valid JSON; nothing was sent")
+            continuation.yield(.failed(.server(status: nil, message: nil), LLMCallSummary(ms: nil)))
+            continuation.finish()
+            return
+        }
         let call = StreamCall(continuation: continuation, elapsed: clock.stopwatch())
         // The timers start before the request, so a head that comes at once cannot stop a connect timer not yet set.
         let timers = CallTimers(clock: clock) { call.fail(.noAnswer) }
@@ -312,6 +324,7 @@ public actor LLMClient {
             }
             timers.stop(.connect)
             let body = await Self.read(response.body, limit: Self.modelsBodyLimit)
+            handle.finish()
             return .success((response.status, body))
         }
         handle.attach { worker.cancel() }
@@ -460,10 +473,12 @@ private final class CallTimers: Sendable {
     }
 }
 
-/// The worker of one exchange and whether a timer cancelled it.
+/// The worker of one exchange and whether a timer cancelled it. A timer that fires once the whole body is in is too
+/// late to count: the answer stands.
 private final class WorkerHandle: Sendable {
     private struct State {
         var timedOut = false
+        var finished = false
         var cancel: (@Sendable () -> Void)?
     }
 
@@ -479,8 +494,13 @@ private final class WorkerHandle: Sendable {
         if timedOut { cancel() }
     }
 
+    func finish() {
+        state.withLock { $0.finished = true }
+    }
+
     func timeOut() {
         let cancel = state.withLock { state -> (@Sendable () -> Void)? in
+            guard !state.finished else { return nil }
             state.timedOut = true
             return state.cancel
         }

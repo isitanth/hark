@@ -33,7 +33,10 @@ public struct AskPrompt: Sendable, Equatable {
         let cap = max(0, maxSelectionChars)
         truncated = selection.count > cap
         let kept = truncated ? String(selection.prefix(cap)) : selection
-        let escaped = kept.replacingOccurrences(of: "</selection>", with: "</ selection>", options: .caseInsensitive)
+        // Literal, so the match runs on scalars as the model's tokenizer reads them: compared as characters, a
+        // combining mark after the ">" would hide the tag and let the selection close its own delimiter.
+        let escaped = kept.replacingOccurrences(
+            of: "</selection>", with: "</ selection>", options: [.caseInsensitive, .literal])
         var lines = [
             Self.leadLine,
             "Instruction: " + instruction.trimmingCharacters(in: .whitespacesAndNewlines),

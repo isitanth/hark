@@ -143,8 +143,9 @@ extension CommandConfig {
     }
 
     /// Canonical YAML for this config: `version`, `defaults`, `apps`, `open_verbs`, `fillers`, `commands`, `llm`, in
-    /// that order, every string double-quoted so that YAML can never read it as something else. `parse(yaml())` gives back
-    /// an equal value. Comments are not preserved, because the value never had them.
+    /// that order, every string double-quoted so that YAML can never read it as something else. For every config the
+    /// parser can produce, `parse(yaml())` gives back an equal value; one built in code with a number that is not
+    /// finite, or a model named "auto", does not. Comments are not preserved, because the value never had them.
     public func yaml() -> String {
         CommandConfigEmitter.yaml(for: self)
     }

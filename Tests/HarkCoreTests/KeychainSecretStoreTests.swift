@@ -17,11 +17,17 @@ struct KeychainSecretStoreTests {
         try await store.removeSecret(for: account)
     }
 
+    /// The item is removed whatever happens in between, so a failure leaves nothing in the login keychain.
     @Test func setReadReplaceRemove() async throws {
-        try await store.setSecret("first-value", for: account)
-        #expect(try await store.secret(for: account) == "first-value")
-        try await store.setSecret("second-value", for: account)
-        #expect(try await store.secret(for: account) == "second-value")
+        do {
+            try await store.setSecret("first-value", for: account)
+            #expect(try await store.secret(for: account) == "first-value")
+            try await store.setSecret("second-value", for: account)
+            #expect(try await store.secret(for: account) == "second-value")
+        } catch {
+            try? await store.removeSecret(for: account)
+            throw error
+        }
         try await store.removeSecret(for: account)
         #expect(try await store.secret(for: account) == nil)
     }

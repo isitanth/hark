@@ -10,8 +10,11 @@ extension CommandConfigSchema {
     static let standardRequestFields: Set<String> = [
         "model", "messages", "stream", "stream_options", "max_tokens", "temperature", "response_format",
     ]
-    /// A field whose name contains one of these is taken for a secret.
-    static let secretWords = ["key", "token", "secret", "auth", "password"]
+    /// A field is taken for a secret when a word of its name, split at `_` and `-`, is or ends with one of these:
+    /// `api_key`, `apiKey`, `access_token` and `oauth` are; `max_tokens` and `skip_special_tokens` are not.
+    static let secretWords = [
+        "key", "token", "secret", "auth", "authorization", "password", "passwd", "bearer", "credential", "credentials",
+    ]
     static let maxSelectionCharsRange = 1...100_000
     static let temperatureRange = 0.0...2.0
     static let maxTokensRange = 1...131_072
@@ -40,8 +43,8 @@ extension CommandConfigSchema {
     }
 
     static func looksSecret(_ name: String) -> Bool {
-        let lowered = name.lowercased()
-        return secretWords.contains { lowered.contains($0) }
+        let words = name.lowercased().split { $0 == "_" || $0 == "-" }
+        return words.contains { word in secretWords.contains { word.hasSuffix($0) } }
     }
 
     private static func profiles(_ node: Node) throws(ConfigError) -> [String: ProviderProfile] {
@@ -163,8 +166,11 @@ extension CommandConfigSchema {
             let keyNode = try ConfigNodes.visit(keyNode)
             let name = ConfigNodes.keyText(keyNode)
             let fieldPath = "\(path).\(name)"
+            guard !standardRequestFields.contains(name) else {
+                throw ConfigNodes.error(.outOfRange(path: path, value: name), at: keyNode)
+            }
             if looksSecret(name) { throw ConfigNodes.error(.keyInFile(path: fieldPath), at: keyNode) }
-            guard name.wholeMatch(of: /[a-z_][a-z0-9_]*/) != nil, !standardRequestFields.contains(name) else {
+            guard name.wholeMatch(of: /[a-z_][a-z0-9_]*/) != nil else {
                 throw ConfigNodes.error(.outOfRange(path: path, value: name), at: keyNode)
             }
             guard extra[name] == nil else { throw ConfigNodes.error(.duplicateKey(name, path: path), at: keyNode) }
