@@ -35,7 +35,7 @@ struct HUDCase: Sendable, CustomTestStringConvertible {
             if let capture { return capture.durationMs > 30_000 ? .transcribing(.longClip) : .hidden }
             if let lastLevel, lastLevel.durationMs > 30_000 { return .transcribing(.longClip) }
             return .hidden
-        case .idle, .resolving, .confirming, .acting, .inserting, .copying:
+        case .idle, .resolving, .confirming, .acting, .inserting, .copying, .asking:
             return .hidden
         }
     }

@@ -289,11 +289,12 @@ let illegalTransitions: [IllegalTransition] = [
     }
 
     @Test func everyFailureAndDiscardReasonIsCovered() {
-        let logged = Set(legalTransitions.flatMap(\.effects).filter { $0.hasPrefix("log:") })
+        let logged = Set((legalTransitions + askTransitions).flatMap(\.effects).filter { $0.hasPrefix("log:") })
         let failures: [PipelineFailure] = [
             .micPermissionDenied, .noInputDevice, .deviceChanged, .audioEngine(code: -10868), .modelMissing(.small),
             .modelLoad, .transcription(code: 3), .actionLaunch, .actionTimeout, .actionExit(2),
-            .automationDenied(bundleID: "com.apple.finder"), .focusNotRestored, .pasteboardWrite,
+            .automationDenied(bundleID: "com.apple.finder"), .focusNotRestored, .pasteboardWrite, .llmUnreachable,
+            .llmUnauthorized, .llmTimeout, .llmError(status: 500), .llmError(status: nil), .llmEmpty,
         ]
         for failure in failures {
             #expect(logged.contains("log:failed:\(failure.code)"), "no reducer case logs \(failure.code)")
@@ -303,9 +304,9 @@ let illegalTransitions: [IllegalTransition] = [
         #expect(logged.contains("log:text_clipboard:insertion_timeout"))
         #expect(logged.contains("log:text_clipboard:paste_not_consumed"))
         // `max_duration` is no longer a discard: since 2026-09-24 the limit ends the capture and the text goes
-        // through, with the code on the `text_inserted` or `command` line instead. `empty_selection` and the ask's
-        // failures are the contract of M8.1; the reducer logs them from M8.4, which adds them here.
-        let notYetReduced: Set<DiscardReason> = [.maxDuration, .emptySelection]
+        // through, with the code on the `text_inserted` or `command` line instead. `selection_changed` comes with
+        // Replace in M8.5.
+        let notYetReduced: Set<DiscardReason> = [.maxDuration]
         for reason in DiscardReason.allCases where !notYetReduced.contains(reason) {
             #expect(logged.contains("log:discarded:\(reason.rawValue)"), "no reducer case logs \(reason.rawValue)")
         }

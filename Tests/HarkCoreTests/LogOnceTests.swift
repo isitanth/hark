@@ -98,7 +98,7 @@ let pressSequences: [PressSequence] = [
 ]
 
 @Suite struct LogOnceTests {
-    @Test(arguments: pressSequences)
+    @Test(arguments: pressSequences + askPressSequences)
     func exactlyOneLinePerPress(_ sequence: PressSequence) {
         let reducer = PipelineReducer()
         var state = PipelineState.idle
@@ -117,7 +117,7 @@ let pressSequences: [PressSequence] = [
         }
 
         let presses = sequence.events.compactMap { event -> Date? in
-            if case .triggerDown(_, let at) = event { at } else { nil }
+            if case .triggerDown(_, let at, _) = event { at } else { nil }
         }
         #expect(state == .idle)
         #expect(labels == sequence.logs)

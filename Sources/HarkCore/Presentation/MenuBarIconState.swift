@@ -18,7 +18,7 @@ public enum MenuBarIconState: String, Sendable, CaseIterable {
         switch phase {
         case .capturing:
             self = .recording
-        case .transcribing, .resolving, .confirming, .acting, .inserting, .copying:
+        case .transcribing, .resolving, .confirming, .acting, .inserting, .copying, .asking:
             self = .transcribing
         case .idle:
             self = hasError ? .error : isArmed ? .armed : .idle

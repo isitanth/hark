@@ -26,6 +26,9 @@ public struct UtteranceContext: Sendable, Equatable {
     /// The model id that answered an ask, and the time from its request to the last token. Nil with no LLM call.
     public var llmModel: String?
     public var llmMs: Int?
+    /// What an ask's Copy or Replace applies: the suggestion as the user left it in the popup. Never logged; nil for
+    /// dictation, where the transcript is the text.
+    public var answer: String?
 
     public init(id: UtteranceID, pressedAt: Date, intent: CaptureIntent = .dictate) {
         self.id = id
@@ -39,6 +42,16 @@ public enum ConfirmationStage: Sendable, Equatable {
     case restoringFocus
 }
 
+/// Where an ask is after its instruction was heard. M8.5 adds the stages of Replace.
+public enum AskStage: Sendable, Equatable {
+    /// The request is out and the answer streams into the popup, outside the reducer.
+    case generating
+    /// The answer is complete and waits for Copy, Replace or Cancel.
+    case reviewing
+    /// The server failed. The popup offers Retry; Cancel ends the ask with this failure on its line.
+    case failed(LLMFailure)
+}
+
 public enum PipelineState: Sendable, Equatable {
     case idle
     case capturing(UtteranceContext)
@@ -48,6 +61,8 @@ public enum PipelineState: Sendable, Equatable {
     case acting(UtteranceContext, Transcript, ResolvedCommand)
     case inserting(UtteranceContext, Transcript, InsertionPlan)
     case copying(UtteranceContext, Transcript, ClipboardReason)
+    /// An ask, once its instruction is transcribed. The transcript is the instruction.
+    case asking(UtteranceContext, Transcript, AskStage)
 
     public var phase: PipelinePhase {
         switch self {
@@ -59,6 +74,7 @@ public enum PipelineState: Sendable, Equatable {
         case .acting: .acting
         case .inserting: .inserting
         case .copying: .copying
+        case .asking: .asking
         }
     }
 
@@ -67,9 +83,26 @@ public enum PipelineState: Sendable, Equatable {
         case .idle: nil
         case .capturing(let context), .transcribing(let context): context
         case .resolving(let context, _), .confirming(let context, _, _, _), .acting(let context, _, _),
-            .inserting(let context, _, _), .copying(let context, _, _):
+            .inserting(let context, _, _), .copying(let context, _, _), .asking(let context, _, _):
             context
         }
+    }
+
+    /// The instruction and the stage while the state is `.asking`, for the popup.
+    public var ask: AskProgress? {
+        guard case .asking(_, let transcript, let stage) = self else { return nil }
+        return AskProgress(instruction: transcript.raw, stage: stage)
+    }
+}
+
+/// What the Ask panel shows of `.asking`: the instruction as heard, and the stage.
+public struct AskProgress: Sendable, Equatable {
+    public var instruction: String
+    public var stage: AskStage
+
+    public init(instruction: String, stage: AskStage) {
+        self.instruction = instruction
+        self.stage = stage
     }
 }
 
@@ -82,4 +115,5 @@ public enum PipelinePhase: String, Sendable, CaseIterable {
     case acting
     case inserting
     case copying
+    case asking
 }

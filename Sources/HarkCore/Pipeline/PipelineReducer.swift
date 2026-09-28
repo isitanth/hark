@@ -34,12 +34,20 @@ public struct PipelineReducer: Sendable {
     }
 
     public func reduce(_ state: PipelineState, _ event: PipelineEvent) -> Result<Transition, Rejection> {
-        if case .triggerDown(let id, let at) = event {
-            let context = UtteranceContext(id: id, pressedAt: at)
+        if case .triggerDown(let id, let at, let intent) = event {
+            var context = UtteranceContext(id: id, pressedAt: at, intent: intent)
+            // An ask knows its app already, and probing would find Hark: a Services call brings the provider forward.
+            if case .ask(let selection) = intent { context.focus = FocusSnapshot(app: selection.caller) }
             guard case .idle = state else {
                 return .success(Transition(state: state, effects: [log(context, nil, .discarded(.busy))]))
             }
-            return .success(Transition(state: .capturing(context), effects: [.startCapture(id), .probeFocus(id)]))
+            guard case .ask(let selection) = intent else {
+                return .success(Transition(state: .capturing(context), effects: [.startCapture(id), .probeFocus(id)]))
+            }
+            guard !selection.isBlank else {
+                return .success(Transition(state: .idle, effects: [log(context, nil, .discarded(.emptySelection))]))
+            }
+            return .success(Transition(state: .capturing(context), effects: [.startCapture(id)]))
         }
 
         guard let context = state.context else { return reject(state, event) }
@@ -78,6 +86,16 @@ public struct PipelineReducer: Sendable {
             if transcript.isBlank {
                 return finish(context, transcript, .discarded(.emptyTranscript))
             }
+            // CLAUDE.md draws the ask branching off `resolving`. The resolver has nothing to do for an ask, neither
+            // command matching nor a destination, so the branch is taken here and `resolving` is skipped: the one
+            // thing it would add, the normalized text for the log, is a pure function.
+            if case .ask(let selection) = context.intent {
+                var instruction = transcript
+                instruction.normalized = Normalizer.normalize(transcript.raw)
+                return move(
+                    .asking(context, instruction, .generating),
+                    [.generate(id, instruction: transcript.raw, selection: selection)])
+            }
             // Where the text goes, and whether it is a secret the log and the clipboard must not show, both come from
             // the focus. The probe always answers, within its AX timeouts, so a slow one is waited for.
             guard let focus = context.focus else { return move(.resolving(context, transcript)) }
@@ -101,7 +119,7 @@ public struct PipelineReducer: Sendable {
                 context.clipboardFallback = fallback
                 return move(
                     .inserting(context, transcript, plan),
-                    [.insert(id, transcript.raw, plan, context.focus, clipboardFallback: fallback)])
+                    [.insert(id, text(context, transcript), plan, context.focus, clipboardFallback: fallback)])
             case .copy(let reason):
                 return move(.copying(context, transcript, reason), [copy(context, transcript)])
             case .discard(let reason):
@@ -135,6 +153,30 @@ public struct PipelineReducer: Sendable {
         case (.copying(let context, let transcript, let reason), .copied):
             return finish(context, transcript, .textClipboard(reason))
 
+        case (.asking(var context, let transcript, .generating), .generated(_, let summary)):
+            context.llmModel = summary.model
+            context.llmMs = summary.ms
+            return move(.asking(context, transcript, .reviewing))
+
+        case (.asking(var context, let transcript, .generating), .generationFailed(_, let failure, let summary)):
+            context.llmModel = summary.model
+            context.llmMs = summary.ms
+            return move(.asking(context, transcript, .failed(failure)))
+
+        // The failed call's numbers go: the line reports the call that ended the ask.
+        case (.asking(var context, let transcript, .failed), .askRetry):
+            guard case .ask(let selection) = context.intent else { return reject(state, event) }
+            context.llmModel = nil
+            context.llmMs = nil
+            return move(
+                .asking(context, transcript, .generating),
+                [.generate(id, instruction: transcript.raw, selection: selection)])
+
+        // The user chose the clipboard: `chosen`, so the line's error is null.
+        case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):
+            context.answer = text
+            return move(.copying(context, transcript, .chosen), [copy(context, transcript)])
+
         // The engine may still be running (cap reached, converter error): release the microphone.
         case (.capturing(let context), .failed(_, let failure)):
             return finish(context, nil, .failed(failure), cleanup: [.cancelCapture(id)])
@@ -161,13 +203,28 @@ public struct PipelineReducer: Sendable {
             let cleanup: [PipelineEffect] = stage == .awaitingAnswer ? [.dismissConfirmation(id)] : []
             return finish(context, transcript, .discarded(.cancelled), cleanup: cleanup)
 
+        case (.asking(let context, let transcript, .generating), .cancel):
+            return finish(context, transcript, .discarded(.cancelled), cleanup: [.cancelGeneration(id)])
+
+        case (.asking(let context, let transcript, .reviewing), .cancel):
+            return finish(context, transcript, .discarded(.cancelled))
+
+        // Closing the popup on an error is not the user giving up on a good answer: the line keeps what failed.
+        case (.asking(let context, let transcript, .failed(let failure)), .cancel):
+            return finish(context, transcript, .failed(failure.pipelineFailure))
+
         default:
             return reject(state, event)
         }
     }
 
     private func copy(_ context: UtteranceContext, _ transcript: Transcript) -> PipelineEffect {
-        .copyToClipboard(context.id, transcript.raw, concealed: context.focus?.isSecureInput ?? false)
+        .copyToClipboard(context.id, text(context, transcript), concealed: context.focus?.isSecureInput ?? false)
+    }
+
+    /// What reaches the field or the clipboard: an ask's answer, or what was said.
+    private func text(_ context: UtteranceContext, _ transcript: Transcript) -> String {
+        context.answer ?? transcript.raw
     }
 
     private func move(_ state: PipelineState, _ effects: [PipelineEffect] = []) -> Result<Transition, Rejection> {

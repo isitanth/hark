@@ -11,6 +11,14 @@ enum Fixture {
     static let paris = TimeZone(identifier: "Europe/Paris") ?? .gmt
 
     static let mail = AppIdentity(bundleID: "com.apple.mail", name: "Mail", processID: 501)
+    static let textEdit = AppIdentity(bundleID: "com.apple.TextEdit", name: "TextEdit", processID: 612)
+    /// What Services › Ask Hark hands over: a selection in TextEdit. Its words appear in no transcript or answer here,
+    /// so a test can look for them in a log line.
+    static let selectionText = "Le comité se réunira jeudi à 14 h pour valider le budget du troisième trimestre."
+    static let selection = SelectionSnapshot(text: selectionText, caller: textEdit)
+    static let ask = CaptureIntent.ask(selection)
+    static let instruction = Transcript(raw: "Résume ce texte.", tier: .small)
+    static let answer = "Réunion jeudi 14 h : validation du budget T3."
     static let focus = FocusSnapshot(app: mail)
     static let speech = CaptureSummary(durationMs: 1800, peakRMS: 0.3, meanRMS: 0.05)
     static let short = CaptureSummary(durationMs: 120, peakRMS: 0.3, meanRMS: 0.05)
@@ -67,6 +75,21 @@ enum Fixture {
     static let copying = PipelineState.copying(context(capture: speech, transcribeMs: 420), transcript, .chosen)
     static let copyingAfterInsertFailed = PipelineState.copying(
         context(capture: speech, transcribeMs: 420), transcript, .fallback(.insertionFailed))
+
+    /// An ask's context: the focus is the caller, set at the press.
+    static func askContext(llmModel: String? = nil, llmMs: Int? = nil, released: Bool = true) -> UtteranceContext {
+        context(
+            focus: FocusSnapshot(app: textEdit), released: released, capture: released ? speech : nil,
+            transcribeMs: released ? 380 : nil, intent: ask, llmModel: llmModel, llmMs: llmMs)
+    }
+
+    static let askCapturing = PipelineState.capturing(askContext(released: false))
+    static let askTranscribing = PipelineState.transcribing(askContext())
+    static let generating = PipelineState.asking(askContext(), instruction, .generating)
+    static let reviewing = PipelineState.asking(askContext(llmModel: bonsai, llmMs: 2_610), instruction, .reviewing)
+    static func askFailed(_ failure: LLMFailure, llmMs: Int? = 15_000) -> PipelineState {
+        .asking(askContext(llmMs: llmMs), instruction, .failed(failure))
+    }
 }
 
 extension PipelineEffect {
@@ -86,6 +109,8 @@ extension PipelineEffect {
         case .runAction: "runAction"
         case .insert: "insert"
         case .copyToClipboard: "copyToClipboard"
+        case .generate: "generate"
+        case .cancelGeneration: "cancelGeneration"
         case .writeLog(let record):
             (["log", record.resolution.rawValue] + [record.error].compactMap(\.self)).joined(separator: ":")
         }

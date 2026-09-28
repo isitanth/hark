@@ -4,5 +4,9 @@ import Foundation
 /// selection: it is never matched as a command or typed at the caret.
 public enum CaptureIntent: Sendable, Equatable {
     case dictate
-    case ask
+    case ask(SelectionSnapshot)
+
+    public var isAsk: Bool {
+        if case .ask = self { true } else { false }
+    }
 }

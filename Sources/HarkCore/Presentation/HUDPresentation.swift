@@ -36,7 +36,7 @@ public enum HUDPresentation {
             if utterance.releasedAt == nil { return .transcribing(.limitReached) }
             let durationMs = utterance.capture?.durationMs ?? lastLevel?.durationMs ?? 0
             return durationMs > longClipMs ? .transcribing(.longClip) : .hidden
-        case .idle, .resolving, .confirming, .acting, .inserting, .copying:
+        case .idle, .resolving, .confirming, .acting, .inserting, .copying, .asking:
             return .hidden
         }
     }

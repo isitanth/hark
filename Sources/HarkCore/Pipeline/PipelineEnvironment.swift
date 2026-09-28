@@ -19,6 +19,24 @@ public protocol ActionRunning: Sendable {
     func run(_ command: ResolvedCommand) async throws(PipelineFailure) -> Int32
 }
 
+/// Runs one ask against the model server the config names. `AskEngine` implements it.
+public protocol AskGenerating: Sendable {
+    /// `text` pieces, then exactly one `finished` or `failed`, then the end. Ending the iteration cancels the request.
+    func generate(instruction: String, selection: String) -> AsyncStream<LLMEvent>
+}
+
+/// Refuses every ask, for environments that never run one.
+public struct NullAskGenerator: AskGenerating {
+    public init() {}
+
+    public func generate(instruction: String, selection: String) -> AsyncStream<LLMEvent> {
+        AsyncStream { continuation in
+            continuation.yield(.failed(.notRunning(endpoint: "none"), LLMCallSummary()))
+            continuation.finish()
+        }
+    }
+}
+
 /// The environment's default, for tests that do not care where text goes: every transcript is copied, as if the
 /// clipboard were the destination the user chose, and normalized like a real resolver would.
 public struct ClipboardSinkResolver: UtteranceResolving {
@@ -63,6 +81,7 @@ public struct PipelineEnvironment: Sendable {
     public var confirmation: any ConfirmationPrompter
     public var inserter: any TextInserting
     public var actions: any ActionRunning
+    public var asker: any AskGenerating
 
     public init(
         workspace: any Workspace,
@@ -74,7 +93,8 @@ public struct PipelineEnvironment: Sendable {
         resolver: any UtteranceResolving = ClipboardSinkResolver(),
         confirmation: any ConfirmationPrompter = NullConfirmationPrompter(),
         inserter: any TextInserting = NullTextInserter(),
-        actions: any ActionRunning = NullActionRunner()
+        actions: any ActionRunning = NullActionRunner(),
+        asker: any AskGenerating = NullAskGenerator()
     ) {
         self.clock = clock
         self.audio = audio
@@ -86,5 +106,6 @@ public struct PipelineEnvironment: Sendable {
         self.confirmation = confirmation
         self.inserter = inserter
         self.actions = actions
+        self.asker = asker
     }
 }

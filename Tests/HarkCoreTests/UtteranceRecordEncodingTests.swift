@@ -79,25 +79,25 @@ let outcomeCases: [OutcomeCase] = [
     .init(
         name: "an ask copied",
         record: UtteranceRecord(
-            context: F.context(capture: F.speech, transcribeMs: 380, intent: .ask, llmModel: F.bonsai, llmMs: 3_420),
+            context: F.context(capture: F.speech, transcribeMs: 380, intent: F.ask, llmModel: F.bonsai, llmMs: 3_420),
             transcript: Transcript(raw: "Résume ce texte.", tier: .small), outcome: .textClipboard(.chosen)),
         nulls: ["normalized_text", "exit_code", "error"]),
     .init(
         name: "an ask replaced",
         record: UtteranceRecord(
-            context: F.context(capture: F.speech, transcribeMs: 380, intent: .ask, llmModel: F.bonsai, llmMs: 2_610),
+            context: F.context(capture: F.speech, transcribeMs: 380, intent: F.ask, llmModel: F.bonsai, llmMs: 2_610),
             transcript: Transcript(raw: "Traduis en anglais.", tier: .small), outcome: .textInserted),
         nulls: ["normalized_text", "exit_code", "error"]),
     .init(
         name: "an ask whose server was down",
         record: UtteranceRecord(
-            context: F.context(capture: F.speech, transcribeMs: 380, intent: .ask),
+            context: F.context(capture: F.speech, transcribeMs: 380, intent: F.ask),
             transcript: Transcript(raw: "Résume ce texte.", tier: .small), outcome: .failed(.llmUnreachable)),
         nulls: ["normalized_text", "exit_code", "llm_model", "llm_ms"]),
     .init(
         name: "an ask on an empty selection",
         record: UtteranceRecord(
-            context: UtteranceContext(id: F.id, pressedAt: F.pressedAt, intent: .ask), transcript: nil,
+            context: UtteranceContext(id: F.id, pressedAt: F.pressedAt, intent: F.ask), transcript: nil,
             outcome: .discarded(.emptySelection)),
         nulls: [
             "duration_ms", "transcribe_ms", "raw_text", "normalized_text", "exit_code", "model_tier", "llm_model",
@@ -125,7 +125,7 @@ let outcomeCases: [OutcomeCase] = [
 
     @Test func goldenAskLine() {
         let record = UtteranceRecord(
-            context: F.context(capture: F.speech, transcribeMs: 380, intent: .ask, llmModel: F.bonsai, llmMs: 3_420),
+            context: F.context(capture: F.speech, transcribeMs: 380, intent: F.ask, llmModel: F.bonsai, llmMs: 3_420),
             transcript: Transcript(raw: "Résume ce texte.", tier: .small), outcome: .textClipboard(.chosen))
         #expect(
             record.jsonLine(timeZone: F.paris)
@@ -272,24 +272,24 @@ let llmKeysCases: [LLMKeysCase] = [
         name: "failed command", context: F.context(capture: F.speech, transcribeMs: 420, action: .openApp),
         outcome: .failed(.appNotFound("Frigo")), actionType: "open_app", llmModel: nil, llmMs: nil),
     .init(
-        name: "ask copied", context: F.context(capture: F.speech, intent: .ask, llmModel: F.bonsai, llmMs: 3_420),
+        name: "ask copied", context: F.context(capture: F.speech, intent: F.ask, llmModel: F.bonsai, llmMs: 3_420),
         outcome: .textClipboard(.chosen), actionType: "ask", llmModel: F.bonsai, llmMs: 3_420),
     .init(
-        name: "ask replaced", context: F.context(capture: F.speech, intent: .ask, llmModel: F.bonsai, llmMs: 2_610),
+        name: "ask replaced", context: F.context(capture: F.speech, intent: F.ask, llmModel: F.bonsai, llmMs: 2_610),
         outcome: .textInserted, actionType: "ask", llmModel: F.bonsai, llmMs: 2_610),
     .init(
         name: "ask with the selection changed",
-        context: F.context(capture: F.speech, intent: .ask, llmModel: F.bonsai, llmMs: 2_610),
+        context: F.context(capture: F.speech, intent: F.ask, llmModel: F.bonsai, llmMs: 2_610),
         outcome: .textClipboard(.fallback(.selectionChanged)), actionType: "ask", llmModel: F.bonsai, llmMs: 2_610),
     .init(
         name: "ask cancelled while streaming",
-        context: F.context(capture: F.speech, intent: .ask, llmModel: F.bonsai, llmMs: 900),
+        context: F.context(capture: F.speech, intent: F.ask, llmModel: F.bonsai, llmMs: 900),
         outcome: .discarded(.cancelled), actionType: "ask", llmModel: F.bonsai, llmMs: 900),
     .init(
-        name: "ask timed out, no model answered", context: F.context(capture: F.speech, intent: .ask, llmMs: 15_000),
+        name: "ask timed out, no model answered", context: F.context(capture: F.speech, intent: F.ask, llmMs: 15_000),
         outcome: .failed(.llmTimeout), actionType: "ask", llmModel: nil, llmMs: 15_000),
     .init(
-        name: "ask cancelled before the request", context: F.context(intent: .ask), outcome: .discarded(.cancelled),
+        name: "ask cancelled before the request", context: F.context(intent: F.ask), outcome: .discarded(.cancelled),
         actionType: "ask", llmModel: nil, llmMs: nil),
 ]
 
@@ -320,7 +320,7 @@ let llmKeysCases: [LLMKeysCase] = [
     /// An ask never carries a command's action, even if one was set on its context.
     @Test func anAskIsWrittenAsAskEvenWithAnAction() {
         let record = UtteranceRecord(
-            context: F.context(capture: F.speech, action: .openApp, intent: .ask), transcript: nil,
+            context: F.context(capture: F.speech, action: .openApp, intent: F.ask), transcript: nil,
             outcome: .failed(.llmEmpty))
         #expect(record.actionType == .ask)
     }

@@ -32,7 +32,7 @@ private typealias F = Fixture
             transcript: Transcript(raw: "hunter2"), outcome: .textInserted),
         UtteranceRecord(
             context: F.context(
-                pressedAt: F.pressedAt.addingTimeInterval(13.25), capture: F.speech, transcribeMs: 380, intent: .ask,
+                pressedAt: F.pressedAt.addingTimeInterval(13.25), capture: F.speech, transcribeMs: 380, intent: F.ask,
                 llmModel: F.bonsai, llmMs: 3_420),
             transcript: Transcript(raw: "Résume ce texte.", tier: .small), outcome: .textClipboard(.chosen)),
     ]

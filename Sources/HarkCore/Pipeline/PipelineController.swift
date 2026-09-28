@@ -7,11 +7,29 @@ public struct PipelineSnapshot: Sendable, Equatable {
     public var utterance: UtteranceContext?
     /// The most recent log line written.
     public var lastRecord: UtteranceRecord?
+    /// The instruction and the stage while an ask is in `.asking`.
+    public var ask: AskProgress?
 
-    public init(phase: PipelinePhase, utterance: UtteranceContext? = nil, lastRecord: UtteranceRecord? = nil) {
+    public init(
+        phase: PipelinePhase, utterance: UtteranceContext? = nil, lastRecord: UtteranceRecord? = nil,
+        ask: AskProgress? = nil
+    ) {
         self.phase = phase
         self.utterance = utterance
         self.lastRecord = lastRecord
+        self.ask = ask
+    }
+}
+
+/// An ask's answer so far, for the popup: the whole text streamed until now. Each request starts with an empty one, so
+/// a Retry clears what the failed call had shown.
+public struct AskUpdate: Sendable, Equatable {
+    public let id: UtteranceID
+    public let text: String
+
+    public init(id: UtteranceID, text: String) {
+        self.id = id
+        self.text = text
     }
 }
 
@@ -22,8 +40,11 @@ public struct PipelineSnapshot: Sendable, Equatable {
 /// arrive after their utterance ended are rejected by the reducer.
 public actor PipelineController {
     public nonisolated let snapshots: AsyncStream<PipelineSnapshot>
+    /// The streamed answer, apart from the snapshots: the reducer sees only the end of a generation.
+    public nonisolated let askUpdates: AsyncStream<AskUpdate>
 
     private let continuation: AsyncStream<PipelineSnapshot>.Continuation
+    private let askContinuation: AsyncStream<AskUpdate>.Continuation
     private let environment: PipelineEnvironment
     private let log: UtteranceLog
     private let reducer: PipelineReducer
@@ -36,11 +57,15 @@ public actor PipelineController {
     private var closed = false
     /// Samples between `AudioInput.stop` and the `.transcribe` effect. Lives only for one `send(.captured)`.
     private var capturedSamples: (id: UtteranceID, samples: [Float])?
+    /// The ask's stream being read. Cancelling it closes the request.
+    private var generation: Task<Void, Never>?
 
     private static let logger = Logger(subsystem: HarkLog.subsystem, category: "pipeline")
 
     public init(environment: PipelineEnvironment, log: UtteranceLog, reducer: PipelineReducer = PipelineReducer()) {
         (snapshots, continuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingNewest(32))
+        // Each update holds the whole text, so only the newest matters.
+        (askUpdates, askContinuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingNewest(1))
         self.environment = environment
         self.log = log
         self.reducer = reducer
@@ -56,6 +81,7 @@ public actor PipelineController {
 
     deinit {
         continuation.finish()
+        askContinuation.finish()
     }
 
     /// Quitting: nothing starts, the utterance in flight is cancelled where it can be, and this returns once the pipeline
@@ -69,10 +95,10 @@ public actor PipelineController {
         }
     }
 
-    public func triggerDown() {
+    public func triggerDown(intent: CaptureIntent = .dictate) {
         guard !closed else { return }
         lastID += 1
-        send(.triggerDown(UtteranceID(lastID), at: environment.clock.now()))
+        send(.triggerDown(UtteranceID(lastID), at: environment.clock.now(), intent: intent))
     }
 
     public func triggerUp() {
@@ -81,6 +107,28 @@ public actor PipelineController {
 
     public func cancel() {
         send(.cancel)
+    }
+
+    /// The Ask panel's Done or Return: a release for `id`, if it is still the utterance in flight. A click that lands
+    /// after the ask ended must not end the next one.
+    public func finishCapture(_ id: UtteranceID) {
+        guard state.context?.id == id else { return }
+        triggerUp()
+    }
+
+    /// The Ask panel's Cancel or Esc, for `id` only.
+    public func cancel(_ id: UtteranceID) {
+        guard state.context?.id == id else { return }
+        send(.cancel)
+    }
+
+    public func retryAsk(_ id: UtteranceID) {
+        send(.askRetry(id))
+    }
+
+    /// Copy in the Ask panel: `text` is the suggestion as the user left it.
+    public func copyAnswer(_ text: String, for id: UtteranceID) {
+        send(.askCopy(id, text))
     }
 
     public var phase: PipelinePhase { state.phase }
@@ -103,7 +151,8 @@ public actor PipelineController {
             for effect in transition.effects {
                 perform(effect)
             }
-            continuation.yield(PipelineSnapshot(phase: state.phase, utterance: state.context, lastRecord: lastRecord))
+            continuation.yield(
+                PipelineSnapshot(phase: state.phase, utterance: state.context, lastRecord: lastRecord, ask: state.ask))
         }
     }
 
@@ -214,6 +263,29 @@ public actor PipelineController {
                 let copied = await env.pasteboard.writeText(text, concealed: concealed)
                 send(copied ? .copied(id) : .failed(id, .pasteboardWrite))
             }
+
+        case .generate(let id, let instruction, let selection):
+            generation?.cancel()
+            askContinuation.yield(AskUpdate(id: id, text: ""))
+            let events = env.asker.generate(instruction: instruction, selection: selection.text)
+            generation = Task {
+                var text = ""
+                for await event in events {
+                    switch event {
+                    case .text(let piece):
+                        text += piece
+                        askContinuation.yield(AskUpdate(id: id, text: text))
+                    case .finished(let summary):
+                        send(.generated(id, summary))
+                    case .failed(let failure, let summary):
+                        send(.generationFailed(id, failure, summary))
+                    }
+                }
+            }
+
+        case .cancelGeneration:
+            generation?.cancel()
+            generation = nil
         }
     }
 }

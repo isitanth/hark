@@ -13,7 +13,8 @@ public enum Decision: Sendable, Equatable {
 }
 
 public enum PipelineEvent: Sendable, Equatable {
-    case triggerDown(UtteranceID, at: Date)
+    /// A press of the talk key (`dictate`), or Services › Ask Hark (`ask`), which starts a capture the same way.
+    case triggerDown(UtteranceID, at: Date, intent: CaptureIntent = .dictate)
     case focusCaptured(UtteranceID, FocusSnapshot)
     case triggerUp(at: Date)
     case cancel
@@ -29,13 +30,21 @@ public enum PipelineEvent: Sendable, Equatable {
     case inserted(UtteranceID)
     case copied(UtteranceID)
     case failed(UtteranceID, PipelineFailure)
+    /// The ask's stream finished with text. The text itself went to the popup, not through here.
+    case generated(UtteranceID, LLMCallSummary)
+    case generationFailed(UtteranceID, LLMFailure, LLMCallSummary)
+    /// Retry in the popup after a failure: the same instruction and selection, sent again.
+    case askRetry(UtteranceID)
+    /// Copy in the popup: `text` is the suggestion as the user left it.
+    case askCopy(UtteranceID, String)
 
     public var utteranceID: UtteranceID? {
         switch self {
-        case .triggerDown(let id, _), .focusCaptured(let id, _), .captureLimitReached(let id), .captured(let id, _),
+        case .triggerDown(let id, _, _), .focusCaptured(let id, _), .captureLimitReached(let id), .captured(let id, _),
             .transcribed(let id, _, _),
             .resolved(let id, _, _), .confirmed(let id, _), .focusRestored(let id, _), .actionFinished(let id, _),
-            .inserted(let id), .copied(let id), .failed(let id, _):
+            .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _),
+            .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _):
             id
         case .triggerUp, .cancel:
             nil
