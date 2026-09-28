@@ -39,5 +39,28 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Hark listens only while you hold the trigger key, and transcribes on this Mac.</string>
+	<key>NSServices</key>
+	<array>
+		<dict>
+			<key>NSIconName</key>
+			<string>AskHarkServiceTemplate</string>
+			<key>NSMenuItem</key>
+			<dict>
+				<key>default</key>
+				<string>Ask Hark</string>
+			</dict>
+			<key>NSMessage</key>
+			<string>askHark</string>
+			<key>NSPortName</key>
+			<string>Hark</string>
+			<key>NSRequiredContext</key>
+			<dict/>
+			<key>NSSendTypes</key>
+			<array>
+				<string>public.utf8-plain-text</string>
+				<string>NSStringPboardType</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

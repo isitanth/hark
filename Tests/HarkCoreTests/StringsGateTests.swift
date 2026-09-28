@@ -51,6 +51,15 @@ import Testing
         #expect(problems.isEmpty, "\(problems.count) problems:\n\(problems.joined(separator: "\n"))")
     }
 
+    /// The Services menu's "Ask Hark", keyed by its NSMenuItem title in Info.plist.
+    @Test func theServicesMenuStringsAreComplete() throws {
+        let catalog = try Self.catalog("Support/ServicesMenu.xcstrings", under: Self.root)
+        #expect(catalog.strings.keys.sorted() == ["Ask Hark"])
+        let problems =
+            StringsGate.presence(catalog, name: "ServicesMenu") + StringsGate.translated(catalog, allowed: [])
+        #expect(problems.isEmpty, "\(problems.joined(separator: "\n"))")
+    }
+
     @Test func theInfoPlistStringsAreComplete() throws {
         let catalog = try Self.catalog("Support/InfoPlist.xcstrings", under: Self.root)
         #expect(!catalog.strings.isEmpty)

@@ -1,0 +1,13 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Ask Hark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ask Hark" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Demander à Hark" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

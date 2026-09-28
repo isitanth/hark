@@ -77,6 +77,7 @@ final class AppModel {
     @ObservationIgnored let controller: PipelineController
     /// The Ask engine: the LLM client, the Keychain, and what the last call to the model server came to.
     let ask = AskModel()
+    @ObservationIgnored private var askService: AskService?
     /// The Model tab's state. Held here because the engine it drives is the one the pipeline was built with.
     @ObservationIgnored let models: ModelsModel
     /// The live text's own Small, beside the final's engine so a partial never queues behind a final.
@@ -270,6 +271,9 @@ final class AppModel {
                 self?.previousApp = nil
             }
         }
+        let service = AskService { [weak self] in self?.previousApp }
+        askService = service
+        HarkAppDelegate.servicesProvider = service
         refreshInputDevices()
         Task { [audio] in await audio.prepare() }
         hotkeys.start(driving: controller, onLatchChange: { [hudModel] in hudModel.setLatched($0) })

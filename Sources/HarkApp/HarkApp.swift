@@ -54,9 +54,18 @@ struct HarkApp: App {
 final class HarkAppDelegate: NSObject, NSApplicationDelegate {
     /// Set by `AppModel`: what has to finish before the process exits.
     static var beforeQuit: (@Sendable () async -> Void)?
+    /// Set by `AppModel`: the Services menu's Ask Hark. A service call can be what launched Hark, so the provider is
+    /// in place before the launch finishes.
+    static var servicesProvider: AskService?
     private static let deadline = Duration.seconds(3)
     private static var isQuitting = false
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "lifecycle")
+
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApp.servicesProvider = Self.servicesProvider
+        NSUpdateDynamicServices()
+        Self.logger.notice("services provider in place: \(Self.servicesProvider != nil, privacy: .public)")
+    }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         // A second request — Cmd-Q after Quit, a logout's quit event — waits for the reply already on its way.

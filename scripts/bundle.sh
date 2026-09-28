@@ -103,6 +103,9 @@ ditto Support/Info.plist "$contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD)" "$contents/Info.plist"
 print -n "APPL????" > "$contents/PkgInfo"
 xcrun xcstringstool compile Support/InfoPlist.xcstrings --output-directory "$contents/Resources"
+# The Services menu's "Ask Hark": its title per language (ServicesMenu.strings) and its template icon (NSIconName).
+xcrun xcstringstool compile Support/ServicesMenu.xcstrings --output-directory "$contents/Resources"
+ditto Support/Icon/AskHarkServiceTemplate.png Support/Icon/AskHarkServiceTemplate@2x.png "$contents/Resources"
 # The binary includes whisper.cpp, KeyboardShortcuts and Yams, so their MIT notices travel with it.
 ditto LICENSE THIRD_PARTY_NOTICES.md "$contents/Resources"
 
@@ -155,5 +158,8 @@ if (( install )); then
     rm -rf "$target"
     ditto "$app" "$target"
     codesign --verify --deep --strict "$target"
+    # Launch Services learns the new NSServices entry, and pbs rebuilds the Services menu from it.
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$target"
+    /System/Library/CoreServices/pbs -update
     print "==> installed; start it with: open ${(q)target}"
 fi
