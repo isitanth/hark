@@ -18,9 +18,9 @@ public enum PipelineEffect: Sendable, Equatable {
     case insert(UtteranceID, String, InsertionPlan, FocusSnapshot?, clipboardFallback: Bool)
     /// `concealed` when the text came from a secure field: clipboard managers are asked not to record it.
     case copyToClipboard(UtteranceID, String, concealed: Bool)
-    /// Streams the model's answer to `instruction` about `selection`; the controller publishes the text as it comes and
-    /// reports only the end.
-    case generate(UtteranceID, instruction: String, selection: SelectionSnapshot)
+    /// Streams the model's answer to `instruction` about `selection`, or to the request alone when there is none (the
+    /// assistant); the controller publishes the text as it comes and reports only the end.
+    case generate(UtteranceID, instruction: String, selection: SelectionSnapshot?)
     /// Closes the stream, which makes the server stop generating (measured in M8.0).
     case cancelGeneration(UtteranceID)
     /// Brings the caller back and checks its selection is still the one asked about (`SelectionGuard`).

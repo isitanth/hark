@@ -6,7 +6,7 @@ import os
 /// when `ending` is nil. It records what it was asked and whether the stream was closed from the consumer's side.
 final class ScriptedAsker: AskGenerating {
     private struct State {
-        var requests: [(instruction: String, selection: String)] = []
+        var requests: [(instruction: String, selection: String?)] = []
         var closedByConsumer = 0
     }
 
@@ -19,10 +19,10 @@ final class ScriptedAsker: AskGenerating {
         self.ending = ending
     }
 
-    var requests: [(instruction: String, selection: String)] { state.withLock { $0.requests } }
+    var requests: [(instruction: String, selection: String?)] { state.withLock { $0.requests } }
     var closedByConsumer: Int { state.withLock { $0.closedByConsumer } }
 
-    func generate(instruction: String, selection: String) -> AsyncStream<LLMEvent> {
+    func generate(instruction: String, selection: String?) -> AsyncStream<LLMEvent> {
         state.withLock { $0.requests.append((instruction, selection)) }
         return AsyncStream { continuation in
             continuation.onTermination = { [state] reason in

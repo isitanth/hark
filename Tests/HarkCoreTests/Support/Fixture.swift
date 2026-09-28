@@ -99,6 +99,30 @@ enum Fixture {
     static func askFailed(_ failure: LLMFailure, llmMs: Int? = 15_000) -> PipelineState {
         .asking(askContext(llmMs: llmMs), instruction, .failed(failure))
     }
+
+    /// The Ask key with nothing selected, in TextEdit.
+    static let assist = CaptureIntent.assist(caller: textEdit)
+    static let request = Transcript(raw: "Écris un mail pour décliner la réunion de jeudi.", tier: .small)
+    /// The assistant's context: the focus comes from the probe, as for a dictation; `backInTextEdit` by default.
+    static func assistContext(
+        focus: FocusSnapshot? = backInTextEdit, llmModel: String? = nil, llmMs: Int? = nil, released: Bool = true
+    ) -> UtteranceContext {
+        context(
+            focus: focus, released: released, capture: released ? speech : nil, transcribeMs: released ? 380 : nil,
+            intent: assist, llmModel: llmModel, llmMs: llmMs)
+    }
+
+    static let assistCapturing = PipelineState.capturing(assistContext(focus: nil, released: false))
+    static let assistTranscribing = PipelineState.transcribing(assistContext())
+    static let assistGenerating = PipelineState.asking(assistContext(), request, .generating)
+    static let assistReviewing = PipelineState.asking(
+        assistContext(llmModel: bonsai, llmMs: 2_610), request, .reviewing)
+    static let assistInserting = PipelineState.asking(
+        {
+            var context = assistContext(llmModel: bonsai, llmMs: 2_610)
+            context.answer = answer
+            return context
+        }(), request, .replacing)
 }
 
 extension PipelineEffect {

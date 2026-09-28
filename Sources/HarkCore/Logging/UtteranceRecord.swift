@@ -46,7 +46,7 @@ public struct UtteranceRecord: Sendable, Equatable {
         targetApp = context.focus?.app?.logName ?? "unknown"
         switch context.intent {
         case .dictate: actionType = context.action.map(LoggedAction.command)
-        case .ask: actionType = .ask
+        case .ask, .assist: actionType = .ask
         }
         modelTier = transcript?.tier
         llmModel = context.llmModel
@@ -101,7 +101,8 @@ public struct UtteranceRecord: Sendable, Equatable {
     }
 }
 
-/// The log's `action_type`: the action a command ran, or `ask` for an utterance that asked the LLM about a selection.
+/// The log's `action_type`: the action a command ran, or `ask` for an utterance that asked the LLM, about a selection or
+/// (the assistant) about nothing.
 public enum LoggedAction: Sendable, Equatable {
     case command(ActionType)
     case ask

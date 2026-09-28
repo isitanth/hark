@@ -36,6 +36,18 @@ struct AskEngineTests {
         #expect(user.contains("Instruction: Résume ça.") && user.contains("<selection>\nLyon.\n</selection>"))
     }
 
+    /// No selection: the assistant's rules and the request alone.
+    @Test func theAssistantSendsItsOwnPrompt() async throws {
+        let transport = FakeLLMTransport([
+            .status(200, try LLMFixtures.data("models.json")), .status(200, try LLMFixtures.data("summary-fr.sse")),
+        ])
+        _ = await H.collect(engine(transport).generate(instruction: "Quelle heure est-il à Tokyo ?", selection: nil))
+            .value
+        let messages = try #require(try body(transport.requests.last)["messages"] as? [[String: String]])
+        #expect(messages.first?["content"] == AskPrompt.assistantSystem)
+        #expect(messages.last?["content"] == AskPrompt(request: "Quelle heure est-il à Tokyo ?").messages[1].content)
+    }
+
     @Test func aNamedModelIsAskedWithoutListingTheModels() async throws {
         let transport = FakeLLMTransport([.status(200, try LLMFixtures.data("summary-fr.sse"))])
         let events = await H.collect(

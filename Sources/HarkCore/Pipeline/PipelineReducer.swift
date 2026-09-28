@@ -37,6 +37,8 @@ public struct PipelineReducer: Sendable {
         if case .triggerDown(let id, let at, let intent) = event {
             var context = UtteranceContext(id: id, pressedAt: at, intent: intent)
             // An ask knows its app already, and probing would find Hark: a Services call brings the provider forward.
+            // The assistant is probed like a dictation: the Ask key leaves the caller in front, and whether a text
+            // field has the focus decides whether Insert is offered.
             if case .ask(let selection) = intent { context.focus = FocusSnapshot(app: selection.caller) }
             guard case .idle = state else {
                 return .success(Transition(state: state, effects: [log(context, nil, .discarded(.busy))]))
@@ -89,12 +91,12 @@ public struct PipelineReducer: Sendable {
             // An ask known at the press branches here, not from `resolving` (CLAUDE.md): there is no command to match
             // and no destination to choose, and the normalized text for the log is a pure function. An ask found in
             // the words (M9's prefix, M10's routing) will branch from `resolving`.
-            if case .ask(let selection) = context.intent {
+            if context.intent.isAsk {
                 var instruction = transcript
                 instruction.normalized = Normalizer.normalize(transcript.raw)
                 return move(
                     .asking(context, instruction, .generating),
-                    [.generate(id, instruction: transcript.raw, selection: selection)])
+                    [.generate(id, instruction: transcript.raw, selection: context.intent.selection)])
             }
             // Where the text goes, and whether it is a secret the log and the clipboard must not show, both come from
             // the focus. The probe always answers, within its AX timeouts, so a slow one is waited for.
@@ -104,6 +106,11 @@ public struct PipelineReducer: Sendable {
         case (.resolving(var context, let transcript), .focusCaptured(_, let focus)) where context.focus == nil:
             context.focus = focus
             return move(.resolving(context, transcript), [.resolve(id, transcript, focus)])
+
+        // The assistant's probe, answering after a short request was already heard: it still decides Insert.
+        case (.asking(var context, let transcript, let stage), .focusCaptured(_, let focus)) where context.focus == nil:
+            context.focus = focus
+            return move(.asking(context, transcript, stage))
 
         case (.resolving(var context, var transcript), .resolved(_, let normalized, let decision)):
             transcript.normalized = normalized
@@ -165,22 +172,23 @@ public struct PipelineReducer: Sendable {
 
         // The failed call's numbers go: the line reports the call that ended the ask.
         case (.asking(var context, let transcript, .failed), .askRetry):
-            guard case .ask(let selection) = context.intent else { return reject(state, event) }
             context.llmModel = nil
             context.llmMs = nil
             return move(
                 .asking(context, transcript, .generating),
-                [.generate(id, instruction: transcript.raw, selection: selection)])
+                [.generate(id, instruction: transcript.raw, selection: context.intent.selection)])
 
         // The user chose the clipboard: `chosen`, so the line's error is null.
         case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):
             context.answer = text
             return move(.copying(context, transcript, .chosen), [copy(context, transcript)])
 
+        // Replace for an ask, Insert for the assistant: both write where the caller's selection is, so both check first
+        // that it is still the one the press saw, the text asked about or nothing selected.
         case (.asking(var context, let transcript, .reviewing), .askReplace(_, let text)):
-            guard case .ask(let selection) = context.intent else { return reject(state, event) }
+            guard let expected = context.intent.expectedSelection else { return reject(state, event) }
             context.answer = text
-            return move(.asking(context, transcript, .replacing), [.checkSelection(id, selection)])
+            return move(.asking(context, transcript, .replacing), [.checkSelection(id, expected)])
 
         // Intact, the answer goes in as a dictation would, through the same inserter and its fallbacks. Otherwise it is
         // kept on the clipboard, never written over text the user did not ask about; the line stays the caller's.

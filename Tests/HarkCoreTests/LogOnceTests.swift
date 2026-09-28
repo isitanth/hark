@@ -98,7 +98,7 @@ let pressSequences: [PressSequence] = [
 ]
 
 @Suite struct LogOnceTests {
-    @Test(arguments: pressSequences + askPressSequences)
+    @Test(arguments: pressSequences + askPressSequences + assistPressSequences)
     func exactlyOneLinePerPress(_ sequence: PressSequence) {
         let reducer = PipelineReducer()
         var state = PipelineState.idle

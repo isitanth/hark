@@ -289,7 +289,8 @@ let illegalTransitions: [IllegalTransition] = [
     }
 
     @Test func everyFailureAndDiscardReasonIsCovered() {
-        let logged = Set((legalTransitions + askTransitions).flatMap(\.effects).filter { $0.hasPrefix("log:") })
+        let logged = Set(
+            (legalTransitions + askTransitions + assistTransitions).flatMap(\.effects).filter { $0.hasPrefix("log:") })
         let failures: [PipelineFailure] = [
             .micPermissionDenied, .noInputDevice, .deviceChanged, .audioEngine(code: -10868), .modelMissing(.small),
             .modelLoad, .transcription(code: 3), .actionLaunch, .actionTimeout, .actionExit(2),

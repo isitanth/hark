@@ -49,6 +49,23 @@ private let text = "Le comité se réunira jeudi.\nMerci."
         #expect(SelectionGuard.verdict(selection, frontmost: row.frontmost, liveSelection: row.live) == row.verdict)
     }
 
+    /// The assistant's Insert (M9.1) expects nothing selected: a caret, or an app that does not say.
+    static let insertCases: [GuardCase] = [
+        .init(name: "insert, a caret", caller: F.textEdit, frontmost: F.textEdit, live: "", verdict: .intact),
+        .init(name: "insert, unreadable", caller: F.textEdit, frontmost: F.textEdit, live: nil, verdict: .intact),
+        .init(
+            name: "insert, text selected since", caller: F.textEdit, frontmost: F.textEdit, live: "jeudi",
+            verdict: .changed),
+        .init(name: "insert, another app", caller: F.textEdit, frontmost: F.mail, live: "", verdict: .otherApp),
+        .init(name: "insert, caller unknown", caller: nil, frontmost: F.textEdit, live: "", verdict: .otherApp),
+    ]
+
+    @Test(arguments: insertCases)
+    func insertVerdict(_ row: GuardCase) {
+        let nothing = SelectionSnapshot(text: "", caller: row.caller)
+        #expect(SelectionGuard.verdict(nothing, frontmost: row.frontmost, liveSelection: row.live) == row.verdict)
+    }
+
     private func checker(
         front: AppIdentity?, element: FocusedElement? = F.backInTextEdit.element, selected: String?
     ) -> CallerSelectionChecker {

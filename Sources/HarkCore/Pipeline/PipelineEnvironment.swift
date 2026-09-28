@@ -22,14 +22,15 @@ public protocol ActionRunning: Sendable {
 /// Runs one ask against the model server the config names. `AskEngine` implements it.
 public protocol AskGenerating: Sendable {
     /// `text` pieces, then exactly one `finished` or `failed`, then the end. Ending the iteration cancels the request.
-    func generate(instruction: String, selection: String) -> AsyncStream<LLMEvent>
+    /// A nil `selection` is the assistant: the instruction is a request of its own, not about any text.
+    func generate(instruction: String, selection: String?) -> AsyncStream<LLMEvent>
 }
 
 /// Refuses every ask, for environments that never run one.
 public struct NullAskGenerator: AskGenerating {
     public init() {}
 
-    public func generate(instruction: String, selection: String) -> AsyncStream<LLMEvent> {
+    public func generate(instruction: String, selection: String?) -> AsyncStream<LLMEvent> {
         AsyncStream { continuation in
             continuation.yield(.failed(.notRunning(endpoint: "none"), LLMCallSummary()))
             continuation.finish()

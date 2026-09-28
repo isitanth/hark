@@ -279,7 +279,7 @@ public actor PipelineController {
         case .generate(let id, let instruction, let selection):
             generation?.cancel()
             askContinuation.yield(AskUpdate(id: id, text: ""))
-            let events = env.asker.generate(instruction: instruction, selection: selection.text)
+            let events = env.asker.generate(instruction: instruction, selection: selection?.text)
             generation = Task {
                 var text = ""
                 for await event in events {

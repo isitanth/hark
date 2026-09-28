@@ -69,6 +69,25 @@ struct AskPipelineTests {
         #expect(!written[0].contains("Réunion") && !written[0].contains("budget"))
     }
 
+    /// The Ask key with nothing selected: the request goes alone, and a Copy logs like an ask's.
+    @Test func theAssistantAsksWithoutASelection() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: ["Lima."], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+
+        await rig.controller.triggerDown(intent: F.assist)
+        let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        #expect(rig.asker.requests.map(\.selection) == [nil])
+        #expect(rig.asker.requests.map(\.instruction) == [F.instruction.raw])
+
+        await rig.controller.copyAnswer("Lima.", for: id)
+        let record = try #require(await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }?.lastRecord)
+        #expect(record.resolution == .textClipboard && record.error == nil && record.actionType == .ask)
+        #expect(rig.pasteboard.text == "Lima.")
+        #expect(try rig.lines().count == 1)
+    }
+
     @Test func cancelWhileStreamingClosesTheRequest() async throws {
         let rig = try Rig(asker: ScriptedAsker(pieces: ["Réunion"], ending: nil))
         var snapshots = rig.controller.snapshots.makeAsyncIterator()

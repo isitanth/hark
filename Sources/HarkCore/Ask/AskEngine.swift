@@ -29,7 +29,7 @@ public struct AskEngine: AskGenerating {
         self.settings = settings
     }
 
-    public func generate(instruction: String, selection: String) -> AsyncStream<LLMEvent> {
+    public func generate(instruction: String, selection: String?) -> AsyncStream<LLMEvent> {
         let llm = settings.current
         let client = client
         return AsyncStream { continuation in
@@ -52,8 +52,10 @@ public struct AskEngine: AskGenerating {
                         return
                     }
                 }
-                let prompt = AskPrompt(
-                    instruction: instruction, selection: selection, maxSelectionChars: llm.maxSelectionChars)
+                let prompt =
+                    selection.map {
+                        AskPrompt(instruction: instruction, selection: $0, maxSelectionChars: llm.maxSelectionChars)
+                    } ?? AskPrompt(request: instruction)
                 for await event in client.complete(prompt.messages, model: model, profile: profile) {
                     continuation.yield(event)
                 }

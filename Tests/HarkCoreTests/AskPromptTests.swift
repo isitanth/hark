@@ -132,4 +132,34 @@ struct PromptCapCase: Sendable, CustomTestStringConvertible {
     @Test func theSystemMessageHasTheRulesAndNothingElse() {
         #expect(AskPrompt.system == Self.rules.map(\.rule).joined(separator: "\n"))
     }
+
+    static let assistantRules: [PromptRuleCase] = [
+        .init(rule: "You are Hark's assistant. The user spoke a request to you."),
+        .init(rule: "Rules:"),
+        .init(
+            rule: "- The request comes from speech recognition and may contain recognition errors or filler words: "
+                + "infer what the user wants."),
+        .init(rule: "- If it is a question, answer it briefly. If it asks for a text, write that text, ready to use."),
+        .init(rule: "- Reply in the language of the request."),
+        .init(
+            rule: "- Reply with the answer or the text only: no preamble, no closing remarks, no surrounding quotes, "
+                + "no code fences."),
+        .init(rule: "- Write lists with \"- \" at the start of each item, with no heading line."),
+        .init(
+            rule: "- You cannot read the user's mail, calendar, files or the web, and you cannot act on their Mac. If "
+                + "the request needs any of them, say so in one sentence and invent nothing."),
+    ]
+
+    @Test func theAssistantsSystemMessageHasItsRulesAndNothingElse() {
+        #expect(AskPrompt.assistantSystem == Self.assistantRules.map(\.rule).joined(separator: "\n"))
+    }
+
+    /// No selection block, no cap, and a first line long enough that MTPLX's request log never holds the request.
+    @Test func theAssistantSendsTheRequestAlone() {
+        let prompt = AskPrompt(request: "  quelle est la capitale du Pérou ?\n")
+        #expect(prompt.messages.map(\.role) == [.system, .user])
+        #expect(prompt.messages[0].content == AskPrompt.assistantSystem)
+        #expect(userLines(prompt) == [AskPrompt.assistantLeadLine, "Request: quelle est la capitale du Pérou ?"])
+        #expect(!prompt.truncated && AskPrompt.assistantLeadLine.count > 23)
+    }
 }
