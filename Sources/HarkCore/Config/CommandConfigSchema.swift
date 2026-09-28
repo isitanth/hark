@@ -1,10 +1,13 @@
 import Foundation
 import Yams
 
-/// Schema version 2, read from a composed document. The first problem in document order wins, with one exception: a
-/// version other than 2 is reported before anything else, because the rest of such a file follows another schema.
+/// Schema version 3, or 2, read from a composed document. The first problem in document order wins, with one
+/// exception: a version that does not read is reported before anything else, because the rest of such a file follows
+/// another schema.
 enum CommandConfigSchema {
-    static let topKeys = ["version", "defaults", "apps", "open_verbs", "fillers", "commands"]
+    static let version2Keys = ["version", "defaults", "apps", "open_verbs", "fillers", "commands"]
+    /// Version 3 adds `llm:`.
+    static let topKeys = version2Keys + ["llm"]
     static let defaultsKeys = ["threshold"]
     static let appKeys = ["insert"]
     static let commandKeys = ["id", "action", "app", "aliases"]
@@ -12,11 +15,13 @@ enum CommandConfigSchema {
     static func read(_ root: Node) throws(ConfigError) -> CommandConfig {
         let root = try ConfigNodes.visit(root)
         let top = try ConfigNodes.mapping(root, path: "")
-        if let version = top["version"], !ConfigNodes.isNull(version) {
-            try checkVersion(try ConfigNodes.visit(version))
+        var version = CommandConfig.supportedVersion
+        if let node = top["version"], !ConfigNodes.isNull(node) {
+            version = try checkVersion(try ConfigNodes.visit(node))
         }
+        let allowed = version == 2 ? version2Keys : topKeys
         var config = CommandConfig()
-        try ConfigNodes.fields(of: root, path: "", allowed: topKeys, required: ["version"]) {
+        try ConfigNodes.fields(of: root, path: "", allowed: allowed, required: ["version"]) {
             key, value throws(ConfigError) in
             switch key {
             case "defaults": config.defaults = try defaults(value)
@@ -24,21 +29,23 @@ enum CommandConfigSchema {
             case "open_verbs": config.openVerbs = try wordLists(value, path: key)
             case "fillers": config.fillers = try wordLists(value, path: key)
             case "commands": config.commands = try commands(value)
+            case "llm": config.llm = try llm(value)
             default: break
             }
         }
         return config
     }
 
-    /// Exactly the integer 2, as a plain scalar.
-    private static func checkVersion(_ node: Node) throws(ConfigError) {
+    /// One of `CommandConfig.readableVersions`, as a plain integer scalar.
+    private static func checkVersion(_ node: Node) throws(ConfigError) -> Int {
         guard case .scalar(let scalar) = node else {
             throw ConfigNodes.error(.wrongType(path: "version", expected: .number), at: node)
         }
         let raw = scalar.string
-        guard scalar.style == .plain, raw.wholeMatch(of: /[-+]?[0-9]+/) != nil,
-            Int(raw) == CommandConfig.supportedVersion
+        guard scalar.style == .plain, raw.wholeMatch(of: /[-+]?[0-9]+/) != nil, let version = Int(raw),
+            CommandConfig.readableVersions.contains(version)
         else { throw ConfigNodes.error(.unsupportedVersion(raw), at: node) }
+        return version
     }
 
     private static func defaults(_ node: Node) throws(ConfigError) -> CommandDefaults {
@@ -122,7 +129,7 @@ enum CommandConfigSchema {
         return value
     }
 
-    private static func outOfRange(_ node: Node, path: String) -> ConfigError {
+    static func outOfRange(_ node: Node, path: String) -> ConfigError {
         ConfigNodes.error(.outOfRange(path: path, value: (try? ConfigNodes.text(node, path: path)) ?? ""), at: node)
     }
 

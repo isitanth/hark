@@ -38,7 +38,8 @@ enum ConfigFixtures {
                 id: "open_system_settings", app: "System Settings",
                 aliases: ["settings", "réglages", "réglages système"]),
             CommandEntry(id: "open_terminal", app: "Terminal"),
-        ])
+        ],
+        llm: .standard)
 
     /// Every optional field set, and strings that would each break a naive emitter: quotes, backslashes, `#`, `: `,
     /// leading spaces, YAML keywords, emoji, line breaks, control characters and scripts other than Latin.
@@ -94,7 +95,7 @@ enum ConfigFixtures {
                 CommandEntry(id: "open_notes", app: "Notes", aliases: ["note", "mes notes"]),
             ])
         let expected = """
-            version: 2
+            version: 3
 
             defaults:
               threshold: 0.85
@@ -125,7 +126,7 @@ enum ConfigFixtures {
             defaults: CommandDefaults(threshold: 1),
             apps: ["com.b.app": AppOverride(insert: .paste), "com.a.app": AppOverride(insert: .clipboard)])
         let expected = """
-            version: 2
+            version: 3
 
             defaults:
               threshold: 1

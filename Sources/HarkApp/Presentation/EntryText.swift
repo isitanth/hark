@@ -169,6 +169,10 @@ extension ConfigError {
         case .duplicateID(let id, let other):
             let line = other.line
             return L("config.problem.duplicateID \(id) \(line)")
+        case .keyInFile(let path): return L("config.problem.keyInFile \(path)")
+        case .insecureURL(let path, let value): return L("config.problem.insecureURL \(path) \(value)")
+        case .invalidURL(let path, let value): return L("config.problem.invalidURL \(path) \(value)")
+        case .unknownProfile(let name): return L("config.problem.unknownProfile \(name)")
         }
     }
 

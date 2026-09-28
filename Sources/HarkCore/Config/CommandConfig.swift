@@ -1,9 +1,10 @@
 import Foundation
 
-/// commands.yaml, schema version 2. A plain value: where each item sat in the file is only kept for error messages.
+/// commands.yaml, schema version 3. A plain value: where each item sat in the file is only kept for error messages.
+/// A version 2 file still reads, as version 3 without `llm:`.
 ///
 /// ```yaml
-/// version: 2                  # required, exactly 2
+/// version: 3                  # required, 3 (or 2, which cannot have llm:)
 /// defaults:                   # optional
 ///   threshold: 0.85           # how close a spoken app name must be, 0 < threshold <= 1
 /// apps:                       # optional, bundle ID -> override
@@ -20,11 +21,24 @@ import Foundation
 ///     action: open_app        # open_app
 ///     app: "Finder"           # required: an application's name, or a path to it; its name is also an alias
 ///     aliases: ["fichiers"]   # optional
+/// llm:                        # optional, version 3 only; see LLMConfig
+///   provider: local           # a key of profiles
+///   profiles:
+///     local:                  # ^[a-z0-9][a-z0-9_-]{0,31}$, also the Keychain account
+///       base_url: "http://127.0.0.1:8000/v1"   # https, or http to this Mac only
+///       key: keychain         # keychain | none; the key itself never goes in this file
+///       model: auto           # auto, or a model id
+///       temperature: 0.3      # 0...2
+///       max_tokens: 1024      # 1...131072
+///       extra: { enable_thinking: false }      # scalars only, sent as top-level request fields
+///   max_selection_chars: 12000                 # 1...100000
 /// ```
 ///
 /// Any other key is an error, and so is an alias that normalizes to the same text as another command's.
 public struct CommandConfig: Sendable, Equatable {
-    public static let supportedVersion = 2
+    public static let supportedVersion = 3
+    /// Older versions that still read: 2 is 3 without `llm:`.
+    public static let readableVersions: Set<Int> = [2, 3]
     /// A command table this size is already absurd. The cap keeps a stray binary file from reaching the parser.
     public static let maximumFileSize = 256 * 1024
 
@@ -36,16 +50,26 @@ public struct CommandConfig: Sendable, Equatable {
     public var openVerbs: [String: [String]]
     public var fillers: [String: [String]]
     public var commands: [CommandEntry]
+    /// Nil when the file has no `llm:`. Kept as read, so writing the file back never adds a block the user did not
+    /// write; what an ask uses is `effectiveLLM`.
+    public var llm: LLMConfig?
 
     public init(
         defaults: CommandDefaults = CommandDefaults(), apps: [String: AppOverride] = [:],
-        openVerbs: [String: [String]] = [:], fillers: [String: [String]] = [:], commands: [CommandEntry] = []
+        openVerbs: [String: [String]] = [:], fillers: [String: [String]] = [:], commands: [CommandEntry] = [],
+        llm: LLMConfig? = nil
     ) {
         self.defaults = defaults
         self.apps = apps
         self.openVerbs = openVerbs
         self.fillers = fillers
         self.commands = commands
+        self.llm = llm
+    }
+
+    /// What an ask uses: the file's `llm:`, or the local profile alone.
+    public var effectiveLLM: LLMConfig {
+        llm ?? .standard
     }
 
     public static let empty = CommandConfig()
@@ -118,8 +142,8 @@ extension CommandConfig {
         try CommandConfigParser.parse(data)
     }
 
-    /// Canonical YAML for this config: `version`, `defaults`, `apps`, `open_verbs`, `fillers`, `commands`, in that
-    /// order, every string double-quoted so that YAML can never read it as something else. `parse(yaml())` gives back
+    /// Canonical YAML for this config: `version`, `defaults`, `apps`, `open_verbs`, `fillers`, `commands`, `llm`, in
+    /// that order, every string double-quoted so that YAML can never read it as something else. `parse(yaml())` gives back
     /// an equal value. Comments are not preserved, because the value never had them.
     public func yaml() -> String {
         CommandConfigEmitter.yaml(for: self)

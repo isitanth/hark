@@ -25,8 +25,11 @@ enum CommandConfigEmitter {
         }
 
         lines.append("")
-        guard !config.commands.isEmpty else { return (lines + ["commands: []", ""]).joined(separator: "\n") }
-        lines.append("commands:")
+        if config.commands.isEmpty {
+            lines.append("commands: []")
+        } else {
+            lines.append("commands:")
+        }
         for (index, command) in config.commands.enumerated() {
             if index > 0 {
                 lines.append("")
@@ -39,7 +42,46 @@ enum CommandConfigEmitter {
                 lines.append("    aliases: \(list(command.aliases))")
             }
         }
+        if let llm = config.llm {
+            lines += [""] + self.llm(llm)
+        }
         return (lines + [""]).joined(separator: "\n")
+    }
+
+    /// Every field of every profile, profiles sorted by name, so that what the file says is what an ask does.
+    private static func llm(_ llm: LLMConfig) -> [String] {
+        var lines = ["llm:", "  provider: \(quoted(llm.provider))", "  profiles:"]
+        for name in llm.profiles.keys.sorted() {
+            guard let profile = llm.profiles[name] else { continue }
+            let model =
+                switch profile.model {
+                case .auto: "auto"
+                case .named(let id): quoted(id)
+                }
+            lines += [
+                "    \(quoted(name)):", "      base_url: \(quoted(profile.baseURL.absoluteString))",
+                "      key: \(profile.key.rawValue)", "      model: \(model)",
+                "      temperature: \(number(profile.temperature))", "      max_tokens: \(profile.maxTokens)",
+                "      extra: \(flowMapping(profile.extra))",
+            ]
+        }
+        return lines + ["  max_selection_chars: \(llm.maxSelectionChars)"]
+    }
+
+    /// `{"enable_thinking": false}`, keys sorted, or `{}`.
+    private static func flowMapping(_ extra: [String: RequestValue]) -> String {
+        let fields = extra.keys.sorted().compactMap { key in extra[key].map { "\(quoted(key)): \(scalar($0))" } }
+        return "{" + fields.joined(separator: ", ") + "}"
+    }
+
+    /// A double keeps its `.0`, so that it reads back as a number and not as an integer.
+    private static func scalar(_ value: RequestValue) -> String {
+        switch value {
+        case .bool(let flag): flag ? "true" : "false"
+        case .int(let integer): String(integer)
+        case .double(let double): double.description
+        case .string(let text): quoted(text)
+        }
     }
 
     /// A flow list of quoted strings: `["open", "launch"]`.

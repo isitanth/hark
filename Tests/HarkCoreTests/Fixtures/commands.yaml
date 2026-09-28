@@ -1,7 +1,7 @@
 # Hark voice commands. Start with an opening verb, then name an app: "open Safari", "ouvre le Finder".
 # The app has to end the sentence: "ouvre le Finder pour demain" is dictated as text. Anything that does not
 # start with a verb below, or names no app below, is dictated as text.
-version: 2
+version: 3
 
 defaults:
   threshold: 0.85        # how close a spoken app name has to be, from 0 to 1
@@ -54,3 +54,15 @@ commands:                # app is the application's name, or a path to it; its n
   - id: open_terminal
     action: open_app
     app: "Terminal"
+
+llm:                     # Ask Hark: select text, then Services › Ask Hark
+  provider: local        # which profile below an ask uses
+  profiles:
+    local:
+      base_url: "http://127.0.0.1:8000/v1"   # MTPLX's default port; Settings › Ask sets yours
+      key: keychain      # the key is the Keychain item for this profile; none: no key
+      model: auto        # read from GET /v1/models
+      temperature: 0.3
+      max_tokens: 1024
+      extra: { enable_thinking: false }      # thinking on, the first word waits seconds
+  max_selection_chars: 12000

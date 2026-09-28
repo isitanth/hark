@@ -218,6 +218,10 @@ public actor ConfigStore {
         "373cf3f4febd547315392b5be9a3784412e2f0a197130aeafc6ec04c940d0c05",
         // Version 2 as M6.1 shipped it, with the nine fillers that let "notre" open Notes.
         "4b727bba0426cf69a6363cf835eba5a5b2caa70d36df5e95bfe47e2cc0c12a49",
+        // Version 2 as M6.9 shipped it on 2026-09-23, where the first app named opened; still on the user's Mac.
+        "ba8bf43de18320ed163fc9f5ae76ff2257a67b2e6d0c48edf36d32d1458038d9",
+        // Version 2 from 2026-09-24 to M8.2, where the app has to end the sentence.
+        "2a36af4860fb64b0644ac93a316a923e971011c54bc3925e5d919a8b64e0a732",
     ]
 
     /// Creates the directory, then copies the bundled default into place if there is no file, or if the file is a

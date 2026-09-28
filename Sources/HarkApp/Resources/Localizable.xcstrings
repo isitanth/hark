@@ -1384,13 +1384,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Version %@ is not supported. Hark reads version: 2."
+            "value": "Version %@ is not supported. Hark reads version: 3, and version: 2."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La version %@ n’est pas prise en charge. Hark lit version: 2."
+            "value": "La version %@ n’est pas prise en charge. Hark lit version: 3, et version: 2."
           }
         }
       }
@@ -4961,6 +4961,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "aucun texte sélectionné"
+          }
+        }
+      }
+    },
+    "config.problem.keyInFile %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: a key does not go in commands.yaml. Set it in Settings › Ask."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ : une clé ne va pas dans commands.yaml. Saisissez-la dans Réglages › Demander."
+          }
+        }
+      }
+    },
+    "config.problem.insecureURL %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: “%2$@” is plain http to another computer. Use https, or a server on this Mac."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ : « %2$@ » passe en http simple vers un autre ordinateur. Utilisez https, ou un serveur sur ce Mac."
+          }
+        }
+      }
+    },
+    "config.problem.invalidURL %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: “%2$@” is not a web address like https://example.com/v1."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ : « %2$@ » n’est pas une adresse web comme https://example.com/v1."
+          }
+        }
+      }
+    },
+    "config.problem.unknownProfile %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "llm.provider: no profile is named “%@”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "llm.provider : aucun profil ne s’appelle « %@ »."
           }
         }
       }

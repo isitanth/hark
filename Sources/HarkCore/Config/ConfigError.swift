@@ -58,6 +58,16 @@ public enum ConfigProblem: Sendable, Equatable {
     case collision(normalized: String, path: String, otherPath: String, otherLocation: ConfigLocation)
     /// A command `id` already used by an earlier command, which `otherLocation` points at.
     case duplicateID(String, otherLocation: ConfigLocation)
+    /// A key written in the file: `key:` with anything but `keychain` or `none`, a `base_url` with a user or password,
+    /// or an `extra` field whose name says key, token, secret, auth or password. Carries no value, so neither the
+    /// log nor the UI ever repeats what looked like a secret.
+    case keyInFile(path: String)
+    /// Plain http to a host that is not this Mac.
+    case insecureURL(path: String, value: String)
+    /// Not an absolute http or https URL with a host, or one with a query or a fragment.
+    case invalidURL(path: String, value: String)
+    /// `llm.provider` names no profile.
+    case unknownProfile(String)
 }
 
 public struct ConfigError: Error, Sendable, Equatable, CustomStringConvertible {
@@ -95,6 +105,10 @@ public struct ConfigError: Error, Sendable, Equatable, CustomStringConvertible {
             case .collision(let normalized, let path, let otherPath, let otherLocation):
                 "\(path) and \(otherPath) (\(otherLocation)) both normalize to '\(normalized)'"
             case .duplicateID(let id, let otherLocation): "id '\(id)' is already used at \(otherLocation)"
+            case .keyInFile(let path): "\(path): a key does not go in commands.yaml, set it in Settings › Ask"
+            case .insecureURL(let path, let value): "\(path): '\(value)' is plain http to a host other than this Mac"
+            case .invalidURL(let path, let value): "\(path): '\(value)' is not an absolute http or https URL"
+            case .unknownProfile(let name): "llm.provider: no profile is named '\(name)'"
             }
         return location.map { "\($0): \(detail)" } ?? detail
     }
