@@ -30,6 +30,11 @@ private typealias F = Fixture
                 pressedAt: F.pressedAt.addingTimeInterval(11.000_01),
                 focus: FocusSnapshot(app: F.mail, isSecureInput: true), capture: F.speech, transcribeMs: 400),
             transcript: Transcript(raw: "hunter2"), outcome: .textInserted),
+        UtteranceRecord(
+            context: F.context(
+                pressedAt: F.pressedAt.addingTimeInterval(13.25), capture: F.speech, transcribeMs: 380, intent: .ask,
+                llmModel: F.bonsai, llmMs: 3_420),
+            transcript: Transcript(raw: "Résume ce texte.", tier: .small), outcome: .textClipboard(.chosen)),
     ]
 
     private static func record(at date: Date, _ outcome: PipelineOutcome) -> UtteranceRecord {
@@ -43,7 +48,7 @@ private typealias F = Fixture
             id: id, timestamp: entry.timestamp, durationMs: entry.durationMs, transcribeMs: entry.transcribeMs,
             rawText: entry.rawText, normalizedText: entry.normalizedText, resolution: entry.resolution,
             targetApp: entry.targetApp, actionType: entry.actionType, exitCode: entry.exitCode, error: entry.error,
-            modelTier: entry.modelTier)
+            modelTier: entry.modelTier, llmModel: entry.llmModel, llmMs: entry.llmMs)
     }
 
     private static func write(_ text: String, to url: URL) throws {
@@ -152,7 +157,8 @@ private typealias F = Fixture
         #expect(page.unreadableLines == 11)
     }
 
-    @Test(arguments: [
+    /// A line and the entry it reads as. A table of its own: inline, it is too much for the type checker.
+    static let partialLines: [(String, LogEntry)] = [
         (
             #"{"ts":"2026-09-18T12:03:12.345Z","resolution":"failed"}"#,
             LogEntry(id: "", timestamp: F.pressedAt, resolution: .failed)
@@ -197,7 +203,29 @@ private typealias F = Fixture
                 id: "", timestamp: F.pressedAt, durationMs: 1800, transcribeMs: 420, rawText: "hi",
                 normalizedText: "hi", resolution: .textInserted, targetApp: "com.apple.mail")
         ),
-    ])
+        // A line written before `llm_model` and `llm_ms` existed: the eleven keys of M3 to M7.
+        (
+            #"{"ts":"2026-09-18T14:03:12.345+02:00","duration_ms":1800,"transcribe_ms":420,"raw_text":"hi","#
+                + #""normalized_text":"hi","resolution":"text_inserted","target_app":"com.apple.mail","#
+                + #""action_type":null,"exit_code":null,"error":null,"model_tier":"small"}"#,
+            LogEntry(
+                id: "", timestamp: F.pressedAt, durationMs: 1800, transcribeMs: 420, rawText: "hi",
+                normalizedText: "hi", resolution: .textInserted, targetApp: "com.apple.mail", modelTier: "small")
+        ),
+        (
+            #"{"ts":"2026-09-18T14:03:12.345+02:00","resolution":"text_clipboard","action_type":"ask","#
+                + #""llm_model":"mtplx-bonsai-2-27b-optimized-speed","llm_ms":3420}"#,
+            LogEntry(
+                id: "", timestamp: F.pressedAt, resolution: .textClipboard, actionType: "ask", llmModel: F.bonsai,
+                llmMs: 3_420)
+        ),
+        (
+            #"{"ts":"2026-09-18T14:03:12.345+02:00","resolution":"failed","llm_model":7,"llm_ms":"fast"}"#,
+            LogEntry(id: "", timestamp: F.pressedAt, resolution: .failed)
+        ),
+    ]
+
+    @Test(arguments: partialLines)
     func optionalKeysReadAsNilWhenMissingOrMistyped(_ line: String, _ expected: LogEntry) throws {
         let directory = try TemporaryDirectory()
         try Self.write(line + "\n", to: directory.url.appending(path: "2026-09-18.jsonl"))

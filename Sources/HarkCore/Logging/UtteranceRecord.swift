@@ -1,11 +1,12 @@
 import Foundation
 
-/// One line of the utterance log. The field set is the contract in CLAUDE.md: exactly these eleven keys,
+/// One line of the utterance log. The field set is the contract in CLAUDE.md: exactly these thirteen keys,
 /// in this order, with nil written as `null`.
 public struct UtteranceRecord: Sendable, Equatable {
     public static let keys = [
         "ts", "duration_ms", "transcribe_ms", "raw_text", "normalized_text",
         "resolution", "target_app", "action_type", "exit_code", "error", "model_tier",
+        "llm_model", "llm_ms",
     ]
 
     /// Key-down time. Written as `ts`, and picks the day file.
@@ -16,12 +17,15 @@ public struct UtteranceRecord: Sendable, Equatable {
     public let normalizedText: String?
     public let resolution: Resolution
     public let targetApp: String
-    public let actionType: ActionType?
+    public let actionType: LoggedAction?
     public let exitCode: Int32?
     public let error: String?
     /// The tier that produced the transcript. Nil when there is none: a discard before transcription, a missing
     /// model, a decode that failed.
     public let modelTier: ModelTier?
+    /// The model id that answered an ask, and the time from its request to the last token. Nil with no LLM call.
+    public let llmModel: String?
+    public let llmMs: Int?
 
     public init(context: UtteranceContext, transcript: Transcript?, outcome: PipelineOutcome) {
         timestamp = context.pressedAt
@@ -40,8 +44,13 @@ public struct UtteranceRecord: Sendable, Equatable {
 
         resolution = outcome.resolution
         targetApp = context.focus?.app?.logName ?? "unknown"
-        actionType = context.action
+        switch context.intent {
+        case .dictate: actionType = context.action.map(LoggedAction.command)
+        case .ask: actionType = .ask
+        }
         modelTier = transcript?.tier
+        llmModel = context.llmModel
+        llmMs = context.llmMs
 
         // A capture cut at the length limit is something that went wrong, and the one thing that can go wrong on a
         // line whose text went through: `command` and `text_inserted` carry it. A clipboard reason, a discard or a
@@ -80,6 +89,8 @@ public struct UtteranceRecord: Sendable, Equatable {
             .int(exitCode.map(Int64.init)),
             .string(error),
             .string(modelTier?.rawValue),
+            .string(llmModel),
+            .int(llmMs.map(Int64.init)),
         ]
         let fields = zip(Self.keys, values).map { "\"\($0)\":\($1.encoded)" }
         return "{" + fields.joined(separator: ",") + "}"
@@ -87,6 +98,21 @@ public struct UtteranceRecord: Sendable, Equatable {
 
     static func timestampStyle(_ timeZone: TimeZone) -> Date.ISO8601FormatStyle {
         Date.ISO8601FormatStyle(timeZoneSeparator: .colon, includingFractionalSeconds: true, timeZone: timeZone)
+    }
+}
+
+/// The log's `action_type`: the action a command ran, or `ask` for an utterance that asked the LLM about a selection.
+public enum LoggedAction: Sendable, Equatable {
+    case command(ActionType)
+    case ask
+
+    public static let askRawValue = "ask"
+
+    public var rawValue: String {
+        switch self {
+        case .command(let action): action.rawValue
+        case .ask: Self.askRawValue
+        }
     }
 }
 

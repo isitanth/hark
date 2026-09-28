@@ -77,6 +77,7 @@ extension LogEntry {
         case .insertionFailed: L("entry.outcome.copied.insertionFailed")
         case .insertionTimedOut: L("entry.outcome.copied.insertionTimedOut")
         case .pasteNotConsumed: L("entry.outcome.copied.pasteNotConsumed")
+        case .selectionChanged: L("entry.outcome.copied.selectionChanged")
         case .other(let code): L("entry.outcome.clipboardFallback \(code)")
         }
     }
@@ -99,6 +100,12 @@ extension LogEntry {
         case .quitting: return L("entry.failure.quitting")
         case .actionLaunch: return L("entry.failure.actionLaunch")
         case .actionTimeout: return L("entry.failure.actionTimeout")
+        case .llmUnreachable: return L("entry.failure.llmUnreachable")
+        case .llmUnauthorized: return L("entry.failure.llmUnauthorized")
+        case .llmTimeout: return L("entry.failure.llmTimeout")
+        case .llmError(let status?): return L("entry.failure.llmError \(status)")
+        case .llmError(nil): return L("entry.failure.llmErrorInStream")
+        case .llmEmpty: return L("entry.failure.llmEmpty")
         case .audioEngine(nil), .transcription(nil), .appNotFound(nil), .appNotActivated(nil), .appExited(nil),
             .actionExit, .automationDenied, .focusNotRestored, .other:
             return L("entry.outcome.failed \(code)")
@@ -116,6 +123,7 @@ extension LogEntry {
         case .busy: return L("entry.reason.busy")
         case .maxDuration: return L("entry.reason.maxDuration")
         case .clipboardFallbackDisabled: return L("entry.reason.clipboardFallbackDisabled")
+        case .emptySelection: return L("entry.reason.emptySelection")
         case nil:
             let raw = code ?? "?"
             return L("entry.reason.other \(raw)")

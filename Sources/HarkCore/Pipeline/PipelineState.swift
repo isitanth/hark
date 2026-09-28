@@ -14,6 +14,7 @@ public struct UtteranceID: Hashable, Sendable, CustomStringConvertible {
 public struct UtteranceContext: Sendable, Equatable {
     public let id: UtteranceID
     public let pressedAt: Date
+    public let intent: CaptureIntent
     public var releasedAt: Date?
     public var focus: FocusSnapshot?
     public var capture: CaptureSummary?
@@ -22,10 +23,14 @@ public struct UtteranceContext: Sendable, Equatable {
     /// The `clipboardFallback` preference as the resolver read it, so an insertion that fails knows whether the
     /// clipboard may catch the text.
     public var clipboardFallback = true
+    /// The model id that answered an ask, and the time from its request to the last token. Nil with no LLM call.
+    public var llmModel: String?
+    public var llmMs: Int?
 
-    public init(id: UtteranceID, pressedAt: Date) {
+    public init(id: UtteranceID, pressedAt: Date, intent: CaptureIntent = .dictate) {
         self.id = id
         self.pressedAt = pressedAt
+        self.intent = intent
     }
 }
 

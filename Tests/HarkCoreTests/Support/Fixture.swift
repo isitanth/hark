@@ -17,6 +17,8 @@ enum Fixture {
     static let silent = CaptureSummary(durationMs: 1800, peakRMS: 0.001, meanRMS: 0.0005)
     static let maxed = CaptureSummary(durationMs: 60_000, peakRMS: 0.3, meanRMS: 0.05, reachedMaxDuration: true)
     static let transcript = Transcript(raw: "open finder")
+    /// The model id MTPLX served for Bonsai 2 27B in M8.0.
+    static let bonsai = "mtplx-bonsai-2-27b-optimized-speed"
 
     static let finder = ResolvedCommand(id: "open_finder", action: .openApp, target: "Finder")
     /// A command that asks first. Nothing in commands.yaml sets `confirm` yet; the reducer keeps the path.
@@ -30,15 +32,20 @@ enum Fixture {
         capture: CaptureSummary? = nil,
         transcribeMs: Int? = nil,
         action: ActionType? = nil,
-        clipboardFallback: Bool = true
+        clipboardFallback: Bool = true,
+        intent: CaptureIntent = .dictate,
+        llmModel: String? = nil,
+        llmMs: Int? = nil
     ) -> UtteranceContext {
-        var context = UtteranceContext(id: id, pressedAt: pressedAt)
+        var context = UtteranceContext(id: id, pressedAt: pressedAt, intent: intent)
         context.focus = focus
         context.releasedAt = released ? pressedAt.addingTimeInterval(1.8) : nil
         context.capture = capture
         context.transcribeMs = transcribeMs
         context.action = action
         context.clipboardFallback = clipboardFallback
+        context.llmModel = llmModel
+        context.llmMs = llmMs
         return context
     }
 

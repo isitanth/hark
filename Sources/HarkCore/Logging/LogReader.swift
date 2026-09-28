@@ -1,8 +1,8 @@
 import Foundation
 import os
 
-/// One line of the utterance log, read back. The same eleven keys as `UtteranceRecord`, decoded rather than built.
-/// A line written before `model_tier` existed reads with it nil.
+/// One line of the utterance log, read back. The same thirteen keys as `UtteranceRecord`, decoded rather than built.
+/// A line written before `model_tier`, or before `llm_model` and `llm_ms`, reads with them nil.
 public struct LogEntry: Sendable, Equatable, Identifiable {
     /// `<file name>:<line number>` for a line read from disk, `live:<ts>` for one built from a record in memory.
     public let id: String
@@ -19,11 +19,14 @@ public struct LogEntry: Sendable, Equatable, Identifiable {
     public let error: String?
     /// The raw `model_tier` string, kept even if this build does not know the tier.
     public let modelTier: String?
+    public let llmModel: String?
+    public let llmMs: Int?
 
     public init(
         id: String, timestamp: Date, durationMs: Int? = nil, transcribeMs: Int? = nil, rawText: String? = nil,
         normalizedText: String? = nil, resolution: Resolution, targetApp: String? = nil, actionType: String? = nil,
-        exitCode: Int32? = nil, error: String? = nil, modelTier: String? = nil
+        exitCode: Int32? = nil, error: String? = nil, modelTier: String? = nil, llmModel: String? = nil,
+        llmMs: Int? = nil
     ) {
         self.id = id
         self.timestamp = timestamp
@@ -37,6 +40,8 @@ public struct LogEntry: Sendable, Equatable, Identifiable {
         self.exitCode = exitCode
         self.error = error
         self.modelTier = modelTier
+        self.llmModel = llmModel
+        self.llmMs = llmMs
     }
 
     /// Marks an entry built from a record in this run, as opposed to a line read from disk.
@@ -52,7 +57,7 @@ public struct LogEntry: Sendable, Equatable, Identifiable {
             durationMs: record.durationMs, transcribeMs: record.transcribeMs, rawText: record.rawText,
             normalizedText: record.normalizedText, resolution: record.resolution, targetApp: record.targetApp,
             actionType: record.actionType?.rawValue, exitCode: record.exitCode, error: record.error,
-            modelTier: record.modelTier?.rawValue)
+            modelTier: record.modelTier?.rawValue, llmModel: record.llmModel, llmMs: record.llmMs)
     }
 }
 
@@ -184,6 +189,8 @@ private struct LogLine: Decodable {
     let exitCode: Int32?
     let error: String?
     let modelTier: String?
+    let llmModel: String?
+    let llmMs: Int?
 
     private enum CodingKeys: String, CodingKey {
         case timestamp = "ts"
@@ -197,6 +204,8 @@ private struct LogLine: Decodable {
         case exitCode = "exit_code"
         case error
         case modelTier = "model_tier"
+        case llmModel = "llm_model"
+        case llmMs = "llm_ms"
     }
 
     init(from decoder: any Decoder) throws {
@@ -218,13 +227,15 @@ private struct LogLine: Decodable {
         exitCode = try? container.decodeIfPresent(Int32.self, forKey: .exitCode)
         error = try? container.decodeIfPresent(String.self, forKey: .error)
         modelTier = try? container.decodeIfPresent(String.self, forKey: .modelTier)
+        llmModel = try? container.decodeIfPresent(String.self, forKey: .llmModel)
+        llmMs = try? container.decodeIfPresent(Int.self, forKey: .llmMs)
     }
 
     func entry(id: String) -> LogEntry {
         LogEntry(
             id: id, timestamp: timestamp, durationMs: durationMs, transcribeMs: transcribeMs, rawText: rawText,
             normalizedText: normalizedText, resolution: resolution, targetApp: targetApp, actionType: actionType,
-            exitCode: exitCode, error: error, modelTier: modelTier)
+            exitCode: exitCode, error: error, modelTier: modelTier, llmModel: llmModel, llmMs: llmMs)
     }
 }
 

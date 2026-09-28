@@ -25,6 +25,8 @@ public enum EntryOutcome: Sendable, Equatable {
         case insertionFailed
         case insertionTimedOut
         case pasteNotConsumed
+        /// An ask's Replace found another app in front, or another selection than the one asked about.
+        case selectionChanged
         /// A code this build does not know.
         case other(String)
 
@@ -32,7 +34,8 @@ public enum EntryOutcome: Sendable, Equatable {
         public var isFallback: Bool {
             switch self {
             case .chosen, .noTextField, .secureField: false
-            case .focusChanged, .insertionFailed, .insertionTimedOut, .pasteNotConsumed, .other: true
+            case .focusChanged, .insertionFailed, .insertionTimedOut, .pasteNotConsumed, .selectionChanged, .other:
+                true
             }
         }
     }
@@ -60,6 +63,16 @@ public enum EntryOutcome: Sendable, Equatable {
         case actionExit
         case automationDenied
         case focusNotRestored
+        /// An ask: the model server is not running where the profile says.
+        case llmUnreachable
+        /// An ask: the server refused the key, or no key is set for a profile that needs one.
+        case llmUnauthorized
+        /// An ask: the server did not answer in time.
+        case llmTimeout
+        /// An ask: the server refused the request, with the HTTP status when there was one.
+        case llmError(status: Int?)
+        /// An ask: the answer had no text in it.
+        case llmEmpty
         /// A code this build does not know, or none.
         case other(String?)
     }
@@ -110,6 +123,7 @@ public enum EntryOutcome: Sendable, Equatable {
         case PipelineFailure.insertionFailed.code: .insertionFailed
         case PipelineFailure.insertionTimedOut.code: .insertionTimedOut
         case PipelineFailure.pasteNotConsumed.code: .pasteNotConsumed
+        case PipelineFailure.selectionChanged.code: .selectionChanged
         default: .other(code)
         }
     }
@@ -137,6 +151,11 @@ public enum EntryOutcome: Sendable, Equatable {
         case "action_exit": return .actionExit
         case "automation_denied": return .automationDenied
         case "focus_not_restored": return .focusNotRestored
+        case "llm_unreachable": return .llmUnreachable
+        case "llm_unauthorized": return .llmUnauthorized
+        case "llm_timeout": return .llmTimeout
+        case "llm_error": return .llmError(status: value)
+        case "llm_empty": return .llmEmpty
         default: return .other(code)
         }
     }

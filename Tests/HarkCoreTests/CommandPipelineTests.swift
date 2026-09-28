@@ -80,7 +80,7 @@ struct CommandPipelineTests {
 
         let record = try await rig.press()
 
-        #expect(record.resolution == .command && record.actionType == .openApp)
+        #expect(record.resolution == .command && record.actionType == .command(.openApp))
         #expect(record.exitCode == 0 && record.error == nil)
         #expect(record.rawText == "Ouvre le Finder." && record.normalizedText == "ouvre le finder")
         #expect(record.targetApp == "com.apple.mail" && record.modelTier == .small)
@@ -128,7 +128,7 @@ struct CommandPipelineTests {
         let record = try await rig.press()
 
         #expect(record.resolution == .failed && record.error == "app_not_found:Frigo")
-        #expect(record.actionType == .openApp && record.exitCode == nil)
+        #expect(record.actionType == .command(.openApp) && record.exitCode == nil)
         #expect(rig.workspace.opened.isEmpty && rig.pasteboard.writes.isEmpty)
     }
 
@@ -138,7 +138,8 @@ struct CommandPipelineTests {
 
         let record = try await rig.press()
 
-        #expect(record.resolution == .failed && record.error == "action_launch" && record.actionType == .openApp)
+        #expect(
+            record.resolution == .failed && record.error == "action_launch" && record.actionType == .command(.openApp))
     }
 
     @Test func anAppLeftBehindIsLoggedAsSuch() async throws {
@@ -148,7 +149,7 @@ struct CommandPipelineTests {
         let record = try await rig.press()
 
         #expect(record.resolution == .failed && record.error == "app_not_activated:Finder")
-        #expect(record.actionType == .openApp && rig.workspace.opened == [Self.finder])
+        #expect(record.actionType == .command(.openApp) && rig.workspace.opened == [Self.finder])
     }
 
     @Test func anAppThatQuitsAtOnceIsLoggedAsSuch() async throws {
@@ -157,7 +158,9 @@ struct CommandPipelineTests {
 
         let record = try await rig.press()
 
-        #expect(record.resolution == .failed && record.error == "app_exited:Finder" && record.actionType == .openApp)
+        #expect(
+            record.resolution == .failed && record.error == "app_exited:Finder"
+                && record.actionType == .command(.openApp))
     }
 
     /// Where text goes has no say over a command: clipboard-only mode and the fallback off both leave it alone.

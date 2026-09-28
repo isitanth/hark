@@ -67,6 +67,18 @@ let outcomeReadCases: [OutcomeReadCase] = [
     .init("app quit at once, no name", .failed, error: "app_exited", .failed(.appExited(name: nil))),
     .init("quitting", .failed, error: "quitting", .failed(.quitting)),
     .init("automation denied", .failed, error: "automation_denied:com.apple.finder", .failed(.automationDenied)),
+    .init(
+        "the selection changed before Replace", .textClipboard, error: "selection_changed",
+        .copied(.selectionChanged)),
+    .init(
+        "an empty selection", .discarded, error: "empty_selection", .discarded(.emptySelection, code: "empty_selection")
+    ),
+    .init("model server not running", .failed, error: "llm_unreachable", .failed(.llmUnreachable)),
+    .init("model server refused the key", .failed, error: "llm_unauthorized", .failed(.llmUnauthorized)),
+    .init("model server silent", .failed, error: "llm_timeout", .failed(.llmTimeout)),
+    .init("model server status", .failed, error: "llm_error:500", .failed(.llmError(status: 500))),
+    .init("model server error in the stream", .failed, error: "llm_error", .failed(.llmError(status: nil))),
+    .init("model answered nothing", .failed, error: "llm_empty", .failed(.llmEmpty)),
     .init("an unknown failure", .failed, error: "cosmic_ray", .failed(.other("cosmic_ray"))),
     .init("a failure with no code", .failed, .failed(.other(nil))),
 ]
@@ -99,7 +111,9 @@ let outcomeReadCases: [OutcomeReadCase] = [
 
     /// Every failure an insertion can raise reads as a fallback, and the copies that were decided do not.
     @Test func onlyAFailedInsertionIsAFallback() {
-        let fallbacks: [PipelineFailure] = [.focusChanged, .insertionFailed, .insertionTimedOut, .pasteNotConsumed]
+        let fallbacks: [PipelineFailure] = [
+            .focusChanged, .insertionFailed, .insertionTimedOut, .pasteNotConsumed, .selectionChanged,
+        ]
         for failure in fallbacks {
             let entry = LogEntry(
                 id: "x", timestamp: F.pressedAt, rawText: "hi", resolution: .textClipboard, error: failure.code)

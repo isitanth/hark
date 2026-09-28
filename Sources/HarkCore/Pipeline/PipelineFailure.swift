@@ -11,6 +11,8 @@ public enum DiscardReason: String, Sendable, CaseIterable {
     /// limit ends the capture and the text so far goes through, with this code as the line's `error`.
     case maxDuration = "max_duration"
     case clipboardFallbackDisabled = "clipboard_fallback_disabled"
+    /// Ask Hark was invoked on a selection with no text in it.
+    case emptySelection = "empty_selection"
 }
 
 public enum PipelineFailure: Error, Sendable, Equatable {
@@ -44,6 +46,19 @@ public enum PipelineFailure: Error, Sendable, Equatable {
     /// the clipboard rather than the user's old contents coming back.
     case pasteNotConsumed
     case pasteboardWrite
+    /// The ask's model server refused the connection or has no route: it is not running where the profile says.
+    case llmUnreachable
+    /// The server answered 401, or the profile needs a key and the Keychain has none for it.
+    case llmUnauthorized
+    /// No answer in time: nothing on the stream before the first token, or the whole ask ran past its limit.
+    case llmTimeout
+    /// Any other refusal: an HTTP status other than 401, or an error the server sent inside the stream (no status).
+    case llmError(status: Int?)
+    /// The stream finished without a word of content.
+    case llmEmpty
+    /// Before Replace, the calling app was no longer in front or its selection was no longer the one asked about.
+    /// The suggestion goes to the clipboard.
+    case selectionChanged
 
     /// Failures that only the microphone side can raise. Once an utterance's audio is in, a late one is stale.
     public var isCaptureFailure: Bool {
@@ -77,6 +92,13 @@ public enum PipelineFailure: Error, Sendable, Equatable {
         case .insertionTimedOut: "insertion_timeout"
         case .pasteNotConsumed: "paste_not_consumed"
         case .pasteboardWrite: "pasteboard_write"
+        case .llmUnreachable: "llm_unreachable"
+        case .llmUnauthorized: "llm_unauthorized"
+        case .llmTimeout: "llm_timeout"
+        case .llmError(let status?): "llm_error:\(status)"
+        case .llmError(nil): "llm_error"
+        case .llmEmpty: "llm_empty"
+        case .selectionChanged: "selection_changed"
         }
     }
 }

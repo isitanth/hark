@@ -4828,6 +4828,142 @@
           }
         }
       }
+    },
+    "entry.outcome.copied.selectionChanged": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text · copied, the selection changed before Replace"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Texte · copié, la sélection a changé avant « Remplacer »"
+          }
+        }
+      }
+    },
+    "entry.failure.llmUnreachable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the model server is not running"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le serveur du modèle ne tourne pas"
+          }
+        }
+      }
+    },
+    "entry.failure.llmUnauthorized": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the API key was refused or is missing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · clé d’API refusée ou absente"
+          }
+        }
+      }
+    },
+    "entry.failure.llmTimeout": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the model server did not answer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le serveur du modèle n’a pas répondu"
+          }
+        }
+      }
+    },
+    "entry.failure.llmError %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the server refused the request (%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le serveur a refusé la requête (%lld)"
+          }
+        }
+      }
+    },
+    "entry.failure.llmErrorInStream": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the server stopped on an error"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le serveur s’est arrêté sur une erreur"
+          }
+        }
+      }
+    },
+    "entry.failure.llmEmpty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the model answered nothing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le modèle n’a rien répondu"
+          }
+        }
+      }
+    },
+    "entry.reason.emptySelection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no text selected"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aucun texte sélectionné"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

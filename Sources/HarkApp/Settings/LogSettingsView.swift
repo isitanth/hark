@@ -138,6 +138,7 @@ private struct LogRow: View {
     }
 
     /// The app by name, the decode time, and the tier's catalogue name, which is a proper name in every language.
+    /// An ask adds the model id that answered and its time from the request to the last token.
     private var details: [String] {
         var parts: [String] = []
         if let app = entry.appName { parts.append(app) }
@@ -145,6 +146,8 @@ private struct LogRow: View {
         if let tier = entry.modelTier.flatMap(ModelTier.init(rawValue:)) {
             parts.append(ModelCatalog.entry(for: tier).displayName)
         }
+        let llm = [entry.llmModel, entry.llmMs.map { "\($0) ms" }].compactMap(\.self)
+        if !llm.isEmpty { parts.append(llm.joined(separator: " ")) }
         return parts
     }
 }

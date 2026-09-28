@@ -303,8 +303,10 @@ let illegalTransitions: [IllegalTransition] = [
         #expect(logged.contains("log:text_clipboard:insertion_timeout"))
         #expect(logged.contains("log:text_clipboard:paste_not_consumed"))
         // `max_duration` is no longer a discard: since 2026-09-24 the limit ends the capture and the text goes
-        // through, with the code on the `text_inserted` or `command` line instead.
-        for reason in DiscardReason.allCases where reason != .maxDuration {
+        // through, with the code on the `text_inserted` or `command` line instead. `empty_selection` and the ask's
+        // failures are the contract of M8.1; the reducer logs them from M8.4, which adds them here.
+        let notYetReduced: Set<DiscardReason> = [.maxDuration, .emptySelection]
+        for reason in DiscardReason.allCases where !notYetReduced.contains(reason) {
             #expect(logged.contains("log:discarded:\(reason.rawValue)"), "no reducer case logs \(reason.rawValue)")
         }
         #expect(logged.contains("log:text_inserted:max_duration"))
@@ -395,7 +397,7 @@ let illegalTransitions: [IllegalTransition] = [
         let record = try #require(done.effects.first?.record)
         #expect(record.rawText == "open finder")
         #expect(record.normalizedText == "open finder")
-        #expect(record.actionType == .openApp)
+        #expect(record.actionType == .command(.openApp))
         #expect(record.exitCode == 0)
         #expect(record.transcribeMs == 420)
         #expect(record.targetApp == "com.apple.mail")
