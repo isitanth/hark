@@ -169,9 +169,15 @@ if (( install )); then
     rm -rf "$target"
     ditto "$app" "$target"
     codesign --verify --deep --strict "$target"
-    # Launch Services learns the new NSServices entry, and pbs rebuilds the Services menu from it. The French title
-    # is not picked up yet: pbs keeps an app it has cached and re-reads it only after a -flush (measured 2026-09-28).
+    # Launch Services learns the new NSServices entry, and pbs rebuilds the Services menu from it. A plain update
+    # sometimes keeps only the English title after an install, and pbs re-reads a cached app only after a -flush, so
+    # the whole Services cache is rebuilt in the system's languages (fr-BE -> fr): "Demander à Hark" in French
+    # (measured 2026-09-28). Harmless, and system-wide; your go-ahead of 2026-09-28.
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$target"
-    /System/Library/CoreServices/pbs -update
+    languages=(${(u)${(f)"$(defaults read -g AppleLanguages 2>/dev/null | tr -d ' ",()' | sed '/^$/d; s/-.*//')"}})
+    (( ${#languages} )) || languages=(en)
+    /System/Library/CoreServices/pbs -flush
+    /System/Library/CoreServices/pbs -update $languages
+    print "==> Services menu rebuilt for: $languages"
     print "==> installed; start it with: open ${(q)target}"
 fi
