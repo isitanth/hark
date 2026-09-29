@@ -91,6 +91,18 @@ private let mailText = FocusSnapshot(
         #expect(reader.reads == 0)
     }
 
+    /// A question that ends in an app name is still a question: only "verb, app" runs after the prefix.
+    @Test func aQuestionEndingInAnAppIsAsked() async {
+        let settings = ResolutionSettings()
+        settings.update(
+            commands: CommandConfig(
+                openVerbs: ["en": ["show"]], fillers: ["en": ["me"]],
+                commands: [CommandEntry(id: "open_terminal", app: "Terminal")]))
+        let resolver = UtteranceResolver(settings: settings)
+        let result = await resolver.resolve(Transcript(raw: "Hark, show me how to use Terminal."), focus: mailText)
+        #expect(result.decision == .ask(request: "show me how to use Terminal."))
+    }
+
     @Test func thePrefixAloneIsDiscarded() async {
         let resolver = UtteranceResolver(settings: ResolutionSettings())
         #expect(await resolver.resolve(Transcript(raw: "Hark."), focus: mailText).decision == .discard(.emptyRequest))

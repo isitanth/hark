@@ -34,8 +34,9 @@ public struct CommandMatch: Sendable, Equatable {
 /// A filler is not skipped when an app name said as written starts with it or runs past it: "open the Clock" opens
 /// "The Clock", and "open Clock" still opens "Clock" rather than The Clock without its "the".
 ///
-/// When that finds nothing, the utterance is tried once more without the fillers inside the app name: whisper cuts
-/// "TextEdit" into "texte d'édit", whose "d" is a filler (2026-09-29). Only what fails the first pass gets a second.
+/// When that finds nothing, the utterance is tried once more without the fillers between the words of the app name:
+/// whisper cuts "TextEdit" into "texte d'édit", whose "d" is a filler (2026-09-29). Fillers at the end stay, so "Lance
+/// Safari, moi" is still text. Only what fails the first pass gets a second.
 public struct CommandMatcher: Sendable {
     public typealias Scorer = @Sendable (String, String) -> Double
 
@@ -79,25 +80,27 @@ public struct CommandMatcher: Sendable {
     public static let empty = CommandMatcher(config: .empty)
 
     /// `normalized` is `Normalizer.normalize` of what was said. Nil means it is text.
-    public func match(_ normalized: String) -> CommandMatch? {
+    ///
+    /// `adjacent`: the app has to follow the verb and its fillers, with no other word between. Said after the spoken
+    /// prefix, "Hark, show me how to use Terminal" is a question for the assistant, not "open Terminal".
+    public func match(_ normalized: String, adjacent: Bool = false) -> CommandMatch? {
         let words = Self.words(normalized)
         guard let verb = verbs.first(where: { words.starts(with: $0) }) else { return nil }
-        if let found = match(words, verb: verb) { return found }
+        if let found = match(words, verb: verb, adjacent: adjacent) { return found }
         let compact = withoutInnerFillers(words, after: verb.count)
-        return compact.count < words.count ? match(compact, verb: verb) : nil
+        return compact.count < words.count ? match(compact, verb: verb, adjacent: adjacent) : nil
     }
 
-    /// The words with every single-word filler after the first word that is not one removed: the fillers before the
-    /// name stay, for the first pass's rules; the ones inside it go.
+    /// The words without the single-word fillers that sit between two other words after the verb: the fillers before
+    /// the name stay, for the first pass's rules, and so do the ones after its last word.
     private func withoutInnerFillers(_ words: [String], after start: Int) -> [String] {
         let single = Set(fillers.filter { $0.count == 1 }.map { $0[0] })
-        guard let first = words.indices.dropFirst(start).first(where: { !single.contains(words[$0]) }) else {
-            return words
-        }
-        return Array(words[..<(first + 1)]) + words[(first + 1)...].filter { !single.contains($0) }
+        let kept = words.indices.filter { !single.contains(words[$0]) }
+        guard let first = kept.first(where: { $0 >= start }), let last = kept.last, first < last else { return words }
+        return words.indices.filter { $0 <= first || $0 > last || !single.contains(words[$0]) }.map { words[$0] }
     }
 
-    private func match(_ words: [String], verb: [String]) -> CommandMatch? {
+    private func match(_ words: [String], verb: [String], adjacent: Bool) -> CommandMatch? {
         var index = verb.count
         while index < words.count {
             // An app named here decides: one of the names that ends the utterance, or text.
@@ -117,6 +120,7 @@ public struct CommandMatcher: Sendable {
                     command: commands[found.alias.command], verb: verb.joined(separator: " "),
                     alias: found.alias.text, score: found.score)
             }
+            if adjacent { return nil }
             index += 1
         }
         return nil

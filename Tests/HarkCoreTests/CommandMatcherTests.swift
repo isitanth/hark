@@ -176,6 +176,23 @@ let spokenCases: [SpokenCase] = [
         #expect(id("Ouvre le Finder.") == "open_finder")
         #expect(id("Ouvre le Finder de Pierre.") == nil)
         #expect(id("Ouvre le Finder pour demain.") == nil)
+        // A filler after the name is not inside it: still text.
+        #expect(id("Ouvre le Finder, moi.") == nil)
+    }
+
+    /// After the spoken prefix only a command with the app right after the verb runs.
+    @Test func adjacentWantsTheAppRightAfterTheVerb() {
+        let config = CommandConfig(
+            openVerbs: ["en": ["show"], "fr": ["ouvre"]], fillers: ["en": ["me", "the"], "fr": ["le"]],
+            commands: [
+                CommandEntry(id: "open_terminal", app: "Terminal"), CommandEntry(id: "open_finder", app: "Finder"),
+            ])
+        let matcher = CommandMatcher(config: config)
+        let id = { (said: String) in matcher.match(Normalizer.normalize(said), adjacent: true)?.command.id }
+        #expect(id("ouvre le Finder") == "open_finder")
+        #expect(id("show me the Terminal") == "open_terminal")
+        #expect(id("show me how to use Terminal") == nil)
+        #expect(matcher.match(Normalizer.normalize("show me how to use Terminal"))?.command.id == "open_terminal")
     }
 
     @Test func aVerbOfSeveralWordsIsMatchedWhole() {

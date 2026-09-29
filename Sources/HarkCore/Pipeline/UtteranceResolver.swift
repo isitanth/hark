@@ -81,8 +81,9 @@ public struct UtteranceResolver: UtteranceResolving {
         let normalized = Normalizer.normalize(transcript.raw)
         if focus?.isSecureInput != true, let request = settings.prefix.request(in: transcript.raw) {
             guard !request.isEmpty else { return (normalized, .discard(.emptyRequest)) }
-            // "Arc, ouvre TextEdit" is a command said to Hark: it runs, as it would without the prefix.
-            if let found = settings.commands.match(Normalizer.normalize(request)) {
+            // "Arc, ouvre TextEdit" is a command said to Hark, and runs. Only with the app right after the verb: "Hark,
+            // show me how to use Terminal" is a question.
+            if let found = settings.commands.match(Normalizer.normalize(request), adjacent: true) {
                 return (normalized, .command(found.command))
             }
             // Read now, not at the press: only a prefix earns the read, and the ⌘C it may take (M9.0).
