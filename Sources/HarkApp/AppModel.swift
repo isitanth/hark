@@ -221,7 +221,8 @@ final class AppModel {
             actions: actions,
             asker: AskEngine(client: ask.client, settings: askSettings),
             selection: CallerSelectionChecker(
-                workspace: workspace, focus: focusProbe, accessibility: accessibility, settings: resolution))
+                workspace: workspace, focus: focusProbe, accessibility: accessibility, copier: inserter,
+                settings: resolution))
         controller = PipelineController(environment: environment, log: UtteranceLog(directory: paths.logs))
         askPanel = AskPanelModel(
             controller: controller, workspace: workspace, pasteboard: pasteboard, defaults: defaults)

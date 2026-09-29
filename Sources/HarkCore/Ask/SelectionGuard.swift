@@ -60,17 +60,22 @@ public struct CallerSelectionChecker: SelectionChecking {
     private let workspace: any Workspace
     private let focus: any FocusProbing
     private let accessibility: (any AccessibilityFacade)?
+    private let copier: (any SelectionCopying)?
     private let settings: ResolutionSettings
     private let settle: Duration
     private let poll: Duration
 
+    /// `copier` reads the selection with ⌘C where the Accessibility API says nothing, as the Ask key's read does; nil
+    /// leaves the app check alone there.
     public init(
         workspace: any Workspace, focus: any FocusProbing, accessibility: (any AccessibilityFacade)?,
-        settings: ResolutionSettings, settle: Duration = focusSettle, poll: Duration = focusPoll
+        copier: (any SelectionCopying)? = nil, settings: ResolutionSettings, settle: Duration = focusSettle,
+        poll: Duration = focusPoll
     ) {
         self.workspace = workspace
         self.focus = focus
         self.accessibility = accessibility
+        self.copier = copier
         self.settings = settings
         self.settle = settle
         self.poll = poll
@@ -82,8 +87,13 @@ public struct CallerSelectionChecker: SelectionChecking {
         }
         let now = await settledFocus(of: selection.caller)
         var live: String?
-        if let pid = now.app?.processID, pid == selection.caller?.processID {
-            live = await accessibility?.selectedText(of: pid)
+        if let app = now.app, app.processID == selection.caller?.processID {
+            live = await accessibility?.selectedText(of: app.processID)
+            // Dia, Claude, web text (M9.0): read the way the press read it, or text selected since the press would be
+            // written over unseen. Nothing copied is nothing selected.
+            if live == nil, let copier, !now.isSecureInput, !SelectionReader.copiesLine(app) {
+                live = await copier.copySelection(from: app) ?? ""
+            }
         }
         let verdict = SelectionGuard.verdict(selection, frontmost: now.app, liveSelection: live)
         let plan = verdict == .intact ? FocusResolver.pastePlan(focus: now, apps: settings.current.apps) : nil
