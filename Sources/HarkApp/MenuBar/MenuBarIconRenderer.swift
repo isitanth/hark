@@ -1,10 +1,10 @@
 import AppKit
 import HarkCore
 
-/// Paints Hark's drill (`MenuBarGlyph`) on the same 18×18 pt template canvas for every state and every frame, so the
+/// Paints Hark's drill (`MenuBarGlyph`) on the same 20×20 pt template canvas for every state and every frame, so the
 /// status item never changes width. Template only: states differ by shape and opacity, never by colour.
 enum MenuBarIconRenderer {
-    static let size = NSSize(width: 18, height: 18)
+    static let size = NSSize(width: MenuBarGlyph.canvasWidth, height: MenuBarGlyph.canvasHeight)
 
     static func image(for state: MenuBarIconState) -> NSImage {
         image(for: MenuBarGlyph(state: state))
@@ -22,6 +22,10 @@ enum MenuBarIconRenderer {
             context.setLineJoin(.round)
             context.setFillColor(NSColor.black.cgColor)
             context.setStrokeColor(NSColor.black.cgColor)
+            // The design grid, placed as `MenuBarGlyph.placed` says; the stroke grows with it.
+            context.translateBy(x: MenuBarGlyph.canvasWidth / 2, y: MenuBarGlyph.canvasHeight / 2)
+            context.scaleBy(x: MenuBarGlyph.scale, y: MenuBarGlyph.scale)
+            context.translateBy(x: -MenuBarGlyph.inkCentreX, y: -MenuBarGlyph.inkCentreY)
             context.saveGState()
             context.translateBy(x: glyph.dx, y: glyph.dy)
             context.translateBy(x: MenuBarGlyph.pivotX, y: MenuBarGlyph.pivotY)

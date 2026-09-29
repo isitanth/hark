@@ -1,8 +1,9 @@
 import Foundation
 
-/// Hark's drill on the menu bar's 18-point canvas, y down: the paths the renderer fills and strokes, at one weight
-/// everywhere, SF Symbols regular at this size. Drawn from the app icon, a cordless drill: a body with a rounded back, a
-/// pistol grip, a battery foot, a solid chuck and a short bit, about 14 by 12 points with at least a point of margin.
+/// Hark's drill on an 18-point design grid, y down: the paths the renderer fills and strokes, at one weight everywhere,
+/// SF Symbols regular at that size. Drawn from the app icon, a cordless drill: a body with a rounded back, a pistol
+/// grip, a battery foot, a solid chuck and a short bit, 14 by 12.3 points on the grid. `MenuBarGlyph` places the grid in
+/// the menu bar 15 % larger.
 public enum DrillShape {
     public static let lineWidth = 1.3
 
@@ -146,9 +147,22 @@ public struct MenuBarGlyph: Sendable, Equatable {
         case dotBelow
     }
 
-    /// The foot of the grip, where the rotation of a frame pivots.
+    /// The foot of the grip, where the rotation of a frame pivots, on the design grid.
     public static let pivotX = 7.0
     public static let pivotY = 11.5
+
+    /// The status item's canvas, in points: 2 points wider than the 18 of the first drill, so the larger drill keeps
+    /// room for the shake and the trigger's recoil, and as tall, for the marks of the turning bit. The menu bar's height
+    /// does not change.
+    public static let canvasWidth = 20.0
+    public static let canvasHeight = 20.0
+    /// The design grid is drawn this much larger: at 1 the drill read smaller and lighter than its neighbours in the
+    /// menu bar, 27 by 24 pixels against 32 by 24 for Wi-Fi (the user's screenshot of 2026-09-29). The stroke grows with
+    /// it, 1.3 to about 1.5.
+    public static let scale = 1.15
+    /// The centre of the drill's ink on the design grid, which lands on the centre of the canvas.
+    public static let inkCentreX = 9.85
+    public static let inkCentreY = 9.0
 
     public var fill: Fill
     public var badge: Badge
@@ -215,15 +229,22 @@ public struct MenuBarGlyph: Sendable, Equatable {
         )
     }
 
-    /// How far the ink reaches, stroke included, once moved: what has to stay inside the 18-point canvas. Control
-    /// points count as ink, so the box is never smaller than the drawing.
+    /// Where a point of the design grid lands on the canvas: scaled about the drill's ink centre, which lands on the
+    /// canvas's centre.
+    public static func placed(_ x: Double, _ y: Double) -> (x: Double, y: Double) {
+        (canvasWidth / 2 + (x - inkCentreX) * scale, canvasHeight / 2 + (y - inkCentreY) * scale)
+    }
+
+    /// How far the ink reaches on the canvas, stroke included, once moved and placed: what has to stay inside it.
+    /// Control points count as ink, so the box is never smaller than the drawing.
     public var inkBounds: (minX: Double, minY: Double, maxX: Double, maxY: Double) {
         var box = (minX: Double.infinity, minY: Double.infinity, maxX: -Double.infinity, maxY: -Double.infinity)
         func add(_ parts: [DrillShape.Part], moving: Bool) {
             for part in parts {
-                let pad = part.paint == .fill ? 0 : DrillShape.lineWidth / 2
+                let pad = part.paint == .fill ? 0 : DrillShape.lineWidth * Self.scale / 2
                 for (x, y) in Self.points(part.segments) {
-                    let point = moving ? moved(x, y) : (x: x, y: y)
+                    let onGrid = moving ? moved(x, y) : (x: x, y: y)
+                    let point = Self.placed(onGrid.x, onGrid.y)
                     box.minX = min(box.minX, point.x - pad)
                     box.minY = min(box.minY, point.y - pad)
                     box.maxX = max(box.maxX, point.x + pad)

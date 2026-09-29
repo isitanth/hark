@@ -34,11 +34,21 @@ import Testing
         #expect(glyph.marks == .none && glyph.rotation == 0 && glyph.dx == 0 && glyph.dy == 0)
     }
 
+    /// The drill sits in the middle of its canvas, 15 % larger than its design grid: about 16 by 14 points, the size
+    /// of its neighbours in the menu bar.
+    @Test func theDrillFillsItsCanvasLikeItsNeighbours() {
+        let box = MenuBarGlyph(state: .idle).inkBounds
+        #expect(abs((box.minX + box.maxX) / 2 - MenuBarGlyph.canvasWidth / 2) < 1e-9)
+        #expect(abs((box.minY + box.maxY) / 2 - MenuBarGlyph.canvasHeight / 2) < 1e-9)
+        #expect((16...16.2).contains(box.maxX - box.minX) && (14...14.3).contains(box.maxY - box.minY), "\(box)")
+    }
+
     /// Apple's menu bar extras keep at least a point of margin in their canvas; so does every form here.
     @Test(arguments: MenuBarIconState.allCases)
     func everyFormKeepsAPointOfMargin(_ state: MenuBarIconState) {
         let box = MenuBarGlyph(state: state).inkBounds
-        #expect(box.minX >= 1 && box.minY >= 1 && box.maxX <= 17 && box.maxY <= 17, "\(box)")
+        let (width, height) = (MenuBarGlyph.canvasWidth, MenuBarGlyph.canvasHeight)
+        #expect(box.minX >= 1 && box.minY >= 1 && box.maxX <= width - 1 && box.maxY <= height - 1, "\(box)")
     }
 
     /// The icon each animation plays over, in the app.
@@ -52,7 +62,8 @@ import Testing
             for (index, frame) in animation.frames.enumerated() {
                 let box = MenuBarGlyph(state: state).applying(frame).inkBounds
                 #expect(
-                    box.minX >= 0.5 && box.minY >= 0.5 && box.maxX <= 17.5 && box.maxY <= 17.5,
+                    box.minX >= 0.5 && box.minY >= 0.5 && box.maxX <= MenuBarGlyph.canvasWidth - 0.5
+                        && box.maxY <= MenuBarGlyph.canvasHeight - 0.5,
                     "\(animation) frame \(index + 1) over \(state): \(box)")
             }
         }
@@ -100,7 +111,7 @@ import Testing
         #expect(dismissed.fixedParts.count == 1 && !dismissed.movingParts.contains(dismissed.fixedParts[0]))
         let shaken = dismissed.applying(MenuBarAnimation.shake.frames[0])
         #expect(shaken.fixedParts.isEmpty && shaken.movingParts.count == dismissed.movingParts.count + 1)
-        #expect(shaken.inkBounds.minX == dismissed.inkBounds.minX - 1)
+        #expect(abs(shaken.inkBounds.minX - (dismissed.inkBounds.minX - MenuBarGlyph.scale)) < 1e-9)
     }
 
     @Test(arguments: [
