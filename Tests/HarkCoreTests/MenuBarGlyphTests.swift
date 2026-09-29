@@ -1,3 +1,4 @@
+import Foundation
 import HarkCore
 import Testing
 
@@ -109,7 +110,7 @@ import Testing
         (.textClipboard, nil, nil),
         (.failed, "llm_unreachable", .failed),
         (.failed, "model_missing:small", .failed),
-        (.discarded, "busy", .dismissed),
+        (.discarded, "busy", nil),
         (.discarded, "no_speech", .dismissed),
         (.discarded, "too_short", .dismissed),
         (.discarded, "empty_transcript", .dismissed),
@@ -122,5 +123,64 @@ import Testing
     ])
     func theSecondAfterAnUtterance(_ resolution: Resolution, _ error: String?, _ outcome: MenuBarOutcome?) {
         #expect(MenuBarOutcome(resolution: resolution, error: error) == outcome)
+    }
+}
+
+/// What a snapshot does to the icon beyond its state.
+@Suite struct MenuBarIconUpdateTests {
+    static func record(_ outcome: PipelineOutcome) -> UtteranceRecord {
+        UtteranceRecord(
+            context: UtteranceContext(id: UtteranceID(1), pressedAt: Date(timeIntervalSince1970: 0)), transcript: nil,
+            outcome: outcome)
+    }
+
+    @Test func aCaptureStartsWithTheTriggerAndClearsTheCross() {
+        let update = MenuBarIconUpdate(from: PipelineSnapshot(phase: .idle), to: PipelineSnapshot(phase: .capturing))
+        #expect(update == MenuBarIconUpdate(play: .trigger, outcome: .clear))
+    }
+
+    @Test func aCaptureThatEndsEndsTheLatch() {
+        let update = MenuBarIconUpdate(
+            from: PipelineSnapshot(phase: .capturing), to: PipelineSnapshot(phase: .transcribing))
+        #expect(update == MenuBarIconUpdate(working: true, endsLatch: true))
+    }
+
+    @Test func aFailureShakesAndShowsTheCross() {
+        let line = Self.record(.failed(.noInputDevice))
+        let update = MenuBarIconUpdate(
+            from: PipelineSnapshot(phase: .transcribing), to: PipelineSnapshot(phase: .idle, lastRecord: line))
+        #expect(update == MenuBarIconUpdate(play: .shake, outcome: .show(.failed)))
+    }
+
+    @Test func nothingHeardShowsTheCrossWithoutAShake() {
+        let line = Self.record(.discarded(.noSpeech))
+        let update = MenuBarIconUpdate(
+            from: PipelineSnapshot(phase: .transcribing), to: PipelineSnapshot(phase: .idle, lastRecord: line))
+        #expect(update == MenuBarIconUpdate(outcome: .show(.dismissed)))
+    }
+
+    /// A press refused while Hark works says nothing about the utterance in flight, and that utterance's own success
+    /// takes away any cross left from before.
+    @Test func aBusyPressThenASuccessLeaveNoCross() {
+        let busy = Self.record(.discarded(.busy))
+        let working = PipelineSnapshot(phase: .transcribing)
+        let refused = PipelineSnapshot(phase: .transcribing, lastRecord: busy)
+        #expect(MenuBarIconUpdate(from: working, to: refused) == MenuBarIconUpdate(outcome: .clear, working: true))
+        let inserted = PipelineSnapshot(phase: .idle, lastRecord: Self.record(.textInserted))
+        #expect(MenuBarIconUpdate(from: refused, to: inserted) == MenuBarIconUpdate(outcome: .clear))
+    }
+
+    @Test func theSameLineTwiceIsNotANewOne() {
+        let line = Self.record(.discarded(.noSpeech))
+        let snapshot = PipelineSnapshot(phase: .idle, lastRecord: line)
+        #expect(MenuBarIconUpdate(from: snapshot, to: snapshot) == MenuBarIconUpdate())
+    }
+
+    @Test func theBitTurnsWhileTheModelWritesOnly() {
+        let generating = PipelineSnapshot(
+            phase: .asking, ask: AskProgress(instruction: "résume", stage: .generating))
+        let reviewing = PipelineSnapshot(phase: .asking, ask: AskProgress(instruction: "résume", stage: .reviewing))
+        #expect(MenuBarIconUpdate(from: PipelineSnapshot(phase: .transcribing), to: generating).working)
+        #expect(!MenuBarIconUpdate(from: generating, to: reviewing).working)
     }
 }

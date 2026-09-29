@@ -21,7 +21,8 @@ final class HotkeyBridge {
     private var listeners: [Task<Void, Never>] = []
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "hotkey")
 
-    /// `onLatchChange` gets `TriggerGate.isLatched` after every key event: the HUD's lock beside the timer.
+    /// `onLatchChange` gets `TriggerGate.isLatched` after every event of the talk key or the Ask key: the HUD's lock
+    /// beside the timer, and the menu bar's hands-free icon.
     /// `onAskDown` starts an ask from the Ask key: reading the selection needs the app, not the bridge.
     func start(
         driving controller: PipelineController, onAskDown: @escaping @MainActor () async -> Void,
@@ -69,6 +70,8 @@ final class HotkeyBridge {
                     let capturing = await controller.capturingIntent?.isAsk == true
                     if capturing, gate.isIdle { gate.latch() }
                     let action = gate.handle(key, at: .now, isCapturing: capturing)
+                    // Only while its own ask is capturing: pressed during a latched dictation, it must not unlatch it.
+                    if capturing { onLatchChange(gate.isLatched) }
                     Self.logger.debug(
                         "ask \(String(describing: event), privacy: .public), capturing \(capturing, privacy: .public) -> \(String(describing: action), privacy: .public)"
                     )

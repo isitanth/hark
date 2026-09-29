@@ -522,12 +522,9 @@ final class AppModel {
         if let record = snapshot.lastRecord, record != self.snapshot.lastRecord {
             feed.append(LogEntry(record: record))
             announce(record)
-            show(MenuBarOutcome(record))
         }
+        updateIcon(MenuBarIconUpdate(from: self.snapshot, to: snapshot))
         if snapshot.phase == .capturing, self.snapshot.phase != .capturing {
-            outcomeClear?.cancel()
-            outcome = nil
-            iconAnimator.play(.trigger)
             // Polling stops once both permissions are granted; a press is when a revoked grant starts to matter.
             refreshPermissions()
             let enabled = preferences.lowerOtherAudio
@@ -550,7 +547,6 @@ final class AppModel {
         }
         recordAsk(snapshot)
         self.snapshot = snapshot
-        iconAnimator.setWorking(MenuBarIconState.isWorking(snapshot.phase, ask: snapshot.ask))
         hudModel.update(snapshot)
         hud.setVisible(hudModel.state != .hidden)
         askPanel.update(snapshot)
@@ -659,17 +655,26 @@ final class AppModel {
         askPanel.showPreview(debugPreview)
     }
 
-    /// The cross for a second after an utterance that came to nothing, after a shake when it failed.
-    private func show(_ outcome: MenuBarOutcome?) {
-        guard let outcome else { return }
-        self.outcome = outcome
-        if outcome == .failed { iconAnimator.play(.shake) }
-        outcomeClear?.cancel()
-        outcomeClear = Task { [weak self] in
-            try? await Task.sleep(for: MenuBarOutcome.shown)
-            guard !Task.isCancelled else { return }
-            self?.outcome = nil
+    /// The cross for a second after an utterance that came to nothing, the animations, and the end of a latch.
+    private func updateIcon(_ update: MenuBarIconUpdate) {
+        switch update.outcome {
+        case .keep:
+            break
+        case .clear:
+            outcomeClear?.cancel()
+            outcome = nil
+        case .show(let shown):
+            outcome = shown
+            outcomeClear?.cancel()
+            outcomeClear = Task { [weak self] in
+                try? await Task.sleep(for: MenuBarOutcome.shown)
+                guard !Task.isCancelled else { return }
+                self?.outcome = nil
+            }
         }
+        if update.endsLatch { isLatched = false }
+        if let animation = update.play { iconAnimator.play(animation) }
+        iconAnimator.setWorking(update.working)
     }
 
     /// Text on the clipboard, a capture cut at the length limit, a recording cancelled by a change of microphone and

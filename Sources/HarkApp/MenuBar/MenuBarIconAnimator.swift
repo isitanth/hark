@@ -28,7 +28,8 @@ final class MenuBarIconAnimator {
         }
         run {
             try await Task.sleep(for: MenuBarAnimation.spinDelay)
-            while true {
+            // Reduce Motion turned on during a long answer stops the spin at the next turn.
+            while !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
                 try await self.frames(of: .spin)
                 try await Task.sleep(for: MenuBarAnimation.spinPeriod - MenuBarAnimation.spin.duration)
             }

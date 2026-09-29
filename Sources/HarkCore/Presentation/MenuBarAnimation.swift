@@ -67,7 +67,8 @@ public enum MenuBarAnimation: String, Sendable, CaseIterable {
 }
 
 /// What the end of an utterance says in the menu bar: the cross for a second when it came to nothing the user can see,
-/// after a shake when it failed. Nothing after an Escape or a declined confirmation, which the user did themselves.
+/// after a shake when it failed. Nothing after an Escape or a declined confirmation, which the user did themselves, nor
+/// for a press refused as busy: it says nothing about the utterance in flight, which may well succeed.
 public enum MenuBarOutcome: Sendable, Equatable {
     case dismissed
     case failed
@@ -81,6 +82,7 @@ public enum MenuBarOutcome: Sendable, Equatable {
         case .discarded:
             let byUser: Set<String> = [
                 DiscardReason.cancelled.rawValue, DiscardReason.declined.rawValue, DiscardReason.maxDuration.rawValue,
+                DiscardReason.busy.rawValue,
             ]
             guard !byUser.contains(error ?? "") else { return nil }
             self = .dismissed
