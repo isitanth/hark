@@ -44,6 +44,11 @@ struct PrefixCase: Sendable, CustomTestStringConvertible {
             raw: "Salut Arc ! Est-ce que c'est la bise ou la brise ?",
             request: "Est-ce que c'est la bise ou la brise ?"),
         .init(raw: "Ark, quelle heure est-il ?", request: "quelle heure est-il ?"),
+        // The user's live check in Claude, 2026-09-29.
+        .init(
+            raw: "Arke, qu'est ce qui s'est passé avec le chasseur ?",
+            request: "qu'est ce qui s'est passé avec le chasseur ?"),
+        .init(raw: "Hey Arke, quelle heure est-il ?", request: "quelle heure est-il ?"),
         // A greeting alone is dictation.
         .init(raw: "Salut, ça va ?", request: nil),
         .init(raw: "Hey, what time is it?", request: nil),

@@ -33,7 +33,7 @@ import Foundation
 ///       extra: { enable_thinking: false }      # scalars only, sent as top-level request fields
 ///   max_selection_chars: 12000                 # 1...100000
 /// assistant:                  # optional, version 3 only; see AssistantConfig
-///   prefix: [hark, arc, ark]  # a dictation starting with one of these goes to the assistant
+///   prefix: [hark, arc, ark, arke]   # a dictation starting with one of these goes to the assistant
 ///   greetings: [hey, hello, salut]   # may come before the prefix, never alone
 /// ```
 ///
@@ -78,7 +78,7 @@ public struct CommandConfig: Sendable, Equatable {
         llm ?? .standard
     }
 
-    /// What the resolver uses: the file's `assistant:`, or the prefixes [hark, arc].
+    /// What the resolver uses: the file's `assistant:`, or `AssistantConfig.standard`.
     public var effectiveAssistant: AssistantConfig {
         assistant ?? .standard
     }
