@@ -20,12 +20,13 @@ public enum SelectionGuard {
     ) -> SelectionVerdict {
         guard let caller = selection.caller, frontmost?.processID == caller.processID else { return .otherApp }
         guard let liveSelection else { return .intact }
-        return lines(liveSelection) == lines(selection.text) ? .intact : .changed
+        return comparable(liveSelection) == comparable(selection.text) ? .intact : .changed
     }
 
-    /// The Services pasteboard and the Accessibility API need not agree on line endings.
-    private static func lines(_ text: String) -> String {
-        text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
+    /// The Services pasteboard, the Accessibility API and a ⌘C need not agree on line endings, non-breaking spaces or
+    /// runs of white space, only on the words and their order.
+    private static func comparable(_ text: String) -> String {
+        text.split(whereSeparator: \.isWhitespace).joined(separator: " ")
     }
 }
 

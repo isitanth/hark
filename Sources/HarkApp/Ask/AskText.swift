@@ -4,7 +4,7 @@ import SwiftUI
 /// What Settings › Ask, the panel and the Ask panel say about an LLM call that failed, in the user's language. The
 /// server's own message is shown as it wrote it.
 extension LLMFailure {
-    /// Settings › Ask and the panel's row: the problem alone, since the fix is right there.
+    /// Settings › Ask: the problem, and what to do about it with the Test button there.
     var settingsText: LocalizedStringResource {
         switch self {
         case .notRunning(let endpoint): L("settings.ask.failure.notRunning \(endpoint)")

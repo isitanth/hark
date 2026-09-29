@@ -33,7 +33,13 @@ private let text = "Le comité se réunira jeudi.\nMerci."
             name: "same app, only a caret left", caller: F.textEdit, frontmost: F.textEdit, live: "",
             verdict: .changed),
         .init(
-            name: "same app, trailing space added", caller: F.textEdit, frontmost: F.textEdit, live: text + " ",
+            name: "same app, non-breaking spaces from a ⌘C", caller: F.textEdit, frontmost: F.textEdit,
+            live: "Le comité se réunira jeudi.\u{00A0}\nMerci.", verdict: .intact),
+        .init(
+            name: "same app, a trailing space: the same words", caller: F.textEdit, frontmost: F.textEdit,
+            live: text + " ", verdict: .intact),
+        .init(
+            name: "same app, a word added", caller: F.textEdit, frontmost: F.textEdit, live: text + " Bien",
             verdict: .changed),
         .init(name: "another app", caller: F.textEdit, frontmost: F.mail, live: text, verdict: .otherApp),
         .init(name: "nothing in front", caller: F.textEdit, frontmost: nil, live: nil, verdict: .otherApp),
