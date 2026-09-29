@@ -262,13 +262,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask Hark works on the selected text. With nothing selected, it answers a question or writes for you."
+            "value": "Select text and say what to do with it. With nothing selected, ask a question or say what to write. On the dictation shortcut, starting with “Hark, …” does the same."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander à Hark agit sur le texte sélectionné. Sans sélection, il répond à une question ou rédige pour vous."
+            "value": "Sélectionnez du texte et dites quoi en faire. Sans sélection, posez une question ou dites quoi rédiger. Avec le raccourci de dictée, commencer par « Hark, … » fait de même."
           }
         }
       }
