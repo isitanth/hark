@@ -6,9 +6,9 @@ version: 3
 defaults:
   threshold: 0.85        # how close a spoken app name has to be, from 0 to 1
 
-open_verbs:              # with the forms whisper hears: "affiches-moi", "ouvrez", "lancez"
+open_verbs:              # with the forms whisper hears: "affiches-moi", "ouvrez", "affichons à"
   en: [open, launch, show, start]
-  fr: [ouvre, ouvres, ouvrez, ouvrir, lance, lances, lancez, lancer, affiche, affiches, affichez, afficher, démarre, démarres, démarrez, démarrer]
+  fr: [ouvre, ouvres, ouvrez, ouvrons, ouvrir, lance, lances, lancez, lançons, lancer, affiche, affiches, affichez, affichons, afficher, démarre, démarres, démarrez, démarrons, démarrer]
 
 fillers:                 # skipped between the verb and the app, and never taken for one
   en: [the, a, an, my, your, our, this, that]

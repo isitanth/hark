@@ -89,8 +89,8 @@ let spokenCases: [SpokenCase] = [
         #expect(fynder.command.id == "open_finder")
         #expect(fynder.score >= 0.85 && fynder.score < 1)
         #expect(match("Ouvre le fichier.") == nil)
-        // The verb is not: "ouvrons" is not "ouvre".
-        #expect(match("Ouvrons le Finder.") == nil)
+        // The verb is not: "ouvrirons" is not "ouvre".
+        #expect(match("Ouvrirons le Finder.") == nil)
     }
 
     // MARK: - The threshold

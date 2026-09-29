@@ -18,8 +18,9 @@ enum ConfigFixtures {
         openVerbs: [
             "en": ["open", "launch", "show", "start"],
             "fr": [
-                "ouvre", "ouvres", "ouvrez", "ouvrir", "lance", "lances", "lancez", "lancer", "affiche", "affiches",
-                "affichez", "afficher", "démarre", "démarres", "démarrez", "démarrer",
+                "ouvre", "ouvres", "ouvrez", "ouvrons", "ouvrir", "lance", "lances", "lancez", "lançons", "lancer",
+                "affiche", "affiches", "affichez", "affichons", "afficher", "démarre", "démarres", "démarrez",
+                "démarrons", "démarrer",
             ],
         ],
         fillers: [
