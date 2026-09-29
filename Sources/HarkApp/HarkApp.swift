@@ -90,7 +90,7 @@ private struct MenuBarLabel: View {
     @Environment(\.openSettings) private var openSettings
 
     var body: some View {
-        Image(nsImage: MenuBarIconRenderer.image(for: model.iconState))
+        Image(nsImage: MenuBarIconRenderer.image(for: model.menuBarGlyph))
             .accessibilityLabel(Text(model.iconState.label))
             .task {
                 if model.debugPreview.contains("panel") { openWindow(id: PanelView.previewWindowID) }

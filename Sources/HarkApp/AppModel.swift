@@ -15,6 +15,12 @@ final class AppModel {
     }
 
     private(set) var snapshot = PipelineSnapshot(phase: .idle)
+    /// The talk key's latch, from `HotkeyBridge`: a capture started by a tap shows the hands-free icon.
+    private(set) var isLatched = false
+    /// For a second after an utterance that came to nothing: the cross in the menu bar.
+    private(set) var outcome: MenuBarOutcome?
+    @ObservationIgnored private var outcomeClear: Task<Void, Never>?
+    let iconAnimator = MenuBarIconAnimator()
     /// The Settings tab on show, so the panel can open Settings on the one that fixes a problem.
     var settingsTab = SettingsTab.general
     private(set) var microphone = MicPermission.status
@@ -120,7 +126,8 @@ final class AppModel {
     /// One poster for the whole app: it is the notification center's delegate, and one authorization prompt is
     /// enough.
     @ObservationIgnored private let notifications = UserNotificationPoster()
-    /// `-HarkDebugIconState <idle|recording|transcribing|armed|error>` pins the icon, for screenshots.
+    /// `-HarkDebugIconState <idle|recording|handsFree|transcribing|asking|error|dismissed>` pins the icon, for
+    /// screenshots.
     @ObservationIgnored private let pinnedIcon: MenuBarIconState?
     /// `-HarkDebugPreview panel,settings` opens those at launch, for screenshots: the panel in an ordinary window,
     /// because nothing outside a real click opens a window-style menu bar extra. Launch arguments only.
@@ -145,7 +152,13 @@ final class AppModel {
     }
 
     var iconState: MenuBarIconState {
-        pinnedIcon ?? MenuBarIconState(phase: snapshot.phase, health: health)
+        pinnedIcon
+            ?? MenuBarIconState(phase: snapshot.phase, isLatched: isLatched, health: health, dismissed: outcome != nil)
+    }
+
+    /// The icon of the state, moved by the frame of the animation playing, if any.
+    var menuBarGlyph: MenuBarGlyph {
+        MenuBarGlyph(state: iconState).applying(iconAnimator.frame)
     }
 
     /// True while the onboarding window has never been dismissed and a grant it asks for is missing. Read after
@@ -302,7 +315,10 @@ final class AppModel {
         Task { [audio] in await audio.prepare() }
         hotkeys.start(
             driving: controller, onAskDown: { [weak self] in await self?.startAskFromKey() },
-            onLatchChange: { [hudModel] in hudModel.setLatched($0) })
+            onLatchChange: { [weak self, hudModel] latched in
+                hudModel.setLatched(latched)
+                if self?.isLatched != latched { self?.isLatched = latched }
+            })
         Task { [weak self] in await self?.pollPermissions() }
     }
 
@@ -506,8 +522,12 @@ final class AppModel {
         if let record = snapshot.lastRecord, record != self.snapshot.lastRecord {
             feed.append(LogEntry(record: record))
             announce(record)
+            show(MenuBarOutcome(record))
         }
         if snapshot.phase == .capturing, self.snapshot.phase != .capturing {
+            outcomeClear?.cancel()
+            outcome = nil
+            iconAnimator.play(.trigger)
             // Polling stops once both permissions are granted; a press is when a revoked grant starts to matter.
             refreshPermissions()
             let enabled = preferences.lowerOtherAudio
@@ -530,6 +550,7 @@ final class AppModel {
         }
         recordAsk(snapshot)
         self.snapshot = snapshot
+        iconAnimator.setWorking(MenuBarIconState.isWorking(snapshot.phase, ask: snapshot.ask))
         hudModel.update(snapshot)
         hud.setVisible(hudModel.state != .hidden)
         askPanel.update(snapshot)
@@ -636,6 +657,19 @@ final class AppModel {
     func showAskPreview() {
         askPanel.configure(config.config.effectiveLLM)
         askPanel.showPreview(debugPreview)
+    }
+
+    /// The cross for a second after an utterance that came to nothing, after a shake when it failed.
+    private func show(_ outcome: MenuBarOutcome?) {
+        guard let outcome else { return }
+        self.outcome = outcome
+        if outcome == .failed { iconAnimator.play(.shake) }
+        outcomeClear?.cancel()
+        outcomeClear = Task { [weak self] in
+            try? await Task.sleep(for: MenuBarOutcome.shown)
+            guard !Task.isCancelled else { return }
+            self?.outcome = nil
+        }
     }
 
     /// Text on the clipboard, a capture cut at the length limit, a recording cancelled by a change of microphone and
