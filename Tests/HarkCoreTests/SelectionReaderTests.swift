@@ -61,6 +61,26 @@ private final class ScriptedCopier: SelectionCopying {
         #expect(snapshot.isBlank && copier.count == 0)
     }
 
+    /// VS Code copies the current line on ⌘C with nothing selected: no copy is sent there.
+    @Test(arguments: ["com.microsoft.VSCode", "com.todesktop.230313mzl4w4u92", "com.jetbrains.intellij"])
+    func anEditorThatCopiesTheLineGetsNoCopy(_ bundleID: String) async {
+        let copier = ScriptedCopier("let x = 1\n")
+        let editor = AppIdentity(bundleID: bundleID, name: "Editor", processID: 700, embedsChromium: true)
+        let snapshot = await SelectionReader(accessibility: FakeAccessibility(), copier: copier).read(from: editor)
+        #expect(snapshot.isBlank && snapshot.caller == editor && copier.count == 0)
+    }
+
+    /// Hark's own window in front: nothing is read from Hark itself, as the Ask key does.
+    @Test func harkItselfIsNeverRead() async {
+        let accessibility = FakeAccessibility()
+        let pid = ProcessInfo.processInfo.processIdentifier
+        accessibility.set(selectedText: "réglages", for: pid)
+        let copier = ScriptedCopier("x")
+        let hark = AppIdentity(bundleID: "com.anthonychambet.hark", name: "Hark", processID: pid)
+        let snapshot = await SelectionReader(accessibility: accessibility, copier: copier).read(from: hark)
+        #expect(snapshot == SelectionSnapshot(text: "", caller: nil) && copier.count == 0)
+    }
+
     @Test func noAppIsNothingSelected() async {
         let copier = ScriptedCopier("x")
         let snapshot = await SelectionReader(accessibility: FakeAccessibility(), copier: copier).read(from: nil)

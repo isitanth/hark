@@ -27,13 +27,31 @@ public struct SelectionReader: SelectionReading {
         self.copier = copier
     }
 
-    /// The selection in `app`, blank when there is none or no app is known.
+    /// Editors whose ⌘C copies the current line when nothing is selected: there a copy would turn a question into an
+    /// ask about a line of code. Bundle IDs, lowercase; JetBrains IDEs by prefix.
+    public static let copiesLineWithoutSelection: Set<String> = [
+        "com.microsoft.vscode", "com.microsoft.vscodeinsiders", "com.todesktop.230313mzl4w4u92",
+        "com.sublimetext.4", "com.sublimetext.3",
+    ]
+    public static let copiesLineWithoutSelectionPrefixes = ["com.jetbrains."]
+
+    /// The selection in `app`, blank when there is none or no app is known. Hark's own windows are never read.
     public func read(from app: AppIdentity?) async -> SelectionSnapshot {
-        guard let app else { return SelectionSnapshot(text: "", caller: nil) }
+        guard let app, app.processID != ProcessInfo.processInfo.processIdentifier else {
+            return SelectionSnapshot(text: "", caller: nil)
+        }
         if let text = await accessibility.selectedText(of: app.processID) {
             return SelectionSnapshot(text: text, caller: app)
         }
-        guard !(await accessibility.isSecureInputEnabled()) else { return SelectionSnapshot(text: "", caller: app) }
+        guard !(await accessibility.isSecureInputEnabled()), !Self.copiesLine(app) else {
+            return SelectionSnapshot(text: "", caller: app)
+        }
         return SelectionSnapshot(text: await copier.copySelection(from: app) ?? "", caller: app)
+    }
+
+    static func copiesLine(_ app: AppIdentity) -> Bool {
+        guard let id = app.bundleID?.lowercased() else { return false }
+        return copiesLineWithoutSelection.contains(id)
+            || copiesLineWithoutSelectionPrefixes.contains { id.hasPrefix($0) }
     }
 }

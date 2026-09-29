@@ -1,6 +1,7 @@
 import Foundation
 import HarkCore
 import Testing
+import os
 
 private typealias F = Fixture
 
@@ -86,6 +87,28 @@ struct AskPipelineTests {
         #expect(record.resolution == .textClipboard && record.error == nil && record.actionType == .ask)
         #expect(rig.pasteboard.text == "Lima.")
         #expect(try rig.lines().count == 1)
+    }
+
+    /// Hark's own Copy ends the inserter's watch on the clipboard first, or the watch could put the old contents back.
+    @Test func aCopyReleasesThePasteboardFirst() async throws {
+        let directory = try TemporaryDirectory()
+        let pasteboard = FakePasteboard(text: nil)
+        let inserter = ReleaseCountingInserter()
+        let controller = PipelineController(
+            environment: PipelineEnvironment(
+                workspace: SwitchableWorkspace(F.mail), pasteboard: pasteboard, clock: ManualWallClock(F.pressedAt),
+                audio: ScriptedAudioInput(summary: F.speech),
+                engine: FixedTranscriptionEngine(transcript: F.instruction), inserter: inserter,
+                asker: ScriptedAsker(pieces: ["Lima."], ending: Self.finished)),
+            log: UtteranceLog(directory: directory.url, timeZone: F.paris))
+        var snapshots = controller.snapshots.makeAsyncIterator()
+        await controller.triggerDown(intent: F.assist)
+        let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+        await controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        await controller.copyAnswer("Lima.", for: id)
+        _ = await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }
+        #expect(inserter.releases == 1 && pasteboard.text == "Lima.")
     }
 
     @Test func cancelWhileStreamingClosesTheRequest() async throws {
@@ -204,4 +227,16 @@ struct AskPipelineTests {
         #expect(insertions.isEmpty)
         #expect(clipboard == F.answer)
     }
+}
+
+/// Inserts nothing; counts the times Hark said it was about to write the clipboard itself.
+private final class ReleaseCountingInserter: TextInserting {
+    private let count = OSAllocatedUnfairLock(initialState: 0)
+    var releases: Int { count.withLock { $0 } }
+
+    func insert(
+        _ text: String, plan: InsertionPlan, focus: FocusSnapshot?, clipboardFallback: Bool
+    ) async throws(PipelineFailure) {}
+
+    func releasePasteboard() async { count.withLock { $0 += 1 } }
 }
