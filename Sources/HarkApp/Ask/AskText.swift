@@ -14,6 +14,14 @@ extension LLMFailure {
         }
     }
 
+    /// The menu bar panel's row and status tooltip: the problem alone. Settings' "test again" has no Test button there.
+    var panelText: LocalizedStringResource {
+        switch self {
+        case .notRunning(let endpoint): L("panel.ask.failure.notRunning \(endpoint)")
+        default: settingsText
+        }
+    }
+
     /// The Ask panel: the problem and what to do about it, with Retry beside it.
     var popupText: LocalizedStringResource {
         switch self {

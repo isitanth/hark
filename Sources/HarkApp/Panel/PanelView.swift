@@ -128,7 +128,7 @@ struct PanelView: View {
     /// The model server beside the speech model, once a check or an ask has said something about it: green with the
     /// model id it serves, orange with what went wrong. Nothing before Ask is set up.
     private var askStatus: (color: Color, detail: LocalizedStringResource)? {
-        if let failure = model.ask.lastFailure { return (.orange, failure.settingsText) }
+        if let failure = model.ask.lastFailure { return (.orange, failure.panelText) }
         guard let id = model.ask.model else { return nil }
         return (.green, L("settings.ask.connected \(id)"))
     }

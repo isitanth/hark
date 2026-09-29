@@ -52,7 +52,7 @@ struct HealthRows: View {
                 case .llmUnreachable:
                     if let failure = model.ask.lastFailure {
                         IssueRow(
-                            symbol: "text.bubble", severity: issue.severity, text: failure.settingsText,
+                            symbol: "text.bubble", severity: issue.severity, text: failure.panelText,
                             action: L("panel.ask.open")
                         ) {
                             openAskSettings()

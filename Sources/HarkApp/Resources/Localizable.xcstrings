@@ -5617,13 +5617,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask Settings"
+            "value": "Settings › Ask"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réglages Demander"
+            "value": "Réglages › Demander"
+          }
+        }
+      }
+    },
+    "panel.ask.failure.notRunning %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The model server is not running at %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le serveur du modèle ne tourne pas à l’adresse %@."
           }
         }
       }
