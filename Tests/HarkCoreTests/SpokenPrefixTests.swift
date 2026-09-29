@@ -39,6 +39,13 @@ struct PrefixCase: Sendable, CustomTestStringConvertible {
         .init(raw: "Hey hark, what time is it?", request: "what time is it?"),
         .init(raw: "Hey, Hark, how are you?", request: "how are you?"),
         .init(raw: "Hello Arc, quelle heure est-il ?", request: "quelle heure est-il ?"),
+        .init(raw: "Hey Ark, please translate it in English.", request: "please translate it in English."),
+        .init(
+            raw: "Salut Arc ! Est-ce que c'est la bise ou la brise ?",
+            request: "Est-ce que c'est la bise ou la brise ?"),
+        .init(raw: "Ark, quelle heure est-il ?", request: "quelle heure est-il ?"),
+        // A greeting alone is dictation.
+        .init(raw: "Salut, ça va ?", request: nil),
         .init(raw: "Hey, what time is it?", request: nil),
         .init(raw: "Hey huck, what time is it?", request: nil),
         .init(raw: "Hello, how are you?", request: nil),
@@ -62,6 +69,14 @@ struct PrefixCase: Sendable, CustomTestStringConvertible {
         #expect(prefix.request(in: "Hey Hark, what time is it?") == "what time is it?")
         #expect(prefix.request(in: "Hey, what time is it?") == "what time is it?")
         #expect(prefix.request(in: "harke ouvre") == "ouvre")
+    }
+
+    /// The user's own greeting goes before any name, and never counts by itself.
+    @Test func aGreetingComesBeforeAName() {
+        let prefix = SpokenPrefix(["hark"], greetings: ["yo"])
+        #expect(prefix.request(in: "Yo Hark, what's up?") == "what's up?")
+        #expect(prefix.request(in: "Hark, what's up?") == "what's up?")
+        #expect(prefix.request(in: "Yo, what's up?") == nil)
     }
 
     @Test func noPrefixesMatchNothing() {

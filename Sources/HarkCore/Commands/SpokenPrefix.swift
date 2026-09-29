@@ -6,17 +6,24 @@ import Foundation
 /// A prefix matches the transcript's first words exactly once both are normalized (case, accents and punctuation
 /// gone), never fuzzily: M9.0 measured that whisper writes a French speaker's "Hark" as "Arc", which a fuzzy rule on
 /// "hark" misses while it catches "hard", "Marc" and "parc". Only the start counts: "hark" later in a sentence is text.
+/// A greeting may come before a prefix ("Hey Hark, …", "Salut Arc, …"), never alone.
 public struct SpokenPrefix: Sendable, Equatable {
-    /// Each prefix as normalized words, the longest first, so "hey hark" wins over "hey".
+    /// Each prefix as normalized words, alone and after each greeting, the longest first.
     private let prefixes: [[Substring]]
 
-    public init(_ prefixes: [String]) {
-        self.prefixes = prefixes.map { Normalizer.normalize($0).split(separator: " ") }
-            .filter { !$0.isEmpty }
+    public init(_ prefixes: [String], greetings: [String] = []) {
+        let words = { (text: String) in Normalizer.normalize(text).split(separator: " ") }
+        let names = prefixes.map(words).filter { !$0.isEmpty }
+        let greetings = greetings.map(words).filter { !$0.isEmpty }
+        self.prefixes = (names + greetings.flatMap { greeting in names.map { greeting + $0 } })
             .sorted { $0.count > $1.count }
     }
 
-    public static let standard = SpokenPrefix(AssistantConfig.defaultPrefix)
+    public init(_ config: AssistantConfig) {
+        self.init(config.prefix, greetings: config.greetings)
+    }
+
+    public static let standard = SpokenPrefix(AssistantConfig.standard)
 
     /// What follows the prefix, cut from `raw` so the request keeps its accents and punctuation; nil when `raw` does
     /// not start with a prefix. Empty when nothing but separators follows it: "Hark." alone.

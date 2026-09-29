@@ -8,7 +8,7 @@ enum CommandConfigSchema {
     static let version2Keys = ["version", "defaults", "apps", "open_verbs", "fillers", "commands"]
     /// Version 3 adds `llm:` and `assistant:`.
     static let topKeys = version2Keys + ["llm", "assistant"]
-    static let assistantKeys = ["prefix"]
+    static let assistantKeys = ["prefix", "greetings"]
     static let defaultsKeys = ["threshold"]
     static let appKeys = ["insert"]
     static let commandKeys = ["id", "action", "app", "aliases"]
@@ -112,8 +112,8 @@ enum CommandConfigSchema {
         return lists
     }
 
-    /// A flat list of spoken first words. An empty list sends nothing to the assistant; a field left null keeps the
-    /// standard prefixes, as every other null field keeps its default.
+    /// Two flat lists of spoken words. An empty prefix list sends nothing to the assistant; a field left null keeps its
+    /// default, as every other null field does.
     private static func assistant(_ node: Node) throws(ConfigError) -> AssistantConfig {
         var assistant = AssistantConfig()
         try ConfigNodes.fields(of: node, path: "assistant", allowed: assistantKeys) { key, value throws(ConfigError) in
@@ -129,7 +129,7 @@ enum CommandConfigSchema {
                     words.append(try Self.words(item, path: itemPath).text)
                 }
             }
-            assistant.prefix = words
+            if key == "prefix" { assistant.prefix = words } else { assistant.greetings = words }
         }
         return assistant
     }

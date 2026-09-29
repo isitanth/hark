@@ -44,7 +44,7 @@ public final class ResolutionSettings: Sendable {
     public func update(commands config: CommandConfig) {
         let built = CommandMatcher(config: config)
         matcher.withLock { $0 = built }
-        let prefix = SpokenPrefix(config.effectiveAssistant.prefix)
+        let prefix = SpokenPrefix(config.effectiveAssistant)
         spokenPrefix.withLock { $0 = prefix }
     }
 

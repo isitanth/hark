@@ -16,12 +16,14 @@ private let mailText = FocusSnapshot(
         let config = try ConfigFixtures.parse("version: 3\ncommands: []\n")
         #expect(config.assistant == nil)
         #expect(config.effectiveAssistant.prefix == AssistantConfig.defaultPrefix)
-        #expect(AssistantConfig.defaultPrefix.contains("hey hark"))
+        #expect(config.effectiveAssistant.greetings == AssistantConfig.defaultGreetings)
     }
 
     @Test func theBlockIsReadAsWritten() throws {
-        let config = try ConfigFixtures.parse("version: 3\nassistant:\n  prefix: [Hark, \"hey hark\", arc]\n")
+        let config = try ConfigFixtures.parse(
+            "version: 3\nassistant:\n  prefix: [Hark, \"hey hark\", arc]\n  greetings: [yo, coucou]\n")
         #expect(config.assistant?.prefix == ["Hark", "hey hark", "arc"])
+        #expect(config.assistant?.greetings == ["yo", "coucou"])
     }
 
     /// An empty list turns the prefix off: nothing on the talk key goes to the assistant.
@@ -53,9 +55,9 @@ private let mailText = FocusSnapshot(
 
     /// Written back only when the file had it, so Settings never adds a block the user did not write.
     @Test func theBlockRoundTrips() throws {
-        var config = CommandConfig(assistant: AssistantConfig(prefix: ["hark", "hey hark", "arc"]))
+        var config = CommandConfig(assistant: AssistantConfig(prefix: ["hark", "hey hark", "arc"], greetings: ["yo"]))
         let text = config.yaml()
-        #expect(text.contains("assistant:\n  prefix: [\"hark\", \"hey hark\", \"arc\"]"))
+        #expect(text.contains("assistant:\n  prefix: [\"hark\", \"hey hark\", \"arc\"]\n  greetings: [\"yo\"]"))
         #expect(try ConfigFixtures.parse(text) == config)
         config.assistant = nil
         #expect(!config.yaml().contains("assistant:"))

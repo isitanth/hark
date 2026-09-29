@@ -33,7 +33,8 @@ import Foundation
 ///       extra: { enable_thinking: false }      # scalars only, sent as top-level request fields
 ///   max_selection_chars: 12000                 # 1...100000
 /// assistant:                  # optional, version 3 only; see AssistantConfig
-///   prefix: [hark, arc]       # a dictation starting with one of these goes to the assistant (default: see AssistantConfig)
+///   prefix: [hark, arc, ark]  # a dictation starting with one of these goes to the assistant
+///   greetings: [hey, hello, salut]   # may come before the prefix, never alone
 /// ```
 ///
 /// Any other key is an error, and so is an alias that normalizes to the same text as another command's.

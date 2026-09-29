@@ -68,4 +68,5 @@ llm:                     # Ask Hark: select text, then Services › Ask Hark
   max_selection_chars: 12000
 
 assistant:               # "Hark, quelle est la capitale du Pérou" on the talk key asks the assistant
-  prefix: [hark, arc, hey hark, hey arc, hello hark, hello arc]   # first words, exact; whisper writes "Hark" as "Arc"
+  prefix: [hark, arc, ark]         # the name, exact; whisper writes a French "Hark" as "Arc"
+  greetings: [hey, hello, salut]   # may come before it: "Hey Hark, …", "Salut Arc, …"
