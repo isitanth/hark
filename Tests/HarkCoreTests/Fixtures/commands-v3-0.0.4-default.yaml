@@ -1,0 +1,72 @@
+# Hark voice commands. Start with an opening verb, then name an app: "open Safari", "ouvre le Finder".
+# The app has to end the sentence: "ouvre le Finder pour demain" is dictated as text. Anything that does not
+# start with a verb below, or names no app below, is dictated as text.
+version: 3
+
+defaults:
+  threshold: 0.85        # how close a spoken app name has to be, from 0 to 1
+
+open_verbs:              # with the forms whisper hears: "affiches-moi", "ouvrez", "affichons à"
+  en: [open, launch, show, start]
+  fr: [ouvre, ouvres, ouvrez, ouvrons, ouvrir, lance, lances, lancez, lançons, lancer, affiche, affiches, affichez, affichons, afficher, démarre, démarres, démarrez, démarrons, démarrer]
+
+fillers:                 # skipped between the verb and the app, and never taken for one
+  en: [the, a, an, my, your, our, this, that]
+  fr: [le, la, les, l, un, une, du, de, d, des, mon, ma, mes, ton, ta, tes, son, sa, ses, notre, votre, nos, vos, ce, cet, cette, ces, moi]
+
+commands:                # app is the application's name, or a path to it; its name is an alias already
+  - id: open_finder
+    action: open_app
+    app: "Finder"
+
+  - id: open_safari
+    action: open_app
+    app: "Safari"
+
+  - id: open_notes
+    action: open_app
+    app: "Notes"
+    aliases: ["note"]
+
+  - id: open_mail
+    action: open_app
+    app: "Mail"
+
+  - id: open_messages
+    action: open_app
+    app: "Messages"
+
+  - id: open_calendar
+    action: open_app
+    app: "Calendar"
+    aliases: ["calendrier"]
+
+  - id: open_music
+    action: open_app
+    app: "Music"
+    aliases: ["musique"]
+
+  - id: open_system_settings
+    action: open_app
+    app: "System Settings"
+    aliases: ["settings", "réglages", "réglages système"]
+
+  - id: open_terminal
+    action: open_app
+    app: "Terminal"
+
+llm:                     # Ask Hark: select text, then Services › Ask Hark
+  provider: local        # which profile below an ask uses
+  profiles:
+    local:
+      base_url: "http://127.0.0.1:8000/v1"   # MTPLX's default port; Settings › Ask sets yours
+      key: keychain      # the key is the Keychain item for this profile; none: no key
+      model: auto        # read from GET /v1/models
+      temperature: 0.3
+      max_tokens: 1024
+      extra: { enable_thinking: false }      # thinking on, the first word waits seconds
+  max_selection_chars: 12000
+
+assistant:               # "Hark, quelle est la capitale du Pérou" on the talk key asks the assistant
+  prefix: [hark, arc, ark]         # the name, exact; whisper writes a French "Hark" as "Arc"
+  greetings: [hey, hello, salut]   # may come before it: "Hey Hark, …", "Salut Arc, …"

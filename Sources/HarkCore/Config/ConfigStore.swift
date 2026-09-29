@@ -222,6 +222,10 @@ public actor ConfigStore {
         "ba8bf43de18320ed163fc9f5ae76ff2257a67b2e6d0c48edf36d32d1458038d9",
         // Version 2 from 2026-09-24 to M8.2, where the app has to end the sentence.
         "2a36af4860fb64b0644ac93a316a923e971011c54bc3925e5d919a8b64e0a732",
+        // Version 3 as 0.0.3 shipped it, with llm: and the verbs of M6.
+        "ef41d2af8050d6855eb607687688a68b0c74ba26a7be8201ee2a3a72bbfaac36",
+        // Version 3 as 0.0.4 shipped it, with assistant: and the verb forms, before endings: (2026-09-29).
+        "59fee3a2701b21aad728c2e9c5d4015232bd713c9bde941fe66c06483f6b58bb",
     ]
 
     /// Creates the directory, then copies the bundled default into place if there is no file, or if the file is a

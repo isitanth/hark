@@ -9,20 +9,27 @@ struct RetiredDefaultCase: Sendable, CustomTestStringConvertible {
     var testDescription: String { fixture }
 }
 
-let retiredVersion2Defaults: [RetiredDefaultCase] = [
+let retiredDefaults: [RetiredDefaultCase] = [
     .init(
         fixture: "commands-v2-m6.9-default.yaml",
         sha256: "ba8bf43de18320ed163fc9f5ae76ff2257a67b2e6d0c48edf36d32d1458038d9"),
     .init(
         fixture: "commands-v2-m7-default.yaml",
         sha256: "2a36af4860fb64b0644ac93a316a923e971011c54bc3925e5d919a8b64e0a732"),
+    .init(
+        fixture: "commands-v3-0.0.3-default.yaml",
+        sha256: "ef41d2af8050d6855eb607687688a68b0c74ba26a7be8201ee2a3a72bbfaac36"),
+    .init(
+        fixture: "commands-v3-0.0.4-default.yaml",
+        sha256: "59fee3a2701b21aad728c2e9c5d4015232bd713c9bde941fe66c06483f6b58bb"),
 ]
 
-/// What version 3 changes for the store: the two version 2 defaults retire, and a bad `llm:` is a bad file.
+/// What version 3 changes for the store: the version 2 defaults, and every released version 3 default the current one
+/// replaced, retire; a bad `llm:` is a bad file.
 @Suite("Config store: llm")
 struct ConfigStoreLLMTests {
-    @Test(arguments: retiredVersion2Defaults)
-    func anUneditedVersion2DefaultIsReplacedAtStart(_ retired: RetiredDefaultCase) async throws {
+    @Test(arguments: retiredDefaults)
+    func anUneditedRetiredDefaultIsReplacedAtStart(_ retired: RetiredDefaultCase) async throws {
         let bytes = try ConfigFixtures.data(retired.fixture)
         #expect(ConfigRevision(of: bytes).sha256 == retired.sha256)
         let harness = try StoreHarness()
