@@ -322,10 +322,18 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
         var expected = ConfigFixtures.commands
         expected.llm = nil
         expected.assistant = nil
-        // The v2 default of M7, before the verbs gained their forms and synonyms (2026-09-29).
+        // The v2 default of M7, before the verbs gained their forms and synonyms, and the fillers the words for an app
+        // (2026-09-29).
         expected.openVerbs = [
             "en": ["open", "launch", "show", "start"],
             "fr": ["ouvre", "ouvrir", "lance", "lancer", "affiche", "afficher", "démarre", "démarrer"],
+        ]
+        expected.fillers = [
+            "en": ["the", "a", "an", "my", "your", "our", "this", "that"],
+            "fr": [
+                "le", "la", "les", "l", "un", "une", "du", "de", "d", "des", "mon", "ma", "mes", "ton", "ta", "tes",
+                "son", "sa", "ses", "notre", "votre", "nos", "vos", "ce", "cet", "cette", "ces", "moi",
+            ],
         ]
         #expect(config == expected)
         #expect(config.effectiveAssistant == .standard)

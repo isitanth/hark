@@ -24,10 +24,11 @@ enum ConfigFixtures {
             ],
         ],
         fillers: [
-            "en": ["the", "a", "an", "my", "your", "our", "this", "that"],
+            "en": ["the", "a", "an", "my", "your", "our", "this", "that", "app", "application"],
             "fr": [
                 "le", "la", "les", "l", "un", "une", "du", "de", "d", "des", "mon", "ma", "mes", "ton", "ta", "tes",
-                "son", "sa", "ses", "notre", "votre", "nos", "vos", "ce", "cet", "cette", "ces", "moi",
+                "son", "sa", "ses", "notre", "votre", "nos", "vos", "ce", "cet", "cette", "ces", "moi", "application",
+                "appli", "app",
             ],
         ],
         commands: [

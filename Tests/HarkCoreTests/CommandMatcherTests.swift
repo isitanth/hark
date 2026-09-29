@@ -195,6 +195,26 @@ let spokenCases: [SpokenCase] = [
         #expect(matcher.match(Normalizer.normalize("show me how to use Terminal"))?.command.id == "open_terminal")
     }
 
+    /// "application", "appli" and "app" are fillers (2026-09-29): after the spoken prefix "Arc, ouvre-moi l'application
+    /// Messages" runs the command. Without the prefix those words were already passed over.
+    @Test func theWordsForAnAppAreFillers() {
+        let matcher = CommandMatcher(config: bundled)
+        let id = { (said: String) in matcher.match(Normalizer.normalize(said), adjacent: true)?.command.id }
+        #expect(id("Ouvre-moi l'application Messages.") == "open_messages")
+        #expect(id("Ouvre l'appli Messages.") == "open_messages")
+        #expect(id("Open the app Safari.") == "open_safari")
+        #expect(id("Ouvre l'application.") == nil)
+        #expect(id("Ouvre l'application de Pierre.") == nil)
+    }
+
+    /// A name that starts with one of those words is still heard whole.
+    @Test func anAppNamedWithTheWordAppIsHeardWhole() {
+        var config = bundled
+        config.commands.append(CommandEntry(id: "open_app_store", app: "App Store"))
+        #expect(match("Ouvre l'App Store.", in: config)?.command.id == "open_app_store")
+        #expect(match("Open App Store.", in: config)?.command.id == "open_app_store")
+    }
+
     @Test func aVerbOfSeveralWordsIsMatchedWhole() {
         let config = table([CommandEntry(id: "f", app: "Finder")], verbs: ["peux-tu ouvrir", "ouvre"])
         #expect(match("Peux-tu ouvrir le Finder ?", in: config)?.verb == "peux tu ouvrir")

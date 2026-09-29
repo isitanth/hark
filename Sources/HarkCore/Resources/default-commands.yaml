@@ -11,8 +11,8 @@ open_verbs:              # with the forms whisper hears: "affiches-moi", "ouvrez
   fr: [ouvre, ouvres, ouvrez, ouvrons, ouvrir, lance, lances, lancez, lançons, lancer, affiche, affiches, affichez, affichons, afficher, démarre, démarres, démarrez, démarrons, démarrer]
 
 fillers:                 # skipped between the verb and the app, and never taken for one
-  en: [the, a, an, my, your, our, this, that]
-  fr: [le, la, les, l, un, une, du, de, d, des, mon, ma, mes, ton, ta, tes, son, sa, ses, notre, votre, nos, vos, ce, cet, cette, ces, moi]
+  en: [the, a, an, my, your, our, this, that, app, application]
+  fr: [le, la, les, l, un, une, du, de, d, des, mon, ma, mes, ton, ta, tes, son, sa, ses, notre, votre, nos, vos, ce, cet, cette, ces, moi, application, appli, app]
 
 commands:                # app is the application's name, or a path to it; its name is an alias already
   - id: open_finder
