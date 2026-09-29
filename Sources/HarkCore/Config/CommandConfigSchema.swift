@@ -6,8 +6,8 @@ import Yams
 /// another schema.
 enum CommandConfigSchema {
     static let version2Keys = ["version", "defaults", "apps", "open_verbs", "fillers", "commands"]
-    /// Version 3 adds `llm:` and `assistant:`.
-    static let topKeys = version2Keys + ["llm", "assistant"]
+    /// Version 3 adds `llm:`, `assistant:` and `endings:`.
+    static let topKeys = version2Keys + ["llm", "assistant", "endings"]
     static let assistantKeys = ["prefix", "greetings"]
     static let defaultsKeys = ["threshold"]
     static let appKeys = ["insert"]
@@ -29,6 +29,7 @@ enum CommandConfigSchema {
             case "apps": config.apps = try apps(value)
             case "open_verbs": config.openVerbs = try wordLists(value, path: key)
             case "fillers": config.fillers = try wordLists(value, path: key)
+            case "endings": config.endings = try wordLists(value, path: key)
             case "commands": config.commands = try commands(value)
             case "llm": config.llm = try llm(value)
             case "assistant": config.assistant = try assistant(value)
@@ -84,7 +85,7 @@ enum CommandConfigSchema {
         return apps
     }
 
-    /// Language -> words, for `open_verbs` and `fillers`. The language is any key, compared as written; a null list is
+    /// Language -> words, for `open_verbs`, `fillers` and `endings`. The language is any key, compared as written; a null list is
     /// an empty one, and every word has to leave something once normalized.
     private static func wordLists(_ node: Node, path: String) throws(ConfigError) -> [String: [String]] {
         var lists: [String: [String]] = [:]

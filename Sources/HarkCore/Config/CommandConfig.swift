@@ -16,6 +16,9 @@ import Foundation
 /// fillers:                    # optional, language -> words skipped between the verb and the app
 ///   en: [the, my]
 ///   fr: [le, la]
+/// endings:                    # optional, version 3 only, language -> what may follow the app; absent, the default
+///   en: [please]
+///   fr: ["s'il te plaît"]
 /// commands:                   # optional; empty or null is an empty table
 ///   - id: open_finder         # required, unique
 ///     action: open_app        # open_app
@@ -52,6 +55,8 @@ public struct CommandConfig: Sendable, Equatable {
     /// the file.
     public var openVerbs: [String: [String]]
     public var fillers: [String: [String]]
+    /// Nil when the file has no `endings:`, as for `assistant`; what the matcher uses is `effectiveEndings`.
+    public var endings: [String: [String]]?
     public var commands: [CommandEntry]
     /// Nil when the file has no `llm:`. Kept as read, so writing the file back never adds a block the user did not
     /// write; what an ask uses is `effectiveLLM`.
@@ -61,13 +66,14 @@ public struct CommandConfig: Sendable, Equatable {
 
     public init(
         defaults: CommandDefaults = CommandDefaults(), apps: [String: AppOverride] = [:],
-        openVerbs: [String: [String]] = [:], fillers: [String: [String]] = [:], commands: [CommandEntry] = [],
-        llm: LLMConfig? = nil, assistant: AssistantConfig? = nil
+        openVerbs: [String: [String]] = [:], fillers: [String: [String]] = [:], endings: [String: [String]]? = nil,
+        commands: [CommandEntry] = [], llm: LLMConfig? = nil, assistant: AssistantConfig? = nil
     ) {
         self.defaults = defaults
         self.apps = apps
         self.openVerbs = openVerbs
         self.fillers = fillers
+        self.endings = endings
         self.commands = commands
         self.llm = llm
         self.assistant = assistant
@@ -82,6 +88,14 @@ public struct CommandConfig: Sendable, Equatable {
     public var effectiveAssistant: AssistantConfig {
         assistant ?? .standard
     }
+
+    /// What the matcher allows after the app: the file's `endings:`, or `defaultEndings`.
+    public var effectiveEndings: [String: [String]] {
+        endings ?? Self.defaultEndings
+    }
+
+    /// The polite endings the user allowed after the app on 2026-09-29: "ouvre Safari, s'il te plaît".
+    public static let defaultEndings = ["en": ["please"], "fr": ["s'il te plaît", "s'il vous plaît"]]
 
     public static let empty = CommandConfig()
 }
@@ -153,8 +167,8 @@ extension CommandConfig {
         try CommandConfigParser.parse(data)
     }
 
-    /// Canonical YAML for this config: `version`, `defaults`, `apps`, `open_verbs`, `fillers`, `commands`, `llm`, in
-    /// that order, every string double-quoted so that YAML can never read it as something else. For every config the
+    /// Canonical YAML for this config: `version`, `defaults`, `apps`, `open_verbs`, `fillers`, `endings`, `commands`,
+    /// `llm`, `assistant`, in that order, every string double-quoted so that YAML can never read it as something else. For every config the
     /// parser can produce, `parse(yaml())` gives back an equal value; one built in code with a number that is not
     /// finite, or a model named "auto", does not. Comments are not preserved, because the value never had them.
     public func yaml() -> String {

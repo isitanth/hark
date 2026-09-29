@@ -18,14 +18,16 @@ public struct CommandMatch: Sendable, Equatable {
     }
 }
 
-/// Decides whether a normalized utterance is a command, by your template (2026-09-23, amended 2026-09-24):
+/// Decides whether a normalized utterance is a command, by your template (2026-09-23, amended 2026-09-24 and
+/// 2026-09-29):
 ///
-///     [opening verb] [fillers skipped] [first app named] (nothing after it)
+///     [opening verb] [fillers skipped] [first app named] (a polite ending, or nothing after it)
 ///
 /// The utterance has to start with a verb from `open_verbs`, any language. After it, fillers are skipped and each
 /// position is tried against every app name and alias; the first position where one matches decides. The app has to
 /// end what was said: "ouvre le Finder pour demain", "ouvre Finder et Safari" and "ouvre Finder quand tu peux" are
-/// text, and nothing further along is looked at. Only the app name is matched approximately:
+/// text, and nothing further along is looked at. Only one of `endings` may follow it: "ouvre Safari, s'il te plaît"
+/// is tried again as "ouvre Safari" when it fails as said. Only the app name is matched approximately:
 /// each of its words has to be said as written or score at or above the threshold. No verb first, or no app after it,
 /// and the utterance is text. At one position, an alias said as written beats one that is close, then the higher score
 /// wins, then the alias of more words, then the alias as written over one stripped of its leading fillers, then the
@@ -56,6 +58,7 @@ public struct CommandMatcher: Sendable {
     /// Word sequences, longest first, so a verb of several words wins over one it starts with.
     private let verbs: [[String]]
     private let fillers: [[String]]
+    private let endings: [[String]]
     private let threshold: Double
     private let scorer: Scorer
 
@@ -73,6 +76,7 @@ public struct CommandMatcher: Sendable {
         }
         verbs = Self.sequences(config.openVerbs)
         self.fillers = fillers
+        endings = Self.sequences(config.effectiveEndings)
         threshold = config.defaults.threshold
         self.scorer = scorer
     }
@@ -85,6 +89,13 @@ public struct CommandMatcher: Sendable {
     /// prefix, "Hark, show me how to use Terminal" is a question for the assistant, not "open Terminal".
     public func match(_ normalized: String, adjacent: Bool = false) -> CommandMatch? {
         let words = Self.words(normalized)
+        if let found = command(in: words, adjacent: adjacent) { return found }
+        guard let ending = endings.first(where: { words.count > $0.count && words.suffix($0.count).elementsEqual($0) })
+        else { return nil }
+        return command(in: Array(words.dropLast(ending.count)), adjacent: adjacent)
+    }
+
+    private func command(in words: [String], adjacent: Bool) -> CommandMatch? {
         guard let verb = verbs.first(where: { words.starts(with: $0) }) else { return nil }
         if let found = match(words, verb: verb, adjacent: adjacent) { return found }
         let compact = withoutInnerFillers(words, after: verb.count)

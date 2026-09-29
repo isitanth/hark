@@ -1,6 +1,6 @@
 # Hark voice commands. Start with an opening verb, then name an app: "open Safari", "ouvre le Finder".
-# The app has to end the sentence: "ouvre le Finder pour demain" is dictated as text. Anything that does not
-# start with a verb below, or names no app below, is dictated as text.
+# The app has to end the sentence, or come before a polite ending below: "ouvre le Finder pour demain" is dictated
+# as text. Anything that does not start with a verb below, or names no app below, is dictated as text.
 version: 3
 
 defaults:
@@ -13,6 +13,10 @@ open_verbs:              # with the forms whisper hears: "affiches-moi", "ouvrez
 fillers:                 # skipped between the verb and the app, and never taken for one
   en: [the, a, an, my, your, our, this, that, app, application]
   fr: [le, la, les, l, un, une, du, de, d, des, mon, ma, mes, ton, ta, tes, son, sa, ses, notre, votre, nos, vos, ce, cet, cette, ces, moi, application, appli, app]
+
+endings:                 # may follow the app: "ouvre Safari, s'il te plaît"
+  en: [please]
+  fr: ["s'il te plaît", "s'il vous plaît"]
 
 commands:                # app is the application's name, or a path to it; its name is an alias already
   - id: open_finder

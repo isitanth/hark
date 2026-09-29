@@ -31,6 +31,7 @@ enum ConfigFixtures {
                 "appli", "app",
             ],
         ],
+        endings: ["en": ["please"], "fr": ["s'il te plaît", "s'il vous plaît"]],
         commands: [
             CommandEntry(id: "open_finder", app: "Finder"),
             CommandEntry(id: "open_safari", app: "Safari"),
@@ -59,6 +60,7 @@ enum ConfigFixtures {
             "en": ["open", "  leading", "say \"hi\""], "fr-CA": ["ouvre", "démarre"], "yes": ["true", "null"],
         ],
         fillers: ["#": ["# not a comment"], "x": [], "ja": ["東京 タワー", "🎉 party"]],
+        endings: ["fr": ["s’il te plaît", "s'il vous plaît"], "x": [], "\"q\"": ["# merci", "key: value"]],
         commands: [
             CommandEntry(
                 id: "say \"hi\"", app: "/Applications/Some App.app",
@@ -124,6 +126,22 @@ enum ConfigFixtures {
 
             """
         #expect(config.yaml() == expected)
+    }
+
+    /// `endings:` is optional: absent or null, the default applies, and `{}` turns the endings off. Version 2 has no
+    /// such key.
+    @Test func endingsAreOptional() throws {
+        let absent = try ConfigFixtures.parse("version: 3\ncommands: []\n")
+        #expect(absent.endings == nil)
+        #expect(absent.effectiveEndings == CommandConfig.defaultEndings)
+        #expect(!absent.yaml().contains("endings"))
+        #expect(try ConfigFixtures.parse("version: 3\nendings:\n").endings == nil)
+        let off = try ConfigFixtures.parse("version: 3\nendings: {}\n")
+        #expect(off.effectiveEndings == [:])
+        #expect(off.yaml().contains("\nendings: {}\n"))
+        let own = try ConfigFixtures.parse("version: 3\nendings:\n  fr: [merci]\n")
+        #expect(own.effectiveEndings == ["fr": ["merci"]])
+        #expect(throws: ConfigError.self) { try ConfigFixtures.parse("version: 2\nendings:\n  fr: [merci]\n") }
     }
 
     @Test func emitsAppsSortedAndAnEmptyTableAsAnEmptyList() {

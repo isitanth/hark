@@ -322,6 +322,7 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
         var expected = ConfigFixtures.commands
         expected.llm = nil
         expected.assistant = nil
+        expected.endings = nil
         // The v2 default of M7, before the verbs gained their forms and synonyms, and the fillers the words for an app
         // (2026-09-29).
         expected.openVerbs = [

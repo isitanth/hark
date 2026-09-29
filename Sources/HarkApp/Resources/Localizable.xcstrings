@@ -3741,6 +3741,23 @@
         }
       }
     },
+    "settings.commands.endings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polite endings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formules de politesse"
+          }
+        }
+      }
+    },
     "settings.commands.noVerbs": {
       "extractionState": "manual",
       "localizations": {

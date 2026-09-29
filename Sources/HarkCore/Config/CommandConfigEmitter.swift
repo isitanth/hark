@@ -23,6 +23,13 @@ enum CommandConfigEmitter {
                 lines.append("  \(quoted(language)): \(list(lists[language] ?? []))")
             }
         }
+        // Written as read: absent stays absent, and an empty table, which turns the endings off, stays one.
+        if let endings = config.endings {
+            lines += ["", endings.isEmpty ? "endings: {}" : "endings:"]
+            for language in endings.keys.sorted() {
+                lines.append("  \(quoted(language)): \(list(endings[language] ?? []))")
+            }
+        }
 
         lines.append("")
         if config.commands.isEmpty {

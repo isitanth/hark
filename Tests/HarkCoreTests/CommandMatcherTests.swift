@@ -151,10 +151,55 @@ let spokenCases: [SpokenCase] = [
         #expect(match("Ouvre le Fynder.")?.command.id == "open_finder")
     }
 
-    /// Nothing may follow the app (your rule of 2026-09-24), not even a polite ending.
-    @Test(arguments: ["Ouvre les réglages système, s’il te plaît.", "Open Safari please.", "Ouvre Notes maintenant."])
-    func anythingAfterTheAppIsText(_ said: String) {
+    /// A polite ending may follow the app (your decision of 2026-09-29, which amends the rule of 2026-09-24).
+    @Test(arguments: [
+        ("Ouvre les réglages système, s’il te plaît.", "open_system_settings"),
+        ("Ouvre-moi les messages s'il te plaît.", "open_messages"),
+        ("Ouvrez Safari, s'il vous plaît.", "open_safari"),
+        ("Open Safari please.", "open_safari"),
+        ("Open the Finder, please!", "open_finder"),
+    ])
+    func aPoliteEndingMayFollowTheApp(_ said: String, _ id: String) {
+        #expect(match(said)?.command.id == id)
+    }
+
+    /// Anything else after the app is still text, and so is the ending without a command before it.
+    @Test(arguments: [
+        "Ouvre Notes maintenant.", "Ouvre Safari s'il te plaît, merci.", "Ouvre Safari, please, now.",
+        "Ouvre le Finder pour demain, s'il te plaît.", "Ouvre, s'il te plaît.", "S'il te plaît.", "Please.",
+        "Please open Safari.", "Tu peux ouvrir Safari s'il te plaît ?",
+    ])
+    func anythingElseAfterTheAppIsText(_ said: String) {
         #expect(match(said) == nil)
+    }
+
+    /// After the spoken prefix too: "Arc, ouvre Safari s'il te plaît" runs the command.
+    @Test func aPoliteEndingFollowsAnAdjacentApp() {
+        let matcher = CommandMatcher(config: bundled)
+        let id = { (said: String) in matcher.match(Normalizer.normalize(said), adjacent: true)?.command.id }
+        #expect(id("Ouvre Safari s'il te plaît.") == "open_safari")
+        #expect(id("Show me how to use Terminal, please.") == nil)
+    }
+
+    /// The file's `endings:` replace the default; an empty table turns them off.
+    @Test func theFilesEndingsAreTheOnesAllowed() {
+        var config = bundled
+        config.endings = ["fr": ["merci"]]
+        #expect(match("Ouvre Safari, merci.", in: config)?.command.id == "open_safari")
+        #expect(match("Ouvre Safari, s'il te plaît.", in: config) == nil)
+        config.endings = [:]
+        #expect(match("Open Safari please.", in: config) == nil)
+        config.endings = nil
+        #expect(match("Open Safari please.", in: config)?.command.id == "open_safari")
+    }
+
+    /// An app whose name ends with the words of an ending is heard whole first.
+    @Test func aNameThatEndsLikeAnEndingIsHeardWhole() {
+        let config = table([CommandEntry(id: "wait", app: "Please Wait"), CommandEntry(id: "safari", app: "Safari")])
+        var withEndings = config
+        withEndings.endings = ["en": ["please"]]
+        #expect(match("open please wait", in: withEndings)?.command.id == "wait")
+        #expect(match("open safari please", in: withEndings)?.command.id == "safari")
     }
 
     // MARK: - Verbs and fillers

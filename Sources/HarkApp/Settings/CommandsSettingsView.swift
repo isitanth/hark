@@ -217,7 +217,7 @@ struct CommandsSettingsView: View {
         }
     }
 
-    /// The verbs and the skipped words, read-only: they are edited in the file.
+    /// The verbs, the skipped words and the endings, read-only: they are edited in the file.
     @ViewBuilder private var words: some View {
         let verbs = Self.joined(snapshot.config.openVerbs)
         if verbs.isEmpty {
@@ -243,6 +243,13 @@ struct CommandsSettingsView: View {
                 .multilineTextAlignment(.trailing)
         } label: {
             Text(L("settings.commands.fillers"))
+        }
+        LabeledContent {
+            Text(verbatim: Self.joined(snapshot.config.effectiveEndings))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.trailing)
+        } label: {
+            Text(L("settings.commands.endings"))
         }
     }
 
