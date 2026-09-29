@@ -173,7 +173,13 @@ struct LastView: View {
                         .fill(entry.dotColor)
                         .frame(width: 6, height: 6)
                     Group {
-                        if let ms = entry.transcribeMs {
+                        if let ms = entry.shownMs, entry.isAsk {
+                            // The model's time, in seconds: an answer takes seconds, a transcription milliseconds.
+                            Text(entry.outcomeText)
+                                + Text(
+                                    verbatim: " · "
+                                        + (Double(ms) / 1000).formatted(.number.precision(.fractionLength(1))) + " s")
+                        } else if let ms = entry.shownMs {
                             Text(entry.outcomeText) + Text(verbatim: " · \(ms) ms")
                         } else {
                             Text(entry.outcomeText)

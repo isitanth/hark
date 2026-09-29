@@ -1446,6 +1446,23 @@
         }
       }
     },
+    "entry.kind.ask": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander"
+          }
+        }
+      }
+    },
     "entry.kind.discarded": {
       "extractionState": "manual",
       "localizations": {
@@ -1510,6 +1527,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Texte · copié dans le presse-papiers"
+          }
+        }
+      }
+    },
+    "entry.outcome.answerCopied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · answer copied"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · réponse copiée"
           }
         }
       }
@@ -1595,6 +1629,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Texte · inséré dans %@"
+          }
+        }
+      }
+    },
+    "entry.outcome.answerInserted %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · answer inserted into %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · réponse insérée dans %@"
           }
         }
       }

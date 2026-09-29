@@ -10,7 +10,7 @@ extension LogEntry {
     var kindText: LocalizedStringResource {
         switch resolution {
         case .command: L("entry.kind.command")
-        case .textInserted, .textClipboard: L("entry.kind.text")
+        case .textInserted, .textClipboard: isAsk ? L("entry.kind.ask") : L("entry.kind.text")
         case .discarded: L("entry.kind.discarded")
         case .failed: L("entry.kind.failed")
         }
@@ -45,7 +45,9 @@ extension LogEntry {
             return L("entry.outcome.command \(action)")
         case .inserted:
             let app = appName ?? unknown
-            return L("entry.outcome.inserted \(app)")
+            return isAsk ? L("entry.outcome.answerInserted \(app)") : L("entry.outcome.inserted \(app)")
+        case .copied(.chosen) where isAsk:
+            return L("entry.outcome.answerCopied")
         case .copied(let reason):
             return Self.copyText(reason)
         case .discarded(let reason, let code):

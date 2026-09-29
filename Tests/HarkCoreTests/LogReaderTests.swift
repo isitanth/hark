@@ -344,3 +344,17 @@ private typealias F = Fixture
         #expect(reader.newestFile()?.lastPathComponent == "2026-09-18.jsonl")
     }
 }
+
+/// The panel's LAST line shows the model's time for an ask and the transcription's for everything else.
+@Suite struct LogEntryAskTests {
+    @Test func anAskShowsTheModelsTime() {
+        let ask = LogEntry(
+            id: "a", timestamp: .now, transcribeMs: 380, resolution: .textInserted, actionType: "ask", llmMs: 2_706)
+        #expect(ask.isAsk && ask.shownMs == 2_706)
+        let dictation = LogEntry(id: "d", timestamp: .now, transcribeMs: 380, resolution: .textInserted)
+        #expect(!dictation.isAsk && dictation.shownMs == 380)
+        let command = LogEntry(
+            id: "c", timestamp: .now, transcribeMs: 400, resolution: .command, actionType: "open_app")
+        #expect(!command.isAsk && command.shownMs == 400)
+    }
+}

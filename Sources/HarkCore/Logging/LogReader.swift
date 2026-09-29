@@ -22,6 +22,12 @@ public struct LogEntry: Sendable, Equatable, Identifiable {
     public let llmModel: String?
     public let llmMs: Int?
 
+    /// The line of an ask, about a selection or to the assistant: its text is the instruction, not what was typed.
+    public var isAsk: Bool { actionType == LoggedAction.askRawValue }
+
+    /// The time the panel shows beside the outcome: the model's for an ask, else the transcription's.
+    public var shownMs: Int? { isAsk ? llmMs : transcribeMs }
+
     public init(
         id: String, timestamp: Date, durationMs: Int? = nil, transcribeMs: Int? = nil, rawText: String? = nil,
         normalizedText: String? = nil, resolution: Resolution, targetApp: String? = nil, actionType: String? = nil,
