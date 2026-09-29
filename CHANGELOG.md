@@ -14,6 +14,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ### Changed
 
+- The menu bar icon is a drill, like the app icon, and its shape says what Hark is doing: an outline at rest, filled
+  while it records, with a dot when the recording is hands-free, the battery alone while it transcribes, a sparkle
+  while the model answers, "!" for a problem to look at, and a cross for a second when what you said came to nothing.
+  Three short animations go with it: the trigger when a recording starts, the bit turning while Hark works, and a
+  shake when something failed. None play when Reduce Motion is on.
 - "application", "appli" and "app" are skipped words in voice commands, so "Hark, ouvre-moi l'application Messages"
   opens Messages.
 
