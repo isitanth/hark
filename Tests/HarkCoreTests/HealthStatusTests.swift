@@ -162,7 +162,8 @@ import Testing
             switch phase {
             case .idle: nil
             case .capturing: .recording
-            case .transcribing, .resolving, .confirming, .acting, .inserting, .copying, .asking: .transcribing
+            case .transcribing, .resolving, .confirming, .acting, .inserting, .copying: .transcribing
+            case .asking: .asking
             }
         for inputs in Inputs.every {
             let health = inputs.status

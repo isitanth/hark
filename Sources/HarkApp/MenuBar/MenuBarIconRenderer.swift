@@ -1,52 +1,81 @@
 import AppKit
 import HarkCore
 
-/// Draws every state on the same 18×18 pt template canvas, so the status item never changes width.
-/// Template only: states differ by symbol and alpha, never by colour.
+/// Paints Hark's drill (`MenuBarGlyph`) on the same 18×18 pt template canvas for every state and every frame, so the
+/// status item never changes width. Template only: states differ by shape and opacity, never by colour.
 enum MenuBarIconRenderer {
     static let size = NSSize(width: 18, height: 18)
 
     static func image(for state: MenuBarIconState) -> NSImage {
-        let name = state.symbolName
-        let alpha = state.alpha
-        let image = NSImage(size: size, flipped: false) { rect in
-            let configuration = NSImage.SymbolConfiguration(pointSize: 14, weight: .regular)
-            guard
-                let symbol = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
-                    .withSymbolConfiguration(configuration)
-            else { return false }
-            let scale = min(rect.width / symbol.size.width, rect.height / symbol.size.height, 1)
-            let drawn = NSSize(width: symbol.size.width * scale, height: symbol.size.height * scale)
-            let origin = NSPoint(x: rect.midX - drawn.width / 2, y: rect.midY - drawn.height / 2)
-            symbol.draw(in: NSRect(origin: origin, size: drawn), from: .zero, operation: .sourceOver, fraction: alpha)
+        image(for: MenuBarGlyph(state: state))
+    }
+
+    static func image(for glyph: MenuBarGlyph) -> NSImage {
+        // Flipped, so the glyph's coordinates run down the canvas as they were drawn.
+        let image = NSImage(size: size, flipped: true) { _ in
+            guard let context = NSGraphicsContext.current?.cgContext else { return false }
+            context.setAlpha(glyph.opacity)
+            // One layer, so where a fill and a stroke overlap the reduced opacity is not paid twice.
+            context.beginTransparencyLayer(auxiliaryInfo: nil)
+            context.setLineWidth(DrillShape.lineWidth)
+            context.setLineCap(.round)
+            context.setLineJoin(.round)
+            context.setFillColor(NSColor.black.cgColor)
+            context.setStrokeColor(NSColor.black.cgColor)
+            context.saveGState()
+            context.translateBy(x: glyph.dx, y: glyph.dy)
+            context.translateBy(x: MenuBarGlyph.pivotX, y: MenuBarGlyph.pivotY)
+            context.rotate(by: glyph.rotation * .pi / 180)
+            context.translateBy(x: -MenuBarGlyph.pivotX, y: -MenuBarGlyph.pivotY)
+            for part in glyph.movingParts { paint(part, in: context) }
+            context.restoreGState()
+            for part in glyph.fixedParts { paint(part, in: context) }
+            context.endTransparencyLayer()
             return true
         }
         image.isTemplate = true
         return image
     }
+
+    private static func paint(_ part: DrillShape.Part, in context: CGContext) {
+        let path = CGMutablePath()
+        for segment in part.segments {
+            switch segment {
+            case .move(let x, let y):
+                path.move(to: CGPoint(x: x, y: y))
+            case .line(let x, let y):
+                path.addLine(to: CGPoint(x: x, y: y))
+            case .arc(let x, let y, let radius, let from, let to):
+                // In this flipped space a growing angle turns clockwise on screen, as the glyph's arcs are drawn.
+                path.addArc(
+                    center: CGPoint(x: x, y: y), radius: radius, startAngle: from * .pi / 180, endAngle: to * .pi / 180,
+                    clockwise: false)
+            case .quad(let x, let y, let cx, let cy):
+                path.addQuadCurve(to: CGPoint(x: x, y: y), control: CGPoint(x: cx, y: cy))
+            case .close:
+                path.closeSubpath()
+            }
+        }
+        context.addPath(path)
+        switch part.paint {
+        case .stroke: context.strokePath()
+        case .fill: context.fillPath()
+        case .fillAndStroke: context.drawPath(using: .fillStroke)
+        }
+    }
 }
 
 extension MenuBarIconState {
-    var symbolName: String {
-        switch self {
-        case .idle, .transcribing: "waveform"
-        case .recording: "record.circle"
-        case .armed: "waveform.badge.mic"
-        case .error: "exclamationmark.triangle"
-        }
-    }
-
-    var alpha: CGFloat {
-        self == .transcribing ? 0.6 : 1
-    }
-
     var label: LocalizedStringResource {
         switch self {
         case .idle: L("state.idle")
         case .recording: L("state.recording")
+        case .handsFree: L("state.handsFree")
         case .transcribing: L("state.transcribing")
+        case .asking: L("state.asking")
         case .armed: L("state.armed")
         case .error: L("state.error")
+        case .dismissed: L("state.dismissed")
         }
     }
 }

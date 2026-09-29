@@ -265,12 +265,26 @@ private final class Report {
 
     func icons() {
         for state in MenuBarIconState.allCases {
-            let image = MenuBarIconRenderer.image(for: state)
+            let glyph = MenuBarGlyph(state: state)
+            let image = MenuBarIconRenderer.image(for: glyph)
             let ink = inkSize(image)
             let size = "\(Int(image.size.width))x\(Int(image.size.height)) pt"
             check(
                 "icon.\(state.rawValue)", image.size == MenuBarIconRenderer.size && image.isTemplate && ink != nil,
-                "\(state.symbolName), \(size), template \(image.isTemplate), ink \(ink ?? "none") at 2x")
+                "drill \(glyph.fill), badge \(glyph.badge), \(size), template \(image.isTemplate), "
+                    + "ink \(ink ?? "none") at 2x")
+        }
+        // Every frame of every animation, over the icon it plays on.
+        let bases: [MenuBarAnimation: MenuBarIconState] = [
+            .trigger: .recording, .spin: .transcribing, .shake: .dismissed,
+        ]
+        for animation in MenuBarAnimation.allCases {
+            let base = MenuBarGlyph(state: bases[animation] ?? .idle)
+            let images = animation.frames.map { MenuBarIconRenderer.image(for: base.applying($0)) }
+            let good = images.filter { $0.size == MenuBarIconRenderer.size && $0.isTemplate && inkSize($0) != nil }
+            check(
+                "icon.animation.\(animation.rawValue)", good.count == images.count,
+                "\(good.count) of \(images.count) frames drawn, \(animation.duration)")
         }
     }
 

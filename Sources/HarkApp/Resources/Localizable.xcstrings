@@ -1038,6 +1038,57 @@
         }
       }
     },
+    "state.handsFree": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recording, hands-free"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement mains libres"
+          }
+        }
+      }
+    },
+    "state.asking": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asking"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demande en cours"
+          }
+        }
+      }
+    },
+    "state.dismissed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No result"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans résultat"
+          }
+        }
+      }
+    },
     "config.location %lld %lld": {
       "extractionState": "manual",
       "localizations": {
