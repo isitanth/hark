@@ -1,6 +1,6 @@
 import Foundation
 
-/// One line of the utterance log. The field set is the contract in CLAUDE.md: exactly these thirteen keys,
+/// One line of the utterance log. The field set is the contract in the project rules: exactly these thirteen keys,
 /// in this order, with nil written as `null`.
 public struct UtteranceRecord: Sendable, Equatable {
     public static let keys = [

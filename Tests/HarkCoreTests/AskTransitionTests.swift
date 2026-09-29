@@ -242,7 +242,7 @@ let askPressSequences: [PressSequence] = [
 }
 
 extension AskTransitionTests {
-    /// CLAUDE.md: the selected text and the suggestion are never written to disk. Every line of every ask sequence,
+    /// The project rules: the selected text and the suggestion are never written to disk. Every line of every ask sequence,
     /// and every row of the table, is checked for a word of either.
     @Test(arguments: askPressSequences)
     func noLineHoldsTheSelectionOrTheAnswer(_ sequence: PressSequence) {

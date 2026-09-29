@@ -136,3 +136,7 @@ transcribing, resolving, then acting, inserting or copying.
 MIT, see [LICENSE](LICENSE). Hark includes [whisper.cpp](https://github.com/ggml-org/whisper.cpp),
 [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) and [Yams](https://github.com/jpsim/Yams), all
 under MIT: see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+---
+
+Designed and engineered by isitanth, powered by Claude Code, built for you.

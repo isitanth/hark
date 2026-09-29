@@ -2,7 +2,7 @@ import AppKit
 import HarkCore
 import SwiftUI
 
-/// The Ask panel, the second of the app's two NSPanels (CLAUDE.md). Non-activating, so opening it from the Ask key
+/// The Ask panel, the second of the app's two NSPanels (the project rules). Non-activating, so opening it from the Ask key
 /// (M9) leaves the source app in front, and allowed to become key, for typing, Return and Esc. A Services call has
 /// activated Hark already; every close brings the caller back (`AskPanelModel`).
 ///

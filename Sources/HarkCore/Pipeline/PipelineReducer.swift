@@ -88,7 +88,7 @@ public struct PipelineReducer: Sendable {
             if transcript.isBlank {
                 return finish(context, transcript, .discarded(.emptyTranscript))
             }
-            // An ask known at the press branches here, not from `resolving` (CLAUDE.md): there is no command to match
+            // An ask known at the press branches here, not from `resolving` (the project rules): there is no command to match
             // and no destination to choose, and the normalized text for the log is a pure function. An ask found in
             // the words (M9's prefix, M10's routing) will branch from `resolving`.
             if context.intent.isAsk {
@@ -131,7 +131,7 @@ public struct PipelineReducer: Sendable {
                 return move(.copying(context, transcript, reason), [copy(context, transcript)])
             case .discard(let reason):
                 return finish(context, transcript, .discarded(reason))
-            // An ask found in the words branches here (CLAUDE.md): the dictation becomes the assistant, for the app it
+            // An ask found in the words branches here (the project rules): the dictation becomes the assistant, for the app it
             // was said in. The line keeps the whole transcript; the model gets what followed the prefix.
             // Text selected in that app makes it an ask about the text, with Replace, as the Ask key would.
             case .ask(let request, let selection):
