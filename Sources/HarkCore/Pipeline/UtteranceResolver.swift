@@ -67,9 +67,12 @@ public final class ResolutionSettings: Sendable {
 /// the assistant: what is said there stays dictation.
 public struct UtteranceResolver: UtteranceResolving {
     private let settings: ResolutionSettings
+    private let selection: (any SelectionReading)?
 
-    public init(settings: ResolutionSettings) {
+    /// `selection` reads what the app had selected when a spoken prefix is found; nil reads nothing.
+    public init(settings: ResolutionSettings, selection: (any SelectionReading)? = nil) {
         self.settings = settings
+        self.selection = selection
     }
 
     public func resolve(_ transcript: Transcript, focus: FocusSnapshot?) async -> (
@@ -77,7 +80,10 @@ public struct UtteranceResolver: UtteranceResolving {
     ) {
         let normalized = Normalizer.normalize(transcript.raw)
         if focus?.isSecureInput != true, let request = settings.prefix.request(in: transcript.raw) {
-            return (normalized, request.isEmpty ? .discard(.emptyRequest) : .ask(request: request))
+            guard !request.isEmpty else { return (normalized, .discard(.emptyRequest)) }
+            // Read now, not at the press: only a prefix earns the read, and the ⌘C it may take (M9.0).
+            let selected = await selection?.read(from: focus?.app)
+            return (normalized, .ask(request: request, selection: selected))
         }
         if let found = settings.commands.match(normalized) {
             return (normalized, .command(found.command))

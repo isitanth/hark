@@ -4,7 +4,7 @@ import Foundation
 ///
 /// ```yaml
 /// assistant:
-///   prefix: [hark, arc]     # first words that send the rest to the assistant, matched exactly once normalized
+///   prefix: [hark, arc, hey hark, hey arc, hello hark, hello arc]   # matched exactly once normalized
 /// ```
 public struct AssistantConfig: Sendable, Equatable {
     /// As written. Whisper writes a French speaker's "Hark" as "Arc" (M9.0), and a fuzzy match would miss "arc" while
@@ -15,6 +15,8 @@ public struct AssistantConfig: Sendable, Equatable {
         self.prefix = prefix
     }
 
-    public static let defaultPrefix = ["hark", "arc"]
+    /// "Hey Hark" as whisper writes it for the user ("Hey, Hark, how are you?", 2026-09-29), and "Hello". Each is
+    /// exact too: "hey" alone is not a prefix.
+    public static let defaultPrefix = ["hark", "arc", "hey hark", "hey arc", "hello hark", "hello arc"]
     public static let standard = AssistantConfig()
 }

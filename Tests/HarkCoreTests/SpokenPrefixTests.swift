@@ -36,7 +36,12 @@ struct PrefixCase: Sendable, CustomTestStringConvertible {
         .init(raw: "Parc de la Tête d'Or", request: nil),
         .init(raw: "Harke, quelle heure", request: nil),
         .init(raw: "Huck, what is the capital of Peru?", request: nil),
-        .init(raw: "Hey Hark, what time is it?", request: nil),
+        .init(raw: "Hey hark, what time is it?", request: "what time is it?"),
+        .init(raw: "Hey, Hark, how are you?", request: "how are you?"),
+        .init(raw: "Hello Arc, quelle heure est-il ?", request: "quelle heure est-il ?"),
+        .init(raw: "Hey, what time is it?", request: nil),
+        .init(raw: "Hey huck, what time is it?", request: nil),
+        .init(raw: "Hello, how are you?", request: nil),
         .init(raw: "Arcade Fire est un groupe.", request: nil),
         // A compound is one word, not the prefix and more.
         .init(raw: "Arc-en-ciel au-dessus du lac.", request: nil),

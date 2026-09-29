@@ -133,11 +133,17 @@ public struct PipelineReducer: Sendable {
                 return finish(context, transcript, .discarded(reason))
             // An ask found in the words branches here (CLAUDE.md): the dictation becomes the assistant, for the app it
             // was said in. The line keeps the whole transcript; the model gets what followed the prefix.
-            case .ask(let request):
-                context.intent = .assist(caller: context.focus?.app)
+            // Text selected in that app makes it an ask about the text, with Replace, as the Ask key would.
+            case .ask(let request, let selection):
+                if let selection, !selection.isBlank {
+                    context.intent = .ask(selection)
+                } else {
+                    context.intent = .assist(caller: context.focus?.app)
+                }
                 context.request = request
                 return move(
-                    .asking(context, transcript, .generating), [.generate(id, instruction: request, selection: nil)])
+                    .asking(context, transcript, .generating),
+                    [.generate(id, instruction: request, selection: context.intent.selection)])
             }
 
         case (.confirming(let context, let transcript, let command, .awaitingAnswer), .confirmed(_, let accepted)):

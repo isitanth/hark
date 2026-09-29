@@ -12,6 +12,13 @@ public protocol TextInserting: Sendable {
     func insert(
         _ text: String, plan: InsertionPlan, focus: FocusSnapshot?, clipboardFallback: Bool
     ) async throws(PipelineFailure)
+    /// Hark is about to write the clipboard itself: whatever the inserter still restores there must stop, or it would
+    /// put the old contents back over Hark's text.
+    func releasePasteboard() async
+}
+
+extension TextInserting {
+    public func releasePasteboard() async {}
 }
 
 /// `ActionRunner` implements it. Returns the exit code; 0 is success.

@@ -1,6 +1,7 @@
 import Foundation
 import HarkCore
 import Testing
+import os
 
 private typealias F = Fixture
 
@@ -14,7 +15,8 @@ private let mailText = FocusSnapshot(
     @Test func aFileWithoutTheBlockUsesTheStandardPrefixes() throws {
         let config = try ConfigFixtures.parse("version: 3\ncommands: []\n")
         #expect(config.assistant == nil)
-        #expect(config.effectiveAssistant.prefix == ["hark", "arc"])
+        #expect(config.effectiveAssistant.prefix == AssistantConfig.defaultPrefix)
+        #expect(AssistantConfig.defaultPrefix.contains("hey hark"))
     }
 
     @Test func theBlockIsReadAsWritten() throws {
@@ -96,7 +98,43 @@ private let mailText = FocusSnapshot(
         #expect(await resolver.resolve(Transcript(raw: "Arc, hi"), focus: mailText).decision == .insert(.axInsert))
     }
 
+    /// A prefix reads what the app has selected; nothing else does.
+    @Test func aPrefixReadsTheSelectionAndADictationDoesNot() async {
+        let reader = ScriptedSelection(text: "Bonjour à tous")
+        let resolver = UtteranceResolver(settings: ResolutionSettings(), selection: reader)
+        let asked = await resolver.resolve(Transcript(raw: "Arc, translate this into English."), focus: mailText)
+        #expect(
+            asked.decision
+                == .ask(
+                    request: "translate this into English.",
+                    selection: SelectionSnapshot(text: "Bonjour à tous", caller: F.mail)))
+        _ = await resolver.resolve(Transcript(raw: "Bonjour à tous."), focus: mailText)
+        _ = await resolver.resolve(Transcript(raw: "Hark."), focus: mailText)
+        #expect(reader.reads == 1)
+    }
+
     // MARK: The reducer
+
+    /// Text selected where the prefix was said: an ask about it, with Replace, as the Ask key would start.
+    @Test func aSelectionMakesItAnAskAboutTheText() throws {
+        let selection = SelectionSnapshot(text: "Bonjour à tous", caller: F.mail)
+        let asking = try reducer.reduce(
+            Self.resolving,
+            .resolved(F.id, normalized: "arc translate this", .ask(request: "translate this", selection: selection))
+        ).get()
+        #expect(asking.effects == [.generate(F.id, instruction: "translate this", selection: selection)])
+        #expect(asking.state.context?.intent == .ask(selection))
+        #expect(AskPresentation.apply(asking.state.context) == .replace)
+    }
+
+    @Test func aBlankSelectionIsTheAssistant() throws {
+        let blank = SelectionSnapshot(text: " ", caller: F.mail)
+        let asking = try reducer.reduce(
+            Self.resolving, .resolved(F.id, normalized: "arc hi", .ask(request: "hi", selection: blank))
+        ).get()
+        #expect(asking.state.context?.intent == .assist(caller: F.mail))
+        #expect(asking.effects == [.generate(F.id, instruction: "hi", selection: nil)])
+    }
 
     private static let heard = Transcript(raw: "Arc, quelle est la capitale du Pérou ?", tier: .small)
     private static let resolving = PipelineState.resolving(F.context(capture: F.speech, transcribeMs: 420), heard)
@@ -147,5 +185,20 @@ private let mailText = FocusSnapshot(
             .get()
         let record = try #require(done.effects.first?.record)
         #expect(record.resolution == .discarded && record.error == "empty_request")
+    }
+}
+
+/// A selection reader that answers the same text every time, and counts its reads.
+private final class ScriptedSelection: SelectionReading {
+    private let count = OSAllocatedUnfairLock(initialState: 0)
+    let text: String
+
+    init(text: String) { self.text = text }
+
+    var reads: Int { count.withLock { $0 } }
+
+    func read(from app: AppIdentity?) async -> SelectionSnapshot {
+        count.withLock { $0 += 1 }
+        return SelectionSnapshot(text: text, caller: app)
     }
 }

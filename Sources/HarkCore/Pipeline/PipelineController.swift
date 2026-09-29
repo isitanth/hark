@@ -272,6 +272,7 @@ public actor PipelineController {
 
         case .copyToClipboard(let id, let text, let concealed):
             Task {
+                await env.inserter.releasePasteboard()
                 let copied = await env.pasteboard.writeText(text, concealed: concealed)
                 send(copied ? .copied(id) : .failed(id, .pasteboardWrite))
             }

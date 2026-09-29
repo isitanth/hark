@@ -212,6 +212,12 @@ public actor TextInserter: TextInserting {
         return copied
     }
 
+    /// Hark's own Copy ends the watch: the change it makes is the user's answer, not the copy's aftermath.
+    public func releasePasteboard() async {
+        copyWatch?.timer.cancel()
+        copyWatch = nil
+    }
+
     /// A copy that lands after the deadline, or a second write after the restore, would otherwise stay on the
     /// user's clipboard for good.
     private func watchAfterCopy(_ original: PasteboardSnapshot, from count: Int) {

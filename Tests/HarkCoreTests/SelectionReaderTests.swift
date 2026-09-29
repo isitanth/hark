@@ -142,6 +142,18 @@ struct SelectionCopyTests {
         #expect(rig.pasteboard.text == "original" && rig.pasteboard.restores == 2)
     }
 
+    /// Hark's own Copy right after the ⌘C: the watch stops, and Hark's text stays.
+    @Test func harksOwnCopyEndsTheWatch() async {
+        let rig = Rig()
+        rig.keystrokes.select("sélection")
+        #expect(await rig.inserter.copySelection(from: F.mail) == "sélection")
+        await rig.inserter.releasePasteboard()
+        rig.pasteboard.userCopies("Lima.")
+        rig.clock.advance(by: .seconds(2))
+        try? await Task.sleep(for: .milliseconds(20))
+        #expect(rig.pasteboard.text == "Lima.")
+    }
+
     /// A dictation pasted just before, its restore still pending: the user's contents come back, not the dictation.
     @Test func aPendingRestoreGivesBackTheUsersContents() async throws {
         let rig = Rig()

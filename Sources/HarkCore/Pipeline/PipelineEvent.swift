@@ -8,7 +8,9 @@ public enum Decision: Sendable, Equatable {
     case copy(ClipboardReason)
     case discard(DiscardReason)
     /// The transcript starts with the assistant's spoken prefix: `request` is what followed it, as heard (M9.2).
-    case ask(request: String)
+    /// `selection` is what the app had selected when the words were resolved: an ask about it, as the Ask key would
+    /// start; blank or nil, the assistant.
+    case ask(request: String, selection: SelectionSnapshot? = nil)
 
     /// The usual insertion: a failure falls back to the clipboard.
     public static func insert(_ plan: InsertionPlan) -> Decision { .insert(plan, fallback: true) }

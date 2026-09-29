@@ -217,7 +217,8 @@ final class AppModel {
         self.ask = ask
         let environment = PipelineEnvironment(
             workspace: workspace, pasteboard: pasteboard, focus: focusProbe, audio: audio, engine: engine,
-            resolver: UtteranceResolver(settings: resolution), inserter: inserter, actions: actions,
+            resolver: UtteranceResolver(settings: resolution, selection: selectionReader), inserter: inserter,
+            actions: actions,
             asker: AskEngine(client: ask.client, settings: askSettings),
             selection: CallerSelectionChecker(
                 workspace: workspace, focus: focusProbe, accessibility: accessibility, settings: resolution))
