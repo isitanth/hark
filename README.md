@@ -36,7 +36,7 @@ text lands where you were typing. Other audio is lowered until you stop. The liv
 
 ## Install
 
-1. Download `Hark-0.0.3.dmg` from [Releases](https://github.com/isitanth/hark/releases), open it and drag Hark to
+1. Download `Hark-0.0.4.dmg` from [Releases](https://github.com/isitanth/hark/releases), open it and drag Hark to
    Applications.
 2. Hark is not signed with a Developer ID or notarized, so macOS blocks the first launch. Open System Settings ›
    Privacy & Security and click **Open Anyway** next to the message about Hark, or run
