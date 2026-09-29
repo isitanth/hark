@@ -16,8 +16,12 @@ enum ConfigFixtures {
     static let commands = CommandConfig(
         defaults: CommandDefaults(threshold: 0.85),
         openVerbs: [
-            "en": ["open", "launch", "show", "start"],
-            "fr": ["ouvre", "ouvrir", "lance", "lancer", "affiche", "afficher", "démarre", "démarrer"],
+            "en": ["open", "launch", "show", "start", "run", "bring up", "switch to"],
+            "fr": [
+                "ouvre", "ouvres", "ouvrez", "ouvrir", "lance", "lances", "lancez", "lancer", "affiche", "affiches",
+                "affichez", "afficher", "démarre", "démarres", "démarrez", "démarrer", "montre", "montres", "montrez",
+                "montrer", "va sur", "passe sur",
+            ],
         ],
         fillers: [
             "en": ["the", "a", "an", "my", "your", "our", "this", "that"],

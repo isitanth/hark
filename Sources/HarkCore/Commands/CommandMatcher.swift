@@ -33,6 +33,9 @@ public struct CommandMatch: Sendable, Equatable {
 ///
 /// A filler is not skipped when an app name said as written starts with it or runs past it: "open the Clock" opens
 /// "The Clock", and "open Clock" still opens "Clock" rather than The Clock without its "the".
+///
+/// When that finds nothing, the utterance is tried once more without the fillers inside the app name: whisper cuts
+/// "TextEdit" into "texte d'édit", whose "d" is a filler (2026-09-29). Only what fails the first pass gets a second.
 public struct CommandMatcher: Sendable {
     public typealias Scorer = @Sendable (String, String) -> Double
 
@@ -79,6 +82,22 @@ public struct CommandMatcher: Sendable {
     public func match(_ normalized: String) -> CommandMatch? {
         let words = Self.words(normalized)
         guard let verb = verbs.first(where: { words.starts(with: $0) }) else { return nil }
+        if let found = match(words, verb: verb) { return found }
+        let compact = withoutInnerFillers(words, after: verb.count)
+        return compact.count < words.count ? match(compact, verb: verb) : nil
+    }
+
+    /// The words with every single-word filler after the first word that is not one removed: the fillers before the
+    /// name stay, for the first pass's rules; the ones inside it go.
+    private func withoutInnerFillers(_ words: [String], after start: Int) -> [String] {
+        let single = Set(fillers.filter { $0.count == 1 }.map { $0[0] })
+        guard let first = words.indices.dropFirst(start).first(where: { !single.contains(words[$0]) }) else {
+            return words
+        }
+        return Array(words[..<(first + 1)]) + words[(first + 1)...].filter { !single.contains($0) }
+    }
+
+    private func match(_ words: [String], verb: [String]) -> CommandMatch? {
         var index = verb.count
         while index < words.count {
             // An app named here decides: one of the names that ends the utterance, or text.

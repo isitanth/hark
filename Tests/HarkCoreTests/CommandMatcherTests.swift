@@ -89,8 +89,8 @@ let spokenCases: [SpokenCase] = [
         #expect(fynder.command.id == "open_finder")
         #expect(fynder.score >= 0.85 && fynder.score < 1)
         #expect(match("Ouvre le fichier.") == nil)
-        // The verb is not: "ouvrez" is not "ouvre".
-        #expect(match("Ouvrez le Finder.") == nil)
+        // The verb is not: "ouvrons" is not "ouvre".
+        #expect(match("Ouvrons le Finder.") == nil)
     }
 
     // MARK: - The threshold
@@ -158,6 +158,25 @@ let spokenCases: [SpokenCase] = [
     }
 
     // MARK: - Verbs and fillers
+
+    /// Whisper cuts "TextEdit" into "texte d'édit", whose "d" is a filler: a second pass without the fillers inside the
+    /// name opens it. What the first pass matched, or refused for words after the app, stays as it was.
+    @Test func fillersInsideTheNameAreSkippedOnASecondPass() {
+        let config = CommandConfig(
+            openVerbs: ["fr": ["ouvre", "affiches"]], fillers: ["fr": ["d", "de", "le", "moi"]],
+            commands: [
+                CommandEntry(id: "open_textedit", app: "TextEdit", aliases: ["texte edit"]),
+                CommandEntry(id: "open_finder", app: "Finder"),
+            ])
+        let matcher = CommandMatcher(config: config)
+        let id = { (said: String) in matcher.match(Normalizer.normalize(said))?.command.id }
+        #expect(id("Ouvre texte d'édit.") == "open_textedit")
+        #expect(id("Affiches-moi texte d'édit.") == "open_textedit")
+        #expect(id("Ouvre texte edit.") == "open_textedit")
+        #expect(id("Ouvre le Finder.") == "open_finder")
+        #expect(id("Ouvre le Finder de Pierre.") == nil)
+        #expect(id("Ouvre le Finder pour demain.") == nil)
+    }
 
     @Test func aVerbOfSeveralWordsIsMatchedWhole() {
         let config = table([CommandEntry(id: "f", app: "Finder")], verbs: ["peux-tu ouvrir", "ouvre"])

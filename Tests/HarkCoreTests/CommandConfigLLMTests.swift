@@ -322,6 +322,11 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
         var expected = ConfigFixtures.commands
         expected.llm = nil
         expected.assistant = nil
+        // The v2 default of M7, before the verbs gained their forms and synonyms (2026-09-29).
+        expected.openVerbs = [
+            "en": ["open", "launch", "show", "start"],
+            "fr": ["ouvre", "ouvrir", "lance", "lancer", "affiche", "afficher", "démarre", "démarrer"],
+        ]
         #expect(config == expected)
         #expect(config.effectiveAssistant == .standard)
         #expect(config.yaml().hasPrefix("version: 3\n"))

@@ -81,6 +81,10 @@ public struct UtteranceResolver: UtteranceResolving {
         let normalized = Normalizer.normalize(transcript.raw)
         if focus?.isSecureInput != true, let request = settings.prefix.request(in: transcript.raw) {
             guard !request.isEmpty else { return (normalized, .discard(.emptyRequest)) }
+            // "Arc, ouvre TextEdit" is a command said to Hark: it runs, as it would without the prefix.
+            if let found = settings.commands.match(Normalizer.normalize(request)) {
+                return (normalized, .command(found.command))
+            }
             // Read now, not at the press: only a prefix earns the read, and the ⌘C it may take (M9.0).
             let selected = await selection?.read(from: focus?.app)
             return (normalized, .ask(request: request, selection: selected))

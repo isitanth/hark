@@ -71,11 +71,24 @@ private let mailText = FocusSnapshot(
             commands: CommandConfig(
                 openVerbs: ["fr": ["ouvre"]], commands: [CommandEntry(id: "open_safari", app: "Safari")]))
         let resolver = UtteranceResolver(settings: settings)
-        let asked = await resolver.resolve(Transcript(raw: "Arc, ouvre Safari."), focus: mailText)
-        #expect(asked.decision == .ask(request: "ouvre Safari."))
-        #expect(asked.normalized == "arc ouvre safari")
+        let asked = await resolver.resolve(Transcript(raw: "Arc, ouvre la fenêtre."), focus: mailText)
+        #expect(asked.decision == .ask(request: "ouvre la fenêtre."))
+        #expect(asked.normalized == "arc ouvre la fenetre")
         let command = await resolver.resolve(Transcript(raw: "Ouvre Safari."), focus: mailText)
         #expect(command.decision == .command(ResolvedCommand(id: "open_safari", action: .openApp, target: "Safari")))
+    }
+
+    /// "Arc, ouvre Safari" is a command said to Hark: it runs, and nothing is read or asked.
+    @Test func aCommandAfterThePrefixRuns() async {
+        let settings = ResolutionSettings()
+        settings.update(
+            commands: CommandConfig(
+                openVerbs: ["fr": ["ouvre"]], commands: [CommandEntry(id: "open_safari", app: "Safari")]))
+        let reader = ScriptedSelection(text: "texte")
+        let resolver = UtteranceResolver(settings: settings, selection: reader)
+        let result = await resolver.resolve(Transcript(raw: "Arc, ouvre Safari."), focus: mailText)
+        #expect(result.decision == .command(ResolvedCommand(id: "open_safari", action: .openApp, target: "Safari")))
+        #expect(reader.reads == 0)
     }
 
     @Test func thePrefixAloneIsDiscarded() async {
