@@ -3628,13 +3628,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Say an opening verb, then an app, with nothing after it: “open Safari”, “ouvre le Finder”. Everything else you say is dictated as text."
+            "value": "Say an opening verb, then an app, with nothing after it but a polite ending: “open Safari”, “ouvre le Finder, s’il te plaît”. Everything else you say is dictated as text."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dites un verbe d’ouverture, puis une app, et rien après : « ouvre le Finder », « open Safari ». Tout le reste est dicté comme texte."
+            "value": "Dites un verbe d’ouverture, puis une app, et rien après sauf une formule de politesse : « ouvre le Finder », « open Safari, please ». Tout le reste est dicté comme texte."
           }
         }
       }
