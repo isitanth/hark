@@ -20,6 +20,9 @@ final class RegionFraming {
     private var dragging: UtteranceID?
     /// The ask in flight, whatever its phase: a drag whose ask has ended captures nothing.
     private var current: UtteranceID?
+    /// The live turn of a conversation that holds as many frames as it may (M12): ⌃⌥ still arms, so the panel can say
+    /// why, and a drag captures nothing.
+    private var framesFull = false
     /// The controller's region calls, one after the other: two Tasks may reach an actor in either order, and a quick
     /// click must not see its `regionAbandoned` land before its `regionStarted` (M11 review R4).
     private var sending: Task<Void, Never>?
@@ -44,6 +47,7 @@ final class RegionFraming {
     func update(_ snapshot: PipelineSnapshot) {
         current = snapshot.phase != .idle && snapshot.utterance?.intent.isAsk == true ? snapshot.utterance?.id : nil
         let live = snapshot.phase == .capturing && snapshot.utterance?.intent.isAsk == true
+        framesFull = live && snapshot.utterance?.acceptsFrame == false
         let id = live ? snapshot.utterance?.id : nil
         guard id != capturing else { return }
         capturing = id
@@ -60,6 +64,12 @@ final class RegionFraming {
             overlay.hide()
             return
         }
+        if framesFull {
+            panel.setFramingBlocked(.framesFull)
+            overlay.show(blocked: true)
+            Self.logger.info("framing armed, the conversation holds its frames")
+            return
+        }
         let denied = !ScreenRecordingPermission.isGranted
         if denied { panel.setFramingBlocked(.noScreenRecording) }
         overlay.show(blocked: denied || panel.visionVerdict == false)
@@ -68,6 +78,11 @@ final class RegionFraming {
     }
 
     private func dragStarted() {
+        // At the frame cap the drag is dropped as it starts: no rectangle, no capture.
+        if framesFull {
+            _ = overlay.cancelDrag()
+            return
+        }
         guard let id = capturing else { return }
         dragging = id
         send { await $0.regionStarted(for: id) }

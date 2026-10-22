@@ -554,6 +554,11 @@ final class AppModel {
         if let record = snapshot.lastRecord, record != self.snapshot.lastRecord {
             feed.append(LogEntry(record: record))
             announce(record)
+            // The talk key, or "Hark, …", while the Ask panel shows: busy, and the panel says how to dictate. A busy Ask
+            // key or Services press is an ask's and stays silent: the answer is coming.
+            if record.resolution == .discarded, record.error == DiscardReason.busy.rawValue, record.actionType == nil {
+                askPanel.showBusyNudge()
+            }
         }
         updateIcon(MenuBarIconUpdate(from: self.snapshot, to: snapshot))
         if snapshot.phase == .capturing, self.snapshot.phase != .capturing {
@@ -653,6 +658,11 @@ final class AppModel {
     /// window in front there is none: nothing is read from an app the user cannot see, and the answer can only be
     /// copied. A press while busy reads nothing: its line says busy.
     private func startAskFromKey() async {
+        // An answer in review: the key follows it up, with the conversation so far. Nothing is read from the app.
+        if await controller.reviewingAsk != nil {
+            await controller.followUpDown()
+            return
+        }
         let caller = Self.otherApp(NSWorkspace.shared.frontmostApplication)
         guard await controller.phase == .idle else {
             await controller.triggerDown(intent: .assist(caller: caller))
