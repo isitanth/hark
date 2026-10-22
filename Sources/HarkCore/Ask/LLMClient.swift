@@ -706,6 +706,17 @@ private struct ModelsWire: Decodable {
             case supportsVision = "supports_vision"
         }
 
+        /// The id is required; each vision field is read on its own and dropped when shaped otherwise, so a server that
+        /// writes `"capabilities": ["completion"]` still lists its models, as before M11.
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(String.self, forKey: .id)
+            supportsVision = try? container.decodeIfPresent(Bool.self, forKey: .supportsVision)
+            modalities = try? container.decodeIfPresent(Modalities.self, forKey: .modalities)
+            architecture = try? container.decodeIfPresent(Architecture.self, forKey: .architecture)
+            capabilities = try? container.decodeIfPresent(Capabilities.self, forKey: .capabilities)
+        }
+
         /// The first field present, in that order.
         var vision: Bool? {
             supportsVision ?? modalities?.input.map { $0.contains("image") }

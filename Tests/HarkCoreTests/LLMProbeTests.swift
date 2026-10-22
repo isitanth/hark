@@ -113,6 +113,14 @@ struct VisionProbeCase: Sendable, CustomTestStringConvertible {
         #expect(report == LLMProbeReport(result: .connected(model: "m"), vision: nil))
     }
 
+    /// A vision field shaped otherwise is dropped on its own: the listing still yields its ids (M11 review R1).
+    @Test func aFieldShapedOtherwiseIsUnknownAndTheListStillReads() async throws {
+        let body = Data(
+            #"{"data":[{"id":"m","capabilities":["completion"],"architecture":"llama","modalities":"text"}]}"#.utf8)
+        let report = await LLMProbe(client: H.client(FakeLLMTransport([.status(200, body)]))).inspect(H.profile)
+        #expect(report == LLMProbeReport(result: .connected(model: "m"), vision: nil))
+    }
+
     @Test func claudeWithoutTheFieldReadsImages() async throws {
         let body = Data(#"{"data":[{"type":"model","id":"claude-opus-5-5"}]}"#.utf8)
         let transport = FakeLLMTransport([.status(200, body)])
