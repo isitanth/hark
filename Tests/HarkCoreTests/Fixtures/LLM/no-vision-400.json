@@ -1,0 +1,1 @@
+{"error":{"message":"this model has no vision tower; image content is not supported for it","type":"invalid_request_error","code":"HTTPException","param":null}}

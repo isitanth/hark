@@ -34,3 +34,9 @@ plan, §1, §2 and §5), since no server was asked to refuse an image:
   (llama.cpp tools/server/server-context.cpp).
 - `anthropic-models.json` gained `capabilities.image_input` and `pdf_input` per entry
   (platform.claude.com/docs/en/api/models/list).
+- Refusals of a request that carried an image (report a5, §1 and §5): `no-vision-400.json` (MTPLX, a pack with no
+  vision tower), `vision-ar-mode-400.json` (MTPLX in AR mode), `openai-no-vision-400.json` (OpenAI's wording),
+  `llamacpp-no-mmproj-500.json` (llama.cpp without its mmproj, tools/server/server-common.cpp),
+  `mlxlm-text-only-404.json` (mlx-lm's server, a bare string `error`), `vllm-not-multimodal-400.json` (vLLM),
+  `anthropic-image-too-large-400.json` (an image over 10 MB, wording assumed from the vision documentation) and
+  `probable-400.json` (a 400 in none of the words Hark recognizes).

@@ -159,3 +159,70 @@ let llmMappingCases: [LLMMappingCase] = [
         }
     }
 }
+
+struct ImageRefusalCase: Sendable, CustomTestStringConvertible {
+    let fixture: String
+    let status: Int
+    /// The failure when the request carried an image; without one, it is always `.server(status, message)`.
+    let withImage: LLMFailure?
+    var testDescription: String { fixture }
+}
+
+/// Report a5, §4: each refusal with and without an image in the request.
+@Suite struct LLMImageRefusalTests {
+    static let model = LLMFixtures.model
+
+    static let cases: [ImageRefusalCase] = [
+        .init(fixture: "no-vision-400.json", status: 400, withImage: .noVision(model: model, reason: .noVision)),
+        .init(
+            fixture: "vision-ar-mode-400.json", status: 400, withImage: .noVision(model: model, reason: .needsMTPMode)),
+        .init(fixture: "openai-no-vision-400.json", status: 400, withImage: .noVision(model: model, reason: .noVision)),
+        .init(
+            fixture: "llamacpp-no-mmproj-500.json", status: 500, withImage: .noVision(model: model, reason: .noVision)),
+        .init(fixture: "mlxlm-text-only-404.json", status: 404, withImage: .noVision(model: model, reason: .noVision)),
+        .init(
+            fixture: "vllm-not-multimodal-400.json", status: 400, withImage: .noVision(model: model, reason: .noVision)),
+        .init(fixture: "anthropic-image-too-large-400.json", status: 400, withImage: nil),
+        .init(fixture: "probable-400.json", status: 400, withImage: nil),
+        .init(fixture: "server-error-500.json", status: 500, withImage: nil),
+    ]
+
+    private func failure(_ row: ImageRefusalCase, image: Bool) async throws -> LLMFailure? {
+        let body = try LLMFixtures.data(row.fixture)
+        let transport = FakeLLMTransport([.status(row.status, body)])
+        var parts: [ContentPart] = [.text("Combien ?")]
+        if image { parts.insert(.image(ImagePart(data: Data([1]))), at: 0) }
+        let events = await H.collect(
+            H.client(transport).complete(
+                [ChatMessage(role: .user, parts: parts)], model: Self.model, profile: H.profile)
+        ).value
+        guard case .failed(let failure, _) = events.last else { return nil }
+        return failure
+    }
+
+    @Test(arguments: cases)
+    func withAnImage(_ row: ImageRefusalCase) async throws {
+        let server = LLMFailure.server(
+            status: row.status, message: LLMErrorBody.message(in: try LLMFixtures.data(row.fixture)))
+        #expect(try await failure(row, image: true) == (row.withImage ?? server))
+    }
+
+    @Test(arguments: cases)
+    func withoutAnImageTheMappingIsTodays(_ row: ImageRefusalCase) async throws {
+        let message = LLMErrorBody.message(in: try LLMFixtures.data(row.fixture))
+        #expect(try await failure(row, image: false) == .server(status: row.status, message: message))
+    }
+
+    @Test(arguments: [401, 403, 413, 429, 503])
+    func anotherStatusIsNeverNoVision(_ status: Int) {
+        #expect(LLMFailure.imageRefusal(status: status, message: "image input is not supported", model: "m") == nil)
+    }
+
+    @Test func visionAndNotSupportedTogetherAreCertain() {
+        #expect(
+            LLMFailure.imageRefusal(status: 400, message: "Vision is NOT SUPPORTED here", model: nil)
+                == .noVision(model: nil, reason: .noVision))
+        #expect(LLMFailure.imageRefusal(status: 400, message: "vision tower loading", model: nil) == nil)
+        #expect(LLMFailure.imageRefusal(status: 400, message: nil, model: nil) == nil)
+    }
+}

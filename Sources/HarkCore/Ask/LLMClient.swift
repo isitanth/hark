@@ -357,7 +357,7 @@ public actor LLMClient {
         let worker = Task { [transport] in
             await Self.stream(
                 request, transport: transport, unreachable: profile.unreachable, silence: limits.silence, call: call,
-                timers: timers)
+                timers: timers, image: messages.contains(where: \.hasImage) ? model : nil)
         }
         call.attach(worker)
         await withTaskCancellationHandler {
@@ -371,7 +371,7 @@ public actor LLMClient {
 
     private static func stream(
         _ request: URLRequest, transport: any LLMTransport, unreachable: LLMFailure, silence: Duration,
-        call: StreamCall, timers: CallTimers
+        call: StreamCall, timers: CallTimers, image model: String?
     ) async {
         let response: LLMHTTPResponse
         do {
@@ -386,7 +386,13 @@ public actor LLMClient {
         guard response.status == 200 else {
             let body = await read(response.body, limit: errorBodyLimit) { timers.start(.silence, after: silence) }
             if Task.isCancelled { return }
-            return call.fail(.server(status: response.status, message: LLMErrorBody.message(in: body)))
+            let message = LLMErrorBody.message(in: body)
+            // Only a request with an image can be refused for it; the same words without one keep today's mapping.
+            if let model, let refusal = LLMFailure.imageRefusal(status: response.status, message: message, model: model)
+            {
+                return call.fail(refusal)
+            }
+            return call.fail(.server(status: response.status, message: message))
         }
         var parser = SSEParser()
         do {

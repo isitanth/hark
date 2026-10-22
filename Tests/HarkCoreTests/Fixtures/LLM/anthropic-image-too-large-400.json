@@ -1,0 +1,1 @@
+{"type":"error","error":{"type":"invalid_request_error","message":"messages.0.content.0.image.source.base64: image exceeds 10 MB maximum: 11534336 bytes > 10485760 bytes"},"request_id":"req_011HarkFixture400"}
