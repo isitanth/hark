@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import HarkCore
 import Testing
@@ -177,5 +178,165 @@ struct AskEngineImageTests {
         let events = await H.collect(engine.generate(instruction: "a", selection: nil, image: Self.image)).value
         #expect(events.failure == .noVision(model: "bonsai", reason: .needsMTPMode))
         #expect(engine.vision.verdict(profile: profile(.named("bonsai")), model: "bonsai") == nil)
+    }
+}
+
+/// A follow-up (M12): the pinned model, no probe, nothing sent after a profile switch or with a frame missing.
+@Suite(.timeLimit(.minutes(1)))
+struct AskEngineThreadTests {
+    static let image = ImagePart(data: Data([0x89, 0x50, 0x4E, 0x47]))
+    static let region = RegionSummary(rect: .zero, pixelWidth: 10, pixelHeight: 10, bytes: 4, displayID: 1)
+
+    private static func profile(_ model: ModelChoice = .auto, baseURL: String? = nil) -> ProviderProfile {
+        var profile = H.profile
+        profile.model = model
+        if let baseURL { profile.baseURL = URL(string: baseURL)! }
+        return profile
+    }
+
+    private func engine(
+        _ transport: FakeLLMTransport, profile: ProviderProfile = profile(),
+        vision: VisionCapability = VisionCapability()
+    ) -> AskEngine {
+        let config = LLMConfig(provider: profile.name, profiles: [profile.name: profile])
+        return AskEngine(client: H.client(transport), settings: AskSettings(config), vision: vision)
+    }
+
+    private static func thread(framedTurnOne: Bool = false, pin: ProfilePin? = nil) -> AskThread {
+        AskThread(
+            rootID: UtteranceID(1), kind: .selection, selection: "Lyon.",
+            pin: pin ?? ProfilePin(profile: profile(), requestedModel: "pinned-model"),
+            turns: [
+                AskTurn(
+                    id: UtteranceID(1), instruction: "Résume.", reply: "Lyon, en bref.",
+                    region: framedTurnOne ? region : nil)
+            ])
+    }
+
+    private func body(_ request: URLRequest?) throws -> [String: Any] {
+        let data = try #require(request?.httpBody)
+        return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    @Test func turnOnesFinishedSummaryCarriesThePin() async throws {
+        let transport = FakeLLMTransport([
+            .status(200, try LLMFixtures.data("models.json")), .status(200, try LLMFixtures.data("summary-fr.sse")),
+        ])
+        let events = await H.collect(engine(transport).generate(instruction: "a", selection: "b")).value
+        #expect(events.summary?.pin == ProfilePin(profile: Self.profile(), requestedModel: LLMFixtures.model))
+    }
+
+    @Test func turnOnesFailureCarriesThePinItWentTo() async {
+        let transport = FakeLLMTransport([.refuse])
+        let named = Self.profile(.named("qwen3-8b"))
+        let events = await H.collect(engine(transport, profile: named).generate(instruction: "a", selection: "b"))
+            .value
+        #expect(
+            events == [
+                .failed(
+                    .notRunning(endpoint: H.endpoint),
+                    LLMCallSummary(ms: 0, pin: ProfilePin(profile: named, requestedModel: "qwen3-8b")))
+            ])
+    }
+
+    @Test func aFollowUpAsksThePinnedModelWithoutListingTheModels() async throws {
+        let transport = FakeLLMTransport([.status(200, try LLMFixtures.data("summary-fr.sse"))])
+        let events = await H.collect(
+            engine(transport).generate(
+                instruction: "Plus court.", selection: "Lyon.", image: nil, thread: Self.thread(), frames: [:])
+        ).value
+        #expect(events.texts.joined() == LLMFixtures.summaryText)
+        #expect(events.summary?.pin == nil)
+        #expect(transport.requests.map { $0.url?.lastPathComponent } == ["completions"])
+        let sent = try body(transport.requests.first)
+        #expect(sent["model"] as? String == "pinned-model")
+        let messages = try #require(sent["messages"] as? [[String: String]])
+        #expect(messages.map { $0["role"] } == ["system", "user", "assistant", "user"])
+        #expect(messages[2]["content"] == "Lyon, en bref.")
+        #expect(messages[3]["content"]?.hasPrefix(AskPrompt.followUpLeadLine) == true)
+    }
+
+    @Test(arguments: [
+        profile(.auto, baseURL: "http://127.0.0.1:9000/v1"), profile(.named("pinned-model")),
+        ProviderProfile.claude,
+    ])
+    func aProfileSwitchSendsNothing(_ active: ProviderProfile) async {
+        let transport = FakeLLMTransport([.refuse])
+        let events = await H.collect(
+            engine(transport, profile: active).generate(
+                instruction: "a", selection: "Lyon.", image: nil, thread: Self.thread(), frames: [:])
+        ).value
+        #expect(events == [.failed(.profileChanged, LLMCallSummary())])
+        #expect(transport.requests.isEmpty)
+    }
+
+    @Test func aMissingFrameSendsNothing() async {
+        let transport = FakeLLMTransport([.refuse])
+        let events = await H.collect(
+            engine(transport).generate(
+                instruction: "a", selection: "Lyon.", image: nil, thread: Self.thread(framedTurnOne: true), frames: [:])
+        ).value
+        #expect(events == [.failed(.frameMissing, LLMCallSummary())])
+        #expect(transport.requests.isEmpty)
+    }
+
+    /// The frame is turn 1's; this turn brings none. The request still holds an image, so a blind model gets nothing.
+    @Test func aBlindModelWithAnEarlierFrameIsRefusedBeforeSending() async {
+        let transport = FakeLLMTransport([.refuse])
+        let vision = VisionCapability()
+        vision.record(false, profile: Self.profile(), model: "pinned-model")
+        let events = await H.collect(
+            engine(transport, vision: vision).generate(
+                instruction: "a", selection: "Lyon.", image: nil, thread: Self.thread(framedTurnOne: true),
+                frames: [UtteranceID(1): Self.image])
+        ).value
+        #expect(events == [.failed(.noVision(model: "pinned-model", reason: .knownBeforeSending), LLMCallSummary())])
+        #expect(transport.requests.isEmpty)
+    }
+
+    @Test func aBlindModelWithThisTurnsFrameIsRefusedBeforeSending() async {
+        let transport = FakeLLMTransport([.refuse])
+        let vision = VisionCapability()
+        vision.record(false, profile: Self.profile(), model: "pinned-model")
+        let events = await H.collect(
+            engine(transport, vision: vision).generate(
+                instruction: "a", selection: "Lyon.", image: Self.image, thread: Self.thread(), frames: [:])
+        ).value
+        #expect(events.failure == .noVision(model: "pinned-model", reason: .knownBeforeSending))
+        #expect(transport.requests.isEmpty)
+    }
+
+    /// An earlier frame teaches the verdict as an image ask does.
+    @Test func aFollowUpOnAFramedThreadLearnsTheModelSees() async throws {
+        let transport = FakeLLMTransport([.status(200, try LLMFixtures.data("summary-fr.sse"))])
+        let engine = engine(transport)
+        _ = await H.collect(
+            engine.generate(
+                instruction: "a", selection: "Lyon.", image: nil, thread: Self.thread(framedTurnOne: true),
+                frames: [UtteranceID(1): Self.image])
+        ).value
+        #expect(engine.vision.verdict(profile: Self.profile(), model: "pinned-model") == true)
+    }
+
+    @Test func cancellingAFollowUpClosesTheStream() async throws {
+        let transport = FakeLLMTransport([.pushed(status: 200)])
+        let stream = engine(transport).generate(
+            instruction: "a", selection: "Lyon.", image: nil, thread: Self.thread(), frames: [:])
+        let firstWord = AsyncStream.makeStream(of: Void.self)
+        let reader = Task {
+            for await event in stream {
+                if case .text = event { firstWord.continuation.yield() }
+            }
+        }
+        while transport.requests.isEmpty { try await Task.sleep(for: .milliseconds(2)) }
+        transport.push(H.contentLine("Lyon"))
+        var iterator = firstWord.stream.makeAsyncIterator()
+        await iterator.next()
+        reader.cancel()
+        await reader.value
+        for _ in 0..<200 where !transport.bodyCancelled {
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        #expect(transport.bodyCancelled)
     }
 }
