@@ -53,8 +53,16 @@ final class AskPanelModel {
     private(set) var visionVerdict: Bool?
     /// Replace is offered: never after an ask that carried a region, which has no text to replace.
     private(set) var allowsReplace = true
+    /// Allow… was pressed for Screen Recording: macOS reads the grant at launch, so the panel offers Reopen Hark.
+    private(set) var screenRecordingRequested = false
     /// Set by `AppModel`: `GET /models` on the active profile, run when an ask opens.
     @ObservationIgnored var preflight: (() async -> LLMProbeResult?)?
+    /// Set by `AppModel`: Settings › Ask, for Choose another model…
+    @ObservationIgnored var openAskSettings: (() -> Void)?
+    /// Set by `AppModel`: the system's Screen Recording alert once, then System Settings.
+    @ObservationIgnored var requestScreenRecording: (() -> Void)?
+    /// Set by `AppModel`: quits and opens Hark again, so macOS reads the new grant.
+    @ObservationIgnored var relaunch: (() -> Void)?
 
     @ObservationIgnored private let controller: PipelineController
     @ObservationIgnored private let workspace: AppKitWorkspace
@@ -196,6 +204,34 @@ final class AskPanelModel {
     func retry() {
         guard let id else { return }
         Task { [controller] in await controller.retryAsk(id) }
+    }
+
+    /// The region chip's ×: the ask goes on without the frame.
+    func removeRegion() {
+        guard let id else { return }
+        Task { [controller] in await controller.removeRegion(for: id) }
+    }
+
+    /// Ask without the image, after a failure: the same instruction, sent again without the frame.
+    func askWithoutRegion() {
+        guard let id else { return }
+        Task { [controller] in await controller.retryAskWithoutRegion(id) }
+    }
+
+    /// Choose another model…: Settings › Ask.
+    func chooseAnotherModel() {
+        openAskSettings?()
+    }
+
+    /// Allow… for Screen Recording.
+    func allowScreenRecording() {
+        screenRecordingRequested = true
+        requestScreenRecording?()
+    }
+
+    /// Reopen Hark, once Screen Recording is granted.
+    func reopenForScreenRecording() {
+        relaunch?()
     }
 
     func copy() {
