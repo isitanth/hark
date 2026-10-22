@@ -98,7 +98,9 @@ final class AskPanel: NSPanel, NSWindowDelegate {
 
     override func sendEvent(_ event: NSEvent) {
         if event.type == .keyDown, event.keyCode == 53 {
-            // Esc while a frame is being dragged drops that drag and keeps the ask, ⌃⌥ held or not.
+            // A follow-up waiting for its frame goes back to the previous answer (M12). Otherwise Esc while a frame is
+            // being dragged drops that drag and keeps the ask, ⌃⌥ held or not.
+            if model.cancelFollowUpAwaitingFrame() { return }
             if model.dropDrag?() == true { return }
             if event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty {
                 model.cancel()

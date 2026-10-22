@@ -397,6 +397,20 @@ final class AskPanelModel {
         Task { [controller] in await controller.cancel(id) }
     }
 
+    /// Esc while a follow-up's words are in and its frame is still being dragged: back to the answer it started from,
+    /// then the drag goes. False otherwise, when Esc during a drag drops the drag alone and the ask goes on. In that
+    /// order: dropped first, the drag's end would send the follow-up without its frame.
+    func cancelFollowUpAwaitingFrame() -> Bool {
+        guard !pinned, let id, snapshot.utterance?.id == id, snapshot.utterance?.parked != nil,
+            snapshot.ask?.stage == .awaitingRegion
+        else { return false }
+        Task { [controller] in
+            await controller.cancel(id)
+            _ = dropDrag?()
+        }
+        return true
+    }
+
     func retry() {
         guard let id else { return }
         Task { [controller] in await controller.retryAsk(id) }

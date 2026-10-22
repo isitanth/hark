@@ -546,6 +546,25 @@ extension AskPipelineTests {
         #expect(try rig.lines().count == 1)
     }
 
+    /// Esc on a follow-up whose words are in and whose drag is still open goes back to the answer; the drag's end then
+    /// sends nothing (the panel cancels before it drops the drag).
+    @Test func escWhileAFollowUpWaitsForItsFrameSendsNothing() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let first = try await answeredTurn(rig, &snapshots, framed: nil)
+        #expect(await rig.controller.followUpDown())
+        let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+        await rig.controller.regionStarted(for: id)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .awaitingRegion }
+        await rig.controller.cancel(id)
+        await rig.controller.regionAbandoned(for: id)
+        #expect(await rig.controller.reviewingAsk == first)
+        #expect(rig.asker.requests.count == 1)
+        let written = try rig.lines()
+        #expect(written.count == 1 && written[0].contains(#""error":"cancelled""#))
+    }
+
     /// Quitting while a follow-up is spoken: its line and the answered turn's both reach disk before quit returns.
     @Test func quittingDuringAFollowUpWritesBothLines() async throws {
         let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
