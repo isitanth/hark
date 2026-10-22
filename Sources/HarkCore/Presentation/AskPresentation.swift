@@ -57,13 +57,14 @@ public enum AskPresentation {
 
     /// Insert is offered when the probe at the press found, in the app the key was pressed in, somewhere a paste or an
     /// AX insertion would land (the rule the panel's Paste follows), and not in a secure field. An ask that carries a
-    /// framed region never offers Replace: an image has no text to replace, so it follows the assistant's rule.
+    /// framed region never offers Replace: an image has no text to replace. About a selection, it offers Copy alone:
+    /// the selection is still selected in the caller, so Insert would paste over it (M11 review R2).
     public static func apply(_ utterance: UtteranceContext?) -> AskApply {
         switch utterance?.intent {
         case .assist(let caller)?:
             return insertOrCopy(utterance, caller: caller)
-        case .ask(let selection)? where utterance?.region != nil:
-            return insertOrCopy(utterance, caller: selection.caller)
+        case .ask? where utterance?.region != nil:
+            return .copyOnly
         case .ask?, .dictate?, nil: return .replace
         }
     }

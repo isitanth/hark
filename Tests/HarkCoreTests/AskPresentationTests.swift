@@ -71,13 +71,13 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
     }
 
     /// A framed region never offers Replace: Insert where a field has the focus in the caller, else Copy alone.
+    /// About a selection, Insert would paste over it, still selected in the caller: a framed ask offers Copy alone. With
+    /// nothing selected (the assistant), Insert where a field has the focus.
     @Test func anAskWithAFrameOffersInsertOrCopy() {
         #expect(AskPresentation.apply(F.regionContext()) == .replace)
         var framed = F.regionContext(region: F.region)
         #expect(AskPresentation.apply(framed) == .copyOnly)
         framed.focus = F.backInTextEdit
-        #expect(AskPresentation.apply(framed) == .insert)
-        framed.focus = FocusSnapshot(app: F.mail, element: FocusedElement(role: "AXTextField"))
         #expect(AskPresentation.apply(framed) == .copyOnly)
         #expect(AskPresentation.apply(F.regionContext(intent: F.assist, region: F.region)) == .insert)
     }
