@@ -160,6 +160,11 @@ public actor PipelineController {
         send(.regionFailed(id, failure))
     }
 
+    /// The drag framed nothing: a click, a frame under the minimum, or Esc while the mouse was down.
+    public func regionAbandoned(for id: UtteranceID) {
+        send(.regionAbandoned(id))
+    }
+
     /// The chip's ×: the ask goes on without the region.
     public func removeRegion(for id: UtteranceID) {
         send(.regionRemoved(id))

@@ -188,12 +188,14 @@ public struct PipelineReducer: Sendable {
 
         // The region events, while the request has not left. A new drag replaces the frame; the chip's × removes it.
         case (.capturing(let context), .regionStarted), (.capturing(let context), .regionCaptured),
-            (.capturing(let context), .regionFailed), (.capturing(let context), .regionRemoved):
+            (.capturing(let context), .regionFailed), (.capturing(let context), .regionRemoved),
+            (.capturing(let context), .regionAbandoned):
             guard let context = region(context, event) else { return reject(state, event) }
             return move(.capturing(context))
 
         case (.transcribing(let context), .regionStarted), (.transcribing(let context), .regionCaptured),
-            (.transcribing(let context), .regionFailed), (.transcribing(let context), .regionRemoved):
+            (.transcribing(let context), .regionFailed), (.transcribing(let context), .regionRemoved),
+            (.transcribing(let context), .regionAbandoned):
             guard let context = region(context, event) else { return reject(state, event) }
             return move(.transcribing(context))
 
@@ -201,7 +203,8 @@ public struct PipelineReducer: Sendable {
         case (.asking(let context, let transcript, .awaitingRegion), .regionStarted),
             (.asking(let context, let transcript, .awaitingRegion), .regionCaptured),
             (.asking(let context, let transcript, .awaitingRegion), .regionFailed),
-            (.asking(let context, let transcript, .awaitingRegion), .regionRemoved):
+            (.asking(let context, let transcript, .awaitingRegion), .regionRemoved),
+            (.asking(let context, let transcript, .awaitingRegion), .regionAbandoned):
             guard var context = region(context, event) else { return reject(state, event) }
             if context.regionPending { return move(.asking(context, transcript, .awaitingRegion)) }
             if let failure = context.regionFailure {
@@ -334,6 +337,8 @@ public struct PipelineReducer: Sendable {
             context.regionFailure = failure
         case .regionRemoved:
             context.region = nil
+        case .regionAbandoned:
+            context.regionPending = false
         default:
             return nil
         }

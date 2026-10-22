@@ -320,6 +320,9 @@ let regionTransitions: [LegalTransition] =
             .init(
                 name: "\(phase) an ask, the chip's ×", state: state, event: .regionRemoved(F.id),
                 phase: state.phase, effects: []),
+            .init(
+                name: "\(phase) an ask, the drag framed nothing", state: state, event: .regionAbandoned(F.id),
+                phase: state.phase, effects: []),
         ]
     } + [
         .init(
@@ -354,6 +357,13 @@ let regionTransitions: [LegalTransition] =
             name: "awaiting the frame, the chip's ×", state: F.awaitingRegion, event: .regionRemoved(F.id),
             phase: .asking, effects: []),
         .init(
+            name: "awaiting the frame, the drag framed nothing: generate without it", state: F.awaitingRegion,
+            event: .regionAbandoned(F.id), phase: .asking, effects: ["generate"]),
+        .init(
+            name: "awaiting a new frame, the drag framed nothing: generate with the earlier one",
+            state: .asking(F.regionContext(pending: true, region: F.region), F.instruction, .awaitingRegion),
+            event: .regionAbandoned(F.id), phase: .asking, effects: ["generate+region"]),
+        .init(
             name: "awaiting the frame, cancel", state: F.awaitingRegion, event: .cancel, phase: .idle,
             effects: ["log:discarded:cancelled"]),
         .init(
@@ -387,6 +397,7 @@ let illegalRegionTransitions: [IllegalTransition] = [
         name: "capturing an ask, another ask's frame", state: F.askCapturing,
         event: .regionCaptured(F.other, F.region)),
     .init(name: "generating, a late drag", state: F.generating, event: .regionStarted(F.id)),
+    .init(name: "generating, a late drag that framed nothing", state: F.generating, event: .regionAbandoned(F.id)),
     .init(name: "generating, a late frame", state: F.generating, event: .regionCaptured(F.id, F.region)),
     .init(name: "generating, a late failure", state: F.generating, event: .regionFailed(F.id, .captureFailed)),
     .init(name: "generating, a late ×", state: F.generating, event: .regionRemoved(F.id)),
