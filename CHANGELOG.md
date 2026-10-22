@@ -15,6 +15,15 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
   Console and test it. Hark speaks Anthropic's Messages API (`api: anthropic` in a profile of commands.yaml), with
   `claude-opus-5-5` at low effort by default. Each provider keeps its own key in the Keychain, so switching back to
   the local server keeps its key.
+- Ask Hark can see part of your screen: during an ask, hold ⌃⌥ and drag a frame around what you mean, and keep
+  talking. The frame goes to the model with your words, and the model first says in one line what it understood you
+  want, then answers. The frame stays in memory and is never written to disk or to the log; when the model is not on
+  this Mac, the panel names where it goes. macOS asks for Screen & System Audio Recording the first time you frame
+  something, and again after about a month without a capture. With the disk image's ad hoc signature, it asks again
+  after each update.
+- Hark says when a model cannot read images, and why: the model named, MTPLX running in AR mode, or the permission
+  missing, each with what to do. Settings › Ask shows whether the model reads images and whether Hark may capture the
+  screen.
 
 ### Changed
 
@@ -25,11 +34,13 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
   shake when something failed. None play when Reduce Motion is on.
 - "application", "appli" and "app" are skipped words in voice commands, so "Hark, ouvre-moi l'application Messages"
   opens Messages.
+- The Ask panel uses Liquid Glass on macOS 26 and later; it keeps its look on earlier versions.
 
 ### Fixed
 
 - A commands.yaml that was never edited, from 0.0.3 or 0.0.4, now takes the current default at launch. Before, it
   kept the verbs of the version that installed it. An edited file is never replaced.
+- The last words of an answer no longer go missing from the Ask panel when they arrive just as the answer ends.
 
 ## [0.0.4] - 2026-09-29
 
