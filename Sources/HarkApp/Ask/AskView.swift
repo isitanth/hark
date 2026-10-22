@@ -127,7 +127,7 @@ struct AskView: View {
                     .foregroundStyle(.secondary)
                 preflight
             }
-        case .transcribing:
+        case .transcribing, .awaitingRegion:
             VStack(alignment: .leading, spacing: 4) {
                 progress(L("ask.transcribing"))
                 preflight
@@ -137,6 +137,14 @@ struct AskView: View {
         case .failed(let failure):
             Label {
                 Text(failure.popupText)
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+            }
+        case .regionFailed:
+            Label {
+                Text(L("ask.failure.streamError"))
                     .fixedSize(horizontal: false, vertical: true)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -222,7 +230,7 @@ struct AskView: View {
                 button(L("ask.button.cancel"), action: model.cancel)
                 button(L("ask.button.done"), action: model.done)
                     .keyboardShortcut(.defaultAction)
-            case .transcribing, .thinking, .streaming:
+            case .transcribing, .awaitingRegion, .thinking, .streaming, .regionFailed:
                 button(L("ask.button.cancel"), action: model.cancel)
             case .reviewing:
                 button(L("ask.button.cancel"), action: model.cancel)

@@ -29,7 +29,7 @@ public struct AskEngine: AskGenerating {
         self.settings = settings
     }
 
-    public func generate(instruction: String, selection: String?) -> AsyncStream<LLMEvent> {
+    public func generate(instruction: String, selection: String?, image: ImagePart?) -> AsyncStream<LLMEvent> {
         let llm = settings.current
         let client = client
         return AsyncStream { continuation in

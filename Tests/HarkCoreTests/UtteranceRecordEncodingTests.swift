@@ -19,30 +19,30 @@ let outcomeCases: [OutcomeCase] = [
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 420, action: .openApp),
             transcript: Transcript(raw: "Open Finder.", normalized: "open finder", tier: .small), outcome: .command),
-        nulls: ["error", "llm_model", "llm_ms"]),
+        nulls: ["error", "llm_model", "llm_ms", "context"]),
     .init(
         name: "text inserted",
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 420), transcript: Transcript(raw: "hi", tier: .medium),
             outcome: .textInserted),
-        nulls: ["normalized_text", "action_type", "exit_code", "error", "llm_model", "llm_ms"]),
+        nulls: ["normalized_text", "action_type", "exit_code", "error", "llm_model", "llm_ms", "context"]),
     .init(
         name: "a transcript no engine stamped",
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 420), transcript: F.transcript, outcome: .textInserted),
-        nulls: ["normalized_text", "action_type", "exit_code", "error", "model_tier", "llm_model", "llm_ms"]),
+        nulls: ["normalized_text", "action_type", "exit_code", "error", "model_tier", "llm_model", "llm_ms", "context"]),
     .init(
         name: "a blank transcript keeps its tier",
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 300), transcript: Transcript(raw: "", tier: .large),
             outcome: .discarded(.emptyTranscript)),
-        nulls: ["normalized_text", "action_type", "exit_code", "llm_model", "llm_ms"]),
+        nulls: ["normalized_text", "action_type", "exit_code", "llm_model", "llm_ms", "context"]),
     .init(
         name: "failed action keeps action_type and exit_code",
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 420, action: .openApp),
             transcript: Transcript(raw: "start the vpn", tier: .small), outcome: .failed(.actionExit(2))),
-        nulls: ["normalized_text", "llm_model", "llm_ms"]),
+        nulls: ["normalized_text", "llm_model", "llm_ms", "context"]),
     .init(
         name: "busy press",
         record: UtteranceRecord(
@@ -50,7 +50,7 @@ let outcomeCases: [OutcomeCase] = [
             outcome: .discarded(.busy)),
         nulls: [
             "duration_ms", "transcribe_ms", "raw_text", "normalized_text", "action_type", "exit_code", "model_tier",
-            "llm_model", "llm_ms",
+            "llm_model", "llm_ms", "context",
         ]),
     .init(
         name: "model missing",
@@ -58,7 +58,7 @@ let outcomeCases: [OutcomeCase] = [
             context: F.context(capture: F.speech), transcript: nil, outcome: .failed(.modelMissing(.small))),
         nulls: [
             "transcribe_ms", "raw_text", "normalized_text", "action_type", "exit_code", "model_tier", "llm_model",
-            "llm_ms",
+            "llm_ms", "context",
         ]),
     .init(
         name: "a decode that failed",
@@ -66,7 +66,7 @@ let outcomeCases: [OutcomeCase] = [
             context: F.context(capture: F.speech), transcript: nil, outcome: .failed(.transcription(code: -6))),
         nulls: [
             "transcribe_ms", "raw_text", "normalized_text", "action_type", "exit_code", "model_tier", "llm_model",
-            "llm_ms",
+            "llm_ms", "context",
         ]),
     .init(
         name: "secure input hides the text",
@@ -75,25 +75,25 @@ let outcomeCases: [OutcomeCase] = [
                 focus: FocusSnapshot(app: F.mail, isSecureInput: true), capture: F.speech, transcribeMs: 400),
             transcript: Transcript(raw: "hunter2", normalized: "hunter2", tier: .small),
             outcome: .textClipboard(.chosen)),
-        nulls: ["raw_text", "normalized_text", "action_type", "exit_code", "error", "llm_model", "llm_ms"]),
+        nulls: ["raw_text", "normalized_text", "action_type", "exit_code", "error", "llm_model", "llm_ms", "context"]),
     .init(
         name: "an ask copied",
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 380, intent: F.ask, llmModel: F.bonsai, llmMs: 3_420),
             transcript: Transcript(raw: "Résume ce texte.", tier: .small), outcome: .textClipboard(.chosen)),
-        nulls: ["normalized_text", "exit_code", "error"]),
+        nulls: ["normalized_text", "exit_code", "error", "context"]),
     .init(
         name: "an ask replaced",
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 380, intent: F.ask, llmModel: F.bonsai, llmMs: 2_610),
             transcript: Transcript(raw: "Traduis en anglais.", tier: .small), outcome: .textInserted),
-        nulls: ["normalized_text", "exit_code", "error"]),
+        nulls: ["normalized_text", "exit_code", "error", "context"]),
     .init(
         name: "an ask whose server was down",
         record: UtteranceRecord(
             context: F.context(capture: F.speech, transcribeMs: 380, intent: F.ask),
             transcript: Transcript(raw: "Résume ce texte.", tier: .small), outcome: .failed(.llmUnreachable)),
-        nulls: ["normalized_text", "exit_code", "llm_model", "llm_ms"]),
+        nulls: ["normalized_text", "exit_code", "llm_model", "llm_ms", "context"]),
     .init(
         name: "an ask on an empty selection",
         record: UtteranceRecord(
@@ -101,7 +101,7 @@ let outcomeCases: [OutcomeCase] = [
             outcome: .discarded(.emptySelection)),
         nulls: [
             "duration_ms", "transcribe_ms", "raw_text", "normalized_text", "exit_code", "model_tier", "llm_model",
-            "llm_ms",
+            "llm_ms", "context",
         ]),
 ]
 
@@ -120,7 +120,7 @@ let outcomeCases: [OutcomeCase] = [
                 == #"{"ts":"2026-09-18T14:03:12.345+02:00","duration_ms":1800,"transcribe_ms":420,"#
                 + #""raw_text":"Open Finder.","normalized_text":"open finder","resolution":"command","#
                 + #""target_app":"com.apple.mail","action_type":"open_app","exit_code":0,"error":null,"#
-                + #""model_tier":"small","llm_model":null,"llm_ms":null}"#)
+                + #""model_tier":"small","llm_model":null,"llm_ms":null,"context":null}"#)
     }
 
     @Test func goldenAskLine() {
@@ -132,21 +132,22 @@ let outcomeCases: [OutcomeCase] = [
                 == #"{"ts":"2026-09-18T14:03:12.345+02:00","duration_ms":1800,"transcribe_ms":380,"#
                 + #""raw_text":"Résume ce texte.","normalized_text":null,"resolution":"text_clipboard","#
                 + #""target_app":"com.apple.mail","action_type":"ask","exit_code":null,"error":null,"#
-                + #""model_tier":"small","llm_model":"mtplx-bonsai-2-27b-optimized-speed","llm_ms":3420}"#)
+                + #""model_tier":"small","llm_model":"mtplx-bonsai-2-27b-optimized-speed","llm_ms":3420,"context":null}"#
+        )
     }
 
     @Test(arguments: outcomeCases)
-    func exactlyThirteenKeysInOrderWithNulls(_ outcome: OutcomeCase) throws {
+    func exactlyFourteenKeysInOrderWithNulls(_ outcome: OutcomeCase) throws {
         let line = outcome.record.jsonLine(timeZone: F.paris)
         let object = try decode(line)
         #expect(Set(object.keys) == Set(UtteranceRecord.keys))
-        #expect(object.count == 13)
+        #expect(object.count == 14)
         #expect(
-            Array(UtteranceRecord.keys.suffix(3)) == ["model_tier", "llm_model", "llm_ms"],
-            "appended, so a reader of the first eleven is unaffected")
+            Array(UtteranceRecord.keys.suffix(4)) == ["model_tier", "llm_model", "llm_ms", "context"],
+            "appended, so a reader of the first ten is unaffected")
 
         let offsets = UtteranceRecord.keys.compactMap { line.range(of: "\"\($0)\":")?.lowerBound }
-        #expect(offsets.count == 13 && offsets == offsets.sorted(), "keys are written in contract order")
+        #expect(offsets.count == 14 && offsets == offsets.sorted(), "keys are written in contract order")
 
         let nulls = Set(object.filter { $0.value is NSNull }.map(\.key))
         #expect(nulls == outcome.nulls)
@@ -300,7 +301,7 @@ let llmKeysCases: [LLMKeysCase] = [
             context: scenario.context, transcript: Transcript(raw: "hi", tier: .small), outcome: scenario.outcome)
         let object = try #require(
             JSONSerialization.jsonObject(with: Data(record.jsonLine(timeZone: F.paris).utf8)) as? [String: Any])
-        #expect(object.count == 13)
+        #expect(object.count == 14)
         #expect(object["action_type"] as? String == scenario.actionType)
         #expect(object["llm_model"] as? String == scenario.llmModel)
         #expect(object["llm_ms"] as? Int == scenario.llmMs)

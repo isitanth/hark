@@ -61,6 +61,12 @@ public enum PipelineFailure: Error, Sendable, Equatable {
     /// Before Replace, the calling app was no longer in front or its selection was no longer the one asked about.
     /// The suggestion goes to the clipboard.
     case selectionChanged
+    /// The ask carried a framed region and the model cannot read images.
+    case llmNoVision
+    /// A region was framed and Hark has no Screen Recording grant.
+    case screenRecordingDenied
+    /// A region was framed and its capture failed.
+    case regionFailed
 
     /// Failures that only the microphone side can raise. Once an utterance's audio is in, a late one is stale.
     public var isCaptureFailure: Bool {
@@ -101,6 +107,9 @@ public enum PipelineFailure: Error, Sendable, Equatable {
         case .llmError(nil): "llm_error"
         case .llmEmpty: "llm_empty"
         case .selectionChanged: "selection_changed"
+        case .llmNoVision: "llm_no_vision"
+        case .screenRecordingDenied: "screen_recording_denied"
+        case .regionFailed: "region_failed"
         }
     }
 }

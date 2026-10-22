@@ -8,6 +8,14 @@ import os
 /// `AskPresentation`'s; this keeps the text, opens and closes the panel, and sends the buttons to the controller.
 ///
 /// Every close brings the caller back, whatever ended the ask: a Services call left Hark in front.
+/// Why framing a region cannot work during an ask.
+enum FramingBlock: Equatable {
+    /// Hark has no Screen Recording grant yet.
+    case noScreenRecording
+    /// The active model is known not to read images.
+    case modelCannotSee
+}
+
 @Observable
 final class AskPanelModel {
     private(set) var state = AskPanelState.closed
@@ -31,6 +39,20 @@ final class AskPanelModel {
     var maxAnswerHeight: CGFloat = 480
     /// What the pre-flight found wrong with the server, shown while the user is still speaking.
     private(set) var preflightFailure: LLMFailure?
+    /// The framed region's thumbnail, made in memory from the captured image; nil without a region.
+    private(set) var regionThumbnail: CGImage?
+    /// The framed region's size in pixels, as it goes to the model.
+    private(set) var regionPixelSize: CGSize?
+    /// An image ask's restatement of what the user is after: the reply's `%%` line, apart from the answer.
+    private(set) var intent: String?
+    /// ⌃⌥ are held during the ask's capture: the overlay takes the mouse and the panel steps back.
+    private(set) var isFraming = false
+    /// Framing cannot work during this ask, and why: the dot shows a slash and the panel says so.
+    private(set) var framingBlocked: FramingBlock?
+    /// Whether the active model reads images, from the models list or what an ask learned; nil when unknown.
+    private(set) var visionVerdict: Bool?
+    /// Replace is offered: never after an ask that carried a region, which has no text to replace.
+    private(set) var allowsReplace = true
     /// Set by `AppModel`: `GET /models` on the active profile, run when an ask opens.
     @ObservationIgnored var preflight: (() async -> LLMProbeResult?)?
 
@@ -204,10 +226,14 @@ final class AskPanelModel {
 extension AskPanelModel {
     /// `-HarkDebugPreview ask`, `ask-listening`, `ask-thinking`, `ask-streaming` or `ask-error`, plus `ask-remote`: the
     /// panel pinned in one state with sample text in the preview's language, for screenshots. Esc closes it.
-    /// `assistant`, `assistant-nofield` and `assistant-listening` are the Ask key with nothing selected.
+    /// `assistant`, `assistant-nofield` and `assistant-listening` are the Ask key with nothing selected. Visual
+    /// Context: `ask-region` (listening with a framed region), `ask-intent` (an image ask's answer under its
+    /// restatement), `ask-novision`, `ask-novision-mtp` (a model that cannot read the image) and `ask-permission`
+    /// (framing blocked by Screen Recording).
     func showPreview(_ names: Set<String>) {
         let french = Locale.preferredLanguages.first?.hasPrefix("fr") == true
         let assistant = names.contains { $0.hasPrefix("assistant") }
+        if showRegionPreview(names, french: french) { return }
         let pinnedState: AskPanelState? =
             if names.contains("ask-listening") || names.contains("assistant-listening") {
                 .listening
@@ -243,6 +269,91 @@ extension AskPanelModel {
     private func closePreview() {
         panel.dismiss()
         state = .closed
+    }
+
+    /// The Visual Context pins: an ask about the invoices of the M11 plan, framed rather than selected.
+    private func showRegionPreview(_ names: Set<String>, french: Bool) -> Bool {
+        let model = "mtplx-bonsai-2-27b-optimized-speed"
+        let pinnedState: AskPanelState
+        if names.contains("ask-region") || names.contains("ask-permission") {
+            pinnedState = .listening
+        } else if names.contains("ask-intent") {
+            pinnedState = .reviewing
+        } else if names.contains("ask-novision") {
+            pinnedState = .failed(.noVision(model: model, reason: .noVision))
+        } else if names.contains("ask-novision-mtp") {
+            pinnedState = .failed(.noVision(model: model, reason: .needsMTPMode))
+        } else {
+            return false
+        }
+        pinned = true
+        let sample = RegionPreviewSample(french: french)
+        quote = ""
+        apply = .insert
+        allowsReplace = false
+        instruction = pinnedState == .listening ? nil : sample.instruction
+        if names.contains("ask-permission") {
+            framingBlocked = .noScreenRecording
+        } else {
+            regionThumbnail = RegionPreviewSample.thumbnail()
+            regionPixelSize = CGSize(width: 1400, height: 1200)
+            visionVerdict = !names.contains { $0.hasPrefix("ask-novision") }
+        }
+        if pinnedState == .reviewing {
+            intent = sample.intent
+            streamed = sample.answer
+            answer = sample.answer
+        }
+        if server.isEmpty { server = "127.0.0.1:8002" }
+        state = pinnedState
+        panel.open(at: rememberedTopLeft)
+        return true
+    }
+}
+
+/// The Visual Context preview's sample: the invoices of the M11 plan, sample text, not catalog strings.
+private struct RegionPreviewSample {
+    let instruction: String
+    let intent: String
+    let answer: String
+
+    init(french: Bool) {
+        if french {
+            instruction = "Additionne toutes les factures de cette année, combien j'ai vraiment payé ?"
+            intent = "Tu veux le net payé en 2026 : factures moins avoirs, la facture de janvier remboursée exclue."
+            answer =
+                "802,42 € payés en 2026.\n\n- Factures payées : 1 072,66 €\n- Avoirs : −270,24 €\n"
+                + "- Facture du 6 janvier (108,90 €) remboursée, non comptée"
+        } else {
+            instruction = "Add up all of this year's invoices: how much did I really pay?"
+            intent = "You want the net paid in 2026: invoices minus credits, the refunded January invoice left out."
+            answer =
+                "€802.42 paid in 2026.\n\n- Paid invoices: €1,072.66\n- Credits: −€270.24\n"
+                + "- The January 6 invoice (€108.90) was refunded and is not counted"
+        }
+    }
+
+    /// A table drawn in code: white rows and grey rules, at the chip's aspect.
+    static func thumbnail() -> CGImage? {
+        let width = 280
+        let height = 240
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+            let context = CGContext(
+                data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return nil }
+        context.setFillColor(CGColor(gray: 1, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        context.setFillColor(CGColor(gray: 0.82, alpha: 1))
+        for row in stride(from: 16, to: height, by: 18) {
+            context.fill(CGRect(x: 12, y: row, width: width - 24, height: 1))
+        }
+        context.setFillColor(CGColor(gray: 0.35, alpha: 1))
+        for row in stride(from: 22, to: height - 18, by: 18) {
+            context.fill(CGRect(x: 14, y: row, width: 54, height: 6))
+            context.fill(CGRect(x: 150, y: row, width: 40, height: 6))
+        }
+        return context.makeImage()
     }
 }
 

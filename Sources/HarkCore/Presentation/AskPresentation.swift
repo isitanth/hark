@@ -6,12 +6,16 @@ public enum AskPanelState: Sendable, Equatable {
     case closed
     case listening
     case transcribing
+    /// The instruction is heard; a drag is still open and the request waits for the framed region.
+    case awaitingRegion
     /// The request is out and no word has come yet.
     case thinking
     case streaming
     /// The answer is complete and editable.
     case reviewing
     case failed(LLMFailure)
+    /// The framed region did not become an image.
+    case regionFailed(RegionFailure)
 }
 
 /// What the reviewed answer can do besides Copy.
@@ -39,9 +43,11 @@ public enum AskPresentation {
             return .transcribing
         case .asking:
             switch snapshot.ask?.stage {
+            case .awaitingRegion?: return .awaitingRegion
             case .generating?: return streamed ? .streaming : .thinking
             case .reviewing?: return .reviewing
             case .failed(let failure)?: return .failed(failure)
+            case .regionFailed(let failure)?: return .regionFailed(failure)
             case .replacing?, nil: return .closed
             }
         case .idle, .resolving, .confirming, .acting, .inserting, .copying:

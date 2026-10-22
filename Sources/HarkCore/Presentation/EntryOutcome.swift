@@ -73,6 +73,12 @@ public enum EntryOutcome: Sendable, Equatable {
         case llmError(status: Int?)
         /// An ask: the answer had no text in it.
         case llmEmpty
+        /// An ask with a framed region: the model cannot read images.
+        case llmNoVision
+        /// An ask with a framed region: Hark has no Screen Recording grant.
+        case screenRecordingDenied
+        /// An ask with a framed region: its capture failed.
+        case regionFailed
         /// A code this build does not know, or none.
         case other(String?)
     }

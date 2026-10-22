@@ -34,6 +34,12 @@ public struct UtteranceContext: Sendable, Equatable {
     /// What an ask's Copy or Replace applies: the suggestion as the user left it in the popup. Never logged; nil for
     /// dictation, where the transcript is the text.
     public var answer: String?
+    /// The region framed during an ask, once captured: its summary only, never its pixels.
+    public var region: RegionSummary?
+    /// A drag began and its capture has not arrived yet: the request waits for it.
+    public var regionPending = false
+    /// A framed region that did not become an image: the ask fails with it once the instruction is heard.
+    public var regionFailure: RegionFailure?
 
     public init(id: UtteranceID, pressedAt: Date, intent: CaptureIntent = .dictate) {
         self.id = id
@@ -49,12 +55,17 @@ public enum ConfirmationStage: Sendable, Equatable {
 
 /// Where an ask is after its instruction was heard.
 public enum AskStage: Sendable, Equatable {
+    /// The instruction is heard and a drag is still open: the request waits for the framed region.
+    case awaitingRegion
     /// The request is out and the answer streams into the popup, outside the reducer.
     case generating
     /// The answer is complete and waits for Copy, Replace or Cancel.
     case reviewing
     /// The server failed. The popup offers Retry; Cancel ends the ask with this failure on its line.
     case failed(LLMFailure)
+    /// The framed region did not become an image. The popup offers to ask without it; Cancel ends the ask with this
+    /// failure on its line.
+    case regionFailed(RegionFailure)
     /// Replace was chosen: the caller is being brought back and its selection checked before anything is written.
     case replacing
 }

@@ -44,6 +44,13 @@ public enum PipelineEvent: Sendable, Equatable {
     /// Replace in the popup: `text` goes in place of the selection, once it is checked.
     case askReplace(UtteranceID, String)
     case selectionChecked(UtteranceID, SelectionCheck)
+    /// During an ask: a drag began on the region overlay. The request waits for its capture.
+    case regionStarted(UtteranceID)
+    /// The framed region was captured; its pixels went to the controller's private slot.
+    case regionCaptured(UtteranceID, RegionSummary)
+    case regionFailed(UtteranceID, RegionFailure)
+    /// The chip's ×: the region is no longer part of the ask.
+    case regionRemoved(UtteranceID)
 
     public var utteranceID: UtteranceID? {
         switch self {
@@ -52,7 +59,8 @@ public enum PipelineEvent: Sendable, Equatable {
             .resolved(let id, _, _), .confirmed(let id, _), .focusRestored(let id, _), .actionFinished(let id, _),
             .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _),
             .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _), .askReplace(let id, _),
-            .selectionChecked(let id, _):
+            .selectionChecked(let id, _), .regionStarted(let id), .regionCaptured(let id, _),
+            .regionFailed(let id, _), .regionRemoved(let id):
             id
         case .triggerUp, .cancel:
             nil

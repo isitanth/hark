@@ -136,6 +136,22 @@ public actor PipelineController {
         send(.askReplace(id, text))
     }
 
+    /// The region overlay's mouse-down during an ask: a drag began, and the request waits for its capture.
+    public func regionStarted(for id: UtteranceID) {}
+
+    /// The framed region's image, for `id` only: the app's one door for pixels. They stay in a private slot, never in
+    /// the state or a snapshot, and are freed on every path to idle.
+    public func attachRegion(_ image: ImagePart, summary: RegionSummary, for id: UtteranceID) {}
+
+    /// The framed region did not become an image.
+    public func regionFailed(_ failure: RegionFailure, for id: UtteranceID) {}
+
+    /// The chip's ×: the ask goes on without the region.
+    public func removeRegion(for id: UtteranceID) {}
+
+    /// Ask without the image, after a failure: the same instruction and selection, sent again without the frame.
+    public func retryAskWithoutRegion(_ id: UtteranceID) {}
+
     public var phase: PipelinePhase { state.phase }
 
     /// What the capture under way is for; nil when nothing is being captured. The talk key reads it to end an ask's
@@ -277,10 +293,10 @@ public actor PipelineController {
                 send(copied ? .copied(id) : .failed(id, .pasteboardWrite))
             }
 
-        case .generate(let id, let instruction, let selection):
+        case .generate(let id, let instruction, let selection, _):
             generation?.cancel()
             askContinuation.yield(AskUpdate(id: id, text: ""))
-            let events = env.asker.generate(instruction: instruction, selection: selection?.text)
+            let events = env.asker.generate(instruction: instruction, selection: selection?.text, image: nil)
             generation = Task {
                 var text = ""
                 for await event in events {

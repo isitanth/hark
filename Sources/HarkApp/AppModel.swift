@@ -660,7 +660,7 @@ final class AppModel {
             if let model = snapshot.utterance?.llmModel { ask.record(.connected(model: model)) }
         case .failed(let failure):
             ask.record(.failed(failure))
-        case .generating, .replacing:
+        case .awaitingRegion, .generating, .replacing, .regionFailed:
             break
         }
     }

@@ -1,8 +1,8 @@
 import Foundation
 import os
 
-/// One line of the utterance log, read back. The same thirteen keys as `UtteranceRecord`, decoded rather than built.
-/// A line written before `model_tier`, or before `llm_model` and `llm_ms`, reads with them nil.
+/// One line of the utterance log, read back. The same fourteen keys as `UtteranceRecord`, decoded rather than built.
+/// A line written before `model_tier`, before `llm_model` and `llm_ms`, or before `context`, reads with them nil.
 public struct LogEntry: Sendable, Equatable, Identifiable {
     /// `<file name>:<line number>` for a line read from disk, `live:<ts>` for one built from a record in memory.
     public let id: String
@@ -197,6 +197,7 @@ private struct LogLine: Decodable {
     let modelTier: String?
     let llmModel: String?
     let llmMs: Int?
+    let context: String?
 
     private enum CodingKeys: String, CodingKey {
         case timestamp = "ts"
@@ -212,6 +213,7 @@ private struct LogLine: Decodable {
         case modelTier = "model_tier"
         case llmModel = "llm_model"
         case llmMs = "llm_ms"
+        case context
     }
 
     init(from decoder: any Decoder) throws {
@@ -235,6 +237,7 @@ private struct LogLine: Decodable {
         modelTier = try? container.decodeIfPresent(String.self, forKey: .modelTier)
         llmModel = try? container.decodeIfPresent(String.self, forKey: .llmModel)
         llmMs = try? container.decodeIfPresent(Int.self, forKey: .llmMs)
+        context = try? container.decodeIfPresent(String.self, forKey: .context)
     }
 
     func entry(id: String) -> LogEntry {

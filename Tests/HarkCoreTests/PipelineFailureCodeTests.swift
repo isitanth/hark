@@ -12,6 +12,9 @@ import Testing
         (.llmError(status: nil), "llm_error"),
         (.llmEmpty, "llm_empty"),
         (.selectionChanged, "selection_changed"),
+        (.llmNoVision, "llm_no_vision"),
+        (.screenRecordingDenied, "screen_recording_denied"),
+        (.regionFailed, "region_failed"),
     ]
 
     @Test(arguments: askCodes)
@@ -23,6 +26,16 @@ import Testing
     @Test func theEmptySelectionDiscard() {
         #expect(DiscardReason.emptySelection.rawValue == "empty_selection")
         #expect(DiscardReason(rawValue: "empty_selection") == .emptySelection)
+    }
+
+    /// A model without eyes is its own code, whatever told Hark so; a region that did not become an image keeps its
+    /// cause.
+    @Test func theVisualContextFailures() {
+        for reason in [VisionRefusal.noVision, .needsMTPMode, .knownBeforeSending] {
+            #expect(LLMFailure.noVision(model: "bonsai", reason: reason).pipelineFailure == .llmNoVision)
+        }
+        #expect(RegionFailure.screenRecordingDenied.pipelineFailure.code == "screen_recording_denied")
+        #expect(RegionFailure.captureFailed.pipelineFailure.code == "region_failed")
     }
 
     /// Every discard reason has its own code, so a line never reads back as another reason.

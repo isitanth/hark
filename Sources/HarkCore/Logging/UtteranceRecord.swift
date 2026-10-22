@@ -1,12 +1,12 @@
 import Foundation
 
-/// One line of the utterance log. The field set is the contract in the project rules: exactly these thirteen keys,
+/// One line of the utterance log. The field set is the contract in the project rules: exactly these fourteen keys,
 /// in this order, with nil written as `null`.
 public struct UtteranceRecord: Sendable, Equatable {
     public static let keys = [
         "ts", "duration_ms", "transcribe_ms", "raw_text", "normalized_text",
         "resolution", "target_app", "action_type", "exit_code", "error", "model_tier",
-        "llm_model", "llm_ms",
+        "llm_model", "llm_ms", "context",
     ]
 
     /// Key-down time. Written as `ts`, and picks the day file.
@@ -26,6 +26,9 @@ public struct UtteranceRecord: Sendable, Equatable {
     /// The model id that answered an ask, and the time from its request to the last token. Nil with no LLM call.
     public let llmModel: String?
     public let llmMs: Int?
+    /// The kinds of context an ask sent with its instruction: `selection`, `region` or `selection+region`. Nil for
+    /// dictation, a command, and an ask with neither. Never the context itself.
+    public let context: String?
 
     public init(context: UtteranceContext, transcript: Transcript?, outcome: PipelineOutcome) {
         timestamp = context.pressedAt
@@ -52,6 +55,7 @@ public struct UtteranceRecord: Sendable, Equatable {
         modelTier = transcript?.tier
         llmModel = context.llmModel
         llmMs = context.llmMs
+        self.context = nil
 
         // A capture cut at the length limit is something that went wrong, and the one thing that can go wrong on a
         // line whose text went through: `command` and `text_inserted` carry it. A clipboard reason, a discard or a
@@ -92,6 +96,7 @@ public struct UtteranceRecord: Sendable, Equatable {
             .string(modelTier?.rawValue),
             .string(llmModel),
             .int(llmMs.map(Int64.init)),
+            .string(context),
         ]
         let fields = zip(Self.keys, values).map { "\"\($0)\":\($1.encoded)" }
         return "{" + fields.joined(separator: ",") + "}"

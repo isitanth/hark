@@ -44,6 +44,7 @@ extension LLMFailure {
         case .empty: L("ask.failure.empty")
         case .refused: L("ask.failure.refused")
         case .notRunning, .unreachable, .keyRefused, .noKey: L("ask.failure.noAnswer")
+        case .noVision: L("ask.failure.streamError")
         }
     }
 }

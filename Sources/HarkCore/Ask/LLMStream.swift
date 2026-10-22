@@ -9,11 +9,34 @@ public struct ChatMessage: Sendable, Equatable {
     }
 
     public var role: Role
-    public var content: String
+    /// Text, and from M11 the image of a framed region.
+    public var parts: [ContentPart]
 
+    /// A message of text alone, as every message was before M11.
     public init(role: Role, content: String) {
         self.role = role
-        self.content = content
+        self.parts = [.text(content)]
+    }
+
+    public init(role: Role, parts: [ContentPart]) {
+        self.role = role
+        self.parts = parts
+    }
+
+    /// The text parts, joined: the whole message when it holds no image.
+    public var content: String {
+        parts.compactMap {
+            guard case .text(let text) = $0 else { return nil }
+            return text
+        }.joined()
+    }
+
+    /// Whether any part is an image.
+    public var hasImage: Bool {
+        parts.contains {
+            guard case .image = $0 else { return false }
+            return true
+        }
     }
 }
 
@@ -69,6 +92,9 @@ public enum LLMFailure: Error, Sendable, Equatable {
     case empty
     /// Claude's safety filters declined the request, and no fallback model answered it.
     case refused
+    /// The model cannot read the image the ask carried: the server said so, or it was known before sending. `model`
+    /// is the id asked for, when known.
+    case noVision(model: String?, reason: VisionRefusal)
 
     /// The log's code for it.
     public var pipelineFailure: PipelineFailure {
@@ -79,8 +105,19 @@ public enum LLMFailure: Error, Sendable, Equatable {
         case .server(let status, _): .llmError(status: status)
         case .refused: .llmError(status: nil)
         case .empty: .llmEmpty
+        case .noVision: .llmNoVision
         }
     }
+}
+
+/// How Hark knows a model cannot read an image: each has its own words in the panel.
+public enum VisionRefusal: Sendable, Equatable {
+    /// The server refused the image in words Hark recognizes: the model has no vision.
+    case noVision
+    /// MTPLX in AR mode, which takes no image: the server must restart in MTP mode.
+    case needsMTPMode
+    /// The models list, or an earlier refusal, said so: nothing was sent.
+    case knownBeforeSending
 }
 
 /// The client's three limits, measured in M8.0: a live server accepts in under 5 ms and sends its head at once, even

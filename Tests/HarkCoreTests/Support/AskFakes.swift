@@ -7,6 +7,7 @@ import os
 final class ScriptedAsker: AskGenerating {
     private struct State {
         var requests: [(instruction: String, selection: String?)] = []
+        var images: [ImagePart?] = []
         var closedByConsumer = 0
     }
 
@@ -20,10 +21,15 @@ final class ScriptedAsker: AskGenerating {
     }
 
     var requests: [(instruction: String, selection: String?)] { state.withLock { $0.requests } }
+    /// The image each request carried, in order: nil for one without a framed region.
+    var images: [ImagePart?] { state.withLock { $0.images } }
     var closedByConsumer: Int { state.withLock { $0.closedByConsumer } }
 
-    func generate(instruction: String, selection: String?) -> AsyncStream<LLMEvent> {
-        state.withLock { $0.requests.append((instruction, selection)) }
+    func generate(instruction: String, selection: String?, image: ImagePart?) -> AsyncStream<LLMEvent> {
+        state.withLock {
+            $0.requests.append((instruction, selection))
+            $0.images.append(image)
+        }
         return AsyncStream { continuation in
             continuation.onTermination = { [state] reason in
                 if case .cancelled = reason { state.withLock { $0.closedByConsumer += 1 } }
