@@ -241,7 +241,9 @@ public actor LLMClient {
         body["messages"] = messages.map { ["role": $0.role.rawValue, "content": openAIContent($0)] }
         body["stream"] = true
         body["max_tokens"] = profile.maxTokens
-        body["temperature"] = profile.temperature
+        // An image ask samples nothing: the same frame gets the same answer, so a wrong figure stays wrong where the
+        // user can see it rather than changing with every try (the M11 live check on the invoices, at 0.3).
+        body["temperature"] = messages.contains(where: \.hasImage) ? 0 : profile.temperature
         body["response_format"] = nil
         body["stream_options"] = nil
         return body

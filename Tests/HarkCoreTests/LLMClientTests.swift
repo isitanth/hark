@@ -202,6 +202,15 @@ let baseURLCases: [BaseURLCase] = [.init(base: "http://127.0.0.1:8002/v1"), .ini
         #expect(parts[1]["type"] as? String == "text" && parts[1]["text"] as? String == "Combien ?")
     }
 
+    /// The same frame gets the same answer: an image ask goes at temperature 0, a text ask at the profile's.
+    @Test func anImageAskSamplesNothing() async throws {
+        let image = [ChatMessage(role: .user, parts: [.image(Self.png), .text("Combien ?")])]
+        #expect(try await body(image, profile: H.profile)["temperature"] as? Double == 0)
+        let text = [ChatMessage(role: .user, content: "Combien ?")]
+        #expect(
+            try await body(text, profile: H.profile)["temperature"] as? Double == ProviderProfile.defaultTemperature)
+    }
+
     @Test func textAloneIsByteForByteTheStringItWas() async throws {
         let text = [ChatMessage(role: .user, content: "Bonjour")]
         let parts = [ChatMessage(role: .user, parts: [.text("Bonjour")])]
