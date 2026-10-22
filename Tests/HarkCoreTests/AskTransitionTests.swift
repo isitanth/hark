@@ -457,3 +457,54 @@ let illegalRegionTransitions: [IllegalTransition] = [
         #expect(fromDenied.state.ask?.stage == .generating)
     }
 }
+
+extension RegionTransitionTests {
+    private func line(_ events: [PipelineEvent]) throws -> UtteranceRecord? {
+        var state = PipelineState.idle
+        var records: [UtteranceRecord] = []
+        for event in events {
+            guard case .success(let transition) = reducer.reduce(state, event) else { continue }
+            state = transition.state
+            records += transition.effects.compactMap(\.record)
+        }
+        #expect(records.count == 1)
+        return records.first
+    }
+
+    private static func ask(_ intent: CaptureIntent, framed: Bool, withoutIt: Bool = false) -> [PipelineEvent] {
+        let id = F.id
+        var events: [PipelineEvent] = [.triggerDown(id, at: at, intent: intent)]
+        if framed { events += [.regionStarted(id), .regionCaptured(id, F.region)] }
+        events += [.triggerUp(at: at), .captured(id, F.speech), .transcribed(id, F.instruction, ms: 380)]
+        if withoutIt {
+            events += [
+                .generationFailed(id, .noVision(model: F.bonsai, reason: .noVision), LLMCallSummary(ms: 40)),
+                .askRetryWithoutRegion(id),
+            ]
+        }
+        return events + [.generated(id, done), .askCopy(id, F.answer), .copied(id)]
+    }
+
+    /// `context` names the kinds the last request carried: the selection when there was one, the frame when it went.
+    @Test(
+        arguments: [
+            ("an ask about a selection", ask(F.ask, framed: false), "selection"),
+            ("an ask about a selection, framed", ask(F.ask, framed: true), "selection+region"),
+            ("the assistant, framed", ask(F.assist, framed: true), "region"),
+            ("the assistant alone", ask(F.assist, framed: false), nil),
+            ("framed, then asked without it", ask(F.ask, framed: true, withoutIt: true), "selection"),
+            (
+                "a dictation",
+                [
+                    .triggerDown(F.id, at: at), .focusCaptured(F.id, F.focus), .triggerUp(at: at),
+                    .captured(F.id, F.speech), .transcribed(F.id, F.transcript, ms: 300),
+                    .resolved(F.id, normalized: "open finder", .command(F.finder)), .actionFinished(F.id, exit: 0),
+                ], nil
+            ),
+            ("an ask cancelled before its request", [.triggerDown(F.id, at: at, intent: F.ask), .cancel], nil),
+        ] as [(String, [PipelineEvent], String?)])
+    func theLineNamesTheContextSent(_ name: String, _ events: [PipelineEvent], _ kinds: String?) throws {
+        let record = try #require(try line(events), "\(name)")
+        #expect(record.context == kinds, "\(name)")
+    }
+}

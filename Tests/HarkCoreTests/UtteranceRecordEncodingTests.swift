@@ -153,6 +153,19 @@ let outcomeCases: [OutcomeCase] = [
         #expect(nulls == outcome.nulls)
     }
 
+    /// The kinds of context the request carried, never the context itself.
+    @Test(arguments: [nil, "selection", "region", "selection+region"])
+    func theContextKeyNamesTheKindsSent(_ kinds: String?) throws {
+        var context = F.context(capture: F.speech, transcribeMs: 380, intent: F.ask, llmModel: F.bonsai, llmMs: 3_420)
+        context.sentContext = kinds
+        let record = UtteranceRecord(
+            context: context, transcript: Transcript(raw: "Résume ce texte.", tier: .small),
+            outcome: .textClipboard(.chosen))
+        let line = record.jsonLine(timeZone: F.paris)
+        #expect(line.hasSuffix(kinds.map { #""context":"\#($0)"}"# } ?? #""context":null}"#))
+        #expect(try decode(line)["context"] as? String == kinds)
+    }
+
     @Test func busyPressFields() throws {
         let record = try #require(outcomeCases.first { $0.name == "busy press" }?.record)
         let object = try decode(record.jsonLine(timeZone: F.paris))

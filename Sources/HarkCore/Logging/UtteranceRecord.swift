@@ -55,7 +55,7 @@ public struct UtteranceRecord: Sendable, Equatable {
         modelTier = transcript?.tier
         llmModel = context.llmModel
         llmMs = context.llmMs
-        self.context = nil
+        self.context = context.sentContext
 
         // A capture cut at the length limit is something that went wrong, and the one thing that can go wrong on a
         // line whose text went through: `command` and `text_inserted` carry it. A clipboard reason, a discard or a

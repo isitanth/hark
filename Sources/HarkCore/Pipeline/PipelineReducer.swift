@@ -99,7 +99,8 @@ public struct PipelineReducer: Sendable {
                 if let failure = context.regionFailure {
                     return move(.asking(context, instruction, .regionFailed(failure)))
                 }
-                return move(.asking(context, instruction, .generating), [generate(context, instruction)])
+                let request = generate(&context, instruction)
+                return move(.asking(context, instruction, .generating), [request])
             }
             // Where the text goes, and whether it is a secret the log and the clipboard must not show, both come from
             // the focus. The probe always answers, within its AX timeouts, so a slow one is waited for.
@@ -144,7 +145,8 @@ public struct PipelineReducer: Sendable {
                     context.intent = .assist(caller: context.focus?.app)
                 }
                 context.request = request
-                return move(.asking(context, transcript, .generating), [generate(context, transcript)])
+                let request = generate(&context, transcript)
+                return move(.asking(context, transcript, .generating), [request])
             }
 
         case (.confirming(let context, let transcript, let command, .awaitingAnswer), .confirmed(_, let accepted)):
@@ -200,18 +202,20 @@ public struct PipelineReducer: Sendable {
             (.asking(let context, let transcript, .awaitingRegion), .regionCaptured),
             (.asking(let context, let transcript, .awaitingRegion), .regionFailed),
             (.asking(let context, let transcript, .awaitingRegion), .regionRemoved):
-            guard let context = region(context, event) else { return reject(state, event) }
+            guard var context = region(context, event) else { return reject(state, event) }
             if context.regionPending { return move(.asking(context, transcript, .awaitingRegion)) }
             if let failure = context.regionFailure {
                 return move(.asking(context, transcript, .regionFailed(failure)))
             }
-            return move(.asking(context, transcript, .generating), [generate(context, transcript)])
+            let request = generate(&context, transcript)
+            return move(.asking(context, transcript, .generating), [request])
 
         // The failed call's numbers go: the line reports the call that ended the ask. The frame stays.
         case (.asking(var context, let transcript, .failed), .askRetry):
             context.llmModel = nil
             context.llmMs = nil
-            return move(.asking(context, transcript, .generating), [generate(context, transcript)])
+            let request = generate(&context, transcript)
+            return move(.asking(context, transcript, .generating), [request])
 
         // Ask without the image: after a server failure (one that cannot read images) or a frame that failed.
         case (.asking(var context, let transcript, .failed), .askRetryWithoutRegion),
@@ -220,7 +224,8 @@ public struct PipelineReducer: Sendable {
             context.llmMs = nil
             context.region = nil
             context.regionFailure = nil
-            return move(.asking(context, transcript, .generating), [generate(context, transcript)])
+            let request = generate(&context, transcript)
+            return move(.asking(context, transcript, .generating), [request])
 
         // The user chose the clipboard: `chosen`, so the line's error is null.
         case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):
@@ -302,9 +307,13 @@ public struct PipelineReducer: Sendable {
         }
     }
 
-    /// The request: what followed a spoken prefix, or the transcript; the image when a frame was captured.
-    private func generate(_ context: UtteranceContext, _ transcript: Transcript) -> PipelineEffect {
-        .generate(
+    /// The request: what followed a spoken prefix, or the transcript; the image when a frame was captured. The context
+    /// remembers the kinds it carried, for the line.
+    private func generate(_ context: inout UtteranceContext, _ transcript: Transcript) -> PipelineEffect {
+        let selection = context.intent.selection.flatMap { $0.isBlank ? nil : $0 }
+        let kinds = [selection.map { _ in "selection" }, context.region.map { _ in "region" }].compactMap(\.self)
+        context.sentContext = kinds.isEmpty ? nil : kinds.joined(separator: "+")
+        return .generate(
             context.id, instruction: context.request ?? transcript.raw, selection: context.intent.selection,
             hasRegion: context.region != nil)
     }

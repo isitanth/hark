@@ -40,6 +40,9 @@ public struct UtteranceContext: Sendable, Equatable {
     public var regionPending = false
     /// A framed region that did not become an image: the ask fails with it once the instruction is heard.
     public var regionFailure: RegionFailure?
+    /// The kinds of context the last request carried, as the log names them: `selection`, `region` or
+    /// `selection+region`. Nil until a request leaves, and for one with the instruction alone.
+    public var sentContext: String?
 
     public init(id: UtteranceID, pressedAt: Date, intent: CaptureIntent = .dictate) {
         self.id = id

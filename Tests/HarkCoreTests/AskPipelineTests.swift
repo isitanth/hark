@@ -268,6 +268,31 @@ extension AskPipelineTests {
         #expect(await !rig.controller.holdsRegionImage)
     }
 
+    /// The project rules: the screen pixels, like the selection and the answer, never reach the log. The one line of
+    /// an image ask names the kinds sent and nothing more.
+    @Test func anImageAskWritesNoPixelsNoSelectionAndNoAnswer() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        let png = ImagePart(
+            data: Data(
+                base64Encoded:
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABpfZFQAAAAABJRU5ErkJggg==")
+                ?? Data())
+        await rig.controller.attachRegion(png, summary: F.region, for: id)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        await rig.controller.copyAnswer(F.answer, for: id)
+        _ = await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }
+        #expect(rig.asker.images == [png])
+        let written = try rig.lines()
+        #expect(written.count == 1)
+        for needle in ["iVBOR", "comité", "budget", "Réunion", "validation", "412000", "1400"] {
+            #expect(!written[0].contains(needle), "\(needle)")
+        }
+        #expect(written[0].hasSuffix(#""context":"selection+region"}"#))
+    }
+
     @Test func aReleaseDuringTheDragWaitsForTheFrame() async throws {
         let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
         var snapshots = rig.controller.snapshots.makeAsyncIterator()
