@@ -197,12 +197,14 @@ public actor PipelineController {
         return context.id
     }
 
-    /// The Ask key while an answer is in review: a follow-up of the same ask. Its id is minted as a press's is: ids key
-    /// the frames, so two turns must never share one.
-    public func followUpDown() {
-        guard !closed else { return }
+    /// The Ask key: a follow-up of the answer in review, if there is one. False when there is none, and the key starts an
+    /// ask of its own; deciding here, in one call, means a review that ends meanwhile cannot turn the press into a busy
+    /// one. The id is minted as a press's is: ids key the frames, so two turns must never share one.
+    public func followUpDown() -> Bool {
+        guard !closed, reviewingAsk != nil else { return false }
         lastID += 1
         send(.followUpDown(UtteranceID(lastID), at: environment.clock.now()))
+        return true
     }
 
     /// What the capture under way is for; nil when nothing is being captured. The talk key reads it to end an ask's

@@ -659,10 +659,7 @@ final class AppModel {
     /// copied. A press while busy reads nothing: its line says busy.
     private func startAskFromKey() async {
         // An answer in review: the key follows it up, with the conversation so far. Nothing is read from the app.
-        if await controller.reviewingAsk != nil {
-            await controller.followUpDown()
-            return
-        }
+        if await controller.followUpDown() { return }
         let caller = Self.otherApp(NSWorkspace.shared.frontmostApplication)
         guard await controller.phase == .idle else {
             await controller.triggerDown(intent: .assist(caller: caller))

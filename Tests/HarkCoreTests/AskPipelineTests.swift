@@ -406,7 +406,7 @@ extension AskPipelineTests {
         _ rig: Rig, _ snapshots: inout AsyncStream<PipelineSnapshot>.Iterator, framed: ImagePart?,
         until stage: (AskStage?) -> Bool = { $0 == .reviewing }
     ) async throws -> UtteranceID {
-        await rig.controller.followUpDown()
+        #expect(await rig.controller.followUpDown())
         let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
         if let framed { await rig.controller.attachRegion(framed, summary: F.region, for: id) }
         await rig.controller.finishCapture(id)
@@ -466,7 +466,7 @@ extension AskPipelineTests {
         let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned), engine: engine)
         var snapshots = rig.controller.snapshots.makeAsyncIterator()
         let first = try await answeredTurn(rig, &snapshots, framed: Self.png)
-        await rig.controller.followUpDown()
+        #expect(await rig.controller.followUpDown())
         let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
         await rig.controller.attachRegion(Self.second, summary: F.region, for: id)
         #expect(await rig.controller.heldFrames == 2)
@@ -485,7 +485,7 @@ extension AskPipelineTests {
         let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
         var snapshots = rig.controller.snapshots.makeAsyncIterator()
         let first = try await answeredTurn(rig, &snapshots, framed: Self.png)
-        await rig.controller.followUpDown()
+        #expect(await rig.controller.followUpDown())
         let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
         await rig.controller.attachRegion(Self.second, summary: F.region, for: id)
         await rig.controller.removeRegion(for: id)
@@ -530,12 +530,28 @@ extension AskPipelineTests {
             written[1].contains(#""resolution":"failed""#) && written[1].contains(#""error":"llm_profile_changed""#))
     }
 
+    /// With no answer in review the Ask key starts an ask of its own: no follow-up, no id spent, no line.
+    @Test func theAskKeyFollowsUpOnlyAnAnswerInReview() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        #expect(await !rig.controller.followUpDown())
+        let id = try await startAsk(rig, &snapshots)
+        #expect(id == UtteranceID(1))
+        #expect(await !rig.controller.followUpDown())
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        await rig.controller.copyAnswer(F.answer, for: id)
+        _ = await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }
+        #expect(await !rig.controller.followUpDown())
+        #expect(try rig.lines().count == 1)
+    }
+
     /// Quitting while a follow-up is spoken: its line and the answered turn's both reach disk before quit returns.
     @Test func quittingDuringAFollowUpWritesBothLines() async throws {
         let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
         var snapshots = rig.controller.snapshots.makeAsyncIterator()
         _ = try await answeredTurn(rig, &snapshots, framed: Self.png)
-        await rig.controller.followUpDown()
+        #expect(await rig.controller.followUpDown())
         _ = await next(&snapshots) { $0.phase == .capturing }
         await rig.controller.quit()
         #expect(await rig.controller.phase == .idle)
