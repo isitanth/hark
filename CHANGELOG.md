@@ -5,6 +5,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Fixed
+
+- The Ask panel no longer shows a thin dark rectangle around its rounded corners on macOS 26 and later: its shadow
+  follows the glass.
+
 ## [0.0.5] - 2026-10-22
 
 A better Liquid Glass design for the Ask panel, in line with macOS 27's Human Interface Guidelines. Screen context:

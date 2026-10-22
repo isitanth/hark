@@ -18,8 +18,8 @@ enum AskGlass {
 }
 
 extension View {
-    /// The panel's shell: regular glass in a 24 pt rectangle with no stroke on macOS 26; below, the popover
-    /// material clipped at 12 pt with the 0.5 pt separator stroke. Both keep a background a press drags.
+    /// The panel's shell: regular glass in a 24 pt rectangle, clipped to it, with no stroke on macOS 26; below, the
+    /// popover material clipped at 12 pt with the 0.5 pt separator stroke. Both keep a background a press drags.
     func askPanelChrome() -> some View {
         modifier(AskPanelChrome())
     }
@@ -128,10 +128,14 @@ private struct AskMaterialize: ViewModifier {
 private struct AskPanelChrome: ViewModifier {
     func body(content: Content) -> some View {
         if #available(macOS 26, *) {
+            // The glass casts a faint shadow of its own past its shape, which the borderless panel cuts at its
+            // rectangle: the corners then hold a little alpha and the window's shadow traces the rectangle. Clipped to
+            // the shape, the corners are clear and the window's shadow follows the rounded edge.
             content
                 .background(AskDragArea())
                 .glassEffect(.regular, in: .rect(cornerRadius: AskGlass.radius))
                 .containerShape(.rect(cornerRadius: AskGlass.radius))
+                .clipShape(.rect(cornerRadius: AskGlass.radius))
         } else {
             content
                 .background(AskPanelBackground())
