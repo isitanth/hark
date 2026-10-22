@@ -111,8 +111,7 @@ extension LogEntry {
         case .llmNoVision: return L("entry.failure.llmNoVision")
         case .screenRecordingDenied: return L("entry.failure.screenRecordingDenied")
         case .regionFailed: return L("entry.failure.regionFailed")
-        // M12.4 gives it its own words.
-        case .llmProfileChanged: return L("entry.outcome.failed \(code)")
+        case .llmProfileChanged: return L("entry.failure.llmProfileChanged")
         case .audioEngine(nil), .transcription(nil), .appNotFound(nil), .appNotActivated(nil), .appExited(nil),
             .actionExit, .automationDenied, .focusNotRestored, .other:
             return L("entry.outcome.failed \(code)")
@@ -132,8 +131,7 @@ extension LogEntry {
         case .clipboardFallbackDisabled: return L("entry.reason.clipboardFallbackDisabled")
         case .emptySelection: return L("entry.reason.emptySelection")
         case .emptyRequest: return L("entry.reason.emptyRequest")
-        // M12.4 gives it its own words.
-        case .followedUp: return L("entry.reason.other \(DiscardReason.followedUp.rawValue)")
+        case .followedUp: return L("entry.reason.followedUp")
         case nil:
             let raw = code ?? "?"
             return L("entry.reason.other \(raw)")

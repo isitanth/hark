@@ -4818,13 +4818,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancelled, too short, or no speech heard."
+            "value": "Cancelled, too short, no speech heard, or followed by another request."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annulé, trop court, ou aucune parole entendue."
+            "value": "Annulé, trop court, aucune parole entendue, ou suivi d’une autre demande."
           }
         }
       }
@@ -6729,6 +6729,210 @@
           "stringUnit": {
             "state": "translated",
             "value": "Demander à Hark · le cadre n’a pas pu être capturé"
+          }
+        }
+      }
+    },
+    "ask.footer.followUp %@ %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ to follow up · %2$lld/%3$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ pour enchaîner · %2$lld/%3$lld"
+          }
+        }
+      }
+    },
+    "ask.footer.followUp.unset %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set an Ask key in Settings to follow up · %1$lld/%2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une touche Demander dans les Réglages pour enchaîner · %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "ask.footer.full": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation full"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation complète"
+          }
+        }
+      }
+    },
+    "ask.busyNudge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark is in this conversation: Esc closes it, then dictate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark est dans cette conversation : Échap la ferme, puis dictez."
+          }
+        }
+      }
+    },
+    "ask.failure.profileChanged": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The provider changed in Settings: close and ask again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le fournisseur a changé dans les Réglages : fermez et demandez à nouveau."
+          }
+        }
+      }
+    },
+    "entry.failure.llmProfileChanged": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the provider changed during the conversation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le fournisseur a changé pendant la conversation"
+          }
+        }
+      }
+    },
+    "entry.reason.followedUp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "followed up"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "suivi d’une autre demande"
+          }
+        }
+      }
+    },
+    "ask.turn.label %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earlier request %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demande précédente %lld"
+          }
+        }
+      }
+    },
+    "ask.followUp.frameHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold ⌃⌥ and drag to add part of the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez ⌃⌥ et faites glisser pour ajouter une partie de l’écran."
+          }
+        }
+      }
+    },
+    "ask.followUp.frameHint.add %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold ⌃⌥ and drag to add part of the screen; while you hold %1$@, just add %2$@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez ⌃⌥ et faites glisser pour ajouter une partie de l’écran ; en maintenant %1$@, ajoutez simplement %2$@."
+          }
+        }
+      }
+    },
+    "ask.followUp.frameHint.held %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold ⌃⌥ and drag to add part of the screen; while you hold %@, just drag."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez ⌃⌥ et faites glisser pour ajouter une partie de l’écran ; en maintenant %@, faites simplement glisser."
+          }
+        }
+      }
+    },
+    "ask.framing.framesFull %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This conversation holds %lld frames: go on in words."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette conversation contient déjà %lld cadrages : continuez avec des mots."
           }
         }
       }

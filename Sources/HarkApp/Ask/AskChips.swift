@@ -3,7 +3,8 @@ import SwiftUI
 
 /// What the ask carries, under the headline: the framed region, the selection's first words, and the host when the
 /// request leaves this Mac. On macOS 26 they are glass chips in one container and replace the quote bar and the
-/// remote line; below, only the region is a chip, on a plain fill, and the quote bar stays.
+/// remote line; below, only the region is a chip, on a plain fill, and the quote bar stays. In a conversation, turn 1's
+/// chips stay fixed, with no ×, and a follow-up's own frame joins them, removable until the turn is sent.
 struct AskChips: View {
     let model: AskPanelModel
     /// Chips and footer groups morph within it.
@@ -15,12 +16,12 @@ struct AskChips: View {
 
     var body: some View {
         if #available(macOS 26, *) {
-            if hasRegion || !model.quote.isEmpty || model.remoteHost != nil {
+            if hasRegion || model.rootFrame != nil || !model.quote.isEmpty || model.remoteHost != nil {
                 GlassEffectContainer(spacing: 6) {
                     row(selection: true, destination: true)
                 }
             }
-        } else if hasRegion {
+        } else if hasRegion || model.rootFrame != nil {
             row(selection: false, destination: false)
         }
     }
@@ -29,8 +30,12 @@ struct AskChips: View {
 
     private func row(selection: Bool, destination: Bool) -> some View {
         HStack(spacing: 6) {
+            if let root = model.rootFrame {
+                regionChip(thumbnail: root.thumbnail, size: root.size, removable: false)
+                    .askChipID("rootRegion", in: namespace)
+            }
             if hasRegion {
-                regionChip
+                regionChip(thumbnail: model.regionThumbnail, size: model.regionPixelSize, removable: removable)
                     .askChipID("region", in: namespace)
                     .askMaterialize()
             }
@@ -46,9 +51,9 @@ struct AskChips: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var regionChip: some View {
+    private func regionChip(thumbnail: CGImage?, size: CGSize?, removable: Bool) -> some View {
         HStack(spacing: 8) {
-            if let thumbnail = model.regionThumbnail {
+            if let thumbnail {
                 Image(decorative: thumbnail, scale: 1)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -56,7 +61,7 @@ struct AskChips: View {
                     .askClip(minimum: 4)
                     .accessibilityHidden(true)
             }
-            if let size = model.regionPixelSize {
+            if let size {
                 Text(verbatim: "\(Int(size.width)) × \(Int(size.height))")
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)

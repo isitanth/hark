@@ -41,10 +41,20 @@ final class AskPanelModel {
     var maxAnswerHeight: CGFloat = 480
     /// What the pre-flight found wrong with the server, shown while the user is still speaking.
     private(set) var preflightFailure: LLMFailure?
-    /// The framed region's thumbnail, made in memory from the captured image; nil without a region.
-    private(set) var regionThumbnail: CGImage?
-    /// The framed region's size in pixels, as it goes to the model.
+    /// Each framed turn's thumbnail, made in memory from its captured image, kept while the state names the turn.
+    private(set) var regionThumbnails: [UtteranceID: CGImage] = [:]
+    /// The live turn's framed region, in pixels, as it goes to the model.
     private(set) var regionPixelSize: CGSize?
+    /// The conversation's earlier turns, oldest first: none for a single ask.
+    private(set) var turns: [AskTurnRow] = []
+    /// Turn 1 of the conversation on show: the reset keys on it, and its chips stay fixed after it.
+    private(set) var threadRoot: UtteranceID?
+    /// The footer's line in review: how to follow up, or that the conversation is full.
+    private(set) var footerHint: AskFooterHint?
+    /// A talk key was pressed while the panel shows: for `AskPresentation.busyNudgeFor`, the panel says how to dictate.
+    private(set) var showsBusyNudge = false
+    /// Ask without the image is offered only when this turn's frame is the conversation's only one.
+    private(set) var offersAskWithoutImage = false
     /// An image ask's restatement of what the user is after: the reply's `%%` line, apart from the answer.
     private(set) var intent: String?
     /// ⌃⌥ are held during the ask's capture: the overlay takes the mouse and the panel steps back.
@@ -74,6 +84,10 @@ final class AskPanelModel {
     @ObservationIgnored private var reply = ""
     /// The answer as the reply gave it when review began, so text that lands after can follow until the user edits.
     @ObservationIgnored private var reviewedReply = ""
+    /// The turn a follow-up parked, as the panel left it: Esc during the follow-up's capture brings it back, edits
+    /// included.
+    @ObservationIgnored private var parkedTurn: (id: UtteranceID, turn: TurnText)?
+    @ObservationIgnored private var nudge: Task<Void, Never>?
 
     @ObservationIgnored private let controller: PipelineController
     @ObservationIgnored private let workspace: AppKitWorkspace
@@ -85,11 +99,13 @@ final class AskPanelModel {
     }()
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var snapshot = PipelineSnapshot(phase: .idle)
-    /// The ask on show and the app it came from.
+    /// The live turn of the ask on show, and the app it came from.
     @ObservationIgnored private var id: UtteranceID?
     @ObservationIgnored private var caller: AppIdentity?
     /// `-HarkDebugPreview ask…`: a fixed state that snapshots do not move.
     @ObservationIgnored private var pinned = false
+    /// `-HarkDebugPreview ask…`: the turn a pin shows live, since a preview has no utterance.
+    @ObservationIgnored private var previewLive: UtteranceID?
     /// `-HarkDebugPreview ask-remote`: the sample host stays when commands.yaml loads after the pin.
     @ObservationIgnored private var pinnedRemote = false
 
@@ -134,40 +150,118 @@ final class AskPanelModel {
     func update(_ snapshot: PipelineSnapshot) {
         guard !pinned else { return }
         self.snapshot = snapshot
-        if let intent = snapshot.utterance?.intent, intent.isAsk, let next = snapshot.utterance?.id, next != id {
-            id = next
-            caller = intent.caller
-            let selection = intent.selection?.text ?? ""
-            quote = AskPresentation.quote(selection)
-            truncated = selection.count > maxSelectionChars
-            instruction = nil
-            reply = ""
-            reviewedReply = ""
-            streamed = ""
-            answer = ""
-            self.intent = nil
-            preflightFailure = nil
-            regionThumbnail = nil
-            regionPixelSize = nil
-            isFraming = false
-            framingBlocked = visionVerdict == false ? .modelCannotSee : nil
-            screenRecordingRequested = false
-            check(next)
+        if let utterance = snapshot.utterance, utterance.intent.isAsk, utterance.id != id {
+            let root = AskPresentation.threadRoot(utterance)
+            if root != threadRoot {
+                begin(utterance, root: root)
+            } else {
+                turn(to: utterance)
+            }
         }
         if let utterance = snapshot.utterance, utterance.id == id {
             // The assistant's focus arrives with the probe, after the press.
             apply = AskPresentation.apply(utterance)
-            allowsReplace = utterance.region == nil && !isImageAsk
+            allowsReplace = AskPresentation.allowsReplace(utterance)
+            offersAskWithoutImage = AskPresentation.offersAskWithoutImage(utterance)
             sentFrame = isImageAsk
-            if let region = utterance.region {
-                regionPixelSize = CGSize(width: region.pixelWidth, height: region.pixelHeight)
-            } else if !utterance.regionPending {
-                // The chip's ×, or an ask without the image.
-                regionThumbnail = nil
-                regionPixelSize = nil
-            }
+            turns = AskPresentation.earlierTurns(utterance)
+            // The controller's rule for the pixels: a turn's thumbnail goes when the state no longer names it with a
+            // frame (the chip's ×, an ask without the image, a follow-up dropped by Esc), and turn 1's stays.
+            let framed = AskPresentation.framedTurns(utterance)
+            regionThumbnails = regionThumbnails.filter { framed.contains($0.key) }
+            regionPixelSize = utterance.region.map { CGSize(width: $0.pixelWidth, height: $0.pixelHeight) }
         }
         refresh()
+    }
+
+    /// A new conversation: everything from the last one goes.
+    private func begin(_ utterance: UtteranceContext, root: UtteranceID) {
+        id = utterance.id
+        threadRoot = root
+        caller = utterance.intent.caller
+        let selection = utterance.intent.selection?.text ?? ""
+        quote = AskPresentation.quote(selection)
+        truncated = selection.count > maxSelectionChars
+        regionThumbnails = [:]
+        turns = []
+        parkedTurn = nil
+        preflightFailure = nil
+        screenRecordingRequested = false
+        resetTurn()
+        check(utterance.id)
+    }
+
+    /// The next turn of the same conversation, or the parked one again after Esc: the earlier turns, the chips of turn
+    /// 1 and the thumbnails stay.
+    private func turn(to utterance: UtteranceContext) {
+        if let id, utterance.parked?.context.id == id {
+            parkedTurn = (id, turnText)
+        }
+        id = utterance.id
+        if let parked = parkedTurn, parked.id == utterance.id {
+            parkedTurn = nil
+            restore(parked.turn)
+        } else {
+            resetTurn()
+        }
+    }
+
+    private var turnText: TurnText {
+        TurnText(
+            instruction: instruction, reply: reply, reviewedReply: reviewedReply, streamed: streamed, answer: answer,
+            intent: intent)
+    }
+
+    private func restore(_ turn: TurnText) {
+        resetTurn()
+        instruction = turn.instruction
+        reply = turn.reply
+        reviewedReply = turn.reviewedReply
+        streamed = turn.streamed
+        answer = turn.answer
+        intent = turn.intent
+    }
+
+    private func resetTurn() {
+        instruction = nil
+        reply = ""
+        reviewedReply = ""
+        streamed = ""
+        answer = ""
+        intent = nil
+        regionPixelSize = nil
+        footerHint = nil
+        isFraming = false
+        framingBlocked = visionVerdict == false ? .modelCannotSee : nil
+    }
+
+    /// The live turn, or the one a preview pins.
+    private var liveID: UtteranceID? { id ?? (pinned ? previewLive : nil) }
+
+    /// The live turn's thumbnail.
+    var regionThumbnail: CGImage? { liveID.flatMap { regionThumbnails[$0] } }
+
+    /// The live turn is a follow-up: turn 1's chips are fixed above it.
+    var isFollowUp: Bool { threadRoot != nil && liveID != threadRoot }
+
+    /// Turn 1's frame while a follow-up is live: its thumbnail and size, for the fixed chip.
+    var rootFrame: (thumbnail: CGImage?, size: CGSize)? {
+        guard isFollowUp, let root = threadRoot, let region = turns.first(where: { $0.id == root })?.region else {
+            return nil
+        }
+        return (regionThumbnails[root], CGSize(width: region.pixelWidth, height: region.pixelHeight))
+    }
+
+    /// A press the pipeline turned away as busy while the panel shows: say how to dictate, for two seconds.
+    func showBusyNudge() {
+        guard !pinned, AskPresentation.showsBusyNudge(state) else { return }
+        nudge?.cancel()
+        showsBusyNudge = true
+        nudge = Task { [weak self] in
+            try? await Task.sleep(for: AskPresentation.busyNudgeFor)
+            guard !Task.isCancelled else { return }
+            self?.showsBusyNudge = false
+        }
     }
 
     func update(_ update: AskUpdate) {
@@ -190,9 +284,11 @@ final class AskPanelModel {
         refresh()
     }
 
-    /// The request on its way carried the framed region: its reply starts with the `%%` restatement.
+    /// The request on its way carried a frame, this turn's or an earlier one's: its reply starts with the `%%`
+    /// restatement.
     private var isImageAsk: Bool {
-        snapshot.utterance?.id == id && snapshot.utterance?.sentContext?.contains("region") == true
+        guard let utterance = snapshot.utterance, utterance.id == id else { return false }
+        return AskPresentation.expectsRestatement(utterance)
     }
 
     // MARK: - Framing, fed by `RegionFraming` and `AppModel`
@@ -212,7 +308,7 @@ final class AskPanelModel {
     /// The captured region's thumbnail, for the ask on show only.
     func showRegion(thumbnail: CGImage?, for ask: UtteranceID) {
         guard !pinned, ask == id else { return }
-        regionThumbnail = thumbnail
+        regionThumbnails[ask] = thumbnail
     }
 
     /// What the models list or an ask taught about the active model. A model known to be blind blocks framing at
@@ -238,13 +334,15 @@ final class AskPanelModel {
             next = .thinking
         }
         if let heard = current.ask?.instruction { instruction = heard }
+        footerHint = AskPresentation.footerHint(current)
         if next == .reviewing, state != .reviewing {
             if isImageAsk {
                 let split = IntentSplit.split(reply, complete: true)
                 intent = split.intent
                 streamed = split.answer
             }
-            answer = streamed
+            // A turn brought back by Esc keeps the answer as the user left it.
+            if answer == reviewedReply { answer = streamed }
             reviewedReply = streamed
         }
         guard next != state else { return }
@@ -269,6 +367,13 @@ final class AskPanelModel {
     private func close() {
         panel.dismiss()
         id = nil
+        threadRoot = nil
+        turns = []
+        regionThumbnails = [:]
+        parkedTurn = nil
+        footerHint = nil
+        nudge?.cancel()
+        showsBusyNudge = false
         guard let caller else { return }
         self.caller = nil
         Task { [workspace] in
@@ -356,11 +461,13 @@ extension AskPanelModel {
     /// `assistant`, `assistant-nofield` and `assistant-listening` are the Ask key with nothing selected. Visual
     /// Context: `ask-region` (listening with a framed region), `ask-intent` (an image ask's answer under its
     /// restatement), `ask-novision`, `ask-novision-mtp` (a model that cannot read the image) and `ask-permission`
-    /// (framing blocked by Screen Recording).
+    /// (framing blocked by Screen Recording). A conversation (M12): `ask-thread` (three turns on a selection),
+    /// `ask-thread-framed` (turn 1 framed, turn 2 in words, turn 3 a second frame), `ask-thread-listening` (turn 2
+    /// listening with its own frame) and `ask-thread-full` (six turns).
     func showPreview(_ names: Set<String>) {
         let french = Locale.preferredLanguages.first?.hasPrefix("fr") == true
         let assistant = names.contains { $0.hasPrefix("assistant") }
-        if showRegionPreview(names, french: french) { return }
+        if showRegionPreview(names, french: french) || showThreadPreview(names, french: french) { return }
         let pinnedState: AskPanelState? =
             if names.contains("ask-listening") || names.contains("assistant-listening") {
                 .listening
@@ -422,7 +529,9 @@ extension AskPanelModel {
         if names.contains("ask-permission") {
             framingBlocked = .noScreenRecording
         } else {
-            regionThumbnail = RegionPreviewSample.thumbnail()
+            previewLive = UtteranceID(1)
+            regionThumbnails[UtteranceID(1)] = RegionPreviewSample.thumbnail()
+            offersAskWithoutImage = true
             regionPixelSize = CGSize(width: 1400, height: 1200)
             visionVerdict = !names.contains { $0.hasPrefix("ask-novision") }
         }
@@ -436,6 +545,106 @@ extension AskPanelModel {
         panel.open(at: rememberedTopLeft)
         return true
     }
+}
+
+extension AskPanelModel {
+    /// The conversation pins: sample turns in the preview's language, the live one last.
+    fileprivate func showThreadPreview(_ names: Set<String>, french: Bool) -> Bool {
+        let framed = names.contains("ask-thread-framed")
+        let listening = names.contains("ask-thread-listening")
+        let full = names.contains("ask-thread-full")
+        guard framed || listening || full || names.contains("ask-thread") else { return false }
+        pinned = true
+        let sample = ThreadPreviewSample(french: french, framed: framed || listening)
+        let region = RegionSummary(
+            rect: CGRect(x: 120, y: 80, width: 700, height: 600), pixelWidth: 1400, pixelHeight: 1200, bytes: 412_000,
+            displayID: 1)
+        let earlier = listening ? 1 : full ? 5 : 2
+        turns = (0..<earlier).map { index in
+            let words = sample.turns[index % sample.turns.count]
+            let ownFrame = (framed || listening) && index == 0
+            return AskTurnRow(
+                id: UtteranceID(UInt64(index + 1)), instruction: words.instruction, restatement: words.restatement,
+                answer: words.answer, region: ownFrame ? region : nil)
+        }
+        threadRoot = UtteranceID(1)
+        let live = UtteranceID(UInt64(earlier + 1))
+        previewLive = live
+        if framed || listening {
+            regionThumbnails[UtteranceID(1)] = RegionPreviewSample.thumbnail()
+            regionThumbnails[live] = RegionPreviewSample.thumbnail()
+            regionPixelSize = CGSize(width: 1200, height: 800)
+            visionVerdict = true
+        }
+        quote = framed || listening ? "" : AskPresentation.quote(sample.selection)
+        apply = framed || listening ? .insert : .replace
+        allowsReplace = !(framed || listening)
+        let last = sample.turns[earlier % sample.turns.count]
+        instruction = listening ? nil : last.instruction
+        intent = framed ? last.restatement : nil
+        streamed = last.answer
+        answer = last.answer
+        footerHint = full ? .full : .followUp(turn: earlier + 1, of: AskThread.maxTurns)
+        if server.isEmpty { server = "127.0.0.1:8002" }
+        state = listening ? .listening : .reviewing
+        panel.open(at: rememberedTopLeft)
+        return true
+    }
+}
+
+/// The conversation preview's sample: sample text, not catalog strings.
+private struct ThreadPreviewSample {
+    struct Turn {
+        let instruction: String
+        let restatement: String?
+        let answer: String
+    }
+
+    let selection: String
+    let turns: [Turn]
+
+    init(french: Bool, framed: Bool) {
+        selection =
+            french
+            ? "Bonjour à tous, nous avons validé le budget du troisième trimestre et décalé le lancement au 14 octobre."
+            : "Hi all, we approved the Q3 budget and moved the launch to October 14."
+        let restate = { (text: String) in framed ? text : nil }
+        turns =
+            french
+            ? [
+                Turn(
+                    instruction: "Mets-le en liste à puces.", restatement: restate("Tu veux les décisions en liste."),
+                    answer: "- Budget du troisième trimestre validé\n- Lancement décalé au 14 octobre"),
+                Turn(
+                    instruction: "Ajoute qui s’en occupe.", restatement: restate("Tu veux un responsable par point."),
+                    answer: "- Budget validé (Marc)\n- Lancement au 14 octobre (Claire)"),
+                Turn(
+                    instruction: "Plus court.", restatement: restate("Tu veux la même liste, plus brève."),
+                    answer: "- Budget\u{00A0}: Marc\n- Lancement 14/10\u{00A0}: Claire"),
+            ]
+            : [
+                Turn(
+                    instruction: "Turn it into a bulleted list.",
+                    restatement: restate("You want the decisions listed."),
+                    answer: "- Q3 budget approved\n- Launch moved to October 14"),
+                Turn(
+                    instruction: "Add who owns each one.", restatement: restate("You want an owner per item."),
+                    answer: "- Budget approved (Marc)\n- Launch on October 14 (Claire)"),
+                Turn(
+                    instruction: "Shorter.", restatement: restate("You want the same list, briefer."),
+                    answer: "- Budget: Marc\n- Launch 10/14: Claire"),
+            ]
+    }
+}
+
+/// A turn's words as the panel showed them, kept while a follow-up is captured.
+private struct TurnText {
+    let instruction: String?
+    let reply: String
+    let reviewedReply: String
+    let streamed: String
+    let answer: String
+    let intent: String?
 }
 
 /// The Visual Context preview's sample: the invoices of the M11 plan, sample text, not catalog strings.

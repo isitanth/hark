@@ -10,11 +10,18 @@ struct AskView: View {
     /// "Thinking…" has stood alone long enough to name the server it waits for.
     @State private var namesServer = false
     @State private var answerHeight: CGFloat = 0
+    /// What the earlier turns of a conversation take of the 60%.
+    @State private var transcriptHeight: CGFloat = 0
     /// The chips and the footer groups morph within it on macOS 26.
     @Namespace private var glass
     /// Hark's own fills turn opaque; the system frosts the glass itself.
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The most the earlier turns take of the panel's 60%; the live answer has the rest.
+    private static let transcriptShare: CGFloat = 0.4
+    /// The live answer's least height beside the earlier turns.
+    private static let minimumAnswerCap: CGFloat = 120
 
     /// A legacy scroller's width: the editor's text column is this much narrower when scroll bars always show.
     private static let scrollerWidth = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
@@ -36,10 +43,17 @@ struct AskView: View {
                 remote(host)
                     .allowsHitTesting(false)
             }
+            if !model.turns.isEmpty {
+                AskTranscript(
+                    model: model, maxHeight: model.maxAnswerHeight * Self.transcriptShare,
+                    shownHeight: $transcriptHeight)
+            }
             if let intent = model.intent {
                 AskRestatement(text: intent)
             }
             content
+            footerLine
+                .allowsHitTesting(false)
             footer
         }
         .padding(16)
@@ -157,17 +171,62 @@ struct AskView: View {
         }
     }
 
-    /// How to frame, from the Ask key: held, a key that has ⌃ or ⌥ already needs only the other one.
+    /// How to frame, from the Ask key: held, a key that has ⌃ or ⌥ already needs only the other one. A follow-up adds
+    /// part of the screen to the conversation.
     private var frameHint: LocalizedStringResource {
-        guard let key = KeyboardShortcuts.getShortcut(for: .ask) else { return L("ask.listening.frameHint") }
+        guard let key = KeyboardShortcuts.getShortcut(for: .ask) else {
+            return model.isFollowUp ? L("ask.followUp.frameHint") : L("ask.listening.frameHint")
+        }
         let held = key.description
         let control = "⌃"
         let option = "⌥"
+        let follow = model.isFollowUp
         switch (key.modifiers.contains(.control), key.modifiers.contains(.option)) {
-        case (true, true): return L("ask.listening.frameHint.held \(held)")
-        case (true, false): return L("ask.listening.frameHint.add \(held) \(option)")
-        case (false, true): return L("ask.listening.frameHint.add \(held) \(control)")
-        case (false, false): return L("ask.listening.frameHint")
+        case (true, true):
+            return follow ? L("ask.followUp.frameHint.held \(held)") : L("ask.listening.frameHint.held \(held)")
+        case (true, false):
+            return follow
+                ? L("ask.followUp.frameHint.add \(held) \(option)") : L("ask.listening.frameHint.add \(held) \(option)")
+        case (false, true):
+            return follow
+                ? L("ask.followUp.frameHint.add \(held) \(control)")
+                : L("ask.listening.frameHint.add \(held) \(control)")
+        case (false, false):
+            return follow ? L("ask.followUp.frameHint") : L("ask.listening.frameHint")
+        }
+    }
+
+    /// Above the buttons: the busy nudge while it lasts, else in review how to follow up, or that the conversation is
+    /// full.
+    @ViewBuilder
+    private var footerLine: some View {
+        if model.showsBusyNudge {
+            Label {
+                Text(L("ask.busyNudge"))
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "hand.raised.fill")
+                    .foregroundStyle(.orange)
+            }
+            .font(.callout)
+        } else if model.state == .reviewing, let hint = model.footerHint {
+            Text(footerText(hint))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+
+    private func footerText(_ hint: AskFooterHint) -> LocalizedStringResource {
+        switch hint {
+        case .full:
+            return L("ask.footer.full")
+        case .followUp(let turn, let max):
+            guard let key = KeyboardShortcuts.getShortcut(for: .ask) else {
+                return L("ask.footer.followUp.unset \(turn) \(max)")
+            }
+            let held = key.description
+            return L("ask.footer.followUp \(held) \(turn) \(max)")
         }
     }
 
@@ -247,7 +306,7 @@ struct AskView: View {
                     : model.sentFrame ? L("ask.thinking.frame") : L("ask.thinking"))
         case .failed(let failure):
             Label {
-                Text(failure.popupText(imageAttached: hasRegion))
+                Text(failure.popupText(imageAttached: hasRegion || model.sentFrame))
                     .fixedSize(horizontal: false, vertical: true)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -312,7 +371,7 @@ struct AskView: View {
             }
         }
         .askScrollEdge()
-        .frame(height: min(max(answerHeight, 44), model.maxAnswerHeight))
+        .frame(height: min(max(answerHeight, 44), answerCap))
         .background(alignment: .topLeading) {
             // A hidden copy of the text measures the height; the line after it leaves room for the caret. It wraps
             // a scroller's width early, as the editor does when scroll bars always show.
@@ -332,6 +391,12 @@ struct AskView: View {
         }
         .padding(6)
         .askFill(.background.opacity(reduceTransparency ? 1 : 0.6), minimum: AskGlass.innerRadius)
+    }
+
+    /// The 60% less what the earlier turns take, never under `minimumAnswerCap`.
+    private var answerCap: CGFloat {
+        guard !model.turns.isEmpty else { return model.maxAnswerHeight }
+        return max(model.maxAnswerHeight - transcriptHeight, Self.minimumAnswerCap)
     }
 
     /// [Cancel] leading; on glass, the secondary actions grouped and the primary alone at the trailing edge. Below
@@ -432,6 +497,12 @@ struct AskView: View {
             let retry = FooterAction(
                 id: "retry", title: L("ask.button.retry"), action: model.retry, shortcut: .defaultAction)
             switch failure {
+            case .noVision where !model.offersAskWithoutImage:
+                // An earlier turn's frame goes with every retry, so dropping this one would fail the same way: the
+                // text says why, and Esc ends it.
+                let choose = FooterAction(
+                    id: "chooseModel", title: L("ask.button.chooseModel"), action: model.chooseAnotherModel)
+                return FooterLayout(primary: choose)
             case .noVision(_, .needsMTPMode):
                 // The same image to the same AR server fails again: asking without the frame is the way out, and
                 // Retry stays for after a restart in MTP mode.
@@ -446,7 +517,8 @@ struct AskView: View {
                 return FooterLayout(secondary: [choose], primary: askWithoutImage.with(shortcut: .defaultAction))
             default:
                 return FooterLayout(
-                    secondary: hasRegion ? [copyInstruction, askWithoutImage] : [copyInstruction], primary: retry)
+                    secondary: model.offersAskWithoutImage ? [copyInstruction, askWithoutImage] : [copyInstruction],
+                    primary: retry)
             }
         case .closed:
             return FooterLayout(cancel: false)
