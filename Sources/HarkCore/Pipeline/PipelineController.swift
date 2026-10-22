@@ -180,6 +180,12 @@ public actor PipelineController {
     /// Whether a framed region's pixels are held: for the tests that check every path frees them.
     public var holdsRegionImage: Bool { regionImage != nil }
 
+    /// The answer in review, if any: the Ask key then starts a follow-up instead of a busy press (M12.5).
+    public var reviewingAsk: UtteranceID? { nil }
+
+    /// The Ask key while an answer is in review: a follow-up of the same ask (M12.5).
+    public func followUpDown() {}
+
     /// What the capture under way is for; nil when nothing is being captured. The talk key reads it to end an ask's
     /// capture instead of starting a busy utterance.
     public var capturingIntent: CaptureIntent? {
@@ -330,12 +336,13 @@ public actor PipelineController {
                 send(copied ? .copied(id) : .failed(id, .pasteboardWrite))
             }
 
-        case .generate(let id, let instruction, let selection, let hasRegion):
+        case .generate(let id, let instruction, let selection, let hasRegion, _):
             generation?.cancel()
             askContinuation.yield(AskUpdate(id: id, text: ""))
             let image = hasRegion && regionImage?.id == id ? regionImage?.image : nil
             if hasRegion && image == nil { Self.logger.fault("no region image for utterance \(id)") }
-            let events = env.asker.generate(instruction: instruction, selection: selection?.text, image: image)
+            let events = env.asker.generate(
+                instruction: instruction, selection: selection?.text, image: image, thread: nil, frames: [:])
             generation = Task {
                 var text = ""
                 for await event in events {
@@ -344,7 +351,7 @@ public actor PipelineController {
                         text += piece
                         askContinuation.yield(AskUpdate(id: id, text: text))
                     case .finished(let summary):
-                        send(.generated(id, summary))
+                        send(.generated(id, summary, reply: text))
                     case .failed(let failure, let summary):
                         send(.generationFailed(id, failure, summary))
                     }

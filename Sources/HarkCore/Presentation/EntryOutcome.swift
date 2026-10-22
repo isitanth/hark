@@ -79,6 +79,8 @@ public enum EntryOutcome: Sendable, Equatable {
         case screenRecordingDenied
         /// An ask with a framed region: its capture failed.
         case regionFailed
+        /// A follow-up after the active profile changed: nothing was sent.
+        case llmProfileChanged
         /// A code this build does not know, or none.
         case other(String?)
     }
@@ -165,6 +167,7 @@ public enum EntryOutcome: Sendable, Equatable {
         case "llm_no_vision": return .llmNoVision
         case "screen_recording_denied": return .screenRecordingDenied
         case "region_failed": return .regionFailed
+        case "llm_profile_changed": return .llmProfileChanged
         default: return .other(code)
         }
     }

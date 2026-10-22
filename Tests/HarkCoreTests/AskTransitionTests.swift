@@ -43,7 +43,8 @@ let askTransitions: [LegalTransition] =
             event: .transcribed(F.id, Transcript(raw: " "), ms: 300), phase: .idle,
             effects: ["log:discarded:empty_transcript"]),
         .init(
-            name: "generating, answer complete: review", state: F.generating, event: .generated(F.id, done),
+            name: "generating, answer complete: review", state: F.generating,
+            event: .generated(F.id, done, reply: "The answer."),
             phase: .asking, effects: []),
         .init(
             name: "generating, cancel closes the stream", state: F.generating, event: .cancel, phase: .idle,
@@ -123,8 +124,10 @@ let illegalAskTransitions: [IllegalTransition] = [
     .init(name: "generating, Copy before the end", state: F.generating, event: .askCopy(F.id, F.answer)),
     .init(name: "generating, Retry", state: F.generating, event: .askRetry(F.id)),
     .init(name: "generating, a late release", state: F.generating, event: .triggerUp(at: at)),
-    .init(name: "generating, end of another ask", state: F.generating, event: .generated(F.other, done)),
-    .init(name: "reviewing, a second end", state: F.reviewing, event: .generated(F.id, done)),
+    .init(
+        name: "generating, end of another ask", state: F.generating,
+        event: .generated(F.other, done, reply: "The answer.")),
+    .init(name: "reviewing, a second end", state: F.reviewing, event: .generated(F.id, done, reply: "The answer.")),
     .init(name: "reviewing, a late failure", state: F.reviewing, event: .generationFailed(F.id, .empty, .init())),
     .init(name: "reviewing, Retry", state: F.reviewing, event: .askRetry(F.id)),
     .init(name: "reviewing, Copy for another ask", state: F.reviewing, event: .askCopy(F.other, F.answer)),
@@ -136,12 +139,14 @@ let illegalAskTransitions: [IllegalTransition] = [
     .init(
         name: "reviewing, a check nobody asked for", state: F.reviewing,
         event: .selectionChecked(F.id, SelectionCheck(verdict: .intact, focus: F.backInTextEdit, plan: .paste))),
-    .init(name: "failed, a late end", state: F.askFailed(.noAnswer), event: .generated(F.id, done)),
+    .init(
+        name: "failed, a late end", state: F.askFailed(.noAnswer), event: .generated(F.id, done, reply: "The answer.")),
     .init(name: "idle, a late Retry", state: .idle, event: .askRetry(F.id)),
     .init(name: "idle, a late Copy", state: .idle, event: .askCopy(F.id, F.answer)),
-    .init(name: "idle, a late end", state: .idle, event: .generated(F.id, done)),
+    .init(name: "idle, a late end", state: .idle, event: .generated(F.id, done, reply: "The answer.")),
     .init(name: "copying an answer, cancel is too late", state: F.copying, event: .cancel),
-    .init(name: "dictation resolving, an answer", state: F.resolving, event: .generated(F.id, done)),
+    .init(
+        name: "dictation resolving, an answer", state: F.resolving, event: .generated(F.id, done, reply: "The answer.")),
 ]
 
 private func down(_ n: UInt64, _ intent: CaptureIntent = .dictate) -> PipelineEvent {
@@ -157,11 +162,16 @@ let askPressSequences: [PressSequence] = [
     .init(
         name: "ask, Copy",
         events: [down(1, F.ask)] + heard(1)
-            + [.generated(UtteranceID(1), done), .askCopy(UtteranceID(1), F.answer), .copied(UtteranceID(1))],
+            + [
+                .generated(UtteranceID(1), done, reply: "The answer."), .askCopy(UtteranceID(1), F.answer),
+                .copied(UtteranceID(1)),
+            ],
         logs: ["log:text_clipboard"]),
     .init(
         name: "ask, the talk key twice while it streams, then Cancel",
-        events: [down(1, F.ask)] + heard(1) + [down(2), up(2), down(3), .cancel, .generated(UtteranceID(1), done)],
+        events: [down(1, F.ask)] + heard(1) + [
+            down(2), up(2), down(3), .cancel, .generated(UtteranceID(1), done, reply: "The answer."),
+        ],
         logs: ["log:discarded:busy", "log:discarded:busy", "log:discarded:cancelled"]),
     .init(
         name: "ask fails, Retry, fails again, Cancel",
@@ -216,7 +226,7 @@ let askPressSequences: [PressSequence] = [
     }
 
     @Test func theAnswerIsWhatIsCopiedAndTheCallIsWhatIsLogged() throws {
-        let reviewing = try reducer.reduce(F.generating, .generated(F.id, done)).get()
+        let reviewing = try reducer.reduce(F.generating, .generated(F.id, done, reply: "The answer.")).get()
         let copying = try reducer.reduce(reviewing.state, .askCopy(F.id, F.answer)).get()
         #expect(copying.effects == [.copyToClipboard(F.id, F.answer, concealed: false)])
         let record = try #require(try reducer.reduce(copying.state, .copied(F.id)).get().effects.first?.record)
@@ -406,7 +416,9 @@ let illegalRegionTransitions: [IllegalTransition] = [
     .init(name: "the frame failed, a new drag is too late", state: denied, event: .regionStarted(F.id)),
     .init(name: "idle, a late frame", state: .idle, event: .regionCaptured(F.id, F.region)),
     .init(name: "awaiting the frame, Retry", state: F.awaitingRegion, event: .askRetry(F.id)),
-    .init(name: "awaiting the frame, an answer", state: F.awaitingRegion, event: .generated(F.id, done)),
+    .init(
+        name: "awaiting the frame, an answer", state: F.awaitingRegion,
+        event: .generated(F.id, done, reply: "The answer.")),
     .init(name: "awaiting the frame, ask without it", state: F.awaitingRegion, event: .askRetryWithoutRegion(F.id)),
     .init(name: "generating, ask without the frame", state: F.generating, event: .askRetryWithoutRegion(F.id)),
     .init(name: "reviewing, ask without the frame", state: F.reviewing, event: .askRetryWithoutRegion(F.id)),
@@ -507,7 +519,7 @@ extension RegionTransitionTests {
                 .askRetryWithoutRegion(id),
             ]
         }
-        return events + [.generated(id, done), .askCopy(id, F.answer), .copied(id)]
+        return events + [.generated(id, done, reply: "The answer."), .askCopy(id, F.answer), .copied(id)]
     }
 
     /// `context` names the kinds the last request carried: the selection when there was one, the frame when it went.

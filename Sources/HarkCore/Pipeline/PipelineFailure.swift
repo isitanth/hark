@@ -15,6 +15,8 @@ public enum DiscardReason: String, Sendable, CaseIterable {
     case emptySelection = "empty_selection"
     /// The assistant's spoken prefix with nothing after it: "Hark." alone.
     case emptyRequest = "empty_request"
+    /// An answered turn of a conversation, superseded by a follow-up that has words (M12).
+    case followedUp = "followed_up"
 }
 
 public enum PipelineFailure: Error, Sendable, Equatable {
@@ -67,6 +69,8 @@ public enum PipelineFailure: Error, Sendable, Equatable {
     case screenRecordingDenied
     /// A region was framed and its capture failed.
     case regionFailed
+    /// A follow-up, after the active profile changed since turn 1: nothing was sent.
+    case llmProfileChanged
 
     /// Failures that only the microphone side can raise. Once an utterance's audio is in, a late one is stale.
     public var isCaptureFailure: Bool {
@@ -110,6 +114,7 @@ public enum PipelineFailure: Error, Sendable, Equatable {
         case .llmNoVision: "llm_no_vision"
         case .screenRecordingDenied: "screen_recording_denied"
         case .regionFailed: "region_failed"
+        case .llmProfileChanged: "llm_profile_changed"
         }
     }
 }

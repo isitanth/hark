@@ -47,6 +47,9 @@ extension LLMFailure {
         case .noVision(_, .needsMTPMode): L("ask.failure.visionNeedsMTP")
         case .noVision(let model?, _): L("ask.failure.noVision \(model)")
         case .noVision(nil, _): L("ask.failure.noVision.unnamed")
+        // M12.4 gives both their own words.
+        case .profileChanged: L("ask.failure.noAnswer")
+        case .frameMissing: L("ask.failure.regionFailed")
         }
     }
 
@@ -76,6 +79,8 @@ extension FramingBlock {
         switch self {
         case .noScreenRecording: requested ? L("ask.framing.reopen") : L("ask.framing.noScreenRecording")
         case .modelCannotSee: L("ask.framing.modelCannotSee")
+        // M12.4 gives it its own words.
+        case .framesFull: L("ask.framing.modelCannotSee")
         }
     }
 }

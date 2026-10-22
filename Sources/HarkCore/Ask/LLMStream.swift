@@ -60,16 +60,20 @@ public struct LLMCallSummary: Sendable, Equatable {
     public var finishReason: String?
     public var promptTokens: Int?
     public var completionTokens: Int?
+    /// The profile and model turn 1's request went to, filled by the engine: what a first follow-up pins. Nil when no
+    /// request was resolved, and on a follow-up, which keeps its thread's pin.
+    public var pin: ProfilePin?
 
     public init(
         model: String? = nil, ms: Int? = nil, finishReason: String? = nil, promptTokens: Int? = nil,
-        completionTokens: Int? = nil
+        completionTokens: Int? = nil, pin: ProfilePin? = nil
     ) {
         self.model = model
         self.ms = ms
         self.finishReason = finishReason
         self.promptTokens = promptTokens
         self.completionTokens = completionTokens
+        self.pin = pin
     }
 }
 
@@ -95,6 +99,12 @@ public enum LLMFailure: Error, Sendable, Equatable {
     /// The model cannot read the image the ask carried: the server said so, or it was known before sending. `model`
     /// is the id asked for, when known.
     case noVision(model: String?, reason: VisionRefusal)
+    /// A follow-up, and the active profile is no longer the one turn 1 went to (its name or its signature changed in
+    /// Settings): nothing was sent (M12).
+    case profileChanged
+    /// A follow-up whose conversation names a framed turn the controller holds no image for: nothing was sent, so the
+    /// model is never told about an image that is not there.
+    case frameMissing
 
     /// The log's code for it.
     public var pipelineFailure: PipelineFailure {
@@ -106,6 +116,8 @@ public enum LLMFailure: Error, Sendable, Equatable {
         case .refused: .llmError(status: nil)
         case .empty: .llmEmpty
         case .noVision: .llmNoVision
+        case .profileChanged: .llmProfileChanged
+        case .frameMissing: .regionFailed
         }
     }
 }

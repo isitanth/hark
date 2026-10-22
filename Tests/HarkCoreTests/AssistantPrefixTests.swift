@@ -198,7 +198,9 @@ private let mailText = FocusSnapshot(
                 F.id, normalized: "arc quelle est la capitale du perou",
                 .ask(request: "quelle est la capitale du Pérou ?"))
         ).get().state
-        let reviewing = try reducer.reduce(asking, .generated(F.id, LLMCallSummary(model: F.bonsai, ms: 900))).get()
+        let reviewing = try reducer.reduce(
+            asking, .generated(F.id, LLMCallSummary(model: F.bonsai, ms: 900), reply: "The answer.")
+        ).get()
         let copying = try reducer.reduce(reviewing.state, .askCopy(F.id, "Lima.")).get()
         let record = try #require(try reducer.reduce(copying.state, .copied(F.id)).get().effects.first?.record)
         #expect(record.rawText == "Arc, quelle est la capitale du Pérou ?")

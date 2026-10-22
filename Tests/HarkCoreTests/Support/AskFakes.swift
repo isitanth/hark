@@ -25,7 +25,10 @@ final class ScriptedAsker: AskGenerating {
     var images: [ImagePart?] { state.withLock { $0.images } }
     var closedByConsumer: Int { state.withLock { $0.closedByConsumer } }
 
-    func generate(instruction: String, selection: String?, image: ImagePart?) -> AsyncStream<LLMEvent> {
+    func generate(
+        instruction: String, selection: String?, image: ImagePart?, thread: AskThread?,
+        frames: [UtteranceID: ImagePart]
+    ) -> AsyncStream<LLMEvent> {
         state.withLock {
             $0.requests.append((instruction, selection))
             $0.images.append(image)

@@ -162,7 +162,7 @@ extension PipelineEffect {
         case .runAction: "runAction"
         case .insert: "insert"
         case .copyToClipboard: "copyToClipboard"
-        case .generate(_, _, _, let hasRegion): hasRegion ? "generate+region" : "generate"
+        case .generate(_, _, _, let hasRegion, _): hasRegion ? "generate+region" : "generate"
         case .cancelGeneration: "cancelGeneration"
         case .checkSelection: "checkSelection"
         case .writeLog(let record):

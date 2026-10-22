@@ -14,6 +14,8 @@ enum FramingBlock: Equatable {
     case noScreenRecording
     /// The active model is known not to read images.
     case modelCannotSee
+    /// The conversation holds as many frames as it may (M12): a follow-up goes on with words.
+    case framesFull
 }
 
 @Observable

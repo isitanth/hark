@@ -310,7 +310,8 @@ let illegalTransitions: [IllegalTransition] = [
         #expect(logged.contains("log:text_clipboard:selection_changed"))
         // `max_duration` is no longer a discard: since 2026-09-24 the limit ends the capture and the text goes
         // through, with the code on the `text_inserted` or `command` line instead.
-        let notYetReduced: Set<DiscardReason> = [.maxDuration]
+        // `followed_up` until M12.3 reduces a follow-up.
+        let notYetReduced: Set<DiscardReason> = [.maxDuration, .followedUp]
         for reason in DiscardReason.allCases where !notYetReduced.contains(reason) {
             #expect(logged.contains("log:discarded:\(reason.rawValue)"), "no reducer case logs \(reason.rawValue)")
         }

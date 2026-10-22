@@ -208,6 +208,8 @@ struct AskView: View {
             Button(action: model.allowScreenRecording) { Text(L("ask.button.allow")) }
         case .modelCannotSee:
             Button(action: model.chooseAnotherModel) { Text(L("ask.button.chooseModel")) }
+        case .framesFull:
+            EmptyView()
         }
     }
 

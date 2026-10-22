@@ -43,6 +43,15 @@ public struct UtteranceContext: Sendable, Equatable {
     /// The kinds of context the last request carried, as the log names them: `selection`, `region` or
     /// `selection+region`. Nil until a request leaves, and for one with the instruction alone.
     public var sentContext: String?
+    /// The model's raw reply to this turn, once generated: a follow-up sends it back as the history. Never logged, and
+    /// never the answer as the user edited it.
+    public var reply: String?
+    /// The profile and model this turn's request went to, from `.generated`: what a first follow-up pins.
+    public var pin: ProfilePin?
+    /// The conversation this ask belongs to, from its first follow-up on (M12). Nil for a single ask and dictation.
+    public var thread: AskThread?
+    /// The answered turn this follow-up started from, until the follow-up has words and that turn joins `thread`.
+    public var parked: ParkedTurn?
 
     public init(id: UtteranceID, pressedAt: Date, intent: CaptureIntent = .dictate) {
         self.id = id

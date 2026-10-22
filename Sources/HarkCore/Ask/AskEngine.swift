@@ -32,7 +32,11 @@ public struct AskEngine: AskGenerating {
         self.vision = vision
     }
 
-    public func generate(instruction: String, selection: String?, image: ImagePart?) -> AsyncStream<LLMEvent> {
+    /// A follow-up (`thread`) goes as a single ask until M12.2 builds its whole request.
+    public func generate(
+        instruction: String, selection: String?, image: ImagePart?, thread: AskThread?,
+        frames: [UtteranceID: ImagePart]
+    ) -> AsyncStream<LLMEvent> {
         let llm = settings.current
         let client = client
         let vision = vision

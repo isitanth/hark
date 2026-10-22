@@ -34,8 +34,9 @@ public enum PipelineEvent: Sendable, Equatable {
     case inserted(UtteranceID)
     case copied(UtteranceID)
     case failed(UtteranceID, PipelineFailure)
-    /// The ask's stream finished with text. The text itself went to the popup, not through here.
-    case generated(UtteranceID, LLMCallSummary)
+    /// The ask's stream finished with text. The text went to the popup as it came; `reply` is all of it, as the model
+    /// wrote it, for a follow-up's history.
+    case generated(UtteranceID, LLMCallSummary, reply: String)
     case generationFailed(UtteranceID, LLMFailure, LLMCallSummary)
     /// Retry in the popup after a failure: the same instruction and selection, sent again.
     case askRetry(UtteranceID)
@@ -56,17 +57,20 @@ public enum PipelineEvent: Sendable, Equatable {
     case regionAbandoned(UtteranceID)
     /// Ask without the image, after a failure: the same instruction and selection, sent again without the frame.
     case askRetryWithoutRegion(UtteranceID)
+    /// The Ask key while an answer is in review (M12): a follow-up of the same ask, a new utterance with the
+    /// conversation so far. Every other press while the panel shows is a `triggerDown`, and busy.
+    case followUpDown(UtteranceID, at: Date)
 
     public var utteranceID: UtteranceID? {
         switch self {
         case .triggerDown(let id, _, _), .focusCaptured(let id, _), .captureLimitReached(let id), .captured(let id, _),
             .transcribed(let id, _, _),
             .resolved(let id, _, _), .confirmed(let id, _), .focusRestored(let id, _), .actionFinished(let id, _),
-            .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _),
+            .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _, _),
             .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _), .askReplace(let id, _),
             .selectionChecked(let id, _), .regionStarted(let id), .regionCaptured(let id, _),
             .regionFailed(let id, _), .regionRemoved(let id), .regionAbandoned(let id),
-            .askRetryWithoutRegion(let id):
+            .askRetryWithoutRegion(let id), .followUpDown(let id, _):
             id
         case .triggerUp, .cancel:
             nil

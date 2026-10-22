@@ -122,6 +122,24 @@ public struct AskPrompt: Sendable, Equatable {
         return (["<selection>", escaped, "</selection>"], truncated, cap)
     }
 
+    /// A follow-up's whole request (M12): turn 1 as a single ask builds it, then each answered turn's reply and the next
+    /// turn's words, ending with `current`. `images` holds the answered turns' frames by turn; the current turn's comes
+    /// in `current.image`. Nil when a framed turn's image is missing: nothing is sent then.
+    /// Until M12.2 builds the conversation, a follow-up goes as a single ask.
+    public static func thread(
+        _ thread: AskThread, current: (instruction: String, image: ImagePart?), images: [UtteranceID: ImagePart],
+        maxSelectionChars: Int = LLMConfig.defaultMaxSelectionChars
+    ) -> AskPrompt? {
+        if let image = current.image {
+            return AskPrompt(
+                instruction: current.instruction, selection: thread.selection, image: image,
+                maxSelectionChars: maxSelectionChars)
+        }
+        return thread.selection.map {
+            AskPrompt(instruction: current.instruction, selection: $0, maxSelectionChars: maxSelectionChars)
+        } ?? AskPrompt(request: current.instruction)
+    }
+
     /// The assistant: its rules, then the spoken request. There is no selection, so nothing is cut.
     public init(request: String) {
         truncated = false

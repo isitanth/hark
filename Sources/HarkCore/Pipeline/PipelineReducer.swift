@@ -176,7 +176,7 @@ public struct PipelineReducer: Sendable {
         case (.copying(let context, let transcript, let reason), .copied):
             return finish(context, transcript, .textClipboard(reason))
 
-        case (.asking(var context, let transcript, .generating), .generated(_, let summary)):
+        case (.asking(var context, let transcript, .generating), .generated(_, let summary, _)):
             context.llmModel = summary.model
             context.llmMs = summary.ms
             return move(.asking(context, transcript, .reviewing))

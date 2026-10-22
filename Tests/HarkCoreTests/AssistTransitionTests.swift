@@ -177,7 +177,7 @@ let assistPressSequences: [PressSequence] = [
     .init(
         name: "assistant, Insert",
         events: [down(1, F.assist), .focusCaptured(UtteranceID(1), F.backInTextEdit)] + heard(1) + [
-            .generated(UtteranceID(1), done), .askReplace(UtteranceID(1), F.answer),
+            .generated(UtteranceID(1), done, reply: "The answer."), .askReplace(UtteranceID(1), F.answer),
             .selectionChecked(
                 UtteranceID(1), SelectionCheck(verdict: .intact, focus: F.backInTextEdit, plan: .axInsert)),
             .inserted(UtteranceID(1)),
@@ -186,7 +186,10 @@ let assistPressSequences: [PressSequence] = [
     .init(
         name: "assistant, Copy",
         events: [down(1, F.assist), .focusCaptured(UtteranceID(1), F.focus)] + heard(1)
-            + [.generated(UtteranceID(1), done), .askCopy(UtteranceID(1), F.answer), .copied(UtteranceID(1))],
+            + [
+                .generated(UtteranceID(1), done, reply: "The answer."), .askCopy(UtteranceID(1), F.answer),
+                .copied(UtteranceID(1)),
+            ],
         logs: ["log:text_clipboard"]),
     .init(
         name: "assistant, the talk key while it streams, then Cancel",

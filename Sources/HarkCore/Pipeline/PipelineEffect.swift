@@ -20,8 +20,11 @@ public enum PipelineEffect: Sendable, Equatable {
     case copyToClipboard(UtteranceID, String, concealed: Bool)
     /// Streams the model's answer to `instruction` about `selection`, or to the request alone when there is none (the
     /// assistant); the controller publishes the text as it comes and reports only the end. `hasRegion`: the controller
-    /// sends the framed region's image, from its private slot, with the request.
-    case generate(UtteranceID, instruction: String, selection: SelectionSnapshot?, hasRegion: Bool = false)
+    /// sends the framed region's image, from its private slot, with the request. `thread`: a follow-up's conversation so
+    /// far; the controller looks up each framed turn's image, which the effect never carries.
+    case generate(
+        UtteranceID, instruction: String, selection: SelectionSnapshot?, hasRegion: Bool = false,
+        thread: AskThread? = nil)
     /// Closes the stream, which makes the server stop generating (measured in M8.0).
     case cancelGeneration(UtteranceID)
     /// Brings the caller back and checks its selection is still the one asked about (`SelectionGuard`).
