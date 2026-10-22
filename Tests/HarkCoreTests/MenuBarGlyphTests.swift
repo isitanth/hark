@@ -131,6 +131,7 @@ import Testing
         (.discarded, "cancelled", nil),
         (.discarded, "declined", nil),
         (.discarded, "max_duration", nil),
+        (.discarded, "followed_up", nil),
     ])
     func theSecondAfterAnUtterance(_ resolution: Resolution, _ error: String?, _ outcome: MenuBarOutcome?) {
         #expect(MenuBarOutcome(resolution: resolution, error: error) == outcome)

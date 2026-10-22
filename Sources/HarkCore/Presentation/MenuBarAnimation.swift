@@ -82,7 +82,7 @@ public enum MenuBarOutcome: Sendable, Equatable {
         case .discarded:
             let byUser: Set<String> = [
                 DiscardReason.cancelled.rawValue, DiscardReason.declined.rawValue, DiscardReason.maxDuration.rawValue,
-                DiscardReason.busy.rawValue,
+                DiscardReason.busy.rawValue, DiscardReason.followedUp.rawValue,
             ]
             guard !byUser.contains(error ?? "") else { return nil }
             self = .dismissed

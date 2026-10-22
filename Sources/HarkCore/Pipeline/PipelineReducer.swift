@@ -52,6 +52,10 @@ public struct PipelineReducer: Sendable {
             return .success(Transition(state: .capturing(context), effects: [.startCapture(id)]))
         }
 
+        // A follow-up press carries a new id, like the talk key's: it is handled before the check that the event is
+        // addressed to the current utterance.
+        if case .followUpDown(let new, let at) = event { return followUp(state, new, at) }
+
         guard let context = state.context else { return reject(state, event) }
         if let target = event.utteranceID, target != context.id { return reject(state, event) }
         let id = context.id
@@ -79,6 +83,7 @@ public struct PipelineReducer: Sendable {
         case (.transcribing(var context), .captured(_, let summary)) where context.capture == nil:
             context.capture = summary
             if let reason = policy.discardReason(for: summary) {
+                if let parked = context.parked { return returnToParked(context, parked, nil, .discarded(reason)) }
                 return finish(context, nil, .discarded(reason))
             }
             return move(.transcribing(context), [.transcribe(id)])
@@ -86,6 +91,9 @@ public struct PipelineReducer: Sendable {
         case (.transcribing(var context), .transcribed(_, let transcript, let ms)) where context.capture != nil:
             context.transcribeMs = ms
             if transcript.isBlank {
+                if let parked = context.parked {
+                    return returnToParked(context, parked, transcript, .discarded(.emptyTranscript))
+                }
                 return finish(context, transcript, .discarded(.emptyTranscript))
             }
             // An ask known at the press branches here, not from `resolving` (the project rules): there is no command to match
@@ -99,8 +107,8 @@ public struct PipelineReducer: Sendable {
                 if let failure = context.regionFailure {
                     return move(.asking(context, instruction, .regionFailed(failure)))
                 }
-                let request = generate(&context, instruction)
-                return move(.asking(context, instruction, .generating), [request])
+                let request = send(&context, instruction)
+                return move(.asking(context, instruction, .generating), request)
             }
             // Where the text goes, and whether it is a secret the log and the clipboard must not show, both come from
             // the focus. The probe always answers, within its AX timeouts, so a slow one is waited for.
@@ -145,8 +153,8 @@ public struct PipelineReducer: Sendable {
                     context.intent = .assist(caller: context.focus?.app)
                 }
                 context.request = request
-                let request = generate(&context, transcript)
-                return move(.asking(context, transcript, .generating), [request])
+                let request = send(&context, transcript)
+                return move(.asking(context, transcript, .generating), request)
             }
 
         case (.confirming(let context, let transcript, let command, .awaitingAnswer), .confirmed(_, let accepted)):
@@ -176,9 +184,16 @@ public struct PipelineReducer: Sendable {
         case (.copying(let context, let transcript, let reason), .copied):
             return finish(context, transcript, .textClipboard(reason))
 
-        case (.asking(var context, let transcript, .generating), .generated(_, let summary, _)):
+        // The reply is kept for the history and the pin for a follow-up. An empty one is no answer: it never becomes a
+        // turn, which the APIs would refuse.
+        case (.asking(var context, let transcript, .generating), .generated(_, let summary, let reply)):
             context.llmModel = summary.model
             context.llmMs = summary.ms
+            guard !reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                return move(.asking(context, transcript, .failed(.empty)))
+            }
+            context.reply = reply
+            context.pin = summary.pin ?? context.pin
             return move(.asking(context, transcript, .reviewing))
 
         case (.asking(var context, let transcript, .generating), .generationFailed(_, let failure, let summary)):
@@ -210,15 +225,15 @@ public struct PipelineReducer: Sendable {
             if let failure = context.regionFailure {
                 return move(.asking(context, transcript, .regionFailed(failure)))
             }
-            let request = generate(&context, transcript)
-            return move(.asking(context, transcript, .generating), [request])
+            let request = send(&context, transcript)
+            return move(.asking(context, transcript, .generating), request)
 
         // The failed call's numbers go: the line reports the call that ended the ask. The frame stays.
         case (.asking(var context, let transcript, .failed), .askRetry):
             context.llmModel = nil
             context.llmMs = nil
-            let request = generate(&context, transcript)
-            return move(.asking(context, transcript, .generating), [request])
+            let request = send(&context, transcript)
+            return move(.asking(context, transcript, .generating), request)
 
         // Ask without the image: after a server failure (one that cannot read images) or a frame that failed.
         case (.asking(var context, let transcript, .failed), .askRetryWithoutRegion),
@@ -227,8 +242,8 @@ public struct PipelineReducer: Sendable {
             context.llmMs = nil
             context.region = nil
             context.regionFailure = nil
-            let request = generate(&context, transcript)
-            return move(.asking(context, transcript, .generating), [request])
+            let request = send(&context, transcript)
+            return move(.asking(context, transcript, .generating), request)
 
         // The user chose the clipboard: `chosen`, so the line's error is null.
         case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):
@@ -239,6 +254,10 @@ public struct PipelineReducer: Sendable {
         // that it is still the one the press saw, the text asked about or nothing selected.
         case (.asking(var context, let transcript, .reviewing), .askReplace(_, let text)):
             guard var expected = context.intent.expectedSelection else { return reject(state, event) }
+            // An image has no text to replace: once a turn of the conversation is framed, a selection is not replaced.
+            if case .ask = context.intent, context.region != nil || context.thread?.framed == true {
+                return reject(state, event)
+            }
             // An Ask key pressed with no app known: the probe's app is the one Insert writes into.
             if expected.caller == nil { expected.caller = context.focus?.app }
             context.answer = text
@@ -263,21 +282,28 @@ public struct PipelineReducer: Sendable {
 
         // The engine may still be running (cap reached, converter error): release the microphone.
         case (.capturing(let context), .failed(_, let failure)):
-            return finish(context, nil, .failed(failure), cleanup: [.cancelCapture(id)])
+            return finishFollowUp(context, nil, .failed(failure), cleanup: [.cancelCapture(id)])
 
         case (.transcribing(let context), .failed(_, let failure))
         where context.capture == nil || !failure.isCaptureFailure:
-            return finish(context, nil, .failed(failure))
+            return finishFollowUp(context, nil, .failed(failure))
 
         case (.acting(let context, let transcript, _), .failed(_, let failure)),
             (.copying(let context, let transcript, _), .failed(_, let failure)):
             return finish(context, transcript, .failed(failure))
 
+        // Esc before a follow-up's request leaves returns to the answer it started from.
         case (.capturing(let context), .cancel):
+            if let parked = context.parked {
+                return returnToParked(context, parked, nil, .discarded(.cancelled), cleanup: [.cancelCapture(id)])
+            }
             return finish(context, nil, .discarded(.cancelled), cleanup: [.cancelCapture(id)])
 
         case (.transcribing(let context), .cancel):
             let cleanup: PipelineEffect = context.capture == nil ? .cancelCapture(id) : .cancelTranscription(id)
+            if let parked = context.parked {
+                return returnToParked(context, parked, nil, .discarded(.cancelled), cleanup: [cleanup])
+            }
             return finish(context, nil, .discarded(.cancelled), cleanup: [cleanup])
 
         case (.resolving(let context, let transcript), .cancel):
@@ -290,12 +316,15 @@ public struct PipelineReducer: Sendable {
         case (.asking(let context, let transcript, .generating), .cancel):
             return finish(context, transcript, .discarded(.cancelled), cleanup: [.cancelGeneration(id)])
 
-        // The panel has closed by then; only quitting cancels here.
+        // The panel's Cancel, or quitting: the conversation ends on this answer.
         case (.asking(let context, let transcript, .reviewing), .cancel),
             (.asking(let context, let transcript, .replacing), .cancel):
             return finish(context, transcript, .discarded(.cancelled))
 
         case (.asking(let context, let transcript, .awaitingRegion), .cancel):
+            if let parked = context.parked {
+                return returnToParked(context, parked, transcript, .discarded(.cancelled))
+            }
             return finish(context, transcript, .discarded(.cancelled))
 
         // Closing the popup on an error is not the user giving up on a good answer: the line keeps what failed.
@@ -303,6 +332,9 @@ public struct PipelineReducer: Sendable {
             return finish(context, transcript, .failed(failure.pipelineFailure))
 
         case (.asking(let context, let transcript, .regionFailed(let failure)), .cancel):
+            if let parked = context.parked {
+                return returnToParked(context, parked, transcript, .discarded(.cancelled))
+            }
             return finish(context, transcript, .failed(failure.pipelineFailure))
 
         default:
@@ -310,20 +342,98 @@ public struct PipelineReducer: Sendable {
         }
     }
 
+    /// A follow-up from the answer in review (M12): a new capture, the answer parked until the follow-up has words.
+    /// Anywhere else, or with the conversation full, the press is busy. Nothing reaches the engine without a pin.
+    private func followUp(_ state: PipelineState, _ new: UtteranceID, _ at: Date) -> Result<Transition, Rejection> {
+        let intent = state.context?.intent ?? .assist(caller: nil)
+        let busy = Transition(
+            state: state,
+            effects: [log(UtteranceContext(id: new, pressedAt: at, intent: intent), nil, .discarded(.busy))])
+        guard case .asking(let context, let transcript, .reviewing) = state,
+            !context.conversationFull(instruction: context.request ?? transcript.raw)
+        else { return .success(busy) }
+        let thread: AskThread
+        if let kept = context.thread {
+            thread = kept
+        } else if let pin = context.pin {
+            let selection = context.intent.selection
+            thread = AskThread(
+                rootID: context.id, kind: selection == nil ? .assistant : .selection, selection: selection?.text,
+                pin: pin)
+        } else {
+            return .success(busy)
+        }
+        var next = UtteranceContext(id: new, pressedAt: at, intent: context.intent)
+        next.focus = context.focus
+        next.thread = thread
+        next.parked = .turn(context, transcript)
+        return move(.capturing(next), [.startCapture(new)])
+    }
+
+    /// A follow-up that ends before its request leaves: Esc, nothing heard, too short. Its own line, then the answer it
+    /// started from is in review again. A frame it brought is no longer in the state.
+    private func returnToParked(
+        _ context: UtteranceContext, _ parked: ParkedTurn, _ transcript: Transcript?, _ outcome: PipelineOutcome,
+        cleanup: [PipelineEffect] = []
+    ) -> Result<Transition, Rejection> {
+        move(
+            .asking(parked.context, parked.transcript, .reviewing), cleanup + [log(context, transcript, outcome)])
+    }
+
+    /// A follow-up that ends any other way before its request leaves: its line, and the parked turn's, so no answered
+    /// turn goes unlogged.
+    private func finishFollowUp(
+        _ context: UtteranceContext, _ transcript: Transcript?, _ outcome: PipelineOutcome,
+        cleanup: [PipelineEffect] = []
+    ) -> Result<Transition, Rejection> {
+        var effects = cleanup + [log(context, transcript, outcome)]
+        if let parked = context.parked {
+            effects.append(log(parked.context, parked.transcript, .discarded(.cancelled)))
+        }
+        return .success(Transition(state: .idle, effects: effects))
+    }
+
+    /// The request leaving. A follow-up's parked turn is superseded here, once: its line says `followed_up` and it
+    /// joins the thread, so the request carries it as history. Until then Esc can still return to it.
+    private func send(_ context: inout UtteranceContext, _ transcript: Transcript) -> [PipelineEffect] {
+        var effects: [PipelineEffect] = []
+        if let parked = context.parked, let thread = context.thread {
+            let turn = parked.context
+            effects.append(log(turn, parked.transcript, .discarded(.followedUp)))
+            context.thread = thread.appending(
+                AskTurn(
+                    id: turn.id, instruction: turn.request ?? parked.transcript.raw, reply: turn.reply ?? "",
+                    region: turn.region))
+            context.parked = nil
+        }
+        return effects + [generate(&context, transcript)]
+    }
+
     /// The request: what followed a spoken prefix, or the transcript; the image when a frame was captured. The context
     /// remembers the kinds it carried, for the line.
     private func generate(_ context: inout UtteranceContext, _ transcript: Transcript) -> PipelineEffect {
         let selection = context.intent.selection.flatMap { $0.isBlank ? nil : $0 }
-        let kinds = [selection.map { _ in "selection" }, context.region.map { _ in "region" }].compactMap(\.self)
-        context.sentContext = kinds.isEmpty ? nil : kinds.joined(separator: "+")
+        let thread = context.thread
+        let kinds: [String?] = [
+            selection != nil || thread?.selection != nil ? "selection" : nil,
+            context.region != nil || thread?.framed == true ? "region" : nil,
+            thread != nil ? "history" : nil,
+        ]
+        let named = kinds.compactMap(\.self)
+        context.sentContext = named.isEmpty ? nil : named.joined(separator: "+")
         return .generate(
             context.id, instruction: context.request ?? transcript.raw, selection: context.intent.selection,
-            hasRegion: context.region != nil)
+            hasRegion: context.region != nil, thread: thread)
     }
 
     /// A region event applied to an ask's context; nil for a dictation, which frames nothing.
     private func region(_ context: UtteranceContext, _ event: PipelineEvent) -> UtteranceContext? {
         guard context.intent.isAsk else { return nil }
+        // At a conversation's frame cap, a turn with no frame of its own takes none; a drag replacing its frame is fine.
+        switch event {
+        case .regionStarted, .regionCaptured: guard context.acceptsFrame else { return nil }
+        default: break
+        }
         var context = context
         switch event {
         case .regionStarted:

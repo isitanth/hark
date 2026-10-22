@@ -118,6 +118,7 @@ let askTransitions: [LegalTransition] =
                 phase: .idle, effects: ["log:failed:\(code)"]),
         ]
     }
+    + followUpTransitions
 
 let illegalAskTransitions: [IllegalTransition] = [
     .init(name: "capturing an ask, a focus probe answers", state: F.askCapturing, event: .focusCaptured(F.id, F.focus)),
@@ -545,3 +546,154 @@ extension RegionTransitionTests {
         #expect(record.context == kinds, "\(name)")
     }
 }
+
+// MARK: - M12: follow-ups in the Ask panel
+
+private let pin = ProfilePin(
+    name: "local", baseURL: URL(string: "http://127.0.0.1:8000/v1") ?? URL(fileURLWithPath: "/"), api: .openAI,
+    model: .auto, requestedModel: F.bonsai)
+private let pinned = LLMCallSummary(model: F.bonsai, ms: 2_610, finishReason: "stop", pin: pin)
+private let followUpWords = Transcript(raw: "Plus court.", tier: .small)
+private let reply1 = "Réunion jeudi 14 h : validation du budget T3."
+private func uid(_ n: UInt64) -> UtteranceID { UtteranceID(n) }
+private func pressAt(_ n: UInt64) -> Date { F.pressedAt.addingTimeInterval(Double(n)) }
+
+/// Turn 1 in review, answered and pinned: what a first follow-up starts from.
+private func reviewed(_ intent: CaptureIntent = F.ask, region: RegionSummary? = nil) -> PipelineState {
+    var context = intent == F.ask ? F.askContext(llmModel: F.bonsai, llmMs: 2_610) : F.assistContext()
+    context.llmModel = F.bonsai
+    context.llmMs = 2_610
+    context.reply = reply1
+    context.pin = pin
+    context.region = region
+    return .asking(context, intent == F.ask ? F.instruction : F.request, .reviewing)
+}
+
+/// A turn in review whose thread already holds `answered` turns, the `framed` ones carrying a frame.
+private func reviewedThread(answered: Int, framed: Set<Int> = [], region: RegionSummary? = nil) -> PipelineState {
+    var thread = AskThread(rootID: uid(1), kind: .selection, selection: F.selectionText, pin: pin)
+    for n in 0..<answered {
+        thread = thread.appending(
+            AskTurn(
+                id: uid(UInt64(n) + 1), instruction: "Tour \(n)", reply: "Réponse \(n)",
+                region: framed.contains(n) ? F.region : nil))
+    }
+    var context = UtteranceContext(
+        id: uid(UInt64(answered) + 1), pressedAt: pressAt(UInt64(answered) + 1), intent: F.ask)
+    context.focus = FocusSnapshot(app: F.textEdit)
+    context.capture = F.speech
+    context.llmModel = F.bonsai
+    context.llmMs = 900
+    context.reply = "Réponse courante"
+    context.thread = answered == 0 ? nil : thread
+    context.pin = pin
+    context.region = region
+    return .asking(context, followUpWords, .reviewing)
+}
+
+/// A follow-up's context, `new` pressed from `from`, at the given point of its capture.
+private func followUpContext(
+    from state: PipelineState = reviewed(), _ new: UInt64 = 2, released: Bool = true, captured: Bool = true
+) -> UtteranceContext {
+    guard case .success(let transition) = PipelineReducer().reduce(state, .followUpDown(uid(new), at: pressAt(new))),
+        var context = transition.state.context
+    else { return UtteranceContext(id: uid(new), pressedAt: pressAt(new)) }
+    if released { context.releasedAt = pressAt(new).addingTimeInterval(1.5) }
+    if captured { context.capture = F.speech }
+    return context
+}
+
+private let followUpCapturing = PipelineState.capturing(followUpContext(released: false, captured: false))
+private let followUpTranscribing = PipelineState.transcribing(followUpContext())
+private func followUpAsking(_ stage: AskStage, pending: Bool = false, failure: RegionFailure? = nil) -> PipelineState {
+    var context = followUpContext()
+    context.regionPending = pending
+    context.regionFailure = failure
+    return .asking(context, followUpWords, stage)
+}
+/// A follow-up already sent: its parked turn is in the thread.
+private func sentFollowUp(_ stage: AskStage) -> PipelineState {
+    guard
+        case .success(let transition) = PipelineReducer().reduce(
+            followUpTranscribing, .transcribed(uid(2), followUpWords, ms: 300)),
+        case .asking(let context, let transcript, _) = transition.state
+    else { return .idle }
+    return .asking(context, transcript, stage)
+}
+
+/// M12's rows. Their codes count for `everyFailureAndDiscardReasonIsCovered` through `askTransitions`.
+let followUpTransitions: [LegalTransition] = [
+    .init(
+        name: "reviewing, follow-up: a new capture, no probe", state: reviewed(),
+        event: .followUpDown(uid(2), at: pressAt(2)), phase: .capturing, effects: ["startCapture"]),
+    .init(
+        name: "reviewing an assistant answer, follow-up", state: reviewed(F.assist),
+        event: .followUpDown(uid(2), at: pressAt(2)), phase: .capturing, effects: ["startCapture"]),
+    .init(
+        name: "reviewing with no pin and no thread, follow-up is busy", state: F.reviewing,
+        event: .followUpDown(F.other, at: at), phase: .asking, effects: ["log:discarded:busy"]),
+    .init(
+        name: "reviewing turn 5, follow-up: turn 6", state: reviewedThread(answered: 4),
+        event: .followUpDown(uid(9), at: pressAt(9)), phase: .capturing, effects: ["startCapture"]),
+    .init(
+        name: "reviewing turn 6, follow-up is busy", state: reviewedThread(answered: 5),
+        event: .followUpDown(uid(9), at: pressAt(9)), phase: .asking, effects: ["log:discarded:busy"]),
+    .init(
+        name: "generating, follow-up is busy", state: F.generating, event: .followUpDown(F.other, at: at),
+        phase: .asking, effects: ["log:discarded:busy"]),
+    .init(
+        name: "idle, follow-up is busy", state: .idle, event: .followUpDown(F.other, at: at), phase: .idle,
+        effects: ["log:discarded:busy"]),
+    .init(
+        name: "a follow-up's capture, talk key is busy", state: followUpCapturing, event: .triggerDown(uid(3), at: at),
+        phase: .capturing, effects: ["log:discarded:busy"]),
+    .init(
+        name: "a follow-up's capture, a second follow-up is busy", state: followUpCapturing,
+        event: .followUpDown(uid(3), at: at), phase: .capturing, effects: ["log:discarded:busy"]),
+    .init(
+        name: "a follow-up's capture, Esc: the answer again", state: followUpCapturing, event: .cancel,
+        phase: .asking, effects: ["cancelCapture", "log:discarded:cancelled"]),
+    .init(
+        name: "a follow-up's transcription, Esc: the answer again", state: followUpTranscribing, event: .cancel,
+        phase: .asking, effects: ["cancelTranscription", "log:discarded:cancelled"]),
+    .init(
+        name: "a follow-up too short: the answer again",
+        state: .transcribing(followUpContext(captured: false)), event: .captured(uid(2), F.short), phase: .asking,
+        effects: ["log:discarded:too_short"]),
+    .init(
+        name: "a follow-up with no words: the answer again", state: followUpTranscribing,
+        event: .transcribed(uid(2), Transcript(raw: " "), ms: 300), phase: .asking,
+        effects: ["log:discarded:empty_transcript"]),
+    .init(
+        name: "a follow-up with words: the answer is superseded, the request leaves", state: followUpTranscribing,
+        event: .transcribed(uid(2), followUpWords, ms: 300), phase: .asking,
+        effects: ["log:discarded:followed_up", "generate"]),
+    .init(
+        name: "a follow-up waiting for its frame, Esc: the answer again",
+        state: followUpAsking(.awaitingRegion, pending: true),
+        event: .cancel, phase: .asking, effects: ["log:discarded:cancelled"]),
+    .init(
+        name: "a follow-up whose frame failed, Esc: the answer again",
+        state: followUpAsking(.regionFailed(.captureFailed), failure: .captureFailed), event: .cancel,
+        phase: .asking, effects: ["log:discarded:cancelled"]),
+    .init(
+        name: "a follow-up's capture fails: both lines",
+        state: followUpCapturing, event: .failed(uid(2), .deviceChanged), phase: .idle,
+        effects: ["cancelCapture", "log:failed:device_changed", "log:discarded:cancelled"]),
+    .init(
+        name: "a follow-up's transcription fails: both lines", state: followUpTranscribing,
+        event: .failed(uid(2), .modelMissing(.small)), phase: .idle,
+        effects: ["log:failed:model_missing:small", "log:discarded:cancelled"]),
+    .init(
+        name: "a follow-up's profile changed: the panel says so", state: sentFollowUp(.generating),
+        event: .generationFailed(uid(2), .profileChanged, LLMCallSummary()), phase: .asking, effects: []),
+    .init(
+        name: "a follow-up's profile changed, cancel logs it", state: sentFollowUp(.failed(.profileChanged)),
+        event: .cancel, phase: .idle, effects: ["log:failed:llm_profile_changed"]),
+    .init(
+        name: "a follow-up's answer, Copy", state: sentFollowUp(.reviewing), event: .askCopy(uid(2), F.answer),
+        phase: .copying, effects: ["copyToClipboard"]),
+    .init(
+        name: "generating, an empty reply is llm_empty", state: F.generating,
+        event: .generated(F.id, done, reply: " \n "), phase: .asking, effects: []),
+]
