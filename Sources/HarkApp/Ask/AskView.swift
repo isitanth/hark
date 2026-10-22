@@ -13,6 +13,7 @@ struct AskView: View {
     @Namespace private var glass
     /// Hark's own fills turn opaque; the system frosts the glass itself.
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// A legacy scroller's width: the editor's text column is this much narrower when scroll bars always show.
     private static let scrollerWidth = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
@@ -43,6 +44,13 @@ struct AskView: View {
         .padding(16)
         .frame(width: AskPanel.width, alignment: .leading)
         .askPanelChrome()
+        // While ⌃⌥ frame part of the screen the panel steps back, so what lies under it shows.
+        .opacity(model.isFraming ? 0.35 : 1)
+        .allowsHitTesting(!model.isFraming)
+        // A change of state morphs the footer groups and the chips; under Reduce Motion it is immediate.
+        .animation(reduceMotion ? nil : .smooth(duration: 0.3), value: model.state)
+        .animation(reduceMotion ? nil : .smooth(duration: 0.3), value: model.regionPixelSize)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: model.isFraming)
         .task(id: model.state) {
             namesServer = false
             guard model.state == .thinking else { return }
@@ -387,11 +395,11 @@ struct AskView: View {
             case .noVision(_, .needsMTPMode):
                 return FooterLayout(secondary: [copyInstruction, askWithoutImage], primary: retry)
             case .noVision:
-                // Retrying the same model is pointless: the image goes, or the model changes.
+                // Retrying the same model is pointless: the image goes, or the model changes. Asking without the
+                // image keeps the instruction, so Copy instruction gives way, and the French labels fit.
                 let choose = FooterAction(
                     id: "chooseModel", title: L("ask.button.chooseModel"), action: model.chooseAnotherModel)
-                return FooterLayout(
-                    secondary: [copyInstruction, choose], primary: askWithoutImage.with(shortcut: .defaultAction))
+                return FooterLayout(secondary: [choose], primary: askWithoutImage.with(shortcut: .defaultAction))
             default:
                 return FooterLayout(
                     secondary: hasRegion ? [copyInstruction, askWithoutImage] : [copyInstruction], primary: retry)
