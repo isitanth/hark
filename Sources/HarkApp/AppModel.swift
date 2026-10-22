@@ -26,6 +26,9 @@ final class AppModel {
     var settingsTab = SettingsTab.general
     private(set) var microphone = MicPermission.status
     private(set) var accessibilityTrusted = AccessibilityPermission.isTrusted
+    /// Screen Recording, for framing a region during an ask. macOS reads the grant at launch, so a grant made since
+    /// shows after Reopen Hark.
+    private(set) var screenRecording = ScreenRecordingPermission.isGranted
     private(set) var config = ConfigSnapshot.initial
     /// LAST and RECENT, seeded from the log so they survive a relaunch.
     private(set) var feed = RecentFeed()
@@ -341,6 +344,7 @@ final class AppModel {
     func refreshPermissions() {
         microphone = MicPermission.status
         accessibilityTrusted = AccessibilityPermission.isTrusted
+        screenRecording = ScreenRecordingPermission.isGranted
         // Asking the center what it already decided; it never prompts, so a grant made in System Settings takes
         // the warning down the next time the panel opens rather than after the next clipboard copy.
         Task { [notifications] in
@@ -676,7 +680,7 @@ final class AppModel {
 
     /// The Ask panel's Allow…: the system's alert, which macOS shows once, and the Screen Recording list in System
     /// Settings, where a refusal is undone. macOS reads the grant at launch: the panel then offers Reopen Hark.
-    private func requestScreenRecording() {
+    func requestScreenRecording() {
         guard !ScreenRecordingPermission.request() else { return }
         openPrivacySettings(.screenRecording)
     }
@@ -694,10 +698,12 @@ final class AppModel {
         }
     }
 
-    /// `-HarkDebugPreview ask…` or `assistant…`: the Ask panel pinned in one state, for screenshots.
+    /// `-HarkDebugPreview ask…` or `assistant…`: the Ask panel pinned in one state, for screenshots; `overlay` adds the
+    /// framing overlay with a sample frame.
     func showAskPreview() {
         askPanel.configure(config.config.effectiveLLM)
         askPanel.showPreview(debugPreview)
+        if debugPreview.contains("overlay") { framing.showPreview() }
     }
 
     /// The cross for a second after an utterance that came to nothing, the animations, and the end of a latch.

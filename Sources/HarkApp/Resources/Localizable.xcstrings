@@ -5254,6 +5254,125 @@
         }
       }
     },
+    "settings.ask.section.region": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen region"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zone de l’écran"
+          }
+        }
+      }
+    },
+    "settings.ask.screenRecording": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Recording"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement de l’écran"
+          }
+        }
+      }
+    },
+    "settings.ask.readsImages": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reads images"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lit les images"
+          }
+        }
+      }
+    },
+    "settings.ask.readsImages.yes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oui"
+          }
+        }
+      }
+    },
+    "settings.ask.readsImages.no": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No: choose another model to show Hark the screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non : choisissez un autre modèle pour montrer l’écran à Hark"
+          }
+        }
+      }
+    },
+    "settings.ask.readsImages.unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not known until a test or an ask"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inconnu avant un test ou une demande"
+          }
+        }
+      }
+    },
+    "settings.ask.region.help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "During an ask, hold ⌃⌥ and drag to show Hark part of the screen. macOS asks for Screen Recording the first time, and again after about a month without a capture."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendant une demande, maintenez ⌃⌥ et faites glisser pour montrer une partie de l’écran à Hark. macOS demande l’autorisation d’enregistrer l’écran la première fois, puis de nouveau après environ un mois sans capture."
+          }
+        }
+      }
+    },
     "settings.ask.server": {
       "extractionState": "manual",
       "localizations": {

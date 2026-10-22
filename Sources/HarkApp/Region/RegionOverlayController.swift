@@ -70,6 +70,19 @@ final class RegionOverlayController {
         isShown = false
     }
 
+    /// `-HarkDebugPreview overlay`: the main display's overlay with a sample frame and the dot, for screenshots. It lets
+    /// the mouse through, since a preview has no ask to end it; quitting the preview takes it down.
+    func showPreview() {
+        guard let panel = panels.first else { return }
+        let size = panel.displayFrame.size
+        let rect = CGRect(x: (size.width - 700) / 2, y: (size.height - 600) / 2, width: 700, height: 600).integral
+        panel.ignoresMouseEvents = true
+        panel.state.rect = rect
+        panel.state.pointer = CGPoint(x: rect.maxX, y: rect.maxY)
+        panel.orderFrontRegardless()
+        isShown = true
+    }
+
     /// Esc while the mouse is down: the drag frames nothing and the ask goes on. False when no drag is under way.
     func cancelDrag() -> Bool {
         guard let drag else { return false }

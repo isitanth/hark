@@ -12,6 +12,8 @@ struct AskSettingsView: View {
     @State private var busy = false
     /// What the last Save, Remove or Test here came to.
     @State private var status: Status?
+    /// Allow… was pressed: macOS reads the grant at launch, so the row offers Reopen Hark.
+    @State private var screenRecordingRequested = false
 
     private enum Status: Equatable {
         case connected(String)
@@ -34,6 +36,15 @@ struct AskSettingsView: View {
         let templates = [ProviderProfile.local.name, ProviderProfile.claude.name]
         let others = Set(model.config.config.effectiveLLM.profiles.keys).subtracting(templates)
         return templates + others.sorted()
+    }
+
+    /// Whether the active model reads images, as the last check or ask taught: unknown until one has run.
+    private var readsImagesText: LocalizedStringResource {
+        switch profile.flatMap(model.ask.visionVerdict(for:)) {
+        case true?: L("settings.ask.readsImages.yes")
+        case false?: L("settings.ask.readsImages.no")
+        case nil: L("settings.ask.readsImages.unknown")
+        }
     }
 
     private var provider: Binding<String> {
@@ -130,11 +141,46 @@ struct AskSettingsView: View {
             } header: {
                 Text(L("settings.ask.section.connection"))
             }
+
+            Section {
+                LabeledContent {
+                    HStack(spacing: 8) {
+                        Text(model.screenRecording ? L("onboarding.status.granted") : L("onboarding.status.pending"))
+                            .foregroundStyle(.secondary)
+                        if !model.screenRecording {
+                            if screenRecordingRequested {
+                                Button(action: AppRelauncher.relaunch) { Text(L("ask.button.reopen")) }
+                            } else {
+                                Button {
+                                    screenRecordingRequested = true
+                                    model.requestScreenRecording()
+                                } label: {
+                                    Text(L("ask.button.allow"))
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    Text(L("settings.ask.screenRecording"))
+                }
+                LabeledContent {
+                    Text(readsImagesText)
+                        .foregroundStyle(.secondary)
+                } label: {
+                    Text(L("settings.ask.readsImages"))
+                }
+                Text(L("settings.ask.region.help"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } header: {
+                Text(L("settings.ask.section.region"))
+            }
         }
         .formStyle(.grouped)
         // Tall enough for the longest state, a French warning of three lines, so the form never scrolls its first
         // section out of sight.
-        .frame(height: 500)
+        .frame(height: 640)
         .onAppear {
             address = savedAddress
             guard let profile else { return }

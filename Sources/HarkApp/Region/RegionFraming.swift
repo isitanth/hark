@@ -31,6 +31,11 @@ final class RegionFraming {
         panel.dropDrag = { [weak self] in self?.overlay.cancelDrag() ?? false }
     }
 
+    /// `-HarkDebugPreview overlay`.
+    func showPreview() {
+        overlay.showPreview()
+    }
+
     func update(_ snapshot: PipelineSnapshot) {
         let live = snapshot.phase == .capturing && snapshot.utterance?.intent.isAsk == true
         let id = live ? snapshot.utterance?.id : nil
