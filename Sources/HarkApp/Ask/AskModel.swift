@@ -22,21 +22,31 @@ final class AskModel {
     @ObservationIgnored let secrets: any SecretStore
     @ObservationIgnored let client: LLMClient
     @ObservationIgnored let probe: LLMProbe
+    /// What the probes and the asks taught about which models read images, shared with the engine.
+    @ObservationIgnored let vision: VisionCapability
 
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "llm")
 
-    init(secrets: any SecretStore = KeychainSecretStore()) {
+    init(secrets: any SecretStore = KeychainSecretStore(), vision: VisionCapability = VisionCapability()) {
         self.secrets = secrets
+        self.vision = vision
         client = LLMClient(secrets: secrets)
         probe = LLMProbe(client: client)
     }
 
-    /// `GET /models` on `profile`, and what it says for the health row.
+    /// `GET /models` on `profile`, and what it says for the health row, and of whether its model reads images.
     func test(_ profile: ProviderProfile) async -> LLMProbeResult {
         let asked = generation
-        let result = await probe.check(profile)
-        if asked == generation { record(result) }
-        return result
+        let report = await probe.inspect(profile)
+        vision.record(report, profile: profile)
+        if asked == generation { record(report.result) }
+        return report.result
+    }
+
+    /// Whether the model the last check connected to reads images: nil when unknown.
+    func visionVerdict(for profile: ProviderProfile) -> Bool? {
+        guard let model else { return nil }
+        return vision.verdict(profile: profile, model: model)
     }
 
     /// Opening the panel or Settings › Ask: the server's status, fresh whenever it is looked at, once Ask is set up and

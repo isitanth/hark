@@ -93,6 +93,7 @@ private struct MenuBarLabel: View {
         Image(nsImage: MenuBarIconRenderer.image(for: model.menuBarGlyph))
             .accessibilityLabel(Text(model.iconState.label))
             .task {
+                model.openSettingsWindow = { openSettings() }
                 if model.debugPreview.contains("panel") { openWindow(id: PanelView.previewWindowID) }
                 if model.debugPreview.contains("settings") { openSettings() }
                 model.showHUDPreview()

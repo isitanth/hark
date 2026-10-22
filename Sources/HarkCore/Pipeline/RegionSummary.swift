@@ -24,7 +24,7 @@ public struct RegionSummary: Sendable, Equatable {
 }
 
 /// Why a framed region did not become an image.
-public enum RegionFailure: Sendable, Equatable {
+public enum RegionFailure: Error, Sendable, Equatable {
     /// Hark has no Screen Recording grant.
     case screenRecordingDenied
     /// ScreenCaptureKit or the encoder failed.

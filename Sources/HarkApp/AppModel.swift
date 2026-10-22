@@ -12,6 +12,7 @@ final class AppModel {
         case microphone = "Privacy_Microphone"
         case accessibility = "Privacy_Accessibility"
         case automation = "Privacy_Automation"
+        case screenRecording = "Privacy_ScreenCapture"
     }
 
     private(set) var snapshot = PipelineSnapshot(phase: .idle)
@@ -88,6 +89,10 @@ final class AppModel {
     @ObservationIgnored private var askService: AskService?
     /// The Ask panel: what it shows, and the panel itself.
     @ObservationIgnored let askPanel: AskPanelModel
+    /// The region overlay, the ⌃⌥ monitor and the capture: framing a region during an ask.
+    @ObservationIgnored private let framing: RegionFraming
+    /// Set by the status item's view: SwiftUI's Settings window, which only a view can open.
+    @ObservationIgnored var openSettingsWindow: (() -> Void)?
     /// The Model tab's state. Held here because the engine it drives is the one the pipeline was built with.
     @ObservationIgnored let models: ModelsModel
     /// The live text's own Small, beside the final's engine so a partial never queues behind a final.
@@ -226,19 +231,21 @@ final class AppModel {
             workspace: workspace)
         selectionReader = SelectionReader(accessibility: accessibility, copier: inserter)
         actions = ActionRunner(workspace: workspace)
-        let ask = AskModel()
+        let vision = VisionCapability()
+        let ask = AskModel(vision: vision)
         self.ask = ask
         let environment = PipelineEnvironment(
             workspace: workspace, pasteboard: pasteboard, focus: focusProbe, audio: audio, engine: engine,
             resolver: UtteranceResolver(settings: resolution, selection: selectionReader), inserter: inserter,
             actions: actions,
-            asker: AskEngine(client: ask.client, settings: askSettings),
+            asker: AskEngine(client: ask.client, settings: askSettings, vision: vision),
             selection: CallerSelectionChecker(
                 workspace: workspace, focus: focusProbe, accessibility: accessibility, copier: inserter,
                 settings: resolution))
         controller = PipelineController(environment: environment, log: UtteranceLog(directory: paths.logs))
         askPanel = AskPanelModel(
             controller: controller, workspace: workspace, pasteboard: pasteboard, defaults: defaults)
+        framing = RegionFraming(controller: controller, panel: askPanel)
         pinnedIcon = defaults.string(forKey: "HarkDebugIconState").flatMap(MenuBarIconState.init(rawValue:))
         // The volume first, so a quit past the deadline still gives it back; then the pipeline, so the utterance in
         // flight writes its line; then the engines, so nothing loads again.
@@ -273,6 +280,8 @@ final class AppModel {
                 let previous = self?.config.config.effectiveLLM.activeProfile
                 self?.config = snapshot
                 askSettings.update(snapshot.config.effectiveLLM)
+                self?.ask.vision.update(snapshot.config.effectiveLLM)
+                self?.framing.api = snapshot.config.effectiveLLM.activeProfile?.api ?? .openAI
                 if let profile = snapshot.config.effectiveLLM.activeProfile, profile != previous {
                     await self?.ask.profileChanged(profile)
                 }
@@ -314,6 +323,9 @@ final class AppModel {
         service.onAsk = { [weak self] text, caller in self?.startAsk(text, caller: caller) }
         askService = service
         askPanel.preflight = { [weak self] in await self?.preflight() }
+        askPanel.openAskSettings = { [weak self] in self?.openSettings(.ask) }
+        askPanel.requestScreenRecording = { [weak self] in self?.requestScreenRecording() }
+        askPanel.relaunch = { AppRelauncher.relaunch() }
         HarkAppDelegate.servicesProvider = service
         refreshInputDevices()
         Task { [audio] in await audio.prepare() }
@@ -566,6 +578,7 @@ final class AppModel {
         hudModel.update(snapshot)
         hud.setVisible(hudModel.state != .hidden)
         askPanel.update(snapshot)
+        framing.update(snapshot)
         drivePartial(snapshot)
     }
 
@@ -649,7 +662,23 @@ final class AppModel {
     /// spent on it. An ask is the user's request, so a cloud profile is checked too. The result feeds the health row.
     private func preflight() async -> LLMProbeResult? {
         guard let profile = config.config.effectiveLLM.activeProfile else { return nil }
-        return await ask.test(profile)
+        let result = await ask.test(profile)
+        askPanel.setVisionVerdict(ask.visionVerdict(for: profile))
+        return result
+    }
+
+    /// Settings on one tab, from outside a view: the Ask panel's Choose another model….
+    func openSettings(_ tab: SettingsTab) {
+        settingsTab = tab
+        openSettingsWindow?()
+        NSApplication.shared.activate()
+    }
+
+    /// The Ask panel's Allow…: the system's alert, which macOS shows once, and the Screen Recording list in System
+    /// Settings, where a refusal is undone. macOS reads the grant at launch: the panel then offers Reopen Hark.
+    private func requestScreenRecording() {
+        guard !ScreenRecordingPermission.request() else { return }
+        openPrivacySettings(.screenRecording)
     }
 
     /// What an ask came to, for the panel's health row, as Test connection's result would.

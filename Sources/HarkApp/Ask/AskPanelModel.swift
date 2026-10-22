@@ -63,6 +63,11 @@ final class AskPanelModel {
     @ObservationIgnored var requestScreenRecording: (() -> Void)?
     /// Set by `AppModel`: quits and opens Hark again, so macOS reads the new grant.
     @ObservationIgnored var relaunch: (() -> Void)?
+    /// Set by `RegionFraming`: Esc while a drag is under way drops the drag, not the ask. True when it did.
+    @ObservationIgnored var dropDrag: (() -> Bool)?
+    /// The reply as it streams, restatement included. An image ask shows its answer in `streamed`, its restatement in
+    /// `intent`.
+    @ObservationIgnored private var reply = ""
 
     @ObservationIgnored private let controller: PipelineController
     @ObservationIgnored private let workspace: AppKitWorkspace
@@ -130,20 +135,81 @@ final class AskPanelModel {
             quote = AskPresentation.quote(selection)
             truncated = selection.count > maxSelectionChars
             instruction = nil
+            reply = ""
             streamed = ""
             answer = ""
+            self.intent = nil
             preflightFailure = nil
+            regionThumbnail = nil
+            regionPixelSize = nil
+            isFraming = false
+            framingBlocked = visionVerdict == false ? .modelCannotSee : nil
+            screenRecordingRequested = false
             check(next)
         }
-        // The assistant's focus arrives with the probe, after the press.
-        if let utterance = snapshot.utterance, utterance.id == id { apply = AskPresentation.apply(utterance) }
+        if let utterance = snapshot.utterance, utterance.id == id {
+            // The assistant's focus arrives with the probe, after the press.
+            apply = AskPresentation.apply(utterance)
+            allowsReplace = utterance.region == nil && !isImageAsk
+            if let region = utterance.region {
+                regionPixelSize = CGSize(width: region.pixelWidth, height: region.pixelHeight)
+            } else if !utterance.regionPending {
+                // The chip's ×, or an ask without the image.
+                regionThumbnail = nil
+                regionPixelSize = nil
+            }
+        }
         refresh()
     }
 
     func update(_ update: AskUpdate) {
         guard !pinned, update.id == id else { return }
-        streamed = update.text
+        reply = update.text
+        if isImageAsk {
+            let split = IntentSplit.split(reply, complete: false)
+            intent = split.intent
+            streamed = split.answer
+        } else {
+            streamed = reply
+        }
         refresh()
+    }
+
+    /// The request on its way carried the framed region: its reply starts with the `%%` restatement.
+    private var isImageAsk: Bool {
+        snapshot.utterance?.id == id && snapshot.utterance?.sentContext?.contains("region") == true
+    }
+
+    // MARK: - Framing, fed by `RegionFraming` and `AppModel`
+
+    /// ⌃⌥ are held: the panel steps back and lets the mouse through to the overlay.
+    func setFraming(_ framing: Bool) {
+        guard !pinned else { return }
+        isFraming = framing
+        panel.ignoresMouseEvents = framing
+    }
+
+    func setFramingBlocked(_ block: FramingBlock?) {
+        guard !pinned else { return }
+        framingBlocked = block
+    }
+
+    /// The captured region's thumbnail, for the ask on show only.
+    func showRegion(thumbnail: CGImage?, for ask: UtteranceID) {
+        guard !pinned, ask == id else { return }
+        regionThumbnail = thumbnail
+    }
+
+    /// What the models list or an ask taught about the active model. A model known to be blind blocks framing at
+    /// once; a verdict that changes back lifts that block.
+    func setVisionVerdict(_ verdict: Bool?) {
+        guard !pinned else { return }
+        visionVerdict = verdict
+        if verdict == false, framingBlocked == nil {
+            framingBlocked = .modelCannotSee
+        } else if verdict != false, framingBlocked == .modelCannotSee {
+            framingBlocked = nil
+        }
     }
 
     private func refresh() {
@@ -151,11 +217,20 @@ final class AskPanelModel {
         var next = AskPresentation.state(current, streamed: !streamed.isEmpty)
         // A Retry starts from nothing: the failed call's words are not the new answer.
         if case .failed = state, next == .streaming {
+            reply = ""
             streamed = ""
+            intent = nil
             next = .thinking
         }
         if let heard = current.ask?.instruction { instruction = heard }
-        if next == .reviewing, state != .reviewing { answer = streamed }
+        if next == .reviewing, state != .reviewing {
+            if isImageAsk {
+                let split = IntentSplit.split(reply, complete: true)
+                intent = split.intent
+                streamed = split.answer
+            }
+            answer = streamed
+        }
         guard next != state else { return }
         let wasOpen = state != .closed
         state = next

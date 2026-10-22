@@ -2,7 +2,7 @@ import AppKit
 import HarkCore
 import SwiftUI
 
-/// The Ask panel, the second of the app's two NSPanels (the project rules). Non-activating, so opening it from the Ask key
+/// The Ask panel, the second of the app's three AppKit windows (the project rules). Non-activating, so opening it from the Ask key
 /// (M9) leaves the source app in front, and allowed to become key, for typing, Return and Esc. A Services call has
 /// activated Hark already; every close brings the caller back (`AskPanelModel`).
 ///
@@ -97,11 +97,13 @@ final class AskPanel: NSPanel, NSWindowDelegate {
     }
 
     override func sendEvent(_ event: NSEvent) {
-        if event.type == .keyDown, event.keyCode == 53,
-            event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty
-        {
-            model.cancel()
-            return
+        if event.type == .keyDown, event.keyCode == 53 {
+            // Esc while a frame is being dragged drops that drag and keeps the ask, ⌃⌥ held or not.
+            if model.dropDrag?() == true { return }
+            if event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty {
+                model.cancel()
+                return
+            }
         }
         super.sendEvent(event)
     }
