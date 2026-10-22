@@ -240,3 +240,106 @@ private final class ReleaseCountingInserter: TextInserting {
 
     func releasePasteboard() async { count.withLock { $0 += 1 } }
 }
+
+/// The controller's pixel slot (M11): the image goes with the request that has a region, and lives no longer than it.
+extension AskPipelineTests {
+    fileprivate static let png = ImagePart(
+        data: Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A] + [UInt8](repeating: 7, count: 64)))
+
+    private func startAsk(_ rig: Rig, _ snapshots: inout AsyncStream<PipelineSnapshot>.Iterator) async throws
+        -> UtteranceID
+    {
+        await rig.controller.triggerDown(intent: F.ask)
+        return try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+    }
+
+    @Test func theFramedImageGoesWithTheRequestAndIsFreedAtTheEnd() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        await rig.controller.regionStarted(for: id)
+        await rig.controller.attachRegion(Self.png, summary: F.region, for: id)
+        #expect(await rig.controller.holdsRegionImage)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        #expect(rig.asker.images == [Self.png])
+        await rig.controller.copyAnswer(F.answer, for: id)
+        _ = await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }
+        #expect(await !rig.controller.holdsRegionImage)
+    }
+
+    @Test func aReleaseDuringTheDragWaitsForTheFrame() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        await rig.controller.regionStarted(for: id)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .awaitingRegion }
+        #expect(rig.asker.images.isEmpty)
+        await rig.controller.attachRegion(Self.png, summary: F.region, for: id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        #expect(rig.asker.images == [Self.png])
+    }
+
+    @Test func aFrameForAnotherUtteranceIsDropped() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        await rig.controller.attachRegion(Self.png, summary: F.region, for: UtteranceID(id.rawValue + 1))
+        #expect(await !rig.controller.holdsRegionImage)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        #expect(rig.asker.images == [nil])
+    }
+
+    @Test func aFrameAfterTheRequestLeftIsDropped() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        await rig.controller.attachRegion(Self.png, summary: F.region, for: id)
+        #expect(await !rig.controller.holdsRegionImage)
+    }
+
+    @Test func theChipsCrossFreesTheImage() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        await rig.controller.attachRegion(Self.png, summary: F.region, for: id)
+        await rig.controller.removeRegion(for: id)
+        #expect(await !rig.controller.holdsRegionImage)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing }
+        #expect(rig.asker.images == [nil])
+    }
+
+    @Test func cancelFreesTheImage() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.finished))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        await rig.controller.attachRegion(Self.png, summary: F.region, for: id)
+        await rig.controller.cancel(id)
+        _ = await next(&snapshots) { $0.phase == .idle }
+        #expect(await !rig.controller.holdsRegionImage)
+    }
+
+    /// Retry keeps the image; asking without it frees it and sends the request alone.
+    @Test func retryKeepsTheImageAndAskingWithoutItFreesIt() async throws {
+        let failing = LLMEvent.failed(.noVision(model: F.bonsai, reason: .noVision), LLMCallSummary(ms: 40))
+        let rig = try Rig(asker: ScriptedAsker(pieces: [], ending: failing))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await startAsk(rig, &snapshots)
+        await rig.controller.attachRegion(Self.png, summary: F.region, for: id)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { if case .failed? = $0.ask?.stage { true } else { false } }
+        await rig.controller.retryAsk(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .generating }
+        _ = await next(&snapshots) { if case .failed? = $0.ask?.stage { true } else { false } }
+        #expect(await rig.controller.holdsRegionImage)
+        await rig.controller.retryAskWithoutRegion(id)
+        #expect(await !rig.controller.holdsRegionImage)
+        _ = await next(&snapshots) { if case .failed? = $0.ask?.stage { true } else { false } }
+        #expect(rig.asker.images == [Self.png, Self.png, nil])
+    }
+}

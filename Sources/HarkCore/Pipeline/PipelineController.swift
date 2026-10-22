@@ -57,6 +57,9 @@ public actor PipelineController {
     private var closed = false
     /// Samples between `AudioInput.stop` and the `.transcribe` effect. Lives only for one `send(.captured)`.
     private var capturedSamples: (id: UtteranceID, samples: [Float])?
+    /// The framed region's pixels, for the utterance whose context holds its summary. Never in the state or a snapshot;
+    /// freed as soon as the context no longer has a region, which every path to idle ensures.
+    private var regionImage: (id: UtteranceID, image: ImagePart)?
     /// The ask's stream being read. Cancelling it closes the request.
     private var generation: Task<Void, Never>?
 
@@ -137,22 +140,40 @@ public actor PipelineController {
     }
 
     /// The region overlay's mouse-down during an ask: a drag began, and the request waits for its capture.
-    public func regionStarted(for id: UtteranceID) {}
+    public func regionStarted(for id: UtteranceID) {
+        send(.regionStarted(id))
+    }
 
     /// The framed region's image, for `id` only: the app's one door for pixels. They stay in a private slot, never in
     /// the state or a snapshot, and are freed on every path to idle.
-    public func attachRegion(_ image: ImagePart, summary: RegionSummary, for id: UtteranceID) {}
+    public func attachRegion(_ image: ImagePart, summary: RegionSummary, for id: UtteranceID) {
+        guard state.context?.id == id else { return }
+        let previous = regionImage
+        regionImage = (id, image)
+        // Rejected (a dictation, or the request already left): the previous frame, if any, stays as it was.
+        if !send(.regionCaptured(id, summary)) { regionImage = previous }
+        releaseRegionIfUnused()
+    }
 
     /// The framed region did not become an image.
-    public func regionFailed(_ failure: RegionFailure, for id: UtteranceID) {}
+    public func regionFailed(_ failure: RegionFailure, for id: UtteranceID) {
+        send(.regionFailed(id, failure))
+    }
 
     /// The chip's ×: the ask goes on without the region.
-    public func removeRegion(for id: UtteranceID) {}
+    public func removeRegion(for id: UtteranceID) {
+        send(.regionRemoved(id))
+    }
 
     /// Ask without the image, after a failure: the same instruction and selection, sent again without the frame.
-    public func retryAskWithoutRegion(_ id: UtteranceID) {}
+    public func retryAskWithoutRegion(_ id: UtteranceID) {
+        send(.askRetryWithoutRegion(id))
+    }
 
     public var phase: PipelinePhase { state.phase }
+
+    /// Whether a framed region's pixels are held: for the tests that check every path frees them.
+    public var holdsRegionImage: Bool { regionImage != nil }
 
     /// What the capture under way is for; nil when nothing is being captured. The talk key reads it to end an ask's
     /// capture instead of starting a busy utterance.
@@ -170,18 +191,29 @@ public actor PipelineController {
         }
     }
 
-    private func send(_ event: PipelineEvent) {
+    /// Whether the reducer took the event.
+    @discardableResult
+    private func send(_ event: PipelineEvent) -> Bool {
         switch reducer.reduce(state, event) {
         case .failure(let rejection):
             Self.logger.debug("dropped \(String(describing: rejection.event)) in \(rejection.phase.rawValue)")
+            return false
         case .success(let transition):
             state = transition.state
             for effect in transition.effects {
                 perform(effect)
             }
+            releaseRegionIfUnused()
             continuation.yield(
                 PipelineSnapshot(phase: state.phase, utterance: state.context, lastRecord: lastRecord, ask: state.ask))
+            return true
         }
+    }
+
+    /// The pixels live exactly as long as the context's region: idle, the chip's × and an ask without it free them.
+    private func releaseRegionIfUnused() {
+        guard let held = regionImage else { return }
+        if state.context?.id != held.id || state.context?.region == nil { regionImage = nil }
     }
 
     private func perform(_ effect: PipelineEffect) {
@@ -293,10 +325,12 @@ public actor PipelineController {
                 send(copied ? .copied(id) : .failed(id, .pasteboardWrite))
             }
 
-        case .generate(let id, let instruction, let selection, _):
+        case .generate(let id, let instruction, let selection, let hasRegion):
             generation?.cancel()
             askContinuation.yield(AskUpdate(id: id, text: ""))
-            let events = env.asker.generate(instruction: instruction, selection: selection?.text, image: nil)
+            let image = hasRegion && regionImage?.id == id ? regionImage?.image : nil
+            if hasRegion && image == nil { Self.logger.fault("no region image for utterance \(id)") }
+            let events = env.asker.generate(instruction: instruction, selection: selection?.text, image: image)
             generation = Task {
                 var text = ""
                 for await event in events {
