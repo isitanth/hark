@@ -32,6 +32,9 @@ public enum AskApply: Sendable, Equatable {
 public enum AskPresentation {
     /// How long "Thinking…" stands alone before it names the server it waits for.
     public static let namesServerAfter = Duration.seconds(3)
+    /// The same for an ask that sent a frame: reading an image takes a local model 10 to 15 s before the first word
+    /// (M11 live checks), a wait that is normal, not a server that is stuck.
+    public static let namesServerAfterFrame = Duration.seconds(10)
 
     /// - Parameter streamed: the answer so far (`PipelineController.askUpdates`) holds text for this utterance.
     public static func state(_ snapshot: PipelineSnapshot, streamed: Bool) -> AskPanelState {

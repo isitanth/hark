@@ -53,6 +53,8 @@ final class AskPanelModel {
     private(set) var visionVerdict: Bool?
     /// Replace is offered: never after an ask that carried a region, which has no text to replace.
     private(set) var allowsReplace = true
+    /// The request on its way carried the frame: the wait reads it, and the reply starts with its restatement.
+    private(set) var sentFrame = false
     /// Allow… was pressed for Screen Recording: macOS reads the grant at launch, so the panel offers Reopen Hark.
     private(set) var screenRecordingRequested = false
     /// Set by `AppModel`: `GET /models` on the active profile, run when an ask opens.
@@ -154,6 +156,7 @@ final class AskPanelModel {
             // The assistant's focus arrives with the probe, after the press.
             apply = AskPresentation.apply(utterance)
             allowsReplace = utterance.region == nil && !isImageAsk
+            sentFrame = isImageAsk
             if let region = utterance.region {
                 regionPixelSize = CGSize(width: region.pixelWidth, height: region.pixelHeight)
             } else if !utterance.regionPending {

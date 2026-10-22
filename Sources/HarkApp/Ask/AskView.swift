@@ -1,4 +1,5 @@
 import HarkCore
+import KeyboardShortcuts
 import SwiftUI
 
 /// The Ask panel's content, top to bottom: the instruction, a quote of the selection, the state or the answer, and
@@ -55,7 +56,8 @@ struct AskView: View {
         .task(id: model.state) {
             namesServer = false
             guard model.state == .thinking else { return }
-            try? await Task.sleep(for: AskPresentation.namesServerAfter)
+            try? await Task.sleep(
+                for: model.sentFrame ? AskPresentation.namesServerAfterFrame : AskPresentation.namesServerAfter)
             namesServer = !Task.isCancelled
         }
         .onChange(of: model.state) { _, state in
@@ -145,6 +147,30 @@ struct AskView: View {
 
     private var hasRegion: Bool { model.regionThumbnail != nil || model.regionPixelSize != nil }
 
+    /// What to say while listening: about the selection, the frame, both, or neither (the assistant).
+    private var listeningHint: LocalizedStringResource {
+        switch (model.quote.isEmpty, hasRegion) {
+        case (true, false): L("assistant.listening.hint")
+        case (false, false): L("ask.listening.hint")
+        case (true, true): L("assistant.listening.hint.frame")
+        case (false, true): L("ask.listening.hint.frame")
+        }
+    }
+
+    /// How to frame, from the Ask key: held, a key that has ⌃ or ⌥ already needs only the other one.
+    private var frameHint: LocalizedStringResource {
+        guard let key = KeyboardShortcuts.getShortcut(for: .ask) else { return L("ask.listening.frameHint") }
+        let held = key.description
+        let control = "⌃"
+        let option = "⌥"
+        switch (key.modifiers.contains(.control), key.modifiers.contains(.option)) {
+        case (true, true): return L("ask.listening.frameHint.held \(held)")
+        case (true, false): return L("ask.listening.frameHint.add \(held) \(option)")
+        case (false, true): return L("ask.listening.frameHint.add \(held) \(control)")
+        case (false, false): return L("ask.listening.frameHint")
+        }
+    }
+
     /// While listening: how to show Hark the screen, or why it cannot see it now, with the button that fixes it.
     @ViewBuilder
     private var framing: some View {
@@ -165,7 +191,7 @@ struct AskView: View {
                     .askButtonStyle(prominent: false)
             }
         } else if !hasRegion {
-            Text(L("ask.listening.frameHint"))
+            Text(frameHint)
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .allowsHitTesting(false)
@@ -195,7 +221,7 @@ struct AskView: View {
                     Image(systemName: "waveform")
                 }
                 .font(.body.weight(.medium))
-                Text(model.quote.isEmpty ? L("assistant.listening.hint") : L("ask.listening.hint"))
+                Text(listeningHint)
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 preflight
@@ -211,7 +237,10 @@ struct AskView: View {
                 preflight
             }
         case .thinking:
-            progress(namesServer ? L("ask.thinking.server \(model.server)") : L("ask.thinking"))
+            progress(
+                namesServer
+                    ? L("ask.thinking.server \(model.server)")
+                    : model.sentFrame ? L("ask.thinking.frame") : L("ask.thinking"))
         case .failed(let failure):
             Label {
                 Text(failure.popupText(imageAttached: hasRegion))
@@ -400,7 +429,11 @@ struct AskView: View {
                 id: "retry", title: L("ask.button.retry"), action: model.retry, shortcut: .defaultAction)
             switch failure {
             case .noVision(_, .needsMTPMode):
-                return FooterLayout(secondary: [copyInstruction, askWithoutImage], primary: retry)
+                // The same image to the same AR server fails again: asking without the frame is the way out, and
+                // Retry stays for after a restart in MTP mode.
+                let retryAfterRestart = FooterAction(id: "retry", title: L("ask.button.retry"), action: model.retry)
+                return FooterLayout(
+                    secondary: [retryAfterRestart], primary: askWithoutImage.with(shortcut: .defaultAction))
             case .noVision:
                 // Retrying the same model is pointless: the image goes, or the model changes. Asking without the
                 // image keeps the instruction, so Copy instruction gives way, and the French labels fit.

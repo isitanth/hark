@@ -5934,6 +5934,23 @@
         }
       }
     },
+    "ask.listening.hint.frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Say what to do with the selection and the frame, then press Return. Drag again to replace the frame."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites quoi faire de la sélection et du cadre, puis appuyez sur Retour. Faites glisser à nouveau pour remplacer le cadre."
+          }
+        }
+      }
+    },
     "assistant.listening.hint": {
       "extractionState": "manual",
       "localizations": {
@@ -5947,6 +5964,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Posez une question ou dites quoi rédiger, puis appuyez sur Retour."
+          }
+        }
+      }
+    },
+    "assistant.listening.hint.frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Say what to do with the frame, then press Return. Drag again to replace it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites quoi faire du cadre, puis appuyez sur Retour. Faites glisser à nouveau pour le remplacer."
           }
         }
       }
@@ -5981,6 +6015,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réflexion…"
+          }
+        }
+      }
+    },
+    "ask.thinking.frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the frame…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture du cadre…"
           }
         }
       }
@@ -6325,19 +6376,70 @@
         }
       }
     },
+    "ask.intent %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Understood: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compris : %@"
+          }
+        }
+      }
+    },
     "ask.listening.frameHint": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hold ⌃⌥ and drag to show Hark part of the screen."
+            "value": "Hold ⌃⌥ and drag to frame part of the screen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maintenez ⌃⌥ et faites glisser pour montrer une partie de l’écran à Hark."
+            "value": "Maintenez ⌃⌥ et faites glisser pour cadrer une partie de l’écran."
+          }
+        }
+      }
+    },
+    "ask.listening.frameHint.add %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold ⌃⌥ and drag to frame part of the screen; while you hold %@, just add %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez ⌃⌥ et faites glisser pour cadrer une partie de l’écran ; en maintenant %@, ajoutez simplement %@."
+          }
+        }
+      }
+    },
+    "ask.listening.frameHint.held %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold ⌃⌥ and drag to frame part of the screen; while you hold %@, just drag."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez ⌃⌥ et faites glisser pour cadrer une partie de l’écran ; en maintenant %@, faites simplement glisser."
           }
         }
       }

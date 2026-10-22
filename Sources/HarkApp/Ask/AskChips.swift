@@ -125,15 +125,17 @@ struct AskRestatement: View {
 
     var body: some View {
         Label {
-            Text(verbatim: text)
+            // In the primary colour, after "Understood:": the model's reading of the request, the line to check.
+            Text(L("ask.intent \(text)"))
+                .foregroundStyle(.primary)
                 .lineLimit(3)
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
         } icon: {
             Image(systemName: "arrow.turn.down.right")
+                .foregroundStyle(.secondary)
         }
         .font(.callout)
-        .foregroundStyle(.secondary)
         .help(text)
     }
 }
