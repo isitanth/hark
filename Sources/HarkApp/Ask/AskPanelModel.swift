@@ -68,6 +68,8 @@ final class AskPanelModel {
     /// The reply as it streams, restatement included. An image ask shows its answer in `streamed`, its restatement in
     /// `intent`.
     @ObservationIgnored private var reply = ""
+    /// The answer as the reply gave it when review began, so text that lands after can follow until the user edits.
+    @ObservationIgnored private var reviewedReply = ""
 
     @ObservationIgnored private let controller: PipelineController
     @ObservationIgnored private let workspace: AppKitWorkspace
@@ -136,6 +138,7 @@ final class AskPanelModel {
             truncated = selection.count > maxSelectionChars
             instruction = nil
             reply = ""
+            reviewedReply = ""
             streamed = ""
             answer = ""
             self.intent = nil
@@ -165,12 +168,19 @@ final class AskPanelModel {
     func update(_ update: AskUpdate) {
         guard !pinned, update.id == id else { return }
         reply = update.text
+        let complete = state == .reviewing
         if isImageAsk {
-            let split = IntentSplit.split(reply, complete: false)
+            let split = IntentSplit.split(reply, complete: complete)
             intent = split.intent
             streamed = split.answer
         } else {
             streamed = reply
+        }
+        // The answer's end and the pipeline's "finished" come on two streams, and the second may land first: text that
+        // arrives once review has begun still reaches the editable answer, unless the user has edited it.
+        if complete, answer == reviewedReply {
+            answer = streamed
+            reviewedReply = streamed
         }
         refresh()
     }
@@ -230,6 +240,7 @@ final class AskPanelModel {
                 streamed = split.answer
             }
             answer = streamed
+            reviewedReply = streamed
         }
         guard next != state else { return }
         let wasOpen = state != .closed
