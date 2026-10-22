@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import HarkCore
 import Testing
@@ -244,5 +245,82 @@ let baseURLCases: [BaseURLCase] = [.init(base: "http://127.0.0.1:8002/v1"), .ini
         #expect(image.description == "ImagePart(image/png, 300 bytes)")
         #expect(!String(describing: image).contains(image.data.base64EncodedString()))
         #expect(!String(reflecting: image).contains(image.data.base64EncodedString()))
+    }
+}
+
+/// A follow-up's request (M12) as both dialects serialize it.
+@Suite struct LLMClientThreadTests {
+    static let region = RegionSummary(rect: .zero, pixelWidth: 10, pixelHeight: 10, bytes: 2, displayID: 1)
+
+    static func image(_ turn: Int) -> ImagePart { ImagePart(data: Data([0x89, 0x50, UInt8(turn)])) }
+
+    /// Turn `turn`'s messages, on an assistant thread whose turns in `framed` brought a frame.
+    static func messages(turn: Int, framed: Set<Int>) throws -> [ChatMessage] {
+        let turns = (1..<turn).map {
+            AskTurn(
+                id: UtteranceID(UInt64($0)), instruction: "question \($0)", reply: "réponse \($0)",
+                region: framed.contains($0) ? region : nil)
+        }
+        let thread = AskThread(
+            rootID: UtteranceID(1), kind: .assistant, selection: nil,
+            pin: ProfilePin(profile: H.profile, requestedModel: LLMFixtures.model), turns: turns)
+        var images: [UtteranceID: ImagePart] = [:]
+        for n in framed where n < turn { images[UtteranceID(UInt64(n))] = image(n) }
+        let prompt = AskPrompt.thread(
+            thread, current: ("question \(turn)", framed.contains(turn) ? image(turn) : nil), images: images)
+        return try #require(prompt).messages
+    }
+
+    private func body(_ messages: [ChatMessage], profile: ProviderProfile) async throws -> [String: Any] {
+        let transport = FakeLLMTransport([.status(500, Data())])
+        let secrets = FakeSecretStore([profile.name: H.key])
+        _ = await H.collect(
+            H.client(transport, secrets: secrets).complete(messages, model: LLMFixtures.model, profile: profile)
+        ).value
+        let data = try #require(transport.requests.first?.httpBody)
+        return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    @Test(arguments: [ProviderProfile.local, .claude])
+    func theRepliesArePlainStringsAndTheRolesAlternate(_ profile: ProviderProfile) async throws {
+        let body = try await body(try Self.messages(turn: 4, framed: [1, 3]), profile: profile)
+        var sent = try #require(body["messages"] as? [[String: Any]])
+        if profile.api == .openAI {
+            #expect(sent.first?["role"] as? String == "system")
+            sent.removeFirst()
+        } else {
+            #expect(body["system"] as? String == AskPrompt.imageSystem)
+        }
+        #expect(
+            sent.map { $0["role"] as? String } == [
+                "user", "assistant", "user", "assistant", "user", "assistant", "user",
+            ])
+        for n in 1...3 { #expect(sent[2 * n - 1]["content"] as? String == "réponse \(n)") }
+        #expect(sent[6]["content"] as? String == AskPrompt.followUpLeadLine + "\nFollow-up: question 4")
+    }
+
+    /// Frames in turns 1 and 3, none in 2 and 4: each first in its own turn's message, the same bytes on turn 4.
+    @Test(arguments: [ProviderProfile.local, .claude])
+    func eachFrameIsFirstInItsOwnTurn(_ profile: ProviderProfile) async throws {
+        let body = try await body(try Self.messages(turn: 4, framed: [1, 3]), profile: profile)
+        let sent = try #require(body["messages"] as? [[String: Any]]).filter { $0["role"] as? String == "user" }
+        let parts = sent.map { $0["content"] as? [[String: Any]] }
+        #expect(parts.map { $0 != nil } == [true, false, true, false])
+        for (index, turn) in [(0, 1), (2, 3)] {
+            let first = try #require(parts[index]?.first)
+            if profile.api == .openAI {
+                let url = (first["image_url"] as? [String: String])?["url"]
+                #expect(url == "data:image/png;base64," + Self.image(turn).data.base64EncodedString())
+            } else {
+                #expect((first["source"] as? [String: String])?["data"] == Self.image(turn).data.base64EncodedString())
+            }
+        }
+    }
+
+    /// Temperature is the profile's until the first frame, then 0 on every turn after it.
+    @Test(arguments: [(1, false), (2, false), (3, true), (4, true)])
+    func theTemperatureIsZeroFromTheFirstFramedTurn(_ turn: Int, _ zero: Bool) async throws {
+        let body = try await body(try Self.messages(turn: turn, framed: [3]), profile: H.profile)
+        #expect(body["temperature"] as? Double == (zero ? 0 : ProviderProfile.defaultTemperature))
     }
 }
