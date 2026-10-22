@@ -5260,13 +5260,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Screen region"
+            "value": "Part of the screen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zone de l’écran"
+            "value": "Partie de l’écran"
           }
         }
       }
@@ -5277,13 +5277,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Screen Recording"
+            "value": "Screen & System Audio Recording"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enregistrement de l’écran"
+            "value": "Enregistrement de l’écran et de l’audio système"
           }
         }
       }
@@ -5294,13 +5294,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reads images"
+            "value": "Model reads images"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lit les images"
+            "value": "Le modèle lit les images"
           }
         }
       }
@@ -5362,13 +5362,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "During an ask, hold ⌃⌥ and drag to show Hark part of the screen. macOS asks for Screen Recording the first time, and again after about a month without a capture."
+            "value": "During an ask, hold ⌃⌥ and drag to frame part of the screen for Hark. macOS asks for Screen & System Audio Recording the first time, and again after about a month without a capture."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pendant une demande, maintenez ⌃⌥ et faites glisser pour montrer une partie de l’écran à Hark. macOS demande l’autorisation d’enregistrer l’écran la première fois, puis de nouveau après environ un mois sans capture."
+            "value": "Pendant une demande, maintenez ⌃⌥ et faites glisser pour cadrer une partie de l’écran pour Hark. macOS demande l’autorisation Enregistrement de l’écran et de l’audio système la première fois, puis de nouveau après environ un mois sans capture."
           }
         }
       }
@@ -5600,13 +5600,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask Hark sends the selected text and your spoken instruction to this server, and only when you ask. Hark never starts or stops the server."
+            "value": "Ask Hark sends the selected text, the framed part of the screen and your spoken instruction to this server, and only when you ask. Hark never starts or stops the server."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander à Hark envoie le texte sélectionné et votre consigne orale à ce serveur, et seulement quand vous le demandez. Hark ne démarre ni n’arrête jamais le serveur."
+            "value": "Demander à Hark envoie le texte sélectionné, la partie de l’écran cadrée et votre consigne orale à ce serveur, et seulement quand vous le demandez. Hark ne démarre ni n’arrête jamais le serveur."
           }
         }
       }
@@ -6212,13 +6212,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask Hark sends the selected text and your spoken instruction to %@, outside this Mac, and only when you ask. Each request is billed to the account of the key."
+            "value": "Ask Hark sends the selected text, the framed part of the screen and your spoken instruction to %@, outside this Mac, and only when you ask. Each request is billed to the account of the key."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander à Hark envoie le texte sélectionné et votre consigne orale à %@, hors de ce Mac, et seulement quand vous le demandez. Chaque demande est facturée au compte de la clé."
+            "value": "Demander à Hark envoie le texte sélectionné, la partie de l’écran cadrée et votre consigne orale à %@, hors de ce Mac, et seulement quand vous le demandez. Chaque demande est facturée au compte de la clé."
           }
         }
       }
@@ -6314,13 +6314,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Framed part of the screen"
+            "value": "Frame"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Partie de l’écran cadrée"
+            "value": "Cadre"
           }
         }
       }
@@ -6348,13 +6348,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "To see part of the screen, Hark needs the Screen Recording permission."
+            "value": "To see part of the screen, Hark needs Screen & System Audio Recording."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour voir une partie de l’écran, Hark a besoin de l’autorisation d’enregistrer l’écran."
+            "value": "Pour voir une partie de l’écran, Hark a besoin de l’autorisation Enregistrement de l’écran et de l’audio système."
           }
         }
       }
@@ -6365,13 +6365,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark sees the screen once it reopens."
+            "value": "Once Hark is allowed in System Settings, reopen it to show it the screen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark verra l’écran une fois rouvert."
+            "value": "Une fois Hark autorisé dans Réglages Système, rouvrez-le pour lui montrer l’écran."
           }
         }
       }
@@ -6450,13 +6450,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask without the image"
+            "value": "Ask without the frame"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander sans l’image"
+            "value": "Demander sans le cadre"
           }
         }
       }
@@ -6484,13 +6484,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ can’t read images. Ask again without the image, or choose a model that sees images in Settings › Ask."
+            "value": "%@ can’t read images. Ask again without the frame, or choose a model that reads images in Settings › Ask."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ne lit pas les images. Redemandez sans l’image, ou choisissez dans Réglages › Demander un modèle qui les voit."
+            "value": "%@ ne lit pas les images. Redemandez sans le cadre, ou choisissez un modèle qui lit les images dans Réglages › Demander."
           }
         }
       }
@@ -6501,13 +6501,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This model can’t read images. Ask again without the image, or choose a model that sees images in Settings › Ask."
+            "value": "This model can’t read images. Ask again without the frame, or choose a model that reads images in Settings › Ask."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce modèle ne lit pas les images. Redemandez sans l’image, ou choisissez dans Réglages › Demander un modèle qui les voit."
+            "value": "Ce modèle ne lit pas les images. Redemandez sans le cadre, ou choisissez un modèle qui lit les images dans Réglages › Demander."
           }
         }
       }
@@ -6535,13 +6535,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The server said: %@. The image may be the cause."
+            "value": "The server said: %@. The frame may be the cause."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le serveur a répondu : %@. L’image en est peut-être la cause."
+            "value": "Le serveur a répondu : %@. Le cadre en est peut-être la cause."
           }
         }
       }
@@ -6552,13 +6552,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark could not see the frame: the Screen Recording permission is missing."
+            "value": "Hark could not see the frame: Screen & System Audio Recording is not allowed."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark n’a pas pu voir le cadre : l’autorisation d’enregistrer l’écran manque."
+            "value": "Hark n’a pas pu voir le cadre : l’autorisation Enregistrement de l’écran et de l’audio système manque."
           }
         }
       }
@@ -6603,13 +6603,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask Hark · Screen Recording is not allowed"
+            "value": "Ask Hark · screen capture not allowed"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander à Hark · enregistrement de l’écran non autorisé"
+            "value": "Demander à Hark · capture d’écran non autorisée"
           }
         }
       }
