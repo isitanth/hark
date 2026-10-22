@@ -1,6 +1,6 @@
 import Foundation
 
-/// The two messages of an ask: the system rules, then the spoken instruction and the selection. The selection sits
+/// The messages of an ask: the system rules, then the spoken instruction and the selection. The selection sits
 /// between `<selection>` delimiters it cannot close, and is cut to the profile's cap in characters. The assistant's two
 /// messages have rules of their own and the spoken request alone.
 public struct AskPrompt: Sendable, Equatable {
@@ -69,7 +69,8 @@ public struct AskPrompt: Sendable, Equatable {
         "- You cannot act on the user's Mac, read their files or the web.",
     ].joined(separator: "\n")
 
-    /// Exactly two: the system message, then the user message.
+    /// The system message, then the user message. A follow-up (M12) adds, for each later turn, the previous reply as an
+    /// assistant message and that turn's words as a user message.
     public let messages: [ChatMessage]
     /// Whether the selection was cut to the cap.
     public let truncated: Bool
@@ -122,22 +123,80 @@ public struct AskPrompt: Sendable, Equatable {
         return (["<selection>", escaped, "</selection>"], truncated, cap)
     }
 
+    /// A follow-up's first line, longer than 23 characters for the same reason as `leadLine`.
+    public static let followUpLeadLine = "Hark follow-up request, spoken by the user:"
+
+    /// A follow-up's first line when it brings a frame of its own.
+    public static let imageFollowUpLeadLine = "Hark follow-up request, spoken about a newly framed image:"
+
+    /// On a selection thread, a follow-up with no frame up to it revises the previous result.
+    public static let reviseLine = "Apply it to your previous result; reply with the revised result only."
+
+    /// On the first framed turn of a thread whose turn 1 had none: the earlier replies carry no `%%` line, which would
+    /// otherwise argue against the image rules.
+    public static let firstFrameLine =
+        "The earlier turns had no image; from this turn on, follow the rules for framed images, starting with the "
+        + "\"%% \" line."
+
     /// A follow-up's whole request (M12): turn 1 as a single ask builds it, then each answered turn's reply and the next
     /// turn's words, ending with `current`. `images` holds the answered turns' frames by turn; the current turn's comes
     /// in `current.image`. Nil when a framed turn's image is missing: nothing is sent then.
-    /// Until M12.2 builds the conversation, a follow-up goes as a single ask.
+    ///
+    /// Each user message depends on its own turn and the turns before it only, so a history message is the same bytes on
+    /// every later turn. The system message is turn 1's until the first frame, then `imageSystem`.
     public static func thread(
         _ thread: AskThread, current: (instruction: String, image: ImagePart?), images: [UtteranceID: ImagePart],
         maxSelectionChars: Int = LLMConfig.defaultMaxSelectionChars
     ) -> AskPrompt? {
-        if let image = current.image {
-            return AskPrompt(
-                instruction: current.instruction, selection: thread.selection, image: image,
-                maxSelectionChars: maxSelectionChars)
+        var steps: [(instruction: String, image: ImagePart?, reply: String?)] = []
+        for turn in thread.turns {
+            var image: ImagePart?
+            if turn.region != nil {
+                guard let frame = images[turn.id] else { return nil }
+                image = frame
+            }
+            steps.append((turn.instruction, image, turn.reply))
         }
-        return thread.selection.map {
-            AskPrompt(instruction: current.instruction, selection: $0, maxSelectionChars: maxSelectionChars)
-        } ?? AskPrompt(request: current.instruction)
+        steps.append((current.instruction, current.image, nil))
+
+        let first = steps[0]
+        let opening: AskPrompt
+        if let image = first.image {
+            opening = AskPrompt(
+                instruction: first.instruction, selection: thread.selection, image: image,
+                maxSelectionChars: maxSelectionChars)
+        } else if let selection = thread.selection {
+            opening = AskPrompt(
+                instruction: first.instruction, selection: selection, maxSelectionChars: maxSelectionChars)
+        } else {
+            opening = AskPrompt(request: first.instruction)
+        }
+
+        var messages = opening.messages
+        var framed = first.image != nil
+        for index in steps.indices.dropFirst() {
+            messages.append(ChatMessage(role: .assistant, content: steps[index - 1].reply ?? ""))
+            let step = steps[index]
+            let words = "Follow-up: " + step.instruction.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let image = step.image {
+                var lines = [imageFollowUpLeadLine, words]
+                if !framed { lines.append(firstFrameLine) }
+                lines.append(imageClosingLine)
+                messages.append(ChatMessage(role: .user, parts: [.image(image), .text(lines.joined(separator: "\n"))]))
+                framed = true
+            } else {
+                var lines = [followUpLeadLine, words]
+                if thread.kind == .selection && !framed { lines.append(reviseLine) }
+                messages.append(ChatMessage(role: .user, content: lines.joined(separator: "\n")))
+            }
+        }
+        if framed { messages[0] = ChatMessage(role: .system, content: imageSystem) }
+        return AskPrompt(messages: messages, truncated: opening.truncated)
+    }
+
+    private init(messages: [ChatMessage], truncated: Bool) {
+        self.messages = messages
+        self.truncated = truncated
     }
 
     /// The assistant: its rules, then the spoken request. There is no selection, so nothing is cut.
