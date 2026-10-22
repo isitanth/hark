@@ -6171,6 +6171,40 @@
           }
         }
       }
+    },
+    "ask.chip.removeRegion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the frame"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer le cadre"
+          }
+        }
+      }
+    },
+    "ask.chip.region": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Framed part of the screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partie de l’écran cadrée"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

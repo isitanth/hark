@@ -9,6 +9,8 @@ struct AskView: View {
     /// "Thinking…" has stood alone long enough to name the server it waits for.
     @State private var namesServer = false
     @State private var answerHeight: CGFloat = 0
+    /// The chips and the footer groups morph within it on macOS 26.
+    @Namespace private var glass
 
     /// A legacy scroller's width: the editor's text column is this much narrower when scroll bars always show.
     private static let scrollerWidth = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
@@ -19,14 +21,19 @@ struct AskView: View {
         VStack(alignment: .leading, spacing: 12) {
             header
                 .allowsHitTesting(false)
-            if !model.quote.isEmpty {
+            AskChips(model: model, namespace: glass, removable: model.state.isCapturing)
+            // On glass the chips carry the selection and the host; below, the quote bar and the remote line do.
+            if !AskGlass.isAvailable, !model.quote.isEmpty {
                 quote
                     .allowsHitTesting(false)
             }
             // The assistant has no quote, and still says when the request leaves this Mac.
-            if model.quote.isEmpty, let host = model.remoteHost {
+            if !AskGlass.isAvailable, model.quote.isEmpty, let host = model.remoteHost {
                 remote(host)
                     .allowsHitTesting(false)
+            }
+            if let intent = model.intent {
+                AskRestatement(text: intent)
             }
             content
             footer
@@ -279,5 +286,15 @@ private struct AnswerHeightKey: PreferenceKey {
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())
+    }
+}
+
+extension AskPanelState {
+    /// The instruction is still being captured: the frame can still be removed.
+    fileprivate var isCapturing: Bool {
+        switch self {
+        case .listening, .transcribing, .awaitingRegion: true
+        default: false
+        }
     }
 }

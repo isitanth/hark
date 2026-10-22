@@ -86,6 +86,45 @@ extension View {
     }
 }
 
+extension View {
+    /// A chip's or a footer group's identity in the panel's namespace, so a change of state morphs it on macOS 26.
+    /// Under Reduce Motion nothing morphs.
+    func askChipID(_ id: String, in namespace: Namespace.ID) -> some View {
+        modifier(AskGlassID(id: id, namespace: namespace))
+    }
+
+    /// A removed chip dissolves into the glass rather than morphing into its neighbour; under Reduce Motion it goes.
+    func askMaterialize() -> some View {
+        modifier(AskMaterialize())
+    }
+}
+
+private struct AskGlassID: ViewModifier {
+    let id: String
+    let namespace: Namespace.ID
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        if #available(macOS 26, *), !reduceMotion {
+            content.glassEffectID(id, in: namespace)
+        } else {
+            content
+        }
+    }
+}
+
+private struct AskMaterialize: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        if #available(macOS 26, *) {
+            content.glassEffectTransition(reduceMotion ? .identity : .materialize)
+        } else {
+            content
+        }
+    }
+}
+
 private struct AskPanelChrome: ViewModifier {
     func body(content: Content) -> some View {
         if #available(macOS 26, *) {
