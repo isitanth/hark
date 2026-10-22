@@ -171,3 +171,69 @@ let baseURLCases: [BaseURLCase] = [.init(base: "http://127.0.0.1:8002/v1"), .ini
         #expect(transport.bodyCancelled)
     }
 }
+
+/// A message with an image goes as an array, image first; a message of text alone stays a plain string.
+@Suite struct LLMClientImagePartTests {
+    static let png = ImagePart(data: Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A]))
+
+    private func body(_ messages: [ChatMessage], profile: ProviderProfile) async throws -> [String: Any] {
+        let transport = FakeLLMTransport([.status(500, Data())])
+        let secrets = FakeSecretStore([profile.name: H.key])
+        _ = await H.collect(
+            H.client(transport, secrets: secrets).complete(messages, model: LLMFixtures.model, profile: profile)
+        ).value
+        let data = try #require(transport.requests.first?.httpBody)
+        return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    @Test func anImageGoesFirstAsABase64DataURL() async throws {
+        let messages = [
+            ChatMessage(role: .system, content: "Règles."),
+            ChatMessage(role: .user, parts: [.text("Combien ?"), .image(Self.png)]),
+        ]
+        let body = try await body(messages, profile: H.profile)
+        let sent = try #require(body["messages"] as? [[String: Any]])
+        #expect(sent[0]["content"] as? String == "Règles.")
+        let parts = try #require(sent[1]["content"] as? [[String: Any]])
+        #expect(parts.count == 2)
+        #expect(parts[0]["type"] as? String == "image_url")
+        let url = (parts[0]["image_url"] as? [String: String])?["url"]
+        #expect(url == "data:image/png;base64," + Self.png.data.base64EncodedString())
+        #expect(parts[1]["type"] as? String == "text" && parts[1]["text"] as? String == "Combien ?")
+    }
+
+    @Test func textAloneIsByteForByteTheStringItWas() async throws {
+        let text = [ChatMessage(role: .user, content: "Bonjour")]
+        let parts = [ChatMessage(role: .user, parts: [.text("Bonjour")])]
+        let a = try JSONSerialization.data(
+            withJSONObject: try await body(text, profile: H.profile), options: [.sortedKeys])
+        let b = try JSONSerialization.data(
+            withJSONObject: try await body(parts, profile: H.profile), options: [.sortedKeys])
+        #expect(a == b)
+        #expect(String(decoding: a, as: UTF8.self).contains(#""content":"Bonjour""#))
+    }
+
+    @Test func anthropicTakesTheBareBase64AndKeepsSystemAtTheTop() async throws {
+        let messages = [
+            ChatMessage(role: .system, content: "Règles."),
+            ChatMessage(role: .user, parts: [.text("Combien ?"), .image(Self.png)]),
+        ]
+        let body = try await body(messages, profile: .claude)
+        #expect(body["system"] as? String == "Règles.")
+        let sent = try #require(body["messages"] as? [[String: Any]])
+        #expect(sent.count == 1)
+        let parts = try #require(sent[0]["content"] as? [[String: Any]])
+        #expect(parts[0]["type"] as? String == "image")
+        let source = try #require(parts[0]["source"] as? [String: String])
+        #expect(
+            source == ["type": "base64", "media_type": "image/png", "data": Self.png.data.base64EncodedString()])
+        #expect(parts[1]["type"] as? String == "text" && parts[1]["text"] as? String == "Combien ?")
+    }
+
+    @Test func theDescriptionNamesTheByteCountNeverTheBytes() {
+        let image = ImagePart(data: Data(repeating: 0xAB, count: 300))
+        #expect(image.description == "ImagePart(image/png, 300 bytes)")
+        #expect(!String(describing: image).contains(image.data.base64EncodedString()))
+        #expect(!String(reflecting: image).contains(image.data.base64EncodedString()))
+    }
+}

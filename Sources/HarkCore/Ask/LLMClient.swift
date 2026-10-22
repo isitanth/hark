@@ -236,7 +236,7 @@ public actor LLMClient {
             }
         }
         body["model"] = model
-        body["messages"] = messages.map { ["role": $0.role.rawValue, "content": $0.content] }
+        body["messages"] = messages.map { ["role": $0.role.rawValue, "content": openAIContent($0)] }
         body["stream"] = true
         body["max_tokens"] = profile.maxTokens
         body["temperature"] = profile.temperature
@@ -253,7 +253,7 @@ public actor LLMClient {
         var body: [String: Any] = [
             "model": model,
             "messages": messages.filter { $0.role != .system }.map {
-                ["role": $0.role.rawValue, "content": $0.content]
+                ["role": $0.role.rawValue, "content": anthropicContent($0)]
             },
             "stream": true,
             "max_tokens": profile.maxTokens,
@@ -263,6 +263,52 @@ public actor LLMClient {
         if !system.isEmpty { body["system"] = system }
         if let effort = profile.effort { body["output_config"] = ["effort": effort.rawValue] }
         return body
+    }
+
+    /// A message of text alone is the plain string it always was; one with an image is an array, the image first, as
+    /// Anthropic's vision guide asks and the Qwen template takes in any order. MTPLX reads only a `;base64` data URL.
+    static func openAIContent(_ message: ChatMessage) -> Any {
+        guard message.hasImage else { return message.content }
+        return imageFirst(message.parts).map { part -> [String: Any] in
+            switch part {
+            case .text(let text): ["type": "text", "text": text]
+            case .image(let image):
+                [
+                    "type": "image_url",
+                    "image_url": ["url": "data:\(image.mediaType);base64," + image.data.base64EncodedString()],
+                ]
+            }
+        }
+    }
+
+    /// Anthropic's image block carries the bare base64 and its media type, no `data:` prefix.
+    static func anthropicContent(_ message: ChatMessage) -> Any {
+        guard message.hasImage else { return message.content }
+        return imageFirst(message.parts).map { part -> [String: Any] in
+            switch part {
+            case .text(let text): ["type": "text", "text": text]
+            case .image(let image):
+                [
+                    "type": "image",
+                    "source": [
+                        "type": "base64", "media_type": image.mediaType, "data": image.data.base64EncodedString(),
+                    ] as [String: Any],
+                ]
+            }
+        }
+    }
+
+    /// Images keep their order among themselves, texts among theirs.
+    private static func imageFirst(_ parts: [ContentPart]) -> [ContentPart] {
+        let images = parts.filter {
+            guard case .image = $0 else { return false }
+            return true
+        }
+        return images
+            + parts.filter {
+                guard case .text = $0 else { return false }
+                return true
+            }
     }
 
     /// `unreachable` is the profile's own: a server on this Mac to start, or a host elsewhere that cannot be reached.
