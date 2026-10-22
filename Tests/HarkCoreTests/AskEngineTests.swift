@@ -99,3 +99,83 @@ struct AskEngineTests {
         #expect(transport.bodyCancelled)
     }
 }
+
+/// An image ask: the image part goes only to a model not known to be blind, and each answer teaches the verdict.
+@Suite(.timeLimit(.minutes(1)))
+struct AskEngineImageTests {
+    static let image = ImagePart(data: Data([0x89, 0x50, 0x4E, 0x47]))
+
+    private func engine(
+        _ transport: FakeLLMTransport, model: ModelChoice = .auto, vision: VisionCapability = VisionCapability()
+    ) -> AskEngine {
+        var profile = H.profile
+        profile.model = model
+        let config = LLMConfig(provider: profile.name, profiles: [profile.name: profile])
+        return AskEngine(client: H.client(transport), settings: AskSettings(config), vision: vision)
+    }
+
+    private func profile(_ model: ModelChoice) -> ProviderProfile {
+        var profile = H.profile
+        profile.model = model
+        return profile
+    }
+
+    @Test func anImageAskSendsTheImagePromptAndLearnsTheModelSees() async throws {
+        let transport = FakeLLMTransport([
+            .status(200, try LLMFixtures.data("models.json")), .status(200, try LLMFixtures.data("summary-fr.sse")),
+        ])
+        let engine = engine(transport)
+        let events = await H.collect(
+            engine.generate(instruction: "Combien ?", selection: nil, image: Self.image)
+        ).value
+        #expect(events.texts.joined() == LLMFixtures.summaryText)
+        let data = try #require(transport.requests.last?.httpBody)
+        let sent = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let messages = try #require(sent["messages"] as? [[String: Any]])
+        #expect(messages.first?["content"] as? String == AskPrompt.imageSystem)
+        let parts = try #require(messages.last?["content"] as? [[String: Any]])
+        #expect(parts.map { $0["type"] as? String } == ["image_url", "text"])
+        #expect(engine.vision.verdict(profile: profile(.auto), model: LLMFixtures.model) == true)
+    }
+
+    @Test func aModelTheListSaysIsBlindIsNeverSentTheImage() async throws {
+        let transport = FakeLLMTransport([.status(200, try LLMFixtures.data("models-no-vision.json"))])
+        let events = await H.collect(
+            engine(transport).generate(instruction: "Combien ?", selection: "x", image: Self.image)
+        ).value
+        #expect(
+            events == [.failed(.noVision(model: LLMFixtures.model, reason: .knownBeforeSending), LLMCallSummary())])
+        #expect(transport.requests.map { $0.url?.lastPathComponent } == ["models"])
+    }
+
+    @Test func aRefusalTeachesTheNextAskToSendNothing() async throws {
+        let transport = FakeLLMTransport([.status(400, try LLMFixtures.data("no-vision-400.json"))])
+        let vision = VisionCapability()
+        let engine = engine(transport, model: .named("text-only"), vision: vision)
+        let first = await H.collect(engine.generate(instruction: "a", selection: nil, image: Self.image)).value
+        #expect(first.failure == .noVision(model: "text-only", reason: .noVision))
+        #expect(vision.verdict(profile: profile(.named("text-only")), model: "text-only") == false)
+        let second = await H.collect(engine.generate(instruction: "a", selection: nil, image: Self.image)).value
+        #expect(second.failure == .noVision(model: "text-only", reason: .knownBeforeSending))
+        #expect(transport.requests.count == 1)
+    }
+
+    @Test func aTextAskStillGoesToABlindModel() async throws {
+        let transport = FakeLLMTransport([.status(200, try LLMFixtures.data("summary-fr.sse"))])
+        let vision = VisionCapability()
+        vision.record(false, profile: profile(.named("text-only")), model: "text-only")
+        let events = await H.collect(
+            engine(transport, model: .named("text-only"), vision: vision).generate(instruction: "a", selection: "b")
+        ).value
+        #expect(events.texts.joined() == LLMFixtures.summaryText)
+    }
+
+    /// AR mode is the server's, not the model's: a restart in MTP mode lets the same model see.
+    @Test func anARModeRefusalTeachesNothing() async throws {
+        let transport = FakeLLMTransport([.status(400, try LLMFixtures.data("vision-ar-mode-400.json"))])
+        let engine = engine(transport, model: .named("bonsai"))
+        let events = await H.collect(engine.generate(instruction: "a", selection: nil, image: Self.image)).value
+        #expect(events.failure == .noVision(model: "bonsai", reason: .needsMTPMode))
+        #expect(engine.vision.verdict(profile: profile(.named("bonsai")), model: "bonsai") == nil)
+    }
+}

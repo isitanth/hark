@@ -19,19 +19,24 @@ public final class AskSettings: Sendable {
 }
 
 /// The pipeline's `AskGenerating`: the active profile, its model (named, or the first `GET /models` lists), the prompt
-/// with the selection cut to the cap, then the streamed completion.
+/// with the selection cut to the cap, then the streamed completion. An image goes only to a model not known to be
+/// blind; what each image ask teaches about the model is kept in `vision`.
 public struct AskEngine: AskGenerating {
     private let client: LLMClient
     private let settings: AskSettings
+    public let vision: VisionCapability
 
-    public init(client: LLMClient, settings: AskSettings) {
+    public init(client: LLMClient, settings: AskSettings, vision: VisionCapability = VisionCapability()) {
         self.client = client
         self.settings = settings
+        self.vision = vision
     }
 
     public func generate(instruction: String, selection: String?, image: ImagePart?) -> AsyncStream<LLMEvent> {
         let llm = settings.current
         let client = client
+        let vision = vision
+        vision.update(llm)
         return AsyncStream { continuation in
             let task = Task {
                 defer { continuation.finish() }
@@ -45,18 +50,47 @@ public struct AskEngine: AskGenerating {
                 case .named(let id):
                     model = id
                 case .auto:
-                    switch await LLMProbe(client: client).check(profile) {
-                    case .connected(let id): model = id
+                    let report = await LLMProbe(client: client).inspect(profile)
+                    switch report.result {
+                    case .connected(let id):
+                        model = id
+                        vision.record(report, profile: profile)
                     case .failed(let failure):
                         continuation.yield(.failed(failure, LLMCallSummary()))
                         return
                     }
                 }
-                let prompt =
-                    selection.map {
-                        AskPrompt(instruction: instruction, selection: $0, maxSelectionChars: llm.maxSelectionChars)
-                    } ?? AskPrompt(request: instruction)
+                let prompt: AskPrompt
+                if let image {
+                    // Known blind: nothing is sent, and the panel says which model cannot see.
+                    if vision.verdict(profile: profile, model: model) == false {
+                        continuation.yield(
+                            .failed(.noVision(model: model, reason: .knownBeforeSending), LLMCallSummary()))
+                        return
+                    }
+                    prompt = AskPrompt(
+                        instruction: instruction, selection: selection, image: image,
+                        maxSelectionChars: llm.maxSelectionChars)
+                } else {
+                    prompt =
+                        selection.map {
+                            AskPrompt(instruction: instruction, selection: $0, maxSelectionChars: llm.maxSelectionChars)
+                        } ?? AskPrompt(request: instruction)
+                }
+                var learned = false
                 for await event in client.complete(prompt.messages, model: model, profile: profile) {
+                    if image != nil && !learned {
+                        switch event {
+                        case .text:
+                            // The model read the image: it streamed an answer to it.
+                            vision.record(true, profile: profile, model: model)
+                            learned = true
+                        case .failed(.noVision(_, .noVision), _):
+                            vision.record(false, profile: profile, model: model)
+                            learned = true
+                        default: break
+                        }
+                    }
                     continuation.yield(event)
                 }
             }
