@@ -328,6 +328,7 @@ public struct PipelineReducer: Sendable {
         switch event {
         case .regionStarted:
             context.regionPending = true
+            context.regionFailure = nil
         case .regionCaptured(_, let summary):
             context.region = summary
             context.regionPending = false
@@ -337,6 +338,7 @@ public struct PipelineReducer: Sendable {
             context.regionFailure = failure
         case .regionRemoved:
             context.region = nil
+            context.regionFailure = nil
         case .regionAbandoned:
             context.regionPending = false
         default:

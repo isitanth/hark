@@ -446,6 +446,20 @@ let illegalRegionTransitions: [IllegalTransition] = [
         #expect(captured.context?.regionFailure == nil)
     }
 
+    /// A failed drag does not outlive the next one, even one that frames nothing, nor the chip's × (M11 review R2).
+    @Test func aNewDragOrTheChipsCrossEndsAFailedFrame() throws {
+        let failed = try reducer.reduce(F.askCapturing, .regionFailed(F.id, .captureFailed)).get().state
+        let again = try reducer.reduce(failed, .regionStarted(F.id)).get().state
+        #expect(again.context?.regionFailure == nil && again.context?.regionPending == true)
+        let nothing = try reducer.reduce(again, .regionAbandoned(F.id)).get().state
+        #expect(nothing.context?.regionFailure == nil && nothing.context?.regionPending == false)
+        let framedThenFailed = try reducer.reduce(
+            .capturing(F.regionContext(released: false, region: F.region, failure: .captureFailed)),
+            .regionRemoved(F.id)
+        ).get().state
+        #expect(framedThenFailed.context?.regionFailure == nil && framedThenFailed.context?.region == nil)
+    }
+
     @Test func theWaitingInstructionGoesWithTheFrame() throws {
         let waiting = try reducer.reduce(
             .transcribing(F.regionContext(pending: true)), .transcribed(F.id, F.instruction, ms: 380)
