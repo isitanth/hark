@@ -18,6 +18,11 @@ final class RegionFraming {
     private var capturing: UtteranceID?
     /// The ask a drag began in, until its mouse-up: a drag outlives the capture that started it.
     private var dragging: UtteranceID?
+    /// The ask in flight, whatever its phase: a drag whose ask has ended captures nothing.
+    private var current: UtteranceID?
+    /// The controller's region calls, one after the other: two Tasks may reach an actor in either order, and a quick
+    /// click must not see its `regionAbandoned` land before its `regionStarted` (M11 review R4).
+    private var sending: Task<Void, Never>?
 
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "region")
 
@@ -37,6 +42,7 @@ final class RegionFraming {
     }
 
     func update(_ snapshot: PipelineSnapshot) {
+        current = snapshot.phase != .idle && snapshot.utterance?.intent.isAsk == true ? snapshot.utterance?.id : nil
         let live = snapshot.phase == .capturing && snapshot.utterance?.intent.isAsk == true
         let id = live ? snapshot.utterance?.id : nil
         guard id != capturing else { return }
@@ -64,25 +70,29 @@ final class RegionFraming {
     private func dragStarted() {
         guard let id = capturing else { return }
         dragging = id
-        Task { [controller] in await controller.regionStarted(for: id) }
+        send { await $0.regionStarted(for: id) }
     }
 
     private func framed(_ geometry: CaptureGeometry, display: CGDirectDisplayID) {
         guard let id = dragging else { return }
         dragging = nil
+        // The ask ended during the drag (cancelled, failed): nothing to capture for.
+        guard id == current else { return }
         let cap = RegionImageEncoder.cap(for: api)
-        Task { [controller, panel] in
-            switch await ScreenRegionCapturer.capture(geometry, display: display, cap: cap) {
+        Task { [weak self, panel] in
+            let result = await ScreenRegionCapturer.capture(geometry, display: display, cap: cap)
+            switch result {
             case .success(let region):
                 let summary = RegionSummary(
                     rect: geometry.sourceRect, pixelWidth: region.encoded.pixelWidth,
                     pixelHeight: region.encoded.pixelHeight, bytes: region.encoded.image.data.count,
                     displayID: display)
                 panel.showRegion(thumbnail: region.thumbnail, for: id)
-                await controller.attachRegion(region.encoded.image, summary: summary, for: id)
+                let image = region.encoded.image
+                self?.send { await $0.attachRegion(image, summary: summary, for: id) }
             case .failure(let failure):
                 if failure == .screenRecordingDenied { panel.setFramingBlocked(.noScreenRecording) }
-                await controller.regionFailed(failure, for: id)
+                self?.send { await $0.regionFailed(failure, for: id) }
             }
         }
     }
@@ -90,6 +100,14 @@ final class RegionFraming {
     private func abandoned() {
         guard let id = dragging else { return }
         dragging = nil
-        Task { [controller] in await controller.regionAbandoned(for: id) }
+        send { await $0.regionAbandoned(for: id) }
+    }
+
+    private func send(_ call: @escaping @Sendable (PipelineController) async -> Void) {
+        let previous = sending
+        sending = Task { [controller] in
+            await previous?.value
+            await call(controller)
+        }
     }
 }

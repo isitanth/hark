@@ -136,7 +136,12 @@ final class RegionOverlayController {
 
     /// One panel per display, again: at launch and whenever a display comes, goes or changes.
     private func rebuild() {
-        let wasShown = isShown
+        // A hide deferred to a drag's end is a hide: the overlays do not come back for a disarmed ask (M11 review R4).
+        let wasShown = isShown && !hideAfterDrag
+        if !wasShown {
+            isShown = false
+            hideAfterDrag = false
+        }
         if let drag {
             drag.panel.state.rect = nil
             self.drag = nil
