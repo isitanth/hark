@@ -33,11 +33,7 @@ struct AskView: View {
         }
         .padding(16)
         .frame(width: AskPanel.width, alignment: .leading)
-        .background(AskPanelBackground())
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(.separator, lineWidth: 0.5)
-        )
+        .askPanelChrome()
         .task(id: model.state) {
             namesServer = false
             guard model.state == .thinking else { return }
@@ -51,17 +47,29 @@ struct AskView: View {
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Image(systemName: model.state == .listening ? "mic.fill" : "text.bubble")
+            Image(systemName: headerSymbol)
                 .foregroundStyle(model.state == .listening ? Color.red : Color.accentColor)
             if let instruction = model.instruction {
                 Text(verbatim: instruction)
-                    .font(.headline)
+                    .font(headlineFont)
                     .lineLimit(3)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 Text(L("ask.title"))
-                    .font(.headline)
+                    .font(headlineFont)
             }
         }
+    }
+
+    /// The instruction, bolder on glass: hierarchy from type, not boxes.
+    private var headlineFont: Font {
+        AskGlass.isAvailable ? .title3.weight(.semibold) : .headline
+    }
+
+    /// The microphone while listening; on glass, sparkles once the model works on it, as today's bubble below.
+    private var headerSymbol: String {
+        if model.state == .listening { return "mic.fill" }
+        return AskGlass.isAvailable ? "sparkles" : "text.bubble"
     }
 
     private var quote: some View {
