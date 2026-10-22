@@ -11,6 +11,8 @@ struct AskView: View {
     @State private var answerHeight: CGFloat = 0
     /// The chips and the footer groups morph within it on macOS 26.
     @Namespace private var glass
+    /// Hark's own fills turn opaque; the system frosts the glass itself.
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     /// A legacy scroller's width: the editor's text column is this much narrower when scroll bars always show.
     private static let scrollerWidth = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
@@ -215,6 +217,7 @@ struct AskView: View {
                 .defaultScrollAnchor(.bottom)
             }
         }
+        .askScrollEdge()
         .frame(height: min(max(answerHeight, 44), model.maxAnswerHeight))
         .background(alignment: .topLeading) {
             // A hidden copy of the text measures the height; the line after it leaves room for the caret. It wraps
@@ -234,51 +237,125 @@ struct AskView: View {
             answerHeight = height
         }
         .padding(6)
-        .background(.background.opacity(0.6), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .askFill(.background.opacity(reduceTransparency ? 1 : 0.6), minimum: AskGlass.innerRadius)
     }
 
+    /// [Cancel] leading; on glass, the secondary actions grouped and the primary alone at the trailing edge. Below
+    /// macOS 26, today's row at the trailing edge.
+    @ViewBuilder
     private var footer: some View {
-        HStack(spacing: 8) {
-            Spacer()
-            switch model.state {
-            case .listening:
-                button(L("ask.button.cancel"), action: model.cancel)
-                button(L("ask.button.done"), action: model.done)
-                    .keyboardShortcut(.defaultAction)
-            case .transcribing, .awaitingRegion, .thinking, .streaming, .regionFailed:
-                button(L("ask.button.cancel"), action: model.cancel)
-            case .reviewing:
-                button(L("ask.button.cancel"), action: model.cancel)
-                switch model.apply {
-                case .replace, .insert:
-                    button(L("ask.button.copy"), action: model.copy)
-                    button(
-                        model.apply == .insert ? L("ask.button.insert") : L("ask.button.replace"), action: model.replace
-                    )
-                    .keyboardShortcut(.return, modifiers: .command)
-                    .buttonStyle(.borderedProminent)
-                case .copyOnly:
-                    button(L("ask.button.copy"), action: model.copy)
-                        .keyboardShortcut(.return, modifiers: .command)
-                        .buttonStyle(.borderedProminent)
+        let layout = footerLayout
+        if #available(macOS 26, *) {
+            HStack(spacing: 8) {
+                if layout.cancel {
+                    footerButton(cancelAction, prominent: false)
+                        .askChipID(cancelAction.id, in: glass)
                 }
-            case .failed:
-                button(L("ask.button.cancel"), action: model.cancel)
-                button(L("ask.button.copyInstruction"), action: model.copyInstruction)
-                    .disabled(model.instruction == nil)
-                button(L("ask.button.retry"), action: model.retry)
-                    .keyboardShortcut(.defaultAction)
-            case .closed:
-                EmptyView()
+                Spacer(minLength: 8)
+                if !layout.secondary.isEmpty {
+                    GlassEffectContainer(spacing: 8) {
+                        HStack(spacing: 8) {
+                            ForEach(layout.secondary) { action in
+                                footerButton(action, prominent: false)
+                                    .askChipID(action.id, in: glass)
+                            }
+                        }
+                    }
+                }
+                if let primary = layout.primary {
+                    footerButton(primary, prominent: true)
+                        .askChipID(primary.id, in: glass)
+                }
+            }
+        } else {
+            HStack(spacing: 8) {
+                Spacer()
+                if layout.cancel {
+                    footerButton(cancelAction, prominent: false)
+                }
+                ForEach(layout.secondary) { action in
+                    footerButton(action, prominent: false)
+                }
+                if let primary = layout.primary {
+                    footerButton(primary, prominent: true)
+                }
             }
         }
     }
 
-    private func button(_ title: LocalizedStringResource, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
+    private var cancelAction: FooterAction {
+        FooterAction(id: "cancel", title: L("ask.button.cancel"), action: model.cancel)
+    }
+
+    /// The buttons each state offers. Replace only when the ask allows it: an image has no text to replace.
+    private var footerLayout: FooterLayout {
+        switch model.state {
+        case .listening:
+            return FooterLayout(
+                primary: FooterAction(
+                    id: "done", title: L("ask.button.done"), action: model.done, shortcut: .defaultAction))
+        case .transcribing, .awaitingRegion, .thinking, .streaming, .regionFailed:
+            return FooterLayout()
+        case .reviewing:
+            let copy = FooterAction(id: "copy", title: L("ask.button.copy"), action: model.copy)
+            let applies =
+                switch model.apply {
+                case .insert: true
+                case .replace: model.allowsReplace
+                case .copyOnly: false
+                }
+            guard applies else {
+                return FooterLayout(primary: copy.with(shortcut: .init(.return, modifiers: .command)))
+            }
+            let title = model.apply == .insert ? L("ask.button.insert") : L("ask.button.replace")
+            return FooterLayout(
+                secondary: [copy],
+                primary: FooterAction(
+                    id: "apply", title: title, action: model.replace,
+                    shortcut: .init(.return, modifiers: .command)))
+        case .failed:
+            return FooterLayout(
+                secondary: [
+                    FooterAction(
+                        id: "copyInstruction", title: L("ask.button.copyInstruction"),
+                        action: model.copyInstruction, disabled: model.instruction == nil)
+                ],
+                primary: FooterAction(
+                    id: "retry", title: L("ask.button.retry"), action: model.retry, shortcut: .defaultAction))
+        case .closed:
+            return FooterLayout(cancel: false)
         }
     }
+
+    private func footerButton(_ footer: FooterAction, prominent: Bool) -> some View {
+        Button(action: footer.action) {
+            Text(footer.title)
+        }
+        .keyboardShortcut(footer.shortcut)
+        .disabled(footer.disabled)
+        .askButtonStyle(prominent: prominent)
+    }
+}
+
+/// One footer button: its glass identity, its words, what it calls and its shortcut.
+private struct FooterAction: Identifiable {
+    let id: String
+    let title: LocalizedStringResource
+    let action: () -> Void
+    var shortcut: KeyboardShortcut?
+    var disabled = false
+
+    func with(shortcut: KeyboardShortcut) -> FooterAction {
+        var copy = self
+        copy.shortcut = shortcut
+        return copy
+    }
+}
+
+private struct FooterLayout {
+    var cancel = true
+    var secondary: [FooterAction] = []
+    var primary: FooterAction?
 }
 
 private struct AnswerHeightKey: PreferenceKey {
