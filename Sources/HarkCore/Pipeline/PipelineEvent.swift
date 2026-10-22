@@ -51,6 +51,8 @@ public enum PipelineEvent: Sendable, Equatable {
     case regionFailed(UtteranceID, RegionFailure)
     /// The chip's ×: the region is no longer part of the ask.
     case regionRemoved(UtteranceID)
+    /// Ask without the image, after a failure: the same instruction and selection, sent again without the frame.
+    case askRetryWithoutRegion(UtteranceID)
 
     public var utteranceID: UtteranceID? {
         switch self {
@@ -60,7 +62,7 @@ public enum PipelineEvent: Sendable, Equatable {
             .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _),
             .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _), .askReplace(let id, _),
             .selectionChecked(let id, _), .regionStarted(let id), .regionCaptured(let id, _),
-            .regionFailed(let id, _), .regionRemoved(let id):
+            .regionFailed(let id, _), .regionRemoved(let id), .askRetryWithoutRegion(let id):
             id
         case .triggerUp, .cancel:
             nil

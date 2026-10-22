@@ -293,3 +293,167 @@ extension AskTransitionTests {
         #expect(record.targetApp == "com.apple.TextEdit")
     }
 }
+
+private let denied = PipelineState.asking(
+    F.regionContext(failure: .screenRecordingDenied), F.instruction, .regionFailed(.screenRecordingDenied))
+private let captureFailed = PipelineState.asking(
+    F.regionContext(failure: .captureFailed), F.instruction, .regionFailed(.captureFailed))
+
+/// A framed region's rows (M11): its events while the request has not left, and the instruction waiting for it.
+let regionTransitions: [LegalTransition] =
+    [
+        (F.regionContext(released: false), PipelineState.capturing),
+        (F.regionContext(), PipelineState.transcribing),
+    ].flatMap { context, make -> [LegalTransition] in
+        let state = make(context)
+        let phase = state.phase.rawValue
+        return [
+            .init(
+                name: "\(phase) an ask, a drag begins", state: state, event: .regionStarted(F.id), phase: state.phase,
+                effects: []),
+            .init(
+                name: "\(phase) an ask, the frame is captured", state: state,
+                event: .regionCaptured(F.id, F.region), phase: state.phase, effects: []),
+            .init(
+                name: "\(phase) an ask, the frame failed", state: state,
+                event: .regionFailed(F.id, .captureFailed), phase: state.phase, effects: []),
+            .init(
+                name: "\(phase) an ask, the chip's ×", state: state, event: .regionRemoved(F.id),
+                phase: state.phase, effects: []),
+        ]
+    } + [
+        .init(
+            name: "transcribing the assistant, a drag begins", state: F.assistTranscribing,
+            event: .regionStarted(F.id), phase: .transcribing, effects: []),
+        .init(
+            name: "transcribing an ask with a frame: generate with it",
+            state: .transcribing(F.regionContext(region: F.region)),
+            event: .transcribed(F.id, F.instruction, ms: 380), phase: .asking, effects: ["generate+region"]),
+        .init(
+            name: "transcribing an ask, a drag still open: wait for it",
+            state: .transcribing(F.regionContext(pending: true)),
+            event: .transcribed(F.id, F.instruction, ms: 380), phase: .asking, effects: []),
+        .init(
+            name: "transcribing an ask, no Screen Recording: the panel says so",
+            state: .transcribing(F.regionContext(failure: .screenRecordingDenied)),
+            event: .transcribed(F.id, F.instruction, ms: 380), phase: .asking, effects: []),
+        .init(
+            name: "transcribing an ask, the frame failed: the panel says so",
+            state: .transcribing(F.regionContext(failure: .captureFailed)),
+            event: .transcribed(F.id, F.instruction, ms: 380), phase: .asking, effects: []),
+        .init(
+            name: "awaiting the frame, captured: generate with it", state: F.awaitingRegion,
+            event: .regionCaptured(F.id, F.region), phase: .asking, effects: ["generate+region"]),
+        .init(
+            name: "awaiting the frame, it failed", state: F.awaitingRegion,
+            event: .regionFailed(F.id, .screenRecordingDenied), phase: .asking, effects: []),
+        .init(
+            name: "awaiting the frame, another drag", state: F.awaitingRegion, event: .regionStarted(F.id),
+            phase: .asking, effects: []),
+        .init(
+            name: "awaiting the frame, the chip's ×", state: F.awaitingRegion, event: .regionRemoved(F.id),
+            phase: .asking, effects: []),
+        .init(
+            name: "awaiting the frame, cancel", state: F.awaitingRegion, event: .cancel, phase: .idle,
+            effects: ["log:discarded:cancelled"]),
+        .init(
+            name: "awaiting the frame, talk key is busy", state: F.awaitingRegion,
+            event: .triggerDown(F.other, at: at), phase: .asking, effects: ["log:discarded:busy"]),
+        .init(
+            name: "no Screen Recording, cancel logs it", state: denied, event: .cancel, phase: .idle,
+            effects: ["log:failed:screen_recording_denied"]),
+        .init(
+            name: "the frame failed, cancel logs it", state: captureFailed, event: .cancel, phase: .idle,
+            effects: ["log:failed:region_failed"]),
+        .init(
+            name: "no Screen Recording, ask without the frame", state: denied,
+            event: .askRetryWithoutRegion(F.id), phase: .asking, effects: ["generate"]),
+        .init(
+            name: "the model cannot see, Retry keeps the frame", state: F.regionAskFailed, event: .askRetry(F.id),
+            phase: .asking, effects: ["generate+region"]),
+        .init(
+            name: "the model cannot see, ask without the frame", state: F.regionAskFailed,
+            event: .askRetryWithoutRegion(F.id), phase: .asking, effects: ["generate"]),
+        .init(
+            name: "the model cannot see, cancel logs it", state: F.regionAskFailed, event: .cancel, phase: .idle,
+            effects: ["log:failed:llm_no_vision"]),
+    ]
+
+let illegalRegionTransitions: [IllegalTransition] = [
+    .init(name: "capturing a dictation, a drag", state: F.capturingFocused, event: .regionStarted(F.id)),
+    .init(name: "transcribing a dictation, a frame", state: F.transcribing, event: .regionCaptured(F.id, F.region)),
+    .init(name: "resolving a dictation, a frame", state: F.resolving, event: .regionCaptured(F.id, F.region)),
+    .init(
+        name: "capturing an ask, another ask's frame", state: F.askCapturing,
+        event: .regionCaptured(F.other, F.region)),
+    .init(name: "generating, a late drag", state: F.generating, event: .regionStarted(F.id)),
+    .init(name: "generating, a late frame", state: F.generating, event: .regionCaptured(F.id, F.region)),
+    .init(name: "generating, a late failure", state: F.generating, event: .regionFailed(F.id, .captureFailed)),
+    .init(name: "generating, a late ×", state: F.generating, event: .regionRemoved(F.id)),
+    .init(name: "reviewing, a late frame", state: F.reviewing, event: .regionCaptured(F.id, F.region)),
+    .init(name: "failed, a late frame", state: F.regionAskFailed, event: .regionCaptured(F.id, F.region)),
+    .init(name: "the frame failed, a new drag is too late", state: denied, event: .regionStarted(F.id)),
+    .init(name: "idle, a late frame", state: .idle, event: .regionCaptured(F.id, F.region)),
+    .init(name: "awaiting the frame, Retry", state: F.awaitingRegion, event: .askRetry(F.id)),
+    .init(name: "awaiting the frame, an answer", state: F.awaitingRegion, event: .generated(F.id, done)),
+    .init(name: "awaiting the frame, ask without it", state: F.awaitingRegion, event: .askRetryWithoutRegion(F.id)),
+    .init(name: "generating, ask without the frame", state: F.generating, event: .askRetryWithoutRegion(F.id)),
+    .init(name: "reviewing, ask without the frame", state: F.reviewing, event: .askRetryWithoutRegion(F.id)),
+    .init(name: "the frame failed, Retry", state: denied, event: .askRetry(F.id)),
+]
+
+@Suite struct RegionTransitionTests {
+    let reducer = PipelineReducer()
+
+    @Test(arguments: regionTransitions)
+    func legal(_ transition: LegalTransition) throws {
+        let result = try reducer.reduce(transition.state, transition.event).get()
+        #expect(result.state.phase == transition.phase)
+        #expect(result.effects.map(\.label) == transition.effects)
+    }
+
+    @Test(arguments: illegalRegionTransitions)
+    func illegal(_ transition: IllegalTransition) {
+        let result = reducer.reduce(transition.state, transition.event)
+        #expect(result == .failure(Rejection(phase: transition.state.phase, event: transition.event)))
+    }
+
+    @Test func aDragIsPendingUntilItsFrameArrives() throws {
+        let started = try reducer.reduce(F.askCapturing, .regionStarted(F.id)).get().state
+        #expect(started.context?.regionPending == true && started.context?.region == nil)
+        let captured = try reducer.reduce(started, .regionCaptured(F.id, F.region)).get().state
+        #expect(captured.context?.regionPending == false && captured.context?.region == F.region)
+        let removed = try reducer.reduce(captured, .regionRemoved(F.id)).get().state
+        #expect(removed.context?.region == nil)
+    }
+
+    @Test func aFailedFrameIsRememberedAndAFrameClearsIt() throws {
+        let started = try reducer.reduce(F.askCapturing, .regionStarted(F.id)).get().state
+        let failed = try reducer.reduce(started, .regionFailed(F.id, .screenRecordingDenied)).get().state
+        #expect(failed.context?.regionPending == false && failed.context?.regionFailure == .screenRecordingDenied)
+        let captured = try reducer.reduce(failed, .regionCaptured(F.id, F.region)).get().state
+        #expect(captured.context?.regionFailure == nil)
+    }
+
+    @Test func theWaitingInstructionGoesWithTheFrame() throws {
+        let waiting = try reducer.reduce(
+            .transcribing(F.regionContext(pending: true)), .transcribed(F.id, F.instruction, ms: 380)
+        ).get()
+        #expect(waiting.state.ask == AskProgress(instruction: "Résume ce texte.", stage: .awaitingRegion))
+        let generating = try reducer.reduce(waiting.state, .regionCaptured(F.id, F.region)).get()
+        #expect(
+            generating.effects == [
+                .generate(F.id, instruction: "Résume ce texte.", selection: F.selection, hasRegion: true)
+            ])
+        #expect(generating.state.context?.region == F.region)
+    }
+
+    @Test func askingWithoutTheFrameForgetsItAndTheFailedCall() throws {
+        let retried = try reducer.reduce(F.regionAskFailed, .askRetryWithoutRegion(F.id)).get()
+        #expect(retried.effects == [.generate(F.id, instruction: "Résume ce texte.", selection: F.selection)])
+        #expect(retried.state.context?.region == nil && retried.state.context?.llmMs == nil)
+        let fromDenied = try reducer.reduce(denied, .askRetryWithoutRegion(F.id)).get()
+        #expect(fromDenied.state.context?.regionFailure == nil)
+        #expect(fromDenied.state.ask?.stage == .generating)
+    }
+}

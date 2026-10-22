@@ -91,12 +91,15 @@ public struct PipelineReducer: Sendable {
             // An ask known at the press branches here, not from `resolving` (the project rules): there is no command to match
             // and no destination to choose, and the normalized text for the log is a pure function. An ask found in
             // the words (M9's prefix, M10's routing) will branch from `resolving`.
+            // A drag still open waits for its capture; a frame that failed ends the request before it leaves.
             if context.intent.isAsk {
                 var instruction = transcript
                 instruction.normalized = Normalizer.normalize(transcript.raw)
-                return move(
-                    .asking(context, instruction, .generating),
-                    [.generate(id, instruction: transcript.raw, selection: context.intent.selection)])
+                if context.regionPending { return move(.asking(context, instruction, .awaitingRegion)) }
+                if let failure = context.regionFailure {
+                    return move(.asking(context, instruction, .regionFailed(failure)))
+                }
+                return move(.asking(context, instruction, .generating), [generate(context, instruction)])
             }
             // Where the text goes, and whether it is a secret the log and the clipboard must not show, both come from
             // the focus. The probe always answers, within its AX timeouts, so a slow one is waited for.
@@ -141,9 +144,7 @@ public struct PipelineReducer: Sendable {
                     context.intent = .assist(caller: context.focus?.app)
                 }
                 context.request = request
-                return move(
-                    .asking(context, transcript, .generating),
-                    [.generate(id, instruction: request, selection: context.intent.selection)])
+                return move(.asking(context, transcript, .generating), [generate(context, transcript)])
             }
 
         case (.confirming(let context, let transcript, let command, .awaitingAnswer), .confirmed(_, let accepted)):
@@ -183,13 +184,43 @@ public struct PipelineReducer: Sendable {
             context.llmMs = summary.ms
             return move(.asking(context, transcript, .failed(failure)))
 
-        // The failed call's numbers go: the line reports the call that ended the ask.
+        // The region events, while the request has not left. A new drag replaces the frame; the chip's × removes it.
+        case (.capturing(let context), .regionStarted), (.capturing(let context), .regionCaptured),
+            (.capturing(let context), .regionFailed), (.capturing(let context), .regionRemoved):
+            guard let context = region(context, event) else { return reject(state, event) }
+            return move(.capturing(context))
+
+        case (.transcribing(let context), .regionStarted), (.transcribing(let context), .regionCaptured),
+            (.transcribing(let context), .regionFailed), (.transcribing(let context), .regionRemoved):
+            guard let context = region(context, event) else { return reject(state, event) }
+            return move(.transcribing(context))
+
+        // The instruction is heard and waited for the frame: its capture sends the request, its failure stops it.
+        case (.asking(let context, let transcript, .awaitingRegion), .regionStarted),
+            (.asking(let context, let transcript, .awaitingRegion), .regionCaptured),
+            (.asking(let context, let transcript, .awaitingRegion), .regionFailed),
+            (.asking(let context, let transcript, .awaitingRegion), .regionRemoved):
+            guard let context = region(context, event) else { return reject(state, event) }
+            if context.regionPending { return move(.asking(context, transcript, .awaitingRegion)) }
+            if let failure = context.regionFailure {
+                return move(.asking(context, transcript, .regionFailed(failure)))
+            }
+            return move(.asking(context, transcript, .generating), [generate(context, transcript)])
+
+        // The failed call's numbers go: the line reports the call that ended the ask. The frame stays.
         case (.asking(var context, let transcript, .failed), .askRetry):
             context.llmModel = nil
             context.llmMs = nil
-            return move(
-                .asking(context, transcript, .generating),
-                [.generate(id, instruction: context.request ?? transcript.raw, selection: context.intent.selection)])
+            return move(.asking(context, transcript, .generating), [generate(context, transcript)])
+
+        // Ask without the image: after a server failure (one that cannot read images) or a frame that failed.
+        case (.asking(var context, let transcript, .failed), .askRetryWithoutRegion),
+            (.asking(var context, let transcript, .regionFailed), .askRetryWithoutRegion):
+            context.llmModel = nil
+            context.llmMs = nil
+            context.region = nil
+            context.regionFailure = nil
+            return move(.asking(context, transcript, .generating), [generate(context, transcript)])
 
         // The user chose the clipboard: `chosen`, so the line's error is null.
         case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):
@@ -256,13 +287,48 @@ public struct PipelineReducer: Sendable {
             (.asking(let context, let transcript, .replacing), .cancel):
             return finish(context, transcript, .discarded(.cancelled))
 
+        case (.asking(let context, let transcript, .awaitingRegion), .cancel):
+            return finish(context, transcript, .discarded(.cancelled))
+
         // Closing the popup on an error is not the user giving up on a good answer: the line keeps what failed.
         case (.asking(let context, let transcript, .failed(let failure)), .cancel):
+            return finish(context, transcript, .failed(failure.pipelineFailure))
+
+        case (.asking(let context, let transcript, .regionFailed(let failure)), .cancel):
             return finish(context, transcript, .failed(failure.pipelineFailure))
 
         default:
             return reject(state, event)
         }
+    }
+
+    /// The request: what followed a spoken prefix, or the transcript; the image when a frame was captured.
+    private func generate(_ context: UtteranceContext, _ transcript: Transcript) -> PipelineEffect {
+        .generate(
+            context.id, instruction: context.request ?? transcript.raw, selection: context.intent.selection,
+            hasRegion: context.region != nil)
+    }
+
+    /// A region event applied to an ask's context; nil for a dictation, which frames nothing.
+    private func region(_ context: UtteranceContext, _ event: PipelineEvent) -> UtteranceContext? {
+        guard context.intent.isAsk else { return nil }
+        var context = context
+        switch event {
+        case .regionStarted:
+            context.regionPending = true
+        case .regionCaptured(_, let summary):
+            context.region = summary
+            context.regionPending = false
+            context.regionFailure = nil
+        case .regionFailed(_, let failure):
+            context.regionPending = false
+            context.regionFailure = failure
+        case .regionRemoved:
+            context.region = nil
+        default:
+            return nil
+        }
+        return context
     }
 
     private func copy(_ context: UtteranceContext, _ transcript: Transcript) -> PipelineEffect {

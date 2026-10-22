@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import HarkCore
 
@@ -100,6 +101,25 @@ enum Fixture {
         .asking(askContext(llmMs: llmMs), instruction, .failed(failure))
     }
 
+    /// A 700×600 pt frame on the Retina built-in display, encoded at 1400×1200 px.
+    static let region = RegionSummary(
+        rect: CGRect(x: 120, y: 80, width: 700, height: 600), pixelWidth: 1400, pixelHeight: 1200, bytes: 412_000,
+        displayID: 1)
+    /// An ask's context with a frame: `pending` while a drag is open, `region` once captured, `failure` when it failed.
+    static func regionContext(
+        intent: CaptureIntent = ask, released: Bool = true, pending: Bool = false, region: RegionSummary? = nil,
+        failure: RegionFailure? = nil
+    ) -> UtteranceContext {
+        var context = intent == ask ? askContext(released: released) : assistContext(released: released)
+        context.regionPending = pending
+        context.region = region
+        context.regionFailure = failure
+        return context
+    }
+    static let awaitingRegion = PipelineState.asking(regionContext(pending: true), instruction, .awaitingRegion)
+    static let regionAskFailed = PipelineState.asking(
+        regionContext(region: region), instruction, .failed(.noVision(model: bonsai, reason: .noVision)))
+
     /// The Ask key with nothing selected, in TextEdit.
     static let assist = CaptureIntent.assist(caller: textEdit)
     static let request = Transcript(raw: "Écris un mail pour décliner la réunion de jeudi.", tier: .small)
@@ -142,7 +162,7 @@ extension PipelineEffect {
         case .runAction: "runAction"
         case .insert: "insert"
         case .copyToClipboard: "copyToClipboard"
-        case .generate: "generate"
+        case .generate(_, _, _, let hasRegion): hasRegion ? "generate+region" : "generate"
         case .cancelGeneration: "cancelGeneration"
         case .checkSelection: "checkSelection"
         case .writeLog(let record):
