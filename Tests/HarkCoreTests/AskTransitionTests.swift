@@ -697,3 +697,390 @@ let followUpTransitions: [LegalTransition] = [
         name: "generating, an empty reply is llm_empty", state: F.generating,
         event: .generated(F.id, done, reply: " \n "), phase: .asking, effects: []),
 ]
+
+/// The words of turn `n`, distinct per turn so a line can be checked for another turn's.
+private func words(_ n: UInt64) -> Transcript { Transcript(raw: "Consigne numéro \(n) pour la suite.", tier: .small) }
+private func replyOf(_ n: UInt64) -> String { "Réponse confidentielle \(n)." }
+
+/// A follow-up `n` from an answer in review, said and heard: up to its transcript.
+private func followUp(_ n: UInt64, _ transcript: Transcript? = nil) -> [PipelineEvent] {
+    [
+        .followUpDown(uid(n), at: pressAt(n)), .triggerUp(at: pressAt(n).addingTimeInterval(1.5)),
+        .captured(uid(n), F.speech), .transcribed(uid(n), transcript ?? words(n), ms: 300),
+    ]
+}
+
+/// Turn 1, a selection ask answered with a pin, then `count` follow-ups answered: the last in review.
+private func conversation(_ intent: CaptureIntent = F.ask, followUps count: UInt64) -> [PipelineEvent] {
+    var events: [PipelineEvent] = [
+        .triggerDown(uid(1), at: pressAt(1), intent: intent), .triggerUp(at: pressAt(1).addingTimeInterval(1.5)),
+        .captured(uid(1), F.speech), .transcribed(uid(1), words(1), ms: 300),
+        .generated(uid(1), pinned, reply: replyOf(1)),
+    ]
+    guard count > 0 else { return events }
+    for n in 2...(count + 1) {
+        events += followUp(n) + [.generated(uid(n), done, reply: replyOf(n))]
+    }
+    return events
+}
+
+@Suite struct FollowUpTests {
+    let reducer = PipelineReducer()
+
+    /// Runs `events` from `state`, dropping rejected ones as the controller does.
+    private func run(_ events: [PipelineEvent], from state: PipelineState = .idle) -> (
+        state: PipelineState, effects: [PipelineEffect]
+    ) {
+        var state = state
+        var effects: [PipelineEffect] = []
+        for event in events {
+            guard case .success(let transition) = reducer.reduce(state, event) else { continue }
+            state = transition.state
+            effects += transition.effects
+        }
+        return (state, effects)
+    }
+
+    @Test func aFollowUpTakesTheIntentFocusAndThreadAndParksTheAnswer() throws {
+        let start = try reducer.reduce(reviewed(), .followUpDown(uid(2), at: pressAt(2))).get()
+        #expect(start.effects == [.startCapture(uid(2))])
+        let context = try #require(start.state.context)
+        guard case .asking(let answered, let transcript, _) = reviewed() else { return }
+        #expect(context.id == uid(2) && context.pressedAt == pressAt(2))
+        #expect(context.intent == F.ask && context.focus == answered.focus)
+        #expect(context.parked == .turn(answered, transcript))
+        #expect(
+            context.thread == AskThread(rootID: uid(1), kind: .selection, selection: F.selectionText, pin: pin))
+        #expect(context.request == nil && context.region == nil && context.reply == nil && context.pin == nil)
+        #expect(context.llmModel == nil && context.capture == nil && context.sentContext == nil)
+
+        let assistant = try reducer.reduce(reviewed(F.assist), .followUpDown(uid(2), at: pressAt(2))).get()
+        #expect(assistant.state.context?.thread?.kind == .assistant)
+        #expect(assistant.state.context?.thread?.selection == nil)
+    }
+
+    @Test func aFourTurnThreadWritesOneLinePerTurn() throws {
+        let end = run(conversation(followUps: 3) + [.askCopy(uid(4), F.answer), .copied(uid(4))])
+        #expect(end.state == .idle)
+        let records = end.effects.compactMap(\.record)
+        #expect(records.map(\.timestamp) == (1...4).map { pressAt($0) })
+        #expect(
+            end.effects.compactMap { $0.record == nil ? nil : $0.label } == [
+                "log:discarded:followed_up", "log:discarded:followed_up", "log:discarded:followed_up",
+                "log:text_clipboard",
+            ])
+        for record in records { #expect(record.actionType == .ask) }
+        for (n, record) in zip(UInt64(1)..., records) {
+            #expect(record.rawText == words(n).raw)
+            #expect(record.llmModel == F.bonsai && record.llmMs == 2_610)
+        }
+    }
+}
+
+extension FollowUpTests {
+    /// The rules: no reply, no selection, and no other turn's instruction in any line of a thread.
+    @Test func noLineOfAThreadHoldsAReplyTheSelectionOrAnotherTurn() {
+        let end = run(conversation(followUps: 3) + [.askCopy(uid(4), F.answer), .copied(uid(4))])
+        let records = end.effects.compactMap(\.record)
+        #expect(records.count == 4)
+        for (n, record) in zip(UInt64(1)..., records) {
+            let line = record.jsonLine(timeZone: F.paris)
+            for other in UInt64(1)...4 {
+                #expect(!line.contains("confidentielle \(other)"), "\(line)")
+                if other != n { #expect(!line.contains(words(other).raw), "\(line)") }
+            }
+            for word in ["comité", "budget", "Réunion", "validation"] { #expect(!line.contains(word), "\(line)") }
+        }
+    }
+
+    @Test func theThreadHoldsEveryAnsweredTurn() throws {
+        let end = run(conversation(followUps: 3))
+        guard case .asking(let context, _, .reviewing) = end.state else {
+            Issue.record("not reviewing")
+            return
+        }
+        let thread = try #require(context.thread)
+        #expect(thread.turns.map(\.id) == [uid(1), uid(2), uid(3)])
+        #expect(thread.turns.map(\.instruction) == (1...3).map { words($0).raw })
+        #expect(thread.turns.map(\.reply) == (1...3).map { replyOf($0) })
+        #expect(context.reply == replyOf(4) && context.parked == nil && thread.pin == pin)
+        #expect(context.conversationTurns == 4)
+    }
+
+    /// Esc, nothing heard and too short all bring back the answer the follow-up started from, whole.
+    @Test(arguments: [
+        ("Esc while capturing", [PipelineEvent.followUpDown(uid(9), at: pressAt(9)), .cancel], "cancelled"),
+        (
+            "Esc while transcribing",
+            [.followUpDown(uid(9), at: pressAt(9)), .triggerUp(at: pressAt(10)), .cancel], "cancelled"
+        ),
+        (
+            "too short",
+            [.followUpDown(uid(9), at: pressAt(9)), .triggerUp(at: pressAt(10)), .captured(uid(9), F.short)],
+            "too_short"
+        ),
+        ("nothing heard", followUp(9, Transcript(raw: " ")), "empty_transcript"),
+    ])
+    func aFollowUpWithNoWordsReturnsToTheAnswer(_ name: String, _ events: [PipelineEvent], _ code: String) {
+        let reviewing = run(conversation(followUps: 1)).state
+        let end = run(events, from: reviewing)
+        #expect(end.state == reviewing, "\(name)")
+        let records = end.effects.compactMap(\.record)
+        #expect(records.count == 1 && records.first?.error == code && records.first?.context == nil)
+        #expect(records.first?.timestamp == pressAt(9) && records.first?.actionType == .ask)
+    }
+
+    /// A follow-up that framed and then heard nothing: the answer comes back, the follow-up's frame is in no state.
+    @Test func anEmptyFollowUpThatFramedReturnsWithoutItsFrame() {
+        let reviewing = run(conversation(followUps: 1)).state
+        let end = run(
+            [
+                .followUpDown(uid(9), at: pressAt(9)), .regionStarted(uid(9)), .regionCaptured(uid(9), F.region),
+                .triggerUp(at: pressAt(10)), .captured(uid(9), F.speech),
+                .transcribed(uid(9), Transcript(raw: " "), ms: 200),
+            ], from: reviewing)
+        #expect(end.state == reviewing)
+        #expect(end.state.context?.region == nil && end.state.context?.thread?.framed == false)
+    }
+
+    /// Esc after the follow-up was heard, waiting for its frame or after it failed, still returns to the answer.
+    @Test func escWaitingForTheFrameOrAfterItFailedReturnsToTheAnswer() {
+        let reviewing = run(conversation(followUps: 1)).state
+        let heard =
+            [PipelineEvent.followUpDown(uid(9), at: pressAt(9)), .regionStarted(uid(9))] + followUp(9).dropFirst()
+        let waiting = run(heard, from: reviewing)
+        #expect(waiting.state.ask?.stage == .awaitingRegion && waiting.effects.compactMap(\.record).isEmpty)
+        let cancelled = run([.cancel], from: waiting.state)
+        #expect(cancelled.state == reviewing && cancelled.effects.map(\.label) == ["log:discarded:cancelled"])
+
+        let failed = run([.regionFailed(uid(9), .captureFailed)], from: waiting.state)
+        #expect(failed.state.ask?.stage == .regionFailed(.captureFailed))
+        let back = run([.cancel], from: failed.state)
+        #expect(back.state == reviewing && back.effects.map(\.label) == ["log:discarded:cancelled"])
+    }
+}
+
+extension FollowUpTests {
+    /// M11's region rows, applied to the follow-up's own turn; the parked answer's frame is never touched.
+    @Test func aFollowUpFramesARegionOfItsOwn() throws {
+        let other = RegionSummary(
+            rect: F.region.rect, pixelWidth: 600, pixelHeight: 400, bytes: 90_000,
+            displayID: 2)
+        let reviewing = reviewed(region: F.region)
+        var state = run([.followUpDown(uid(2), at: pressAt(2))], from: reviewing).state
+        #expect(state.context?.region == nil)
+        state = run([.regionStarted(uid(2))], from: state).state
+        #expect(state.context?.regionPending == true)
+        state = run([.regionCaptured(uid(2), other)], from: state).state
+        #expect(state.context?.region == other && state.context?.regionPending == false)
+        state = run([.regionStarted(uid(2)), .regionCaptured(uid(2), F.region)], from: state).state
+        #expect(state.context?.region == F.region)
+        state = run([.regionFailed(uid(2), .captureFailed)], from: state).state
+        #expect(state.context?.regionFailure == .captureFailed)
+        state = run([.regionRemoved(uid(2))], from: state).state
+        #expect(state.context?.region == nil && state.context?.regionFailure == nil)
+        guard case .asking(let answered, _, _) = reviewing else { return }
+        #expect(state.context?.parked?.context == answered)
+    }
+
+    /// The frame cap counts the thread's frames and the parked turn's: a turn with none takes none, a re-drag is fine.
+    @Test func atTheFrameCapATurnWithNoFrameTakesNone() throws {
+        let full = reviewedThread(answered: 2, framed: [0, 1], region: F.region)
+        let capturing = try reducer.reduce(full, .followUpDown(uid(9), at: pressAt(9))).get().state
+        #expect(capturing.context?.earlierFrames == FrameTally(count: 3, bytes: 3 * F.region.bytes))
+        #expect(capturing.context?.acceptsFrame == false)
+        for event in [PipelineEvent.regionStarted(uid(9)), .regionCaptured(uid(9), F.region)] {
+            #expect(reducer.reduce(capturing, event) == .failure(Rejection(phase: .capturing, event: event)))
+        }
+
+        // Two earlier frames: this turn takes a third, then may replace it.
+        let room = reviewedThread(answered: 2, framed: [0], region: F.region)
+        var state = try reducer.reduce(room, .followUpDown(uid(9), at: pressAt(9))).get().state
+        state = run([.regionStarted(uid(9)), .regionCaptured(uid(9), F.region)], from: state).state
+        #expect(state.context?.region == F.region && state.context?.acceptsFrame == true)
+        let redrag = try reducer.reduce(state, .regionStarted(uid(9))).get().state
+        #expect(redrag.context?.regionPending == true)
+    }
+
+    @Test func theFrameCapIsByBytesToo() throws {
+        let heavy = RegionSummary(
+            rect: F.region.rect, pixelWidth: 4000, pixelHeight: 3000, bytes: AskThread.maxFrameBytes, displayID: 1)
+        var state = reviewed(region: heavy)
+        state = try reducer.reduce(state, .followUpDown(uid(2), at: pressAt(2))).get().state
+        #expect(state.context?.acceptsFrame == false)
+        #expect(
+            reducer.reduce(state, .regionStarted(uid(2)))
+                == .failure(Rejection(phase: .capturing, event: .regionStarted(uid(2)))))
+    }
+
+    /// Six turns at most, the turn in review counted: five answered plus the one in review is full.
+    @Test func theConversationHoldsSixTurns() throws {
+        let sixth = run(conversation(followUps: 5)).state
+        #expect(sixth.context?.conversationTurns == 6)
+        let busy = try reducer.reduce(sixth, .followUpDown(uid(20), at: pressAt(20))).get()
+        #expect(busy.state == sixth && busy.effects.map(\.label) == ["log:discarded:busy"])
+        #expect(busy.effects.first?.record?.timestamp == pressAt(20))
+
+        let fifth = run(conversation(followUps: 4)).state
+        let capturing = try reducer.reduce(fifth, .followUpDown(uid(20), at: pressAt(20))).get().state
+        #expect(capturing.phase == .capturing && capturing.context?.conversationTurns == 5)
+    }
+
+    @Test func aLongHistoryFillsTheConversation() throws {
+        var state = reviewed()
+        if case .asking(var context, let transcript, let stage) = state {
+            context.reply = String(repeating: "x", count: AskThread.maxHistoryChars)
+            state = .asking(context, transcript, stage)
+        }
+        let busy = try reducer.reduce(state, .followUpDown(uid(2), at: pressAt(2))).get()
+        #expect(busy.state == state && busy.effects.map(\.label) == ["log:discarded:busy"])
+    }
+}
+
+extension FollowUpTests {
+    /// The parked answer is superseded once, when the request leaves: through a frame that arrives late, or Ask
+    /// without the image after it failed. Retry never logs it again.
+    @Test func theParkedLineIsWrittenOnceWhicheverRowFollows() throws {
+        let reviewing = run(conversation(followUps: 0)).state
+        let heard =
+            [PipelineEvent.followUpDown(uid(2), at: pressAt(2)), .regionStarted(uid(2))] + followUp(2).dropFirst()
+        let waiting = run(heard, from: reviewing)
+        #expect(waiting.effects.map(\.label) == ["startCapture", "stopCapture", "transcribe"])
+
+        let framed = run([.regionCaptured(uid(2), F.region)], from: waiting.state)
+        #expect(framed.effects.map(\.label) == ["log:discarded:followed_up", "generate+region"])
+        let failed = run([.regionFailed(uid(2), .captureFailed)], from: waiting.state)
+        #expect(failed.effects.isEmpty)
+        let without = run([.askRetryWithoutRegion(uid(2))], from: failed.state)
+        #expect(without.effects.map(\.label) == ["log:discarded:followed_up", "generate"])
+
+        let retried = run(
+            [.generationFailed(uid(2), .noAnswer, LLMCallSummary(ms: 900)), .askRetry(uid(2))], from: framed.state)
+        #expect(retried.effects.map(\.label) == ["generate+region"])
+        #expect(retried.state.context?.thread == framed.state.context?.thread)
+        #expect(retried.state.context?.thread?.turns.map(\.id) == [uid(1)])
+    }
+
+    /// Ask without the image drops this turn's frame only: an earlier turn's stays in the thread.
+    @Test func askingWithoutTheImageDropsOnlyThisTurnsFrame() throws {
+        var state = reviewedThread(answered: 1, framed: [0])
+        state =
+            run(
+                [.followUpDown(uid(9), at: pressAt(9)), .regionStarted(uid(9)), .regionCaptured(uid(9), F.region)]
+                    + followUp(9).dropFirst()
+                    + [
+                        .generationFailed(uid(9), .noVision(model: F.bonsai, reason: .noVision), LLMCallSummary(ms: 40))
+                    ],
+                from: state
+            ).state
+        let thread = try #require(state.context?.thread)
+        let again = try reducer.reduce(state, .askRetryWithoutRegion(uid(9))).get()
+        #expect(again.state.context?.region == nil && again.state.context?.thread == thread)
+        #expect(thread.framed && thread.turns.count == 2)
+        guard case .generate(_, _, _, let hasRegion, let sent) = again.effects.last else {
+            Issue.record("no request")
+            return
+        }
+        #expect(!hasRegion && sent == thread)
+        #expect(again.state.context?.sentContext == "selection+region+history")
+    }
+
+    /// Quitting during a follow-up: the first cancel returns to the answer, the second ends it there. Two lines.
+    @Test func quittingDuringAFollowUpLogsBothTurns() {
+        let reviewing = run(conversation(followUps: 0)).state
+        let end = run([.followUpDown(uid(2), at: pressAt(2)), .cancel, .cancel], from: reviewing)
+        #expect(end.state == .idle)
+        #expect(end.effects.compactMap(\.record).map(\.timestamp) == [pressAt(2), pressAt(1)])
+        #expect(
+            end.effects.map(\.label) == [
+                "startCapture", "cancelCapture", "log:discarded:cancelled", "log:discarded:cancelled",
+            ])
+    }
+
+    @Test func anEmptyReplyIsNoAnswerAndNeverATurn() throws {
+        let generating = run(conversation(followUps: 0) + followUp(2)).state
+        let empty = try reducer.reduce(generating, .generated(uid(2), done, reply: "  \n")).get()
+        #expect(empty.state.ask?.stage == .failed(.empty) && empty.state.context?.reply == nil)
+        #expect(empty.state.context?.llmModel == F.bonsai && empty.state.context?.llmMs == 2_610)
+        let line = try #require(try reducer.reduce(empty.state, .cancel).get().effects.first?.record)
+        #expect(line.error == "llm_empty")
+        #expect(
+            reducer.reduce(empty.state, .followUpDown(uid(3), at: pressAt(3))).map(\.state) == .success(empty.state))
+    }
+}
+
+extension FollowUpTests {
+    /// Replace on a later turn checks turn 1's selection, as turn 1 does.
+    @Test func replaceOnTurnThreeIsGuardedByTurnOnesSelection() throws {
+        let third = run(conversation(followUps: 2)).state
+        let replacing = try reducer.reduce(third, .askReplace(uid(3), F.answer)).get()
+        #expect(replacing.effects == [.checkSelection(uid(3), F.selection)])
+        #expect(replacing.state.ask?.stage == .replacing)
+    }
+
+    /// A frame at any turn ends Replace for a selection thread from that turn on; Insert for the assistant stays.
+    @Test func aFramedThreadIsNeverReplaced() throws {
+        let second = run(conversation(followUps: 1)).state
+        #expect(reducer.reduce(second, .askReplace(uid(2), F.answer)).map(\.state.phase) == .success(.asking))
+
+        let framedNow = run(
+            conversation(followUps: 1) + [
+                .followUpDown(uid(3), at: pressAt(3)), .regionStarted(uid(3)),
+                .regionCaptured(uid(3), F.region),
+            ] + followUp(3).dropFirst()
+                + [.generated(uid(3), done, reply: replyOf(3))]
+        ).state
+        #expect(framedNow.ask?.stage == .reviewing)
+        let refused = PipelineEvent.askReplace(uid(3), F.answer)
+        #expect(reducer.reduce(framedNow, refused) == .failure(Rejection(phase: .asking, event: refused)))
+
+        let after = run([] + followUp(4) + [.generated(uid(4), done, reply: replyOf(4))], from: framedNow).state
+        #expect(after.context?.region == nil && after.context?.thread?.framed == true)
+        let later = PipelineEvent.askReplace(uid(4), F.answer)
+        #expect(reducer.reduce(after, later) == .failure(Rejection(phase: .asking, event: later)))
+
+        let turnOneFramed = reviewed(region: F.region)
+        let first = PipelineEvent.askReplace(uid(1), F.answer)
+        #expect(reducer.reduce(turnOneFramed, first) == .failure(Rejection(phase: .asking, event: first)))
+
+        let assistant = reviewed(F.assist, region: F.region)
+        let insert = try reducer.reduce(assistant, .askReplace(uid(1), F.answer)).get()
+        #expect(insert.effects.map(\.label) == ["checkSelection"])
+    }
+
+    /// The line names the history a follow-up sent, and `region` once any turn framed, even one with no frame now.
+    @Test(arguments: [
+        ("history", CaptureIntent?.some(F.assist), false, false, "history"),
+        ("selection+history", .some(F.ask), false, false, "selection+history"),
+        ("region+history", .some(F.assist), true, false, "region+history"),
+        ("selection+region+history", .some(F.ask), true, false, "selection+region+history"),
+        ("region from an earlier turn", .some(F.assist), false, true, "region+history"),
+        ("selection, region from an earlier turn", .some(F.ask), false, true, "selection+region+history"),
+    ])
+    func theLineNamesTheHistorySent(
+        _ name: String, _ intent: CaptureIntent?, _ framesNow: Bool, _ framedBefore: Bool, _ kinds: String
+    ) throws {
+        let intent = intent ?? F.ask
+        var events = conversation(intent, followUps: 0)
+        if framedBefore {
+            events =
+                [
+                    .triggerDown(uid(1), at: pressAt(1), intent: intent), .regionStarted(uid(1)),
+                    .regionCaptured(uid(1), F.region),
+                ] + events.dropFirst()
+        }
+        let frame: [PipelineEvent] = framesNow ? [.regionStarted(uid(2)), .regionCaptured(uid(2), F.region)] : []
+        events +=
+            [.followUpDown(uid(2), at: pressAt(2))] + frame + followUp(2).dropFirst()
+            + [.generated(uid(2), done, reply: replyOf(2)), .askCopy(uid(2), F.answer), .copied(uid(2))]
+        let records = run(events).effects.compactMap(\.record)
+        #expect(records.count == 2, "\(name)")
+        #expect(records.last?.context == kinds, "\(name)")
+        #expect(
+            records.first?.error == "followed_up"
+                && records.first?.context
+                    == (framedBefore
+                        ? (intent == F.ask ? "selection+region" : "region") : (intent == F.ask ? "selection" : nil))
+        )
+    }
+}
