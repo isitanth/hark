@@ -1,0 +1,1 @@
+{"object":"list","data":[{"id":"gemma-3-4b","object":"model","architecture":{"input_modalities":["text"],"output_modalities":["text"]},"owned_by":"llamacpp"}]}

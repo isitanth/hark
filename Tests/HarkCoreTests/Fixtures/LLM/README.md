@@ -25,3 +25,12 @@ Anthropic's Messages API, 2026-10-12:
   `ping`, three `text_delta`, `message_delta` with `end_turn` and the output tokens, `message_stop`),
   `anthropic-refusal.sse` (`stop_reason: refusal` before any text), `anthropic-error-in-stream.sse` (one word, then
   an `overloaded_error` event), `anthropic-overloaded-529.json` and `anthropic-models.json`.
+
+Visual Context (M11), 2026-10-22, written by hand from the servers' sources and documentation (report a5 of the M11
+plan, §1, §2 and §5), since no server was asked to refuse an image:
+- `models-no-vision.json`: `models.json` with `supports_vision: false` and `modalities.input` `["text"]`, as MTPLX
+  lists a pack without a vision tower.
+- `llamacpp-models.json`: llama.cpp's `GET /v1/models` for a text-only model, `architecture.input_modalities`
+  (llama.cpp tools/server/server-context.cpp).
+- `anthropic-models.json` gained `capabilities.image_input` and `pdf_input` per entry
+  (platform.claude.com/docs/en/api/models/list).

@@ -141,6 +141,12 @@ public actor LLMClient {
     /// The ids `GET {base_url}/models` lists, in order, within the connect limit for the head and the probe limit
     /// for the whole call.
     public func models(profile: ProviderProfile) async -> Result<[String], LLMFailure> {
+        await listing(profile: profile).map { $0.map(\.id) }
+    }
+
+    /// `models`, with what each entry says of images: MTPLX's `supports_vision` and `modalities.input`, llama.cpp's
+    /// and OpenRouter's `architecture.input_modalities`, Anthropic's `capabilities.image_input.supported`.
+    public func listing(profile: ProviderProfile) async -> Result<[LLMModelListing], LLMFailure> {
         let key: String?
         switch await resolveKey(for: profile) {
         case .success(let value): key = value
@@ -157,14 +163,10 @@ public actor LLMClient {
         case .success((401, _)):
             return .failure(.keyRefused)
         case .success((200, let body)):
-            struct Wire: Decodable {
-                struct Model: Decodable { let id: String }
-                let data: [Model]
-            }
-            guard let wire = try? JSONDecoder().decode(Wire.self, from: body) else {
+            guard let wire = try? JSONDecoder().decode(ModelsWire.self, from: body) else {
                 return .failure(.server(status: 200, message: nil))
             }
-            return .success(wire.data.map(\.id))
+            return .success(wire.data.map { LLMModelListing(id: $0.id, vision: $0.vision) })
         case .success((let status, let body)):
             return .failure(.server(status: status, message: LLMErrorBody.message(in: body)))
         }
@@ -647,4 +649,63 @@ extension Clock where Duration == Swift.Duration {
 private func milliseconds(_ duration: Duration) -> Int {
     let (seconds, attoseconds) = duration.components
     return Int(seconds) * 1000 + Int(attoseconds / 1_000_000_000_000_000)
+}
+
+/// One model a server lists, and whether it reads images: nil when the entry says nothing of it.
+public struct LLMModelListing: Sendable, Equatable {
+    public var id: String
+    public var vision: Bool?
+
+    public init(id: String, vision: Bool? = nil) {
+        self.id = id
+        self.vision = vision
+    }
+}
+
+/// `GET /models`, every field but the id optional: a server that names none of them is unknown, never "no".
+private struct ModelsWire: Decodable {
+    struct Modalities: Decodable {
+        let input: [String]?
+    }
+
+    struct Architecture: Decodable {
+        let inputModalities: [String]?
+
+        enum CodingKeys: String, CodingKey {
+            case inputModalities = "input_modalities"
+        }
+    }
+
+    struct Capabilities: Decodable {
+        struct Supported: Decodable {
+            let supported: Bool?
+        }
+
+        let imageInput: Supported?
+
+        enum CodingKeys: String, CodingKey {
+            case imageInput = "image_input"
+        }
+    }
+
+    struct Model: Decodable {
+        let id: String
+        let supportsVision: Bool?
+        let modalities: Modalities?
+        let architecture: Architecture?
+        let capabilities: Capabilities?
+
+        enum CodingKeys: String, CodingKey {
+            case id, modalities, architecture, capabilities
+            case supportsVision = "supports_vision"
+        }
+
+        /// The first field present, in that order.
+        var vision: Bool? {
+            supportsVision ?? modalities?.input.map { $0.contains("image") }
+                ?? architecture?.inputModalities.map { $0.contains("image") } ?? capabilities?.imageInput?.supported
+        }
+    }
+
+    let data: [Model]
 }

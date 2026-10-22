@@ -7,6 +7,17 @@ public enum LLMProbeResult: Sendable, Equatable {
     case failed(LLMFailure)
 }
 
+/// A probe's result and, once connected, whether the model reads images: nil when the server does not say.
+public struct LLMProbeReport: Sendable, Equatable {
+    public var result: LLMProbeResult
+    public var vision: Bool?
+
+    public init(result: LLMProbeResult, vision: Bool?) {
+        self.result = result
+        self.vision = vision
+    }
+}
+
 /// Asks `GET {base_url}/models` every time: it is cheap, and it is what shows a stopped server or a refused key
 /// before an ask is spent on it.
 public struct LLMProbe: Sendable {
@@ -18,15 +29,26 @@ public struct LLMProbe: Sendable {
 
     /// For a named model, that id once the server answers at all; for `auto`, the first id it lists.
     public func check(_ profile: ProviderProfile) async -> LLMProbeResult {
-        switch await client.models(profile: profile) {
+        await inspect(profile).result
+    }
+
+    /// `check`, and whether the model it names reads images, as its entry in the list says. Anthropic's API lists
+    /// `capabilities`; without them, Claude is taken to read images.
+    public func inspect(_ profile: ProviderProfile) async -> LLMProbeReport {
+        switch await client.listing(profile: profile) {
         case .failure(let failure):
-            return .failed(failure)
-        case .success(let ids):
-            guard let first = ids.first else { return .failed(.server(status: 200, message: nil)) }
-            switch profile.model {
-            case .auto: return .connected(model: first)
-            case .named(let id): return .connected(model: id)
+            return LLMProbeReport(result: .failed(failure), vision: nil)
+        case .success(let listing):
+            guard let first = listing.first else {
+                return LLMProbeReport(result: .failed(.server(status: 200, message: nil)), vision: nil)
             }
+            let model: String
+            switch profile.model {
+            case .auto: model = first.id
+            case .named(let id): model = id
+            }
+            let vision = listing.first { $0.id == model }?.vision ?? (profile.api == .anthropic ? true : nil)
+            return LLMProbeReport(result: .connected(model: model), vision: vision)
         }
     }
 }

@@ -74,3 +74,55 @@ struct LLMProbeCase: Sendable, CustomTestStringConvertible {
         #expect(await result.value == .failed(.noAnswer))
     }
 }
+
+struct VisionProbeCase: Sendable, CustomTestStringConvertible {
+    let fixture: String
+    var profile: ProviderProfile = LLMClientHarness.profile
+    var model: ModelChoice = .auto
+    let connected: String
+    let vision: Bool?
+    var testDescription: String { "\(fixture) \(model)" }
+}
+
+/// What the list says of images for the model the probe chose: nil when it says nothing.
+@Suite struct LLMProbeVisionTests {
+    static let cases: [VisionProbeCase] = [
+        .init(fixture: "models.json", connected: LLMFixtures.model, vision: true),
+        .init(fixture: "models-no-vision.json", connected: LLMFixtures.model, vision: false),
+        .init(fixture: "llamacpp-models.json", connected: "gemma-3-4b", vision: false),
+        .init(fixture: "models.json", model: .named("other"), connected: "other", vision: nil),
+        .init(fixture: "anthropic-models.json", profile: .claude, connected: "claude-opus-5-5", vision: true),
+        .init(
+            fixture: "anthropic-models.json", profile: .claude, model: .named("claude-sonnet-5-5"),
+            connected: "claude-sonnet-5-5", vision: true),
+    ]
+
+    @Test(arguments: cases)
+    func readsVision(_ row: VisionProbeCase) async throws {
+        let transport = FakeLLMTransport([.status(200, try LLMFixtures.data(row.fixture))])
+        var profile = row.profile
+        profile.model = row.model
+        let client = H.client(transport, secrets: FakeSecretStore([profile.name: H.key]))
+        let report = await LLMProbe(client: client).inspect(profile)
+        #expect(report == LLMProbeReport(result: .connected(model: row.connected), vision: row.vision))
+    }
+
+    @Test func anEntryWithNoFieldIsUnknownNeverNo() async throws {
+        let body = Data(#"{"object":"list","data":[{"id":"m"}]}"#.utf8)
+        let report = await LLMProbe(client: H.client(FakeLLMTransport([.status(200, body)]))).inspect(H.profile)
+        #expect(report == LLMProbeReport(result: .connected(model: "m"), vision: nil))
+    }
+
+    @Test func claudeWithoutTheFieldReadsImages() async throws {
+        let body = Data(#"{"data":[{"type":"model","id":"claude-opus-5-5"}]}"#.utf8)
+        let transport = FakeLLMTransport([.status(200, body)])
+        let client = H.client(transport, secrets: FakeSecretStore([ProviderProfile.claude.name: H.key]))
+        #expect(await LLMProbe(client: client).inspect(.claude).vision == true)
+    }
+
+    @Test func aFailureIsUnknown() async {
+        let client = H.client(FakeLLMTransport([.refuse]))
+        let report = await LLMProbe(client: client).inspect(H.profile)
+        #expect(report == LLMProbeReport(result: .failed(.notRunning(endpoint: H.endpoint)), vision: nil))
+    }
+}
