@@ -298,7 +298,7 @@ let illegalTransitions: [IllegalTransition] = [
             .modelLoad, .transcription(code: 3), .actionLaunch, .actionTimeout, .actionExit(2),
             .automationDenied(bundleID: "com.apple.finder"), .focusNotRestored, .pasteboardWrite, .llmUnreachable,
             .llmUnauthorized, .llmTimeout, .llmError(status: 500), .llmError(status: nil), .llmEmpty,
-            .llmNoVision, .screenRecordingDenied, .regionFailed,
+            .llmNoVision, .screenRecordingDenied, .regionFailed, .llmProfileChanged,
         ]
         for failure in failures {
             #expect(logged.contains("log:failed:\(failure.code)"), "no reducer case logs \(failure.code)")
@@ -310,8 +310,7 @@ let illegalTransitions: [IllegalTransition] = [
         #expect(logged.contains("log:text_clipboard:selection_changed"))
         // `max_duration` is no longer a discard: since 2026-09-24 the limit ends the capture and the text goes
         // through, with the code on the `text_inserted` or `command` line instead.
-        // `followed_up` until M12.3 reduces a follow-up.
-        let notYetReduced: Set<DiscardReason> = [.maxDuration, .followedUp]
+        let notYetReduced: Set<DiscardReason> = [.maxDuration]
         for reason in DiscardReason.allCases where !notYetReduced.contains(reason) {
             #expect(logged.contains("log:discarded:\(reason.rawValue)"), "no reducer case logs \(reason.rawValue)")
         }
