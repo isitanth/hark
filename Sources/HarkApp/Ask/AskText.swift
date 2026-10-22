@@ -44,7 +44,38 @@ extension LLMFailure {
         case .empty: L("ask.failure.empty")
         case .refused: L("ask.failure.refused")
         case .notRunning, .unreachable, .keyRefused, .noKey: L("ask.failure.noAnswer")
-        case .noVision: L("ask.failure.streamError")
+        case .noVision(_, .needsMTPMode): L("ask.failure.visionNeedsMTP")
+        case .noVision(let model?, _): L("ask.failure.noVision \(model)")
+        case .noVision(nil, _): L("ask.failure.noVision.unnamed")
+        }
+    }
+
+    /// The Ask panel after an ask that carried an image: a refusal Hark cannot read as "no vision" names the image as
+    /// the probable cause, with the server's own words.
+    func popupText(imageAttached: Bool) -> LocalizedStringResource {
+        if imageAttached, case .server(let status?, let message?) = self, (400..<500).contains(status) {
+            return L("ask.failure.imageMaybe \(message)")
+        }
+        return popupText
+    }
+}
+
+extension RegionFailure {
+    /// The Ask panel: why the frame did not reach the model.
+    var popupText: LocalizedStringResource {
+        switch self {
+        case .screenRecordingDenied: L("ask.failure.screenRecordingDenied")
+        case .captureFailed: L("ask.failure.regionFailed")
+        }
+    }
+}
+
+extension FramingBlock {
+    /// The listening panel, in place of the framing hint: why framing cannot work now.
+    func text(requested: Bool) -> LocalizedStringResource {
+        switch self {
+        case .noScreenRecording: requested ? L("ask.framing.reopen") : L("ask.framing.noScreenRecording")
+        case .modelCannotSee: L("ask.framing.modelCannotSee")
         }
     }
 }

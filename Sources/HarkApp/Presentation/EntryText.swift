@@ -108,9 +108,11 @@ extension LogEntry {
         case .llmError(let status?): return L("entry.failure.llmError \(status)")
         case .llmError(nil): return L("entry.failure.llmErrorInStream")
         case .llmEmpty: return L("entry.failure.llmEmpty")
+        case .llmNoVision: return L("entry.failure.llmNoVision")
+        case .screenRecordingDenied: return L("entry.failure.screenRecordingDenied")
+        case .regionFailed: return L("entry.failure.regionFailed")
         case .audioEngine(nil), .transcription(nil), .appNotFound(nil), .appNotActivated(nil), .appExited(nil),
-            .actionExit, .automationDenied, .focusNotRestored, .llmNoVision, .screenRecordingDenied, .regionFailed,
-            .other:
+            .actionExit, .automationDenied, .focusNotRestored, .other:
             return L("entry.outcome.failed \(code)")
         }
     }

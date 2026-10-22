@@ -6205,6 +6205,312 @@
           }
         }
       }
+    },
+    "ask.listening.frameHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold ⌃⌥ and drag to show Hark part of the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez ⌃⌥ et faites glisser pour montrer une partie de l’écran à Hark."
+          }
+        }
+      }
+    },
+    "ask.framing.noScreenRecording": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To see part of the screen, Hark needs the Screen Recording permission."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour voir une partie de l’écran, Hark a besoin de l’autorisation d’enregistrer l’écran."
+          }
+        }
+      }
+    },
+    "ask.framing.reopen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark sees the screen once it reopens."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark verra l’écran une fois rouvert."
+          }
+        }
+      }
+    },
+    "ask.framing.modelCannotSee": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This model can’t read images: choose another one to show Hark the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce modèle ne lit pas les images : choisissez-en un autre pour montrer l’écran à Hark."
+          }
+        }
+      }
+    },
+    "ask.button.allow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser…"
+          }
+        }
+      }
+    },
+    "ask.button.reopen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reopen Hark"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrir Hark"
+          }
+        }
+      }
+    },
+    "ask.button.chooseModel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose another model…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir un autre modèle…"
+          }
+        }
+      }
+    },
+    "ask.button.askWithoutImage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask without the image"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander sans l’image"
+          }
+        }
+      }
+    },
+    "ask.awaitingRegion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for your frame…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente de votre cadre…"
+          }
+        }
+      }
+    },
+    "ask.failure.noVision %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ can’t read images. Ask again without the image, or choose a model that sees images in Settings › Ask."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ne lit pas les images. Redemandez sans l’image, ou choisissez dans Réglages › Demander un modèle qui les voit."
+          }
+        }
+      }
+    },
+    "ask.failure.noVision.unnamed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This model can’t read images. Ask again without the image, or choose a model that sees images in Settings › Ask."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce modèle ne lit pas les images. Redemandez sans l’image, ou choisissez dans Réglages › Demander un modèle qui les voit."
+          }
+        }
+      }
+    },
+    "ask.failure.visionNeedsMTP": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server runs in AR mode, which takes no image. Restart MTPLX in MTP mode."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le serveur tourne en mode AR, qui n’accepte pas d’image. Relancez MTPLX en mode MTP."
+          }
+        }
+      }
+    },
+    "ask.failure.imageMaybe %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server said: %@. The image may be the cause."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le serveur a répondu : %@. L’image en est peut-être la cause."
+          }
+        }
+      }
+    },
+    "ask.failure.screenRecordingDenied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not see the frame: the Screen Recording permission is missing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu voir le cadre : l’autorisation d’enregistrer l’écran manque."
+          }
+        }
+      }
+    },
+    "ask.failure.regionFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not capture the frame."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu capturer le cadre."
+          }
+        }
+      }
+    },
+    "entry.failure.llmNoVision": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the model can’t read images"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le modèle ne lit pas les images"
+          }
+        }
+      }
+    },
+    "entry.failure.screenRecordingDenied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · Screen Recording is not allowed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · enregistrement de l’écran non autorisé"
+          }
+        }
+      }
+    },
+    "entry.failure.regionFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the frame could not be captured"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le cadre n’a pas pu être capturé"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

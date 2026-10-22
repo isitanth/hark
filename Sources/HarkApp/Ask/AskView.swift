@@ -122,9 +122,56 @@ struct AskView: View {
             answer(editable: false)
         case .reviewing:
             answer(editable: true)
+        case .listening:
+            VStack(alignment: .leading, spacing: 8) {
+                status
+                    .allowsHitTesting(false)
+                framing
+            }
         default:
             status
                 .allowsHitTesting(false)
+        }
+    }
+
+    private var hasRegion: Bool { model.regionThumbnail != nil || model.regionPixelSize != nil }
+
+    /// While listening: how to show Hark the screen, or why it cannot see it now, with the button that fixes it.
+    @ViewBuilder
+    private var framing: some View {
+        if let block = model.framingBlocked {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Label {
+                    Text(block.text(requested: model.screenRecordingRequested))
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "eye.slash")
+                }
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .allowsHitTesting(false)
+                framingButton(block)
+                    .controlSize(.small)
+                    .askButtonStyle(prominent: false)
+            }
+        } else if !hasRegion {
+            Text(L("ask.listening.frameHint"))
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .allowsHitTesting(false)
+        }
+    }
+
+    @ViewBuilder
+    private func framingButton(_ block: FramingBlock) -> some View {
+        switch block {
+        case .noScreenRecording where model.screenRecordingRequested:
+            Button(action: model.reopenForScreenRecording) { Text(L("ask.button.reopen")) }
+        case .noScreenRecording:
+            Button(action: model.allowScreenRecording) { Text(L("ask.button.allow")) }
+        case .modelCannotSee:
+            Button(action: model.chooseAnotherModel) { Text(L("ask.button.chooseModel")) }
         }
     }
 
@@ -144,24 +191,29 @@ struct AskView: View {
                     .foregroundStyle(.secondary)
                 preflight
             }
-        case .transcribing, .awaitingRegion:
+        case .transcribing:
             VStack(alignment: .leading, spacing: 4) {
                 progress(L("ask.transcribing"))
+                preflight
+            }
+        case .awaitingRegion:
+            VStack(alignment: .leading, spacing: 4) {
+                progress(L("ask.awaitingRegion"))
                 preflight
             }
         case .thinking:
             progress(namesServer ? L("ask.thinking.server \(model.server)") : L("ask.thinking"))
         case .failed(let failure):
             Label {
-                Text(failure.popupText)
+                Text(failure.popupText(imageAttached: hasRegion))
                     .fixedSize(horizontal: false, vertical: true)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
             }
-        case .regionFailed:
+        case .regionFailed(let failure):
             Label {
-                Text(L("ask.failure.streamError"))
+                Text(failure.popupText)
                     .fixedSize(horizontal: false, vertical: true)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -287,6 +339,10 @@ struct AskView: View {
         FooterAction(id: "cancel", title: L("ask.button.cancel"), action: model.cancel)
     }
 
+    private var askWithoutImage: FooterAction {
+        FooterAction(id: "askWithoutImage", title: L("ask.button.askWithoutImage"), action: model.askWithoutRegion)
+    }
+
     /// The buttons each state offers. Replace only when the ask allows it: an image has no text to replace.
     private var footerLayout: FooterLayout {
         switch model.state {
@@ -294,8 +350,16 @@ struct AskView: View {
             return FooterLayout(
                 primary: FooterAction(
                     id: "done", title: L("ask.button.done"), action: model.done, shortcut: .defaultAction))
-        case .transcribing, .awaitingRegion, .thinking, .streaming, .regionFailed:
+        case .transcribing, .awaitingRegion, .thinking, .streaming:
             return FooterLayout()
+        case .regionFailed(.screenRecordingDenied):
+            let allow =
+                model.screenRecordingRequested
+                ? FooterAction(id: "reopen", title: L("ask.button.reopen"), action: model.reopenForScreenRecording)
+                : FooterAction(id: "allow", title: L("ask.button.allow"), action: model.allowScreenRecording)
+            return FooterLayout(secondary: [askWithoutImage], primary: allow.with(shortcut: .defaultAction))
+        case .regionFailed(.captureFailed):
+            return FooterLayout(primary: askWithoutImage.with(shortcut: .defaultAction))
         case .reviewing:
             let copy = FooterAction(id: "copy", title: L("ask.button.copy"), action: model.copy)
             let applies =
@@ -313,15 +377,25 @@ struct AskView: View {
                 primary: FooterAction(
                     id: "apply", title: title, action: model.replace,
                     shortcut: .init(.return, modifiers: .command)))
-        case .failed:
-            return FooterLayout(
-                secondary: [
-                    FooterAction(
-                        id: "copyInstruction", title: L("ask.button.copyInstruction"),
-                        action: model.copyInstruction, disabled: model.instruction == nil)
-                ],
-                primary: FooterAction(
-                    id: "retry", title: L("ask.button.retry"), action: model.retry, shortcut: .defaultAction))
+        case .failed(let failure):
+            let copyInstruction = FooterAction(
+                id: "copyInstruction", title: L("ask.button.copyInstruction"), action: model.copyInstruction,
+                disabled: model.instruction == nil)
+            let retry = FooterAction(
+                id: "retry", title: L("ask.button.retry"), action: model.retry, shortcut: .defaultAction)
+            switch failure {
+            case .noVision(_, .needsMTPMode):
+                return FooterLayout(secondary: [copyInstruction, askWithoutImage], primary: retry)
+            case .noVision:
+                // Retrying the same model is pointless: the image goes, or the model changes.
+                let choose = FooterAction(
+                    id: "chooseModel", title: L("ask.button.chooseModel"), action: model.chooseAnotherModel)
+                return FooterLayout(
+                    secondary: [copyInstruction, choose], primary: askWithoutImage.with(shortcut: .defaultAction))
+            default:
+                return FooterLayout(
+                    secondary: hasRegion ? [copyInstruction, askWithoutImage] : [copyInstruction], primary: retry)
+            }
         case .closed:
             return FooterLayout(cancel: false)
         }
