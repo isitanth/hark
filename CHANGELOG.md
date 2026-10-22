@@ -5,6 +5,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-10-22
+
+A better Liquid Glass design for the Ask panel, in line with macOS 27's Human Interface Guidelines. Screen context:
+show Hark part of the screen while you ask, for richer requests, with a gesture that stays out of the way.
+
 ### Added
 
 - A polite ending may follow the app in a voice command: "ouvre Safari, s'il te plaît", "open Safari please". The
@@ -34,7 +39,8 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
   shake when something failed. None play when Reduce Motion is on.
 - "application", "appli" and "app" are skipped words in voice commands, so "Hark, ouvre-moi l'application Messages"
   opens Messages.
-- The Ask panel uses Liquid Glass on macOS 26 and later; it keeps its look on earlier versions.
+- The Ask panel is redrawn in Liquid Glass, following macOS 27's Human Interface Guidelines, on macOS 26 and later;
+  it keeps its look on earlier versions.
 
 ### Fixed
 
@@ -104,7 +110,8 @@ The first public release.
 - Commands in `~/Library/Application Support/Hark/commands.yaml`, edited in Settings › Commands and reloaded when the
   file changes. If an edit breaks it, Hark keeps the last good version and the menu bar icon says so.
 
-[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/isitanth/hark/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/isitanth/hark/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/isitanth/hark/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/isitanth/hark/releases/tag/v0.0.2

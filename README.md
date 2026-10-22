@@ -36,7 +36,7 @@ text lands where you were typing. Other audio is lowered until you stop. The liv
 
 ## Install
 
-1. Download `Hark-0.0.4.dmg` from [Releases](https://github.com/isitanth/hark/releases), open it and drag Hark to
+1. Download `Hark-0.0.5.dmg` from [Releases](https://github.com/isitanth/hark/releases), open it and drag Hark to
    Applications.
 2. Hark is not signed with a Developer ID or notarized, so macOS blocks the first launch. Open System Settings ›
    Privacy & Security and click **Open Anyway** next to the message about Hark, or run
@@ -47,7 +47,7 @@ text lands where you were typing. Other audio is lowered until you stop. The liv
 
 Hark needs macOS 14 or later on Apple Silicon. Each release is signed ad hoc, so macOS treats an update as a new app:
 if dictated text stops reaching fields after one, remove Hark from Privacy & Security › Accessibility and allow it
-again.
+again. Screen & System Audio Recording is asked again the first time you frame part of the screen after an update.
 
 ## Settings
 
