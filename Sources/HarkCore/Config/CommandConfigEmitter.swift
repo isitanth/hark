@@ -60,7 +60,8 @@ enum CommandConfigEmitter {
         return (lines + [""]).joined(separator: "\n")
     }
 
-    /// Every field of every profile, profiles sorted by name, so that what the file says is what an ask does.
+    /// Every field of every profile its dialect reads, profiles sorted by name, so that what the file says is what an
+    /// ask does.
     private static func llm(_ llm: LLMConfig) -> [String] {
         var lines = ["llm:", "  provider: \(quoted(llm.provider))", "  profiles:"]
         for name in llm.profiles.keys.sorted() {
@@ -70,12 +71,22 @@ enum CommandConfigEmitter {
                 case .auto: "auto"
                 case .named(let id): quoted(id)
                 }
-            lines += [
-                "    \(quoted(name)):", "      base_url: \(quoted(profile.baseURL.absoluteString))",
-                "      key: \(profile.key.rawValue)", "      model: \(model)",
-                "      temperature: \(number(profile.temperature))", "      max_tokens: \(profile.maxTokens)",
-                "      extra: \(flowMapping(profile.extra))",
-            ]
+            lines += ["    \(quoted(name)):", "      base_url: \(quoted(profile.baseURL.absoluteString))"]
+            switch profile.api {
+            case .openAI:
+                lines += [
+                    "      key: \(profile.key.rawValue)", "      model: \(model)",
+                    "      temperature: \(number(profile.temperature))", "      max_tokens: \(profile.maxTokens)",
+                    "      extra: \(flowMapping(profile.extra))",
+                ]
+            case .anthropic:
+                // Only the keys this dialect reads: the parser refuses `temperature` and `extra` here.
+                lines += [
+                    "      api: \(profile.api.rawValue)", "      key: \(profile.key.rawValue)", "      model: \(model)",
+                    "      max_tokens: \(profile.maxTokens)",
+                ]
+                if let effort = profile.effort { lines.append("      effort: \(effort.rawValue)") }
+            }
         }
         return lines + ["  max_selection_chars: \(llm.maxSelectionChars)"]
     }

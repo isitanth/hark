@@ -38,7 +38,7 @@ enum LLMClientHarness {
         for item in try LLMFixtures.events(name) {
             switch item {
             case .chunk(let chunk): chunk.content.map { texts.append($0) }
-            case .error, .done: return texts
+            case .error, .done, .refused: return texts
             case .unreadable: continue
             }
         }

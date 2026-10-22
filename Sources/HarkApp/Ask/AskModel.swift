@@ -16,6 +16,8 @@ final class AskModel {
     private(set) var hasKey: Bool?
     /// A check on open is on its way; a second open while it runs asks nothing more.
     @ObservationIgnored private var checking = false
+    /// Counts active-profile changes, so an answer about the profile before one lands nowhere.
+    @ObservationIgnored private var generation = 0
 
     @ObservationIgnored let secrets: any SecretStore
     @ObservationIgnored let client: LLMClient
@@ -31,8 +33,9 @@ final class AskModel {
 
     /// `GET /models` on `profile`, and what it says for the health row.
     func test(_ profile: ProviderProfile) async -> LLMProbeResult {
+        let asked = generation
         let result = await probe.check(profile)
-        record(result)
+        if asked == generation { record(result) }
         return result
     }
 
@@ -59,13 +62,25 @@ final class AskModel {
         }
     }
 
+    /// The active profile changed, in Settings or in commands.yaml: what the last one said no longer stands.
+    func profileChanged(_ profile: ProviderProfile) async {
+        generation += 1
+        model = nil
+        lastFailure = nil
+        hasKey = nil
+        if profile.key == .keychain { await refreshKey(for: profile) }
+    }
+
     func refreshKey(for profile: ProviderProfile) async {
+        let asked = generation
+        let found: Bool?
         do throws(SecretStoreError) {
-            hasKey = try await secrets.hasSecret(for: profile.name)
+            found = try await secrets.hasSecret(for: profile.name)
         } catch {
             Self.logger.error("keychain check for \(profile.name, privacy: .public) failed: \(error.status)")
-            hasKey = nil
+            found = nil
         }
+        if asked == generation { hasKey = found }
     }
 
     /// Saved by re-creating the item, so Hark owns it. Nil on success, the `OSStatus` otherwise.

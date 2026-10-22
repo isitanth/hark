@@ -6,7 +6,7 @@ import Testing
 @Suite struct StringsGateTests {
     /// Keys whose French text is the English text on purpose.
     static let identicalInFrench: Set<String> = [
-        "settings.tab.audio"
+        "settings.tab.audio", "settings.ask.provider.claude",
     ]
 
     /// The repo root, or `HARK_STRINGS_GATE_ROOT` to point the gate at a copy of the tree.

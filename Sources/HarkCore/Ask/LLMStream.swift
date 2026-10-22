@@ -52,8 +52,11 @@ public struct LLMCallSummary: Sendable, Equatable {
 
 /// Why an LLM call failed, in the terms the popup and Settings › Ask put into words.
 public enum LLMFailure: Error, Sendable, Equatable {
-    /// Connection refused, or no route: nothing listens at `endpoint` (`127.0.0.1:8002`).
+    /// Connection refused, or no route: nothing listens at `endpoint` (`127.0.0.1:8002`) on this Mac.
     case notRunning(endpoint: String)
+    /// The same for a server elsewhere (`api.anthropic.com`): no network, no route or a failed TLS handshake. There is
+    /// nothing to start.
+    case unreachable(host: String)
     /// 401: the server refused the key.
     case keyRefused
     /// The profile takes a key and the Keychain has none for it. No request was sent.
@@ -64,14 +67,17 @@ public enum LLMFailure: Error, Sendable, Equatable {
     case server(status: Int?, message: String?)
     /// The stream finished without a word of content.
     case empty
+    /// Claude's safety filters declined the request, and no fallback model answered it.
+    case refused
 
     /// The log's code for it.
     public var pipelineFailure: PipelineFailure {
         switch self {
-        case .notRunning: .llmUnreachable
+        case .notRunning, .unreachable: .llmUnreachable
         case .keyRefused, .noKey: .llmUnauthorized
         case .noAnswer: .llmTimeout
         case .server(let status, _): .llmError(status: status)
+        case .refused: .llmError(status: nil)
         case .empty: .llmEmpty
         }
     }
@@ -98,6 +104,12 @@ public struct LLMTimeouts: Sendable, Equatable {
     }
 
     public static let standard = LLMTimeouts(connect: .seconds(2), silence: .seconds(15), total: .seconds(60))
+
+    /// Not measured: a cold DNS, TCP and TLS handshake across the internet, then Claude thinking or a declined request
+    /// replayed on the fallback model before the first word. Measured 2026-10-12 from this Mac, the head of a 401 from
+    /// api.anthropic.com came in 0.2 s, once in 1.2 s after a lost SYN.
+    public static let remote = LLMTimeouts(
+        connect: .seconds(10), silence: .seconds(45), total: .seconds(120), probe: .seconds(10))
 }
 
 /// The HTTP side of the client, a seam so tests script the server. The real one lives in `LLMClient.swift`, the one

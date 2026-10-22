@@ -16,3 +16,12 @@ Written by hand, because MTPLX could not be made to send them (it serves an unkn
 `max_tokens` rather than refusing):
 - `error-in-stream.sse`: the first chunks of `summary-fr.sse`, then an `{"error": …}` chunk and no `[DONE]`.
 - `server-error-500.json`: an OpenAI-style error body with a message, for a status other than 401.
+
+Anthropic's Messages API, 2026-10-12:
+- `anthropic-unauthorized-401.json`: recorded from `GET https://api.anthropic.com/v1/models` with a made-up key in
+  `x-api-key`; the body is what the server sent.
+- Written by hand from the documented stream format, since no key was used to record them: `anthropic-stream.sse`
+  (`message_start` with the input tokens, a thinking block with only a signature as `display: omitted` sends it,
+  `ping`, three `text_delta`, `message_delta` with `end_turn` and the output tokens, `message_stop`),
+  `anthropic-refusal.sse` (`stop_reason: refusal` before any text), `anthropic-error-in-stream.sse` (one word, then
+  an `overloaded_error` event), `anthropic-overloaded-529.json` and `anthropic-models.json`.

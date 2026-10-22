@@ -5,7 +5,10 @@ import Yams
 /// those are `keyInFile`, which carries only the path.
 extension CommandConfigSchema {
     static let llmKeys = ["provider", "profiles", "max_selection_chars"]
-    static let profileKeys = ["base_url", "key", "model", "temperature", "max_tokens", "extra"]
+    static let profileKeys = ["base_url", "api", "key", "model", "temperature", "max_tokens", "extra"]
+    /// An Anthropic profile: no `temperature` (Claude's current models refuse it) and no `extra` (meant for a server
+    /// on this Mac), but `effort`.
+    static let anthropicProfileKeys = ["base_url", "api", "key", "model", "max_tokens", "effort"]
     /// The fields the request builder writes itself. `extra` may not set them.
     static let standardRequestFields: Set<String> = [
         "model", "messages", "stream", "stream_options", "max_tokens", "temperature", "response_format",
@@ -69,20 +72,31 @@ extension CommandConfigSchema {
     }
 
     private static func profile(_ node: Node, name: String, path: String) throws(ConfigError) -> ProviderProfile {
-        // `api_key:` is an unknown key, but saying so would not tell the user why it can never be one.
-        for (keyNode, _) in try ConfigNodes.mapping(node, path: path) {
+        // `api_key:` is an unknown key, but saying so would not tell the user why it can never be one: every key is
+        // checked before anything else can be reported.
+        let mapping = try ConfigNodes.mapping(node, path: path)
+        for (keyNode, _) in mapping {
             let key = ConfigNodes.keyText(keyNode)
-            if !profileKeys.contains(key) && looksSecret(key) {
+            if !profileKeys.contains(key) && !anthropicProfileKeys.contains(key) && looksSecret(key) {
                 throw ConfigNodes.error(.keyInFile(path: "\(path).\(key)"), at: keyNode)
             }
+        }
+        // Then the dialect, which decides which keys the profile may have. A second `api` never gets here: the parser
+        // refuses a duplicate key in any mapping before the schema is read.
+        var api = ProviderAPI.openAI
+        for (keyNode, valueNode) in mapping where ConfigNodes.keyText(keyNode) == "api" {
+            let value = try ConfigNodes.visit(valueNode)
+            if !ConfigNodes.isNull(value) { api = try ConfigNodes.choice(value, path: "\(path).api") }
         }
         var baseURL: URL?
         var key = KeySource.keychain
         var model = ModelChoice.auto
         var temperature = ProviderProfile.defaultTemperature
-        var maxTokens = ProviderProfile.defaultMaxTokens
+        var maxTokens = api == .anthropic ? ProviderProfile.defaultAnthropicMaxTokens : ProviderProfile.defaultMaxTokens
+        var effort: ReasoningEffort?
         var extra: [String: RequestValue] = [:]
-        try ConfigNodes.fields(of: node, path: path, allowed: profileKeys, required: ["base_url"]) {
+        let allowed = api == .anthropic ? anthropicProfileKeys : profileKeys
+        try ConfigNodes.fields(of: node, path: path, allowed: allowed, required: ["base_url"]) {
             field, value throws(ConfigError) in
             let fieldPath = "\(path).\(field)"
             switch field {
@@ -91,6 +105,7 @@ extension CommandConfigSchema {
             case "model": model = try Self.model(value, path: fieldPath)
             case "temperature": temperature = try Self.temperature(value, path: fieldPath)
             case "max_tokens": maxTokens = try integer(value, path: fieldPath, in: maxTokensRange)
+            case "effort": effort = try ConfigNodes.choice(value, path: fieldPath)
             case "extra": extra = try Self.extra(value, path: fieldPath)
             default: break
             }
@@ -98,8 +113,8 @@ extension CommandConfigSchema {
         // `fields` has already refused a profile without it; the guard only satisfies the compiler.
         guard let baseURL else { throw ConfigNodes.error(.missingKey("base_url", path: path), at: node) }
         return ProviderProfile(
-            name: name, baseURL: baseURL, key: key, model: model, temperature: temperature, maxTokens: maxTokens,
-            extra: extra)
+            name: name, baseURL: baseURL, api: api, key: key, model: model, temperature: temperature,
+            maxTokens: maxTokens, effort: effort, extra: extra)
     }
 
     /// An absolute http or https URL with a host and nothing a key could hide in: no user, no password, no query, no

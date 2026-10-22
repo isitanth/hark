@@ -1,7 +1,8 @@
 import HarkCore
 import SwiftUI
 
-/// The server an ask goes to and its key (the user's request of 2026-09-28). The address is written to commands.yaml
+/// The server an ask goes to and its key (the user's request of 2026-09-28), and since 2026-10-12 which provider: the
+/// local server or Claude, each profile with its own key. The provider and the address are written to commands.yaml
 /// like every setting; the key goes to the Keychain and is never shown again. Test connection checks what is typed,
 /// once commands.yaml would take it, before anything is saved.
 struct AskSettingsView: View {
@@ -28,9 +29,28 @@ struct AskSettingsView: View {
         profile?.baseURL.absoluteString ?? ""
     }
 
+    /// The two templates first, then any other profile the file names.
+    private var providerNames: [String] {
+        let templates = [ProviderProfile.local.name, ProviderProfile.claude.name]
+        let others = Set(model.config.config.effectiveLLM.profiles.keys).subtracting(templates)
+        return templates + others.sorted()
+    }
+
+    private var provider: Binding<String> {
+        Binding(get: { profile?.name ?? ProviderProfile.local.name }, set: selectProvider)
+    }
+
     var body: some View {
         Form {
             Section {
+                Picker(selection: provider) {
+                    ForEach(providerNames, id: \.self) { name in
+                        providerLabel(name).tag(name)
+                    }
+                } label: {
+                    Text(L("settings.ask.provider"))
+                }
+                .disabled(busy)
                 LabeledContent {
                     HStack {
                         TextField(text: $address, prompt: Text(verbatim: ProviderProfile.local.baseURL.absoluteString))
@@ -103,7 +123,7 @@ struct AskSettingsView: View {
                 } label: {
                     statusView
                 }
-                Text(L("settings.ask.help"))
+                Text(helpText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -114,12 +134,15 @@ struct AskSettingsView: View {
         .formStyle(.grouped)
         // Tall enough for the longest state, a French warning of three lines, so the form never scrolls its first
         // section out of sight.
-        .frame(height: 470)
+        .frame(height: 500)
         .onAppear {
             address = savedAddress
             guard let profile else { return }
             Task {
-                switch await model.ask.checkOnOpen(profile) {
+                let result = await model.ask.checkOnOpen(profile)
+                // Picked another provider meanwhile: this check was about the one before.
+                guard self.profile?.name == profile.name else { return }
+                switch result {
                 case .connected(let id)?: status = .connected(id)
                 case .failed(let failure)?: status = .failed(failure)
                 case nil: break
@@ -127,6 +150,25 @@ struct AskSettingsView: View {
             }
         }
         .onChange(of: savedAddress) { _, saved in address = saved }
+        // A key typed for one provider and not saved never goes to the other one.
+        .onChange(of: profile?.name) {
+            status = nil
+            key = ""
+        }
+    }
+
+    @ViewBuilder private func providerLabel(_ name: String) -> some View {
+        switch name {
+        case ProviderProfile.local.name: Text(L("settings.ask.provider.local"))
+        case ProviderProfile.claude.name: Text(L("settings.ask.provider.claude"))
+        default: Text(verbatim: name)
+        }
+    }
+
+    /// Where the selection goes, and that it leaves this Mac when it does.
+    private var helpText: LocalizedStringResource {
+        guard let host = profile?.remoteHost else { return L("settings.ask.help") }
+        return L("settings.ask.help.remote \(host)")
     }
 
     private var keyPrompt: LocalizedStringResource {
@@ -191,6 +233,13 @@ struct AskSettingsView: View {
         guard !busy, !address.isEmpty, address != savedAddress else { return }
         run {
             if let problem = await model.saveServerAddress(address) { status = .address(problem) }
+        }
+    }
+
+    private func selectProvider(_ name: String) {
+        guard !busy, name != profile?.name else { return }
+        run {
+            if let problem = await model.saveProvider(name) { status = .address(problem) }
         }
     }
 

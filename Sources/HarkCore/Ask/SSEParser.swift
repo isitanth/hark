@@ -71,8 +71,10 @@ public enum ChatStreamItem: Sendable, Equatable {
     case chunk(ChatStreamChunk)
     /// `{"error": …}` inside the stream, with its message when it has one.
     case error(message: String?)
-    /// `[DONE]`.
+    /// `[DONE]`, or Anthropic's `message_stop`.
     case done
+    /// Anthropic's `stop_reason: refusal`: Claude's safety filters declined, and no fallback model answered.
+    case refused
     /// Not JSON, or not a chunk. Skipped.
     case unreadable
 
@@ -96,6 +98,79 @@ public enum ChatStreamItem: Sendable, Equatable {
                 model: wire.model, content: content?.isEmpty == false ? content : nil,
                 finishReason: choice?.finishReason, promptTokens: wire.usage?.promptTokens,
                 completionTokens: wire.usage?.completionTokens))
+    }
+}
+
+/// One `data:` payload of an Anthropic Messages stream, in the terms of `ChatStreamItem`: `text_delta` is content,
+/// `message_start` carries the model and the input tokens, `message_delta` the stop reason and the output tokens,
+/// `message_stop` ends it. Thinking, `ping`, signatures, a `fallback` block and every other event are skipped.
+public enum MessagesStreamItem {
+    public static func item(data: String) -> ChatStreamItem {
+        guard let wire = try? JSONDecoder().decode(WireEvent.self, from: Data(data.utf8)) else { return .unreadable }
+        switch wire.type {
+        case "message_start":
+            return .chunk(ChatStreamChunk(model: wire.message?.model, promptTokens: wire.message?.usage?.inputTokens))
+        case "content_block_delta":
+            guard wire.delta?.type == "text_delta", let text = wire.delta?.text, !text.isEmpty else {
+                return .unreadable
+            }
+            return .chunk(ChatStreamChunk(content: text))
+        case "message_delta":
+            let reason = wire.delta?.stopReason
+            if reason == "refusal" { return .refused }
+            return .chunk(
+                ChatStreamChunk(finishReason: reason.map(finishReason), completionTokens: wire.usage?.outputTokens))
+        case "message_stop":
+            return .done
+        case "error":
+            return .error(message: wire.error?.message)
+        default:
+            return .unreadable
+        }
+    }
+
+    /// The OpenAI words the summary keeps: `end_turn` is `stop`, `max_tokens` is `length`.
+    static func finishReason(_ stopReason: String) -> String {
+        switch stopReason {
+        case "end_turn", "stop_sequence": "stop"
+        case "max_tokens": "length"
+        default: stopReason
+        }
+    }
+
+    private struct WireEvent: Decodable {
+        struct Message: Decodable {
+            let model: String?
+            let usage: Usage?
+        }
+
+        struct Delta: Decodable {
+            let type: String?
+            let text: String?
+            let stopReason: String?
+
+            enum CodingKeys: String, CodingKey {
+                case type
+                case text
+                case stopReason = "stop_reason"
+            }
+        }
+
+        struct Usage: Decodable {
+            let inputTokens: Int?
+            let outputTokens: Int?
+
+            enum CodingKeys: String, CodingKey {
+                case inputTokens = "input_tokens"
+                case outputTokens = "output_tokens"
+            }
+        }
+
+        let type: String
+        let message: Message?
+        let delta: Delta?
+        let usage: Usage?
+        let error: WireError?
     }
 }
 
@@ -168,7 +243,8 @@ struct WireError: Decodable {
     }
 }
 
-/// The body of a response that is not 200: MTPLX's 401 is `{"error":{"message":"missing or invalid API key",…}}`.
+/// The body of a response that is not 200: MTPLX's 401 is `{"error":{"message":"missing or invalid API key",…}}`,
+/// Anthropic's `{"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}}`.
 public enum LLMErrorBody {
     /// `error.message`, when the body has one.
     public static func message(in body: Data) -> String? {

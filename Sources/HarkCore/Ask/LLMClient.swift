@@ -86,9 +86,16 @@ private final class RedirectRefusal: NSObject, URLSessionTaskDelegate, Sendable 
     }
 }
 
-/// Streams one chat completion from an OpenAI-compatible endpoint, and lists its models. The key comes from the
-/// secret store per call and goes only into the `Authorization` header; the timers run on the injected clock.
+/// Streams one chat completion from an OpenAI-compatible endpoint or Anthropic's Messages API, and lists its models.
+/// The key comes from the secret store per call and goes only into the header the profile's dialect reads,
+/// `Authorization` or `x-api-key`; the timers run on the injected clock.
 public actor LLMClient {
+    /// The Messages API version every Anthropic request names.
+    static let anthropicVersion = "2023-06-01"
+    /// The beta that lets a request declined by Claude's safety filters be answered by the recommended fallback model,
+    /// in the same stream (`fallbacks: "default"`).
+    static let anthropicFallbackBeta = "server-side-fallback-2026-07-01"
+
     /// The most of a non-200 body read for its message.
     static let errorBodyLimit = 64 * 1024
     /// The most of a `/models` body read.
@@ -99,16 +106,25 @@ public actor LLMClient {
     private let transport: any LLMTransport
     private let secrets: any SecretStore
     private let clock: any Clock<Duration>
+    /// For a server on this Mac.
     private let timeouts: LLMTimeouts
+    /// For a server elsewhere, Anthropic's API among them.
+    private let remoteTimeouts: LLMTimeouts
 
     public init(
         transport: any LLMTransport = URLSessionLLMTransport(), secrets: any SecretStore,
-        clock: any Clock<Duration> = ContinuousClock(), timeouts: LLMTimeouts = .standard
+        clock: any Clock<Duration> = ContinuousClock(), timeouts: LLMTimeouts = .standard,
+        remoteTimeouts: LLMTimeouts = .remote
     ) {
         self.transport = transport
         self.secrets = secrets
         self.clock = clock
         self.timeouts = timeouts
+        self.remoteTimeouts = remoteTimeouts
+    }
+
+    private nonisolated func limits(for profile: ProviderProfile) -> LLMTimeouts {
+        profile.isLoopback ? timeouts : remoteTimeouts
     }
 
     /// `text` pieces, then exactly one `finished` or `failed`, then the end. When the consumer stops iterating, the
@@ -133,8 +149,8 @@ public actor LLMClient {
         var request = URLRequest(url: profile.baseURL.appending(path: "models"))
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        if let key { request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
-        let answer = await exchange(request, endpoint: profile.endpoint)
+        Self.authorize(&request, profile: profile, key: key)
+        let answer = await exchange(request, limits: limits(for: profile), unreachable: profile.unreachable)
         switch answer {
         case .failure(let failure):
             return .failure(failure)
@@ -168,15 +184,45 @@ public actor LLMClient {
         }
     }
 
+    /// The key in the header the dialect reads: `Authorization: Bearer` for OpenAI; `x-api-key` and the API version
+    /// for Anthropic.
+    static func authorize(_ request: inout URLRequest, profile: ProviderProfile, key: String?) {
+        switch profile.api {
+        case .openAI:
+            if let key { request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
+        case .anthropic:
+            if let key { request.setValue(key, forHTTPHeaderField: "x-api-key") }
+            request.setValue(anthropicVersion, forHTTPHeaderField: "anthropic-version")
+        }
+    }
+
     /// Nil when the body cannot be written as JSON: a number that is not finite, which no parsed profile holds.
     static func chatRequest(
         _ messages: [ChatMessage], model: String, profile: ProviderProfile, key: String?
     ) -> URLRequest? {
-        var request = URLRequest(url: profile.baseURL.appending(path: "chat/completions"))
+        let path = profile.api == .anthropic ? "messages" : "chat/completions"
+        var request = URLRequest(url: profile.baseURL.appending(path: path))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
-        if let key { request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
+        authorize(&request, profile: profile, key: key)
+        let body: [String: Any]
+        switch profile.api {
+        case .openAI:
+            body = openAIBody(messages, model: model, profile: profile)
+        case .anthropic:
+            request.setValue(anthropicFallbackBeta, forHTTPHeaderField: "anthropic-beta")
+            body = anthropicBody(messages, model: model, profile: profile)
+        }
+        guard JSONSerialization.isValidJSONObject(body),
+            let data = try? JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
+        else { return nil }
+        request.httpBody = data
+        return request
+    }
+
+    private static func openAIBody(_ messages: [ChatMessage], model: String, profile: ProviderProfile) -> [String: Any]
+    {
         // `extra` first and the standard fields over it: the parser refuses a standard name in `extra`, and a profile
         // built in code cannot turn streaming off or ask for JSON either. A server off this Mac gets the standard
         // fields only: `extra` is for the local server's own switches, and a cloud API may refuse what it does not know.
@@ -196,16 +242,33 @@ public actor LLMClient {
         body["temperature"] = profile.temperature
         body["response_format"] = nil
         body["stream_options"] = nil
-        guard JSONSerialization.isValidJSONObject(body),
-            let data = try? JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
-        else { return nil }
-        request.httpBody = data
-        return request
+        return body
     }
 
-    static func failure(_ error: LLMTransportError, endpoint: String) -> LLMFailure {
+    /// The system messages go to the top-level `system`. No sampling setting, which Claude's current models refuse,
+    /// and no `thinking`: left out, each model thinks the way it does by default.
+    private static func anthropicBody(
+        _ messages: [ChatMessage], model: String, profile: ProviderProfile
+    ) -> [String: Any] {
+        var body: [String: Any] = [
+            "model": model,
+            "messages": messages.filter { $0.role != .system }.map {
+                ["role": $0.role.rawValue, "content": $0.content]
+            },
+            "stream": true,
+            "max_tokens": profile.maxTokens,
+            "fallbacks": "default",
+        ]
+        let system = messages.filter { $0.role == .system }.map(\.content).joined(separator: "\n\n")
+        if !system.isEmpty { body["system"] = system }
+        if let effort = profile.effort { body["output_config"] = ["effort": effort.rawValue] }
+        return body
+    }
+
+    /// `unreachable` is the profile's own: a server on this Mac to start, or a host elsewhere that cannot be reached.
+    static func failure(_ error: LLMTransportError, unreachable: LLMFailure) -> LLMFailure {
         switch error {
-        case .unreachable: .notRunning(endpoint: endpoint)
+        case .unreachable: unreachable
         case .timedOut: .noAnswer
         case .cancelled, .other: .server(status: nil, message: nil)
         }
@@ -232,14 +295,20 @@ public actor LLMClient {
             continuation.finish()
             return
         }
-        let call = StreamCall(continuation: continuation, elapsed: clock.stopwatch())
+        let decode: @Sendable (String) -> ChatStreamItem =
+            switch profile.api {
+            case .openAI: ChatStreamItem.init(data:)
+            case .anthropic: MessagesStreamItem.item(data:)
+            }
+        let call = StreamCall(continuation: continuation, elapsed: clock.stopwatch(), decode: decode)
         // The timers start before the request, so a head that comes at once cannot stop a connect timer not yet set.
+        let limits = limits(for: profile)
         let timers = CallTimers(clock: clock) { call.fail(.noAnswer) }
-        timers.start(.total, after: timeouts.total)
-        timers.start(.connect, after: timeouts.connect)
-        let worker = Task { [transport, timeouts] in
+        timers.start(.total, after: limits.total)
+        timers.start(.connect, after: limits.connect)
+        let worker = Task { [transport] in
             await Self.stream(
-                request, transport: transport, endpoint: profile.endpoint, silence: timeouts.silence, call: call,
+                request, transport: transport, unreachable: profile.unreachable, silence: limits.silence, call: call,
                 timers: timers)
         }
         call.attach(worker)
@@ -253,15 +322,15 @@ public actor LLMClient {
     }
 
     private static func stream(
-        _ request: URLRequest, transport: any LLMTransport, endpoint: String, silence: Duration, call: StreamCall,
-        timers: CallTimers
+        _ request: URLRequest, transport: any LLMTransport, unreachable: LLMFailure, silence: Duration,
+        call: StreamCall, timers: CallTimers
     ) async {
         let response: LLMHTTPResponse
         do {
             response = try await transport.send(request)
         } catch {
             if error == .cancelled && Task.isCancelled { return }
-            return call.fail(failure(error, endpoint: endpoint))
+            return call.fail(failure(error, unreachable: unreachable))
         }
         timers.stop(.connect)
         timers.start(.silence, after: silence)
@@ -284,7 +353,7 @@ public actor LLMClient {
             }
         } catch {
             if Task.isCancelled { return }
-            return call.fail(failure(error as? LLMTransportError ?? .other(code: 0), endpoint: endpoint))
+            return call.fail(failure(error as? LLMTransportError ?? .other(code: 0), unreachable: unreachable))
         }
         if Task.isCancelled { return }
         if call.receive(parser.finish()) { return }
@@ -311,17 +380,19 @@ public actor LLMClient {
     // MARK: - One whole exchange
 
     /// The status and the body of one request, the head within `connect` and the whole within `probe`.
-    private func exchange(_ request: URLRequest, endpoint: String) async -> Result<(Int, Data), LLMFailure> {
+    private func exchange(
+        _ request: URLRequest, limits: LLMTimeouts, unreachable: LLMFailure
+    ) async -> Result<(Int, Data), LLMFailure> {
         let handle = WorkerHandle()
         let timers = CallTimers(clock: clock) { handle.timeOut() }
-        timers.start(.total, after: timeouts.probe)
-        timers.start(.connect, after: timeouts.connect)
+        timers.start(.total, after: limits.probe)
+        timers.start(.connect, after: limits.connect)
         let worker = Task { [transport] () -> Result<(Int, Data), LLMFailure> in
             let response: LLMHTTPResponse
             do {
                 response = try await transport.send(request)
             } catch {
-                return .failure(Self.failure(error as? LLMTransportError ?? .other(code: 0), endpoint: endpoint))
+                return .failure(Self.failure(error as? LLMTransportError ?? .other(code: 0), unreachable: unreachable))
             }
             timers.stop(.connect)
             let body = await Self.read(response.body, limit: Self.modelsBodyLimit)
@@ -351,11 +422,17 @@ private final class StreamCall: Sendable {
 
     private let continuation: AsyncStream<LLMEvent>.Continuation
     private let elapsed: @Sendable () -> Duration
+    /// One `data:` payload in the profile's dialect.
+    private let decode: @Sendable (String) -> ChatStreamItem
     private let state = OSAllocatedUnfairLock(initialState: State())
 
-    init(continuation: AsyncStream<LLMEvent>.Continuation, elapsed: @escaping @Sendable () -> Duration) {
+    init(
+        continuation: AsyncStream<LLMEvent>.Continuation, elapsed: @escaping @Sendable () -> Duration,
+        decode: @escaping @Sendable (String) -> ChatStreamItem
+    ) {
         self.continuation = continuation
         self.elapsed = elapsed
+        self.decode = decode
     }
 
     /// A piece of content has been sent.
@@ -372,7 +449,7 @@ private final class StreamCall: Sendable {
 
     /// The stream events in `data`, in order. True once one of them ended the call.
     func receive(_ data: [String]) -> Bool {
-        for item in data.map(ChatStreamItem.init(data:)) {
+        for item in data.map(decode) {
             switch item {
             case .chunk(let chunk):
                 let open = state.withLock { [continuation] state -> Bool in
@@ -390,6 +467,9 @@ private final class StreamCall: Sendable {
                 if !open { return true }
             case .error(let message):
                 fail(.server(status: nil, message: message))
+                return true
+            case .refused:
+                fail(.refused)
                 return true
             case .done:
                 complete()

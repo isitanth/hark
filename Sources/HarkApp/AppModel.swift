@@ -270,8 +270,12 @@ final class AppModel {
         Task { [weak self, configStore, resolution, askSettings] in
             await configStore.start()
             for await snapshot in configStore.snapshots {
+                let previous = self?.config.config.effectiveLLM.activeProfile
                 self?.config = snapshot
                 askSettings.update(snapshot.config.effectiveLLM)
+                if let profile = snapshot.config.effectiveLLM.activeProfile, profile != previous {
+                    await self?.ask.profileChanged(profile)
+                }
                 self?.askPanel.configure(snapshot.config.effectiveLLM)
                 // The last good config, so a broken file keeps the overrides and commands that were in force.
                 resolution.update(apps: snapshot.config.apps)
@@ -492,6 +496,18 @@ final class AppModel {
     func saveServerAddress(_ text: String) async -> ServerAddressProblem? {
         let snapshot = config
         guard let next = snapshot.config.settingServerAddress(text) else { return .notAnAddress }
+        return await write(next, basedOn: snapshot)
+    }
+
+    /// Writes `name` as the profile an ask uses, adding Claude's profile from its template the first time it is
+    /// picked. Each profile keeps its own key in the Keychain.
+    func saveProvider(_ name: String) async -> ServerAddressProblem? {
+        let snapshot = config
+        guard let next = snapshot.config.settingProvider(name) else { return .notAnAddress }
+        return await write(next, basedOn: snapshot)
+    }
+
+    private func write(_ next: CommandConfig, basedOn snapshot: ConfigSnapshot) async -> ServerAddressProblem? {
         do throws(ConfigWriteError) {
             try await configStore.write(next.yaml(), basedOn: snapshot.diskRevision)
             return nil

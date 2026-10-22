@@ -8,6 +8,7 @@ extension LLMFailure {
     var settingsText: LocalizedStringResource {
         switch self {
         case .notRunning(let endpoint): L("settings.ask.failure.notRunning \(endpoint)")
+        case .unreachable(let host): L("settings.ask.failure.unreachable \(host)")
         case .keyRefused: L("settings.ask.failure.keyRefused")
         case .noKey: L("settings.ask.failure.noKey")
         default: sharedText
@@ -18,6 +19,7 @@ extension LLMFailure {
     var panelText: LocalizedStringResource {
         switch self {
         case .notRunning(let endpoint): L("panel.ask.failure.notRunning \(endpoint)")
+        case .unreachable(let host): L("panel.ask.failure.unreachable \(host)")
         default: settingsText
         }
     }
@@ -26,6 +28,7 @@ extension LLMFailure {
     var popupText: LocalizedStringResource {
         switch self {
         case .notRunning(let endpoint): L("ask.failure.notRunning \(endpoint)")
+        case .unreachable(let host): L("ask.failure.unreachable \(host)")
         case .keyRefused: L("ask.failure.keyRefused")
         case .noKey: L("ask.failure.noKey")
         default: sharedText
@@ -39,7 +42,8 @@ extension LLMFailure {
         case .server(nil, nil): L("ask.failure.streamError")
         case .noAnswer: L("ask.failure.noAnswer")
         case .empty: L("ask.failure.empty")
-        case .notRunning, .keyRefused, .noKey: L("ask.failure.noAnswer")
+        case .refused: L("ask.failure.refused")
+        case .notRunning, .unreachable, .keyRefused, .noKey: L("ask.failure.noAnswer")
         }
     }
 }

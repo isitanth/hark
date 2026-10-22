@@ -6035,6 +6035,142 @@
           }
         }
       }
+    },
+    "settings.ask.provider": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provider"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fournisseur"
+          }
+        }
+      }
+    },
+    "settings.ask.provider.local": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local server (MTPLX)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serveur local (MTPLX)"
+          }
+        }
+      }
+    },
+    "settings.ask.provider.claude": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude (Anthropic)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude (Anthropic)"
+          }
+        }
+      }
+    },
+    "settings.ask.help.remote %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark sends the selected text and your spoken instruction to %@, outside this Mac, and only when you ask. Each request is billed to the account of the key."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark envoie le texte sélectionné et votre consigne orale à %@, hors de ce Mac, et seulement quand vous le demandez. Chaque demande est facturée au compte de la clé."
+          }
+        }
+      }
+    },
+    "ask.failure.refused": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The model declined this request."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le modèle a refusé cette demande."
+          }
+        }
+      }
+    },
+    "settings.ask.failure.unreachable %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not reach %@. Check the connection, then test again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu joindre %@. Vérifiez la connexion, puis testez à nouveau."
+          }
+        }
+      }
+    },
+    "ask.failure.unreachable %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not reach %@. Check the connection, then Retry."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu joindre %@. Vérifiez la connexion, puis « Réessayer »."
+          }
+        }
+      }
+    },
+    "panel.ask.failure.unreachable %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not reach %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu joindre %@."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

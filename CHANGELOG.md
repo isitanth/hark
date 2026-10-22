@@ -11,6 +11,10 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
   phrases are listed under `endings:` in commands.yaml; without that key they are "please", "s'il te plaît" and
   "s'il vous plaît", and `endings: {}` turns them off. Settings › Commands shows them.
 - "Arke" counts as the name at the start of a request, like "Hark", "Arc" and "Ark".
+- Ask Hark can use Claude: pick Claude (Anthropic) under Settings › Ask › Provider, paste a key from the Claude
+  Console and test it. Hark speaks Anthropic's Messages API (`api: anthropic` in a profile of commands.yaml), with
+  `claude-opus-5-5` at low effort by default. Each provider keeps its own key in the Keychain, so switching back to
+  the local server keeps its key.
 
 ### Changed
 

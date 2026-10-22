@@ -17,4 +17,18 @@ extension CommandConfig {
         next.llm = llm
         return next
     }
+
+    /// This config with `name` as the profile an ask uses, and `llm:` written out when the file had none. A profile
+    /// missing from the file is added from its template, `local` or `claude`; nil for any other unknown name.
+    public func settingProvider(_ name: String) -> CommandConfig? {
+        var llm = effectiveLLM
+        if llm.profiles[name] == nil {
+            guard let template = [ProviderProfile.local, .claude].first(where: { $0.name == name }) else { return nil }
+            llm.profiles[name] = template
+        }
+        llm.provider = name
+        var next = self
+        next.llm = llm
+        return next
+    }
 }
