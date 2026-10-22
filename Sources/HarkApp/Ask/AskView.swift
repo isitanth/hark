@@ -194,6 +194,7 @@ struct AskView: View {
             Text(frameHint)
                 .font(.callout)
                 .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
                 .allowsHitTesting(false)
         }
     }
@@ -224,6 +225,7 @@ struct AskView: View {
                 Text(listeningHint)
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 preflight
             }
         case .transcribing:
