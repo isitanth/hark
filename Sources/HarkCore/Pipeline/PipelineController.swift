@@ -57,9 +57,10 @@ public actor PipelineController {
     private var closed = false
     /// Samples between `AudioInput.stop` and the `.transcribe` effect. Lives only for one `send(.captured)`.
     private var capturedSamples: (id: UtteranceID, samples: [Float])?
-    /// The framed region's pixels, for the utterance whose context holds its summary. Never in the state or a snapshot;
-    /// freed as soon as the context no longer has a region, which every path to idle ensures.
-    private var regionImage: (id: UtteranceID, image: ImagePart)?
+    /// The framed regions' pixels, one per framed turn of the ask in flight (M12: a conversation's frames add up). Never
+    /// in the state or a snapshot; an image is kept only while the state names its turn with a region, so every path to
+    /// idle frees them all.
+    private var frames: [UtteranceID: ImagePart] = [:]
     /// The ask's stream being read. Cancelling it closes the request.
     private var generation: Task<Void, Never>?
 
@@ -90,10 +91,16 @@ public actor PipelineController {
     /// Quitting: nothing starts, the utterance in flight is cancelled where it can be, and this returns once the pipeline
     /// is idle, so that utterance's one log line is on disk before the process exits. An insertion, a copy or an action
     /// under way finishes; the caller's deadline bounds the wait.
+    /// A follow-up's first cancel returns to the answer it started from, which a second one ends: so the cancel goes
+    /// again, once per state, until idle.
     public func quit() async {
         closed = true
-        if state.phase != .idle { send(.cancel) }
+        var cancelled: PipelineState?
         while state.phase != .idle {
+            if cancelled != state {
+                cancelled = state
+                send(.cancel)
+            }
             try? await Task.sleep(for: .milliseconds(10))
         }
     }
@@ -144,15 +151,16 @@ public actor PipelineController {
         send(.regionStarted(id))
     }
 
-    /// The framed region's image, for `id` only: the app's one door for pixels. They stay in a private slot, never in
+    /// The framed region's image, for `id` only: the app's one door for pixels. They stay in a private store, never in
     /// the state or a snapshot, and are freed on every path to idle.
     public func attachRegion(_ image: ImagePart, summary: RegionSummary, for id: UtteranceID) {
         guard state.context?.id == id else { return }
-        let previous = regionImage
-        regionImage = (id, image)
-        // Rejected (a dictation, or the request already left): the previous frame, if any, stays as it was.
-        if !send(.regionCaptured(id, summary)) { regionImage = previous }
-        releaseRegionIfUnused()
+        let previous = frames[id]
+        frames[id] = image
+        // Rejected (a dictation, the request already left, the conversation's frame cap): the previous frame, if any,
+        // stays as it was.
+        if !send(.regionCaptured(id, summary)) { frames[id] = previous }
+        releaseUnnamedFrames()
     }
 
     /// The framed region did not become an image.
@@ -178,13 +186,24 @@ public actor PipelineController {
     public var phase: PipelinePhase { state.phase }
 
     /// Whether a framed region's pixels are held: for the tests that check every path frees them.
-    public var holdsRegionImage: Bool { regionImage != nil }
+    public var holdsRegionImage: Bool { !frames.isEmpty }
 
-    /// The answer in review, if any: the Ask key then starts a follow-up instead of a busy press (M12.5).
-    public var reviewingAsk: UtteranceID? { nil }
+    /// How many framed turns' pixels are held.
+    public var heldFrames: Int { frames.count }
 
-    /// The Ask key while an answer is in review: a follow-up of the same ask (M12.5).
-    public func followUpDown() {}
+    /// The answer in review, if any: the Ask key then starts a follow-up instead of a busy press.
+    public var reviewingAsk: UtteranceID? {
+        guard case .asking(let context, _, .reviewing) = state else { return nil }
+        return context.id
+    }
+
+    /// The Ask key while an answer is in review: a follow-up of the same ask. Its id is minted as a press's is: ids key
+    /// the frames, so two turns must never share one.
+    public func followUpDown() {
+        guard !closed else { return }
+        lastID += 1
+        send(.followUpDown(UtteranceID(lastID), at: environment.clock.now()))
+    }
 
     /// What the capture under way is for; nil when nothing is being captured. The talk key reads it to end an ask's
     /// capture instead of starting a busy utterance.
@@ -214,17 +233,27 @@ public actor PipelineController {
             for effect in transition.effects {
                 perform(effect)
             }
-            releaseRegionIfUnused()
+            releaseUnnamedFrames()
             continuation.yield(
                 PipelineSnapshot(phase: state.phase, utterance: state.context, lastRecord: lastRecord, ask: state.ask))
             return true
         }
     }
 
-    /// The pixels live exactly as long as the context's region: idle, the chip's × and an ask without it free them.
-    private func releaseRegionIfUnused() {
-        guard let held = regionImage else { return }
-        if state.context?.id != held.id || state.context?.region == nil { regionImage = nil }
+    /// An image lives exactly as long as the state names its turn with a region: the live turn, the turn a follow-up
+    /// parked, or an answered turn of the thread. Idle names none; the chip's ×, an ask without the image and a
+    /// follow-up that came to nothing free their own.
+    private func releaseUnnamedFrames() {
+        guard !frames.isEmpty else { return }
+        frames = frames.filter { Self.framedTurns(state).contains($0.key) }
+    }
+
+    private static func framedTurns(_ state: PipelineState) -> Set<UtteranceID> {
+        guard let context = state.context else { return [] }
+        var named = Set(context.thread?.turns.filter { $0.region != nil }.map(\.id) ?? [])
+        if context.region != nil { named.insert(context.id) }
+        if let parked = context.parked?.context, parked.region != nil { named.insert(parked.id) }
+        return named
     }
 
     private func perform(_ effect: PipelineEffect) {
@@ -336,13 +365,22 @@ public actor PipelineController {
                 send(copied ? .copied(id) : .failed(id, .pasteboardWrite))
             }
 
-        case .generate(let id, let instruction, let selection, let hasRegion, _):
+        case .generate(let id, let instruction, let selection, let hasRegion, let thread):
             generation?.cancel()
             askContinuation.yield(AskUpdate(id: id, text: ""))
-            let image = hasRegion && regionImage?.id == id ? regionImage?.image : nil
+            let image = hasRegion ? frames[id] : nil
             if hasRegion && image == nil { Self.logger.fault("no region image for utterance \(id)") }
+            // The answered turns' frames, by turn. One missing fails the request in the engine, which sends nothing.
+            var earlier: [UtteranceID: ImagePart] = [:]
+            for turn in thread?.turns ?? [] where turn.region != nil {
+                if let frame = frames[turn.id] {
+                    earlier[turn.id] = frame
+                } else {
+                    Self.logger.fault("no region image for turn \(turn.id) of utterance \(id)")
+                }
+            }
             let events = env.asker.generate(
-                instruction: instruction, selection: selection?.text, image: image, thread: nil, frames: [:])
+                instruction: instruction, selection: selection?.text, image: image, thread: thread, frames: earlier)
             generation = Task {
                 var text = ""
                 for await event in events {

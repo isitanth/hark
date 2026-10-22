@@ -16,14 +16,17 @@ struct AskPipelineTests {
         let log: UtteranceLog
         let controller: PipelineController
 
-        init(asker: ScriptedAsker) throws {
+        init(
+            asker: ScriptedAsker, engine: any TranscriptionEngine = FixedTranscriptionEngine(transcript: F.instruction)
+        )
+            throws
+        {
             self.asker = asker
             directory = try TemporaryDirectory()
             log = UtteranceLog(directory: directory.url, timeZone: F.paris)
             let environment = PipelineEnvironment(
                 workspace: SwitchableWorkspace(F.mail), pasteboard: pasteboard, clock: ManualWallClock(F.pressedAt),
-                audio: ScriptedAudioInput(summary: F.speech),
-                engine: FixedTranscriptionEngine(transcript: F.instruction), asker: asker)
+                audio: ScriptedAudioInput(summary: F.speech), engine: engine, asker: asker)
             controller = PipelineController(environment: environment, log: log)
         }
 
@@ -366,5 +369,179 @@ extension AskPipelineTests {
         #expect(await !rig.controller.holdsRegionImage)
         _ = await next(&snapshots) { if case .failed? = $0.ask?.stage { true } else { false } }
         #expect(rig.asker.images == [Self.png, Self.png, nil])
+    }
+}
+
+/// A conversation through the controller (M12): the frames across turns, each freed once the state no longer names its
+/// turn, the history each request carries, and one line per turn.
+extension AskPipelineTests {
+    fileprivate static let pin = ProfilePin(
+        name: "local", baseURL: URL(string: "http://127.0.0.1:8000/v1")!, api: .openAI, model: .auto,
+        requestedModel: F.bonsai)
+    /// Turn 1's end, with the pin a first follow-up seeds its thread from.
+    fileprivate static let pinned = LLMEvent.finished(
+        LLMCallSummary(model: F.bonsai, ms: 2_610, finishReason: "stop", pin: pin))
+    fileprivate static let second = ImagePart(
+        data: Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A] + [UInt8](repeating: 9, count: 64)))
+
+    fileprivate enum Ending: String, CaseIterable, CustomTestStringConvertible {
+        case copy, esc, cancelKey, quit
+        var testDescription: String { rawValue }
+    }
+
+    /// Turn 1, framed or not, asked and answered.
+    private func answeredTurn(
+        _ rig: Rig, _ snapshots: inout AsyncStream<PipelineSnapshot>.Iterator, framed: ImagePart?
+    ) async throws -> UtteranceID {
+        let id = try await startAsk(rig, &snapshots)
+        if let framed { await rig.controller.attachRegion(framed, summary: F.region, for: id) }
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing && $0.utterance?.id == id }
+        return id
+    }
+
+    /// A follow-up pressed from the answer in review, framed or not, its words heard. Answered unless `answered` is
+    /// false.
+    private func followUp(
+        _ rig: Rig, _ snapshots: inout AsyncStream<PipelineSnapshot>.Iterator, framed: ImagePart?,
+        until stage: (AskStage?) -> Bool = { $0 == .reviewing }
+    ) async throws -> UtteranceID {
+        await rig.controller.followUpDown()
+        let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+        if let framed { await rig.controller.attachRegion(framed, summary: F.region, for: id) }
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.utterance?.id == id && stage($0.ask?.stage) }
+        return id
+    }
+
+    @Test(arguments: Ending.allCases)
+    fileprivate func framesAddUpAcrossTurnsAndEveryEndFreesThem(_ ending: Ending) async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let first = try await answeredTurn(rig, &snapshots, framed: Self.png)
+        #expect(await rig.controller.heldFrames == 1)
+        let second = try await followUp(rig, &snapshots, framed: nil)
+        #expect(await rig.controller.heldFrames == 1)
+        let third = try await followUp(rig, &snapshots, framed: Self.second)
+        #expect(await rig.controller.heldFrames == 2)
+        #expect(Set([first, second, third]).count == 3)
+
+        // Each request: its own frame as the image, the answered turns' frames by turn, the thread so far.
+        #expect(rig.asker.images == [Self.png, nil, Self.second])
+        #expect(rig.asker.frames == [[:], [first: Self.png], [first: Self.png]])
+        #expect(rig.asker.threads.map { $0?.turns.map(\.id) } == [nil, [first], [first, second]])
+
+        switch ending {
+        case .copy: await rig.controller.copyAnswer(F.answer, for: third)
+        case .esc: await rig.controller.cancel(third)
+        case .cancelKey: await rig.controller.cancel()
+        case .quit: await rig.controller.quit()
+        }
+        _ = await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }
+        #expect(await rig.controller.heldFrames == 0)
+        let written = try rig.lines()
+        #expect(written.count == 3)
+        #expect(written.prefix(2).allSatisfy { $0.contains(#""error":"followed_up""#) })
+        #expect(written[0].hasSuffix(#""context":"selection+region"}"#))
+        #expect(written[1].hasSuffix(#""context":"selection+region+history"}"#))
+        #expect(written[2].hasSuffix(#""context":"selection+region+history"}"#))
+    }
+
+    /// Turn 2's request carries turn 1's words and its reply as the model wrote it, and turn 1's selection.
+    @Test func aFollowUpCarriesTheEarlierTurn() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: ["Réunion jeudi", " 14 h."], ending: Self.pinned))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let first = try await answeredTurn(rig, &snapshots, framed: nil)
+        _ = try await followUp(rig, &snapshots, framed: nil)
+        let thread = try #require(rig.asker.threads.last ?? nil)
+        #expect(thread.rootID == first && thread.kind == .selection && thread.selection == F.selectionText)
+        #expect(thread.turns.map(\.reply) == ["Réunion jeudi 14 h."])
+        #expect(thread.turns.map(\.instruction) == ["Résume ce texte."])
+        #expect(thread.pin == Self.pin)
+    }
+
+    /// A follow-up that framed and then heard nothing goes back to the answer; only its own frame goes.
+    @Test func anEmptyFollowUpFreesOnlyItsOwnFrame() async throws {
+        let engine = SequencedTranscriptionEngine([F.instruction, Transcript(raw: " ", tier: .small)])
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned), engine: engine)
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let first = try await answeredTurn(rig, &snapshots, framed: Self.png)
+        await rig.controller.followUpDown()
+        let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+        await rig.controller.attachRegion(Self.second, summary: F.region, for: id)
+        #expect(await rig.controller.heldFrames == 2)
+        await rig.controller.finishCapture(id)
+        let back = await next(&snapshots) { $0.ask?.stage == .reviewing && $0.utterance?.id == first }
+        #expect(back != nil)
+        #expect(await rig.controller.heldFrames == 1)
+        #expect(await rig.controller.reviewingAsk == first)
+        let written = try rig.lines()
+        #expect(written.count == 1 && written[0].contains(#""error":"empty_transcript""#))
+        #expect(rig.asker.requests.count == 1)
+    }
+
+    /// The chip's × in a follow-up removes that turn's frame and no earlier one.
+    @Test func theChipsCrossInAFollowUpFreesOnlyItsFrame() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let first = try await answeredTurn(rig, &snapshots, framed: Self.png)
+        await rig.controller.followUpDown()
+        let id = try #require(await next(&snapshots) { $0.phase == .capturing }?.utterance?.id)
+        await rig.controller.attachRegion(Self.second, summary: F.region, for: id)
+        await rig.controller.removeRegion(for: id)
+        #expect(await rig.controller.heldFrames == 1)
+        await rig.controller.finishCapture(id)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing && $0.utterance?.id == id }
+        #expect(rig.asker.images.last == .some(nil))
+        #expect(rig.asker.frames.last == [first: Self.png])
+    }
+
+    /// Ask without the image, after a follow-up's frame was refused: that frame goes, turn 1's stays in the history.
+    @Test func askingWithoutTheImageOnAFollowUpDropsOnlyItsFrame() async throws {
+        let refused = LLMEvent.failed(.noVision(model: F.bonsai, reason: .noVision), LLMCallSummary(ms: 40))
+        let rig = try Rig(
+            asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned, endings: [Self.pinned, refused]))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let first = try await answeredTurn(rig, &snapshots, framed: Self.png)
+        let id = try await followUp(rig, &snapshots, framed: Self.second) {
+            if case .failed? = $0 { true } else { false }
+        }
+        #expect(await rig.controller.heldFrames == 2)
+        await rig.controller.retryAskWithoutRegion(id)
+        #expect(await rig.controller.heldFrames == 1)
+        _ = await next(&snapshots) { $0.ask?.stage == .reviewing && $0.utterance?.id == id }
+        #expect(rig.asker.images == [Self.png, Self.second, nil])
+        #expect(rig.asker.frames.last == [first: Self.png])
+    }
+
+    /// The engine refused a follow-up after a profile switch: closing the panel logs it with its code.
+    @Test func aProfileSwitchEndsTheFollowUpWithItsCode() async throws {
+        let switched = LLMEvent.failed(.profileChanged, LLMCallSummary())
+        let rig = try Rig(
+            asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned, endings: [Self.pinned, switched]))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        _ = try await answeredTurn(rig, &snapshots, framed: nil)
+        let id = try await followUp(rig, &snapshots, framed: nil) { if case .failed? = $0 { true } else { false } }
+        await rig.controller.cancel(id)
+        _ = await next(&snapshots) { $0.phase == .idle && $0.lastRecord != nil }
+        let written = try rig.lines()
+        #expect(written.count == 2)
+        #expect(
+            written[1].contains(#""resolution":"failed""#) && written[1].contains(#""error":"llm_profile_changed""#))
+    }
+
+    /// Quitting while a follow-up is spoken: its line and the answered turn's both reach disk before quit returns.
+    @Test func quittingDuringAFollowUpWritesBothLines() async throws {
+        let rig = try Rig(asker: ScriptedAsker(pieces: [F.answer], ending: Self.pinned))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        _ = try await answeredTurn(rig, &snapshots, framed: Self.png)
+        await rig.controller.followUpDown()
+        _ = await next(&snapshots) { $0.phase == .capturing }
+        await rig.controller.quit()
+        #expect(await rig.controller.phase == .idle)
+        #expect(await rig.controller.heldFrames == 0)
+        let written = try rig.lines()
+        #expect(written.count == 2)
+        #expect(written.allSatisfy { $0.contains(#""error":"cancelled""#) })
     }
 }
