@@ -47,9 +47,10 @@ struct AskView: View {
         // While ⌃⌥ frame part of the screen the panel steps back, so what lies under it shows.
         .opacity(model.isFraming ? 0.35 : 1)
         .allowsHitTesting(!model.isFraming)
-        // A change of state morphs the footer groups and the chips; under Reduce Motion it is immediate.
-        .animation(reduceMotion ? nil : .smooth(duration: 0.3), value: model.state)
-        .animation(reduceMotion ? nil : .smooth(duration: 0.3), value: model.regionPixelSize)
+        // A change of state morphs the footer groups and the chips on glass; under Reduce Motion, and below macOS 26
+        // where the panel keeps today's look, it is immediate.
+        .animation(morphs ? .smooth(duration: 0.3) : nil, value: model.state)
+        .animation(morphs ? .smooth(duration: 0.3) : nil, value: model.regionPixelSize)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: model.isFraming)
         .task(id: model.state) {
             namesServer = false
@@ -328,6 +329,7 @@ struct AskView: View {
                 }
             }
         } else {
+            // Today's look: only the answer's Replace, Insert or Copy is prominent; Done and Retry stay plain.
             HStack(spacing: 8) {
                 Spacer()
                 if layout.cancel {
@@ -337,10 +339,15 @@ struct AskView: View {
                     footerButton(action, prominent: false)
                 }
                 if let primary = layout.primary {
-                    footerButton(primary, prominent: true)
+                    footerButton(primary, prominent: model.state == .reviewing)
                 }
             }
         }
+    }
+
+    /// State changes morph on glass only, and never under Reduce Motion.
+    private var morphs: Bool {
+        if #available(macOS 26, *) { !reduceMotion } else { false }
     }
 
     private var cancelAction: FooterAction {
