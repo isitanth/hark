@@ -79,6 +79,9 @@ let outcomeReadCases: [OutcomeReadCase] = [
     .init("model server status", .failed, error: "llm_error:500", .failed(.llmError(status: 500))),
     .init("model server error in the stream", .failed, error: "llm_error", .failed(.llmError(status: nil))),
     .init("model answered nothing", .failed, error: "llm_empty", .failed(.llmEmpty)),
+    .init("model cannot read the frame", .failed, error: "llm_no_vision", .failed(.llmNoVision)),
+    .init("no Screen Recording grant", .failed, error: "screen_recording_denied", .failed(.screenRecordingDenied)),
+    .init("the frame was not captured", .failed, error: "region_failed", .failed(.regionFailed)),
     .init("an unknown failure", .failed, error: "cosmic_ray", .failed(.other("cosmic_ray"))),
     .init("a failure with no code", .failed, .failed(.other(nil))),
 ]

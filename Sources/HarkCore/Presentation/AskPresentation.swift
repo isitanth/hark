@@ -56,16 +56,23 @@ public enum AskPresentation {
     }
 
     /// Insert is offered when the probe at the press found, in the app the key was pressed in, somewhere a paste or an
-    /// AX insertion would land (the rule the panel's Paste follows), and not in a secure field.
+    /// AX insertion would land (the rule the panel's Paste follows), and not in a secure field. An ask that carries a
+    /// framed region never offers Replace: an image has no text to replace, so it follows the assistant's rule.
     public static func apply(_ utterance: UtteranceContext?) -> AskApply {
         switch utterance?.intent {
         case .assist(let caller)?:
-            guard let caller, utterance?.focus?.app?.processID == caller.processID,
-                FocusResolver.pastePlan(focus: utterance?.focus) != nil
-            else { return .copyOnly }
-            return .insert
+            return insertOrCopy(utterance, caller: caller)
+        case .ask(let selection)? where utterance?.region != nil:
+            return insertOrCopy(utterance, caller: selection.caller)
         case .ask?, .dictate?, nil: return .replace
         }
+    }
+
+    private static func insertOrCopy(_ utterance: UtteranceContext?, caller: AppIdentity?) -> AskApply {
+        guard let caller, utterance?.focus?.app?.processID == caller.processID,
+            FocusResolver.pastePlan(focus: utterance?.focus) != nil
+        else { return .copyOnly }
+        return .insert
     }
 
     /// The selection as the panel quotes it: its first two lines' worth, whitespace collapsed.

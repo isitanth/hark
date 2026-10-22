@@ -162,6 +162,9 @@ public enum EntryOutcome: Sendable, Equatable {
         case "llm_timeout": return .llmTimeout
         case "llm_error": return .llmError(status: value)
         case "llm_empty": return .llmEmpty
+        case "llm_no_vision": return .llmNoVision
+        case "screen_recording_denied": return .screenRecordingDenied
+        case "region_failed": return .regionFailed
         default: return .other(code)
         }
     }

@@ -16,6 +16,12 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
         (F.generating, true, .streaming),
         (F.reviewing, true, .reviewing),
         (F.askFailed(.keyRefused), false, .failed(.keyRefused)),
+        (F.awaitingRegion, false, .awaitingRegion),
+        (
+            .asking(F.regionContext(failure: .captureFailed), F.instruction, .regionFailed(.captureFailed)), false,
+            .regionFailed(.captureFailed)
+        ),
+        (F.regionAskFailed, false, .failed(.noVision(model: F.bonsai, reason: .noVision))),
         (.copying(F.askContext(), F.instruction, .chosen), true, .closed),
         (.idle, false, .closed),
     ])
@@ -62,5 +68,17 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
         elsewhere = UtteranceContext(id: Fixture.id, pressedAt: Fixture.pressedAt, intent: .assist(caller: nil))
         elsewhere.focus = Fixture.backInTextEdit
         #expect(AskPresentation.apply(elsewhere) == .copyOnly)
+    }
+
+    /// A framed region never offers Replace: Insert where a field has the focus in the caller, else Copy alone.
+    @Test func anAskWithAFrameOffersInsertOrCopy() {
+        #expect(AskPresentation.apply(F.regionContext()) == .replace)
+        var framed = F.regionContext(region: F.region)
+        #expect(AskPresentation.apply(framed) == .copyOnly)
+        framed.focus = F.backInTextEdit
+        #expect(AskPresentation.apply(framed) == .insert)
+        framed.focus = FocusSnapshot(app: F.mail, element: FocusedElement(role: "AXTextField"))
+        #expect(AskPresentation.apply(framed) == .copyOnly)
+        #expect(AskPresentation.apply(F.regionContext(intent: F.assist, region: F.region)) == .insert)
     }
 }
