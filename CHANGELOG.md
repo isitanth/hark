@@ -7,8 +7,8 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ### Fixed
 
-- The Ask panel no longer shows a thin dark rectangle around its rounded corners on macOS 26 and later: its shadow
-  follows the glass.
+- The Ask panel, on macOS 26 and later, and the recording panel no longer show a thin dark rectangle around their
+  rounded corners: their shadows follow the rounded edge.
 
 ## [0.0.5] - 2026-10-22
 

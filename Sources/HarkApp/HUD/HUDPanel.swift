@@ -5,7 +5,21 @@ import SwiftUI
 /// focus, the text field the user is dictating into would lose it. Every property below is there for that.
 final class HUDPanel: NSPanel {
     static let size = NSSize(width: 280, height: 64)
+    private static let radius: CGFloat = 12
     private static let fade: TimeInterval = 0.12
+
+    /// A rounded rectangle that stretches between its corners to any size.
+    private static var roundedMask: NSImage {
+        let edge = radius * 2 + 1
+        let image = NSImage(size: NSSize(width: edge, height: edge), flipped: false) { rect in
+            NSColor.black.setFill()
+            NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+            return true
+        }
+        image.capInsets = NSEdgeInsets(top: radius, left: radius, bottom: radius, right: radius)
+        image.resizingMode = .stretch
+        return image
+    }
 
     /// Whether the panel is meant to be on screen; `isVisible` stays true through a fade-out.
     private(set) var isShowing = false
@@ -39,8 +53,11 @@ final class HUDPanel: NSPanel {
         // Active although the window is never key.
         material.state = .active
         material.wantsLayer = true
-        material.layer?.cornerRadius = 12
+        material.layer?.cornerRadius = Self.radius
         material.layer?.masksToBounds = true
+        // The window's shadow follows a content view's mask image, not its layer's corners: without one it traces the
+        // rectangle. The layer's corners still clip the SwiftUI content, which the mask image does not.
+        material.maskImage = Self.roundedMask
         let content = HUDHostingView(rootView: HUDContent(model: model))
         content.sizingOptions = []
         content.frame = material.bounds
