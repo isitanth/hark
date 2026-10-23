@@ -87,6 +87,19 @@ for rpath in ${(f)"$(otool -l "$exe" | awk '/cmd LC_RPATH/ { getline; getline; p
 done
 install_name_tool -add_rpath "@executable_path/../Frameworks" "$exe" 2>/dev/null
 
+# AppKit and SwiftUI pick the design from the SDK stamped in LC_BUILD_VERSION: below 26, every window keeps the
+# pre-Tahoe look. SwiftPM's swiftbuild stamps the deployment target as the SDK (sdk 14.0, measured 2026-10-23), so
+# the SDK the binary was compiled against goes back in, its minos untouched. The stamp also turns on what the runtime
+# gates on the program's SDK, the Swift 6 executor checks among them: an actor-isolated closure called off its actor
+# now traps where it only wrote a warning to stderr. swift test already runs that way (its host is stamped sdk 27.0).
+sdk="$(xcrun --show-sdk-version)"
+minos="$(xcrun vtool -show-build "$exe" | awk '$1 == "minos" { print $2; exit }')"
+: "${minos:?no LC_BUILD_VERSION in $exe}"
+print "==> stamping sdk $sdk (minos $minos)"
+xcrun vtool -set-build-version macos "$minos" "$sdk" -replace -output "$exe.stamped" "$exe"
+mv "$exe.stamped" "$exe"
+chmod 755 "$exe"
+
 print "==> icon"
 tmpdir="$(mktemp -d)"
 : "${tmpdir:?mktemp failed}"
@@ -130,6 +143,9 @@ codesign --force "${timestamp[@]}" --options runtime --entitlements Support/Hark
 print "==> verifying"
 codesign --verify --deep --strict --verbose=2 "$app"
 codesign -d -r- "$app" 2>&1 | sed -n 's/^designated => /designated requirement: /p'
+stamped="$(xcrun vtool -show-build "$exe" | awk '$1 == "sdk" { print $2; exit }')"
+[[ "$stamped" == "$sdk" ]] || { print -u2 "bundle.sh: ${exe#$root/} is stamped sdk ${stamped:-none}, not $sdk"; exit 1; }
+print "build version: minos $minos, sdk $stamped"
 
 print "==> self-test"
 "$exe" --self-test

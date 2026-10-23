@@ -208,12 +208,14 @@ struct CommandsSettingsView: View {
         .frame(minHeight: 120, idealHeight: 120, maxHeight: .infinity)
     }
 
+    /// The symbols as text take a line's height, as Edit… does: on macOS 26 a bezel hugs a bare image, and the minus,
+    /// a flat stroke, came out 12 pt tall.
     private var buttons: some View {
         HStack(spacing: 8) {
             Button {
                 add()
             } label: {
-                Image(systemName: "plus")
+                Text(Image(systemName: "plus"))
             }
             .accessibilityLabel(Text(L("settings.commands.add")))
             .help(Text(L("settings.commands.add")))
@@ -221,7 +223,7 @@ struct CommandsSettingsView: View {
             Button {
                 remove(selection)
             } label: {
-                Image(systemName: "minus")
+                Text(Image(systemName: "minus"))
             }
             .accessibilityLabel(Text(L("settings.commands.remove")))
             .help(Text(L("settings.commands.remove")))

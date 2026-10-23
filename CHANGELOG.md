@@ -14,6 +14,8 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 - Settings is a normal window with the panes in a sidebar. It can be resized, remembers its size and place, and
   every pane fills it: the commands table and the log list take the extra height. ⌘, opens it.
+- On macOS 26 and later, Settings, the menu bar panel and onboarding take the Liquid Glass design; they were drawn in
+  the macOS 15 look.
 
 ### Fixed
 

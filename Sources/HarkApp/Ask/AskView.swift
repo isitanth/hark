@@ -23,7 +23,8 @@ struct AskView: View {
     /// The live answer's least height beside the earlier turns.
     private static let minimumAnswerCap: CGFloat = 120
 
-    /// A legacy scroller's width: the editor's text column is this much narrower when scroll bars always show.
+    /// A legacy scroller's width: the editor's text column is this much narrower once it scrolls with scroll bars
+    /// always shown.
     private static let scrollerWidth = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
 
     var body: some View {
@@ -84,9 +85,12 @@ struct AskView: View {
             Image(systemName: headerSymbol)
                 .foregroundStyle(model.state == .listening ? Color.red : Color.accentColor)
             if let instruction = model.instruction {
+                // Never squeezed: the content's height has a fraction of a point the window rounds away, and a
+                // compressible headline gave up its second line to it (French, measured).
                 Text(verbatim: instruction)
                     .font(headlineFont)
                     .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 Text(L("ask.title"))
@@ -389,10 +393,13 @@ struct AskView: View {
             }
         }
         .askScrollEdge()
+        // No scroller while the answer fits: on macOS 26 a legacy one that has nothing to scroll still draws its knob.
+        .scrollIndicators(answerHeight > answerCap ? .automatic : .never)
         .frame(height: min(max(answerHeight, 44), answerCap))
         .background(alignment: .topLeading) {
             // A hidden copy of the text measures the height; the line after it leaves room for the caret. It wraps
-            // a scroller's width early, as the editor does when scroll bars always show.
+            // a scroller's width early, as the editor does once it scrolls; while it fits, the column is wider and
+            // the measure can only be high.
             Text(verbatim: text + "\n")
                 .font(.body)
                 .padding(.leading, 5)
@@ -418,10 +425,21 @@ struct AskView: View {
     }
 
     /// [Cancel] leading; on glass, the secondary actions grouped and the primary alone at the trailing edge. Below
-    /// macOS 26, today's row at the trailing edge.
-    @ViewBuilder
+    /// macOS 26, today's row at the trailing edge. Labels wider than the panel (French, four buttons) put the secondary
+    /// actions on a row of their own above, rather than cut one short.
     private var footer: some View {
         let layout = footerLayout
+        return ViewThatFits(in: .horizontal) {
+            footerRow(layout, secondary: true)
+            VStack(alignment: .trailing, spacing: 8) {
+                secondaryGroup(layout)
+                footerRow(layout, secondary: false)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func footerRow(_ layout: FooterLayout, secondary: Bool) -> some View {
         if #available(macOS 26, *) {
             HStack(spacing: 8) {
                 if layout.cancel {
@@ -429,15 +447,8 @@ struct AskView: View {
                         .askChipID(cancelAction.id, in: glass)
                 }
                 Spacer(minLength: 8)
-                if !layout.secondary.isEmpty {
-                    GlassEffectContainer(spacing: 8) {
-                        HStack(spacing: 8) {
-                            ForEach(layout.secondary) { action in
-                                footerButton(action, prominent: false)
-                                    .askChipID(action.id, in: glass)
-                            }
-                        }
-                    }
+                if secondary {
+                    secondaryGroup(layout)
                 }
                 if let primary = layout.primary {
                     footerButton(primary, prominent: true)
@@ -451,11 +462,34 @@ struct AskView: View {
                 if layout.cancel {
                     footerButton(cancelAction, prominent: false)
                 }
-                ForEach(layout.secondary) { action in
-                    footerButton(action, prominent: false)
+                if secondary {
+                    secondaryGroup(layout)
                 }
                 if let primary = layout.primary {
                     footerButton(primary, prominent: model.state == .reviewing)
+                }
+            }
+        }
+    }
+
+    /// The secondary actions side by side; on glass, in one container.
+    @ViewBuilder
+    private func secondaryGroup(_ layout: FooterLayout) -> some View {
+        if layout.secondary.isEmpty {
+            EmptyView()
+        } else if #available(macOS 26, *) {
+            GlassEffectContainer(spacing: 8) {
+                HStack(spacing: 8) {
+                    ForEach(layout.secondary) { action in
+                        footerButton(action, prominent: false)
+                            .askChipID(action.id, in: glass)
+                    }
+                }
+            }
+        } else {
+            HStack(spacing: 8) {
+                ForEach(layout.secondary) { action in
+                    footerButton(action, prominent: false)
                 }
             }
         }
