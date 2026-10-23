@@ -8,6 +8,7 @@ enum HarkMain {
         if CommandLine.arguments.contains(SelfTest.flag) {
             SelfTest.run()
         }
+        ScrollBarPreference.apply(to: .standard)
         HarkApp.main()
     }
 }

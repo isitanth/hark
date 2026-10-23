@@ -16,6 +16,9 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
   every pane fills it: the commands table and the log list take the extra height. ⌘, opens it.
 - On macOS 26 and later, Settings, the menu bar panel and onboarding take the Liquid Glass design; they were drawn in
   the macOS 15 look.
+- Scroll bars in Hark's windows hide when you are not scrolling, also with a mouse connected, as they do with a
+  trackpad alone. "Show scroll bars: Always" in System Settings keeps them on show; Hark reads that setting when it
+  starts, so a change to it takes effect the next time Hark opens.
 
 ### Fixed
 
