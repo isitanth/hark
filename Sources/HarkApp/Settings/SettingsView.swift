@@ -3,6 +3,7 @@ import HarkCore
 import KeyboardShortcuts
 import ServiceManagement
 import SwiftUI
+import os
 
 enum SettingsTab: Hashable {
     case general
@@ -16,6 +17,7 @@ enum SettingsTab: Hashable {
 
 struct SettingsView: View {
     @Bindable var model: AppModel
+    @State private var toolbarTabs = EqualToolbarTabs()
 
     var body: some View {
         TabView(selection: $model.settingsTab) {
@@ -46,15 +48,18 @@ struct SettingsView: View {
                 .tabItem { tab(L("settings.tab.about"), "info.circle") }
                 .tag(SettingsTab.about)
         }
-        .frame(width: 520)
+        // Seven tabs at the width of the longest label, Commandes in French, fit with even margins from 600 pt; at
+        // 560 the last one went into the toolbar's overflow menu.
+        .frame(width: 600)
         .onAppear { NSApplication.shared.activate() }
         .background(
-            WindowReader { window in
+            WindowReader { [toolbarTabs] window in
                 // Hark has no Dock icon, so every click in another app deactivates it. The Settings scene is
                 // panel-backed and NSPanel hides itself on deactivation, which made the window vanish the moment
                 // you looked at anything else — including while watching a model download. It closes when you
                 // close it, and not before.
                 window.hidesOnDeactivate = false
+                toolbarTabs.attach(to: window)
             }
         )
     }
@@ -233,6 +238,75 @@ struct GeneralSettingsView: View {
 
     private func preference<Value>(_ keyPath: WritableKeyPath<DictationPreferences, Value>) -> Binding<Value> {
         Binding(get: { model.preferences[keyPath: keyPath] }, set: { model.preferences[keyPath: keyPath] = $0 })
+    }
+}
+
+/// Gives every tab of the Settings toolbar the width of the longest label, so the selection and the pointer's
+/// highlight are the same size on every tab instead of following each label.
+///
+/// `possibleLabels` is how AppKit sizes a toolbar item for the longest text it may show. Each item gets every item's
+/// label, read from the toolbar, so it holds in any display language. SwiftUI fills the toolbar on its own schedule,
+/// so this runs again when an item is added, when the window becomes key and when it resizes, always on a later turn
+/// of the main actor, and changes nothing once the labels are in place. Should the equal tabs not fit, the toolbar
+/// would hide the last ones behind a "»" menu: they go back to their own widths instead, for as long as the window
+/// keeps that width. A restored frame narrower than the content can be measured once before SwiftUI widens it.
+private final class EqualToolbarTabs: NSObject {
+    private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "settings")
+    private weak var window: NSWindow?
+    private var scheduled = false
+    private var overflowedWidth: CGFloat?
+
+    func attach(to window: NSWindow) {
+        if window !== self.window {
+            let center = NotificationCenter.default
+            center.removeObserver(self)
+            self.window = window
+            // Any toolbar: SwiftUI may fill this one before the window holds it. A stranger's item costs a no-op.
+            center.addObserver(
+                self, selector: #selector(toolbarMayHaveChanged), name: NSToolbar.willAddItemNotification, object: nil)
+            center.addObserver(
+                self, selector: #selector(toolbarMayHaveChanged), name: NSWindow.didBecomeKeyNotification,
+                object: window)
+            center.addObserver(
+                self, selector: #selector(toolbarMayHaveChanged), name: NSWindow.didResizeNotification, object: window)
+        }
+        schedule()
+    }
+
+    @objc private func toolbarMayHaveChanged(_ notification: Notification) {
+        schedule()
+    }
+
+    /// The item announced by `willAddItem` is in the toolbar by the next turn; any number of requests until then
+    /// come to one pass.
+    private func schedule() {
+        guard !scheduled else { return }
+        scheduled = true
+        Task { [weak self] in self?.apply() }
+    }
+
+    private func apply() {
+        scheduled = false
+        guard let window, let toolbar = window.toolbar else { return }
+        let items = toolbar.items
+        // SwiftUI may add an item before naming it; a later pass finds it named.
+        guard !items.isEmpty, !items.contains(where: { $0.label.isEmpty }) else { return }
+        let width = window.frame.width
+        let overflowed = overflowedWidth == width
+        let labels: Set<String> = overflowed ? [] : Set(items.map(\.label))
+        for item in items where item.possibleLabels != labels {
+            item.possibleLabels = labels
+        }
+        guard !overflowed, window.isVisible else { return }
+        window.layoutIfNeeded()
+        // A toolbar not laid out yet shows no item at all, which is not an overflow; becoming key asks again.
+        guard let shown = toolbar.visibleItems?.count, shown > 0, shown < items.count else { return }
+        overflowedWidth = width
+        for item in items {
+            item.possibleLabels = []
+        }
+        Self.logger.notice(
+            "the Settings tabs do not fit in \(Int(width)) pt (\(shown) of \(items.count) shown); own widths again")
     }
 }
 

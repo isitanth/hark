@@ -5,6 +5,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Changed
+
+- The Settings tabs all have the same width and are evenly spaced, so the selection is the same size on every tab;
+  the window is a little wider so all seven fit.
+
 ## [0.0.6] - 2026-10-23
 
 Ask Hark keeps the conversation: follow an answer up with the Ask key, in words or with another part of the
