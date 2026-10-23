@@ -23,6 +23,8 @@ public actor DownloadCoordinator {
     private let store: ModelStore
 
     private var states: [ModelTier: ModelInstallState]
+    /// False until `refresh()` has seeded the rows from the disk: until then `states` holds placeholders.
+    private var hydrated = false
     private var runs: [ModelTier: Run] = [:]
     private var subscribers: [UUID: AsyncStream<ModelStateUpdate>.Continuation] = [:]
 
@@ -48,12 +50,18 @@ public actor DownloadCoordinator {
 
     /// A stream per subscriber. It opens with the current state of every tier, so a view that subscribes late
     /// does not have to combine a snapshot with a stream to render its first frame.
+    ///
+    /// A subscriber that comes before the first `refresh()` gets nothing until the seed: the placeholders are not
+    /// states. Read as one, `notInstalled` reached `ModelsModel` after its launch snapshot, the selected tier read as
+    /// not installed, and the launch loaded no model (2026-10-23).
     public func updates() -> AsyncStream<ModelStateUpdate> {
         let id = UUID()
         let (stream, continuation) = AsyncStream<ModelStateUpdate>.makeStream()
         subscribers[id] = continuation
-        for tier in ModelTier.allCases {
-            continuation.yield(ModelStateUpdate(tier: tier, state: state(for: tier)))
+        if hydrated {
+            for tier in ModelTier.allCases {
+                continuation.yield(ModelStateUpdate(tier: tier, state: state(for: tier)))
+            }
         }
         continuation.onTermination = { [weak self] _ in
             Task { await self?.removeSubscriber(id) }
@@ -166,6 +174,7 @@ public actor DownloadCoordinator {
 
     /// Hydration, not a transition: what the disk says at launch has no predecessor to be legal from.
     private func seed(_ tier: ModelTier, _ state: ModelInstallState) {
+        hydrated = true
         publish(tier, state)
     }
 

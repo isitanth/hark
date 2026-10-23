@@ -202,8 +202,10 @@ final class AppModel {
             dumpURL: Self.dumpURL(defaults))
         hudModel = HUDModel(level: audio, audio: audio)
         hud = HUDPanel(model: hudModel)
-        // One engine for the life of the app; the Model tab re-points it when the selected tier changes.
-        let engine = SwappableTranscriptionEngine()
+        // One engine for the life of the app; the Model tab re-points it when the selected tier changes. Until it does, a
+        // press fails naming the selected tier, not Small.
+        let selected = defaults.string(forKey: ModelsModel.selectedTierKey).flatMap(ModelTier.init(rawValue:))
+        let engine = SwappableTranscriptionEngine(NullTranscriptionEngine(tier: selected ?? .small))
         let partialEngine = SwappableTranscriptionEngine()
         self.partialEngine = partialEngine
         partial = PartialTranscription(engine: partialEngine, tail: audio)

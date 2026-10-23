@@ -209,8 +209,15 @@ final class ModelsModel {
         states = await coordinator.snapshot()
         defer { hasSettled = true }
         let adopted = await adoptLoneModelIfUnselected()
-        if let selected = adopted ?? selectedTier, state(for: selected).phase == .installed {
-            await load(selected)
+        if let selected = adopted ?? selectedTier {
+            let phase = state(for: selected).phase
+            if phase == .installed {
+                await load(selected)
+            } else {
+                Self.logger.error(
+                    "\(selected.rawValue, privacy: .public) is selected but \(phase.rawValue, privacy: .public) at launch: nothing loaded"
+                )
+            }
         }
         // After the final's warm-up, so the model the user dictates with is ready first.
         await syncPartial()
@@ -305,7 +312,7 @@ final class ModelsModel {
     private func unloadCurrent() async {
         generation += 1
         let unload = generation
-        await engine.replace(with: NullTranscriptionEngine(tier: loadedTier ?? .small))
+        await engine.replace(with: NullTranscriptionEngine(tier: loadedTier ?? selectedTier ?? .small))
         guard unload == generation else { return }
         transcriber = nil
         loadedTier = nil

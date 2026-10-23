@@ -44,8 +44,9 @@ import Testing
 
     /// Consumes `updates()` until `tier` reaches a state satisfying `predicate`, under a wall-clock bound.
     ///
-    /// The stream opens with every tier's current state, so subscribing after the state has already been reached
-    /// still resolves — there is no lost wake-up to race against and no unbounded wait.
+    /// After `refresh()`, the stream opens with every tier's current state, so subscribing after the state has already
+    /// been reached still resolves — there is no lost wake-up to race against and no unbounded wait. Before it, the
+    /// stream opens empty: a caller refreshes first.
     private func awaitState(
         _ coordinator: DownloadCoordinator,
         _ tier: ModelTier,
@@ -137,6 +138,30 @@ import Testing
         }
 
         #expect(opening == [.small: .installed, .medium: .notInstalled, .large: .notInstalled])
+    }
+
+    /// `ModelsModel` subscribes at launch, before the refresh: what the stream says first about a tier must be the
+    /// disk's answer, or it lands after the launch snapshot and reads an installed model as not installed.
+    @Test func anEarlySubscriberOpensOnTheSeedNotOnThePlaceholders() async throws {
+        let directory = try TemporaryDirectory()
+        let fixtures = try await ModelFixtures.make(in: directory.url, withEncoder: false)
+        try fileManager.createDirectory(at: layout(directory).models, withIntermediateDirectories: true)
+        try fixtures.weightsBytes.write(to: layout(directory).weights(for: .small))
+        let coordinator = makeCoordinator(directory, fixtures, ScriptedDownloader())
+
+        let stream = await coordinator.updates()
+        await coordinator.refresh()
+
+        let first = try await withDeadline { () -> [ModelTier: ModelInstallState] in
+            var seen: [ModelTier: ModelInstallState] = [:]
+            for await update in stream where seen[update.tier] == nil {
+                seen[update.tier] = update.state
+                if seen.count == ModelTier.allCases.count { break }
+            }
+            return seen
+        }
+
+        #expect(first == [.small: .installed, .medium: .notInstalled, .large: .notInstalled])
     }
 
     @Test func startRunsTheInstallAndTheStreamCarriesItToInstalled() async throws {
