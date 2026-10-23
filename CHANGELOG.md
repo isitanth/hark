@@ -19,6 +19,8 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 - The Ask panel, on macOS 26 and later, and the recording panel no longer show a thin dark rectangle around their
   rounded corners: their shadows follow the rounded edge.
+- Hark relaunched right after quitting could start without its speech model, and every dictation and ask then failed
+  until the next restart. It now loads the selected model at every launch.
 
 ## [0.0.5] - 2026-10-22
 
