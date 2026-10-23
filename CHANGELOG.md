@@ -5,6 +5,16 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Added
+
+- Ask Hark keeps the conversation: while an answer shows, press the Ask key again and keep talking about the same
+  selection or frame, and hold ⌃⌥ to show it another part of the screen as you go; closing the panel ends the
+  conversation, and the frames go with it.
+
+### Changed
+
+- Settings › About ends with "Engineered with ❤️" in every language.
+
 ### Fixed
 
 - The Ask panel, on macOS 26 and later, and the recording panel no longer show a thin dark rectangle around their
