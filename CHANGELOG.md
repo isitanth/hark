@@ -5,6 +5,8 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+## [0.0.7] - 2026-10-23
+
 ### Changed
 
 - The Settings tabs all have the same width and are evenly spaced, so the selection is the same size on every tab;
@@ -138,7 +140,8 @@ The first public release.
 - Commands in `~/Library/Application Support/Hark/commands.yaml`, edited in Settings › Commands and reloaded when the
   file changes. If an edit breaks it, Hark keeps the last good version and the menu bar icon says so.
 
-[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.6...HEAD
+[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/isitanth/hark/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/isitanth/hark/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/isitanth/hark/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/isitanth/hark/compare/v0.0.3...v0.0.4
