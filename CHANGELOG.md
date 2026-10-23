@@ -5,6 +5,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+## [0.0.6] - 2026-10-23
+
+Ask Hark keeps the conversation: follow an answer up with the Ask key, in words or with another part of the
+screen, until you close the panel.
+
 ### Added
 
 - Ask Hark keeps the conversation: while an answer shows, press the Ask key again and keep talking about the same
@@ -14,6 +19,7 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 ### Changed
 
 - Settings › About ends with "Engineered with ❤️" in every language.
+- While the Ask panel is open, the talk key says how to close it before dictating, instead of doing nothing.
 
 ### Fixed
 
@@ -127,7 +133,8 @@ The first public release.
 - Commands in `~/Library/Application Support/Hark/commands.yaml`, edited in Settings › Commands and reloaded when the
   file changes. If an edit breaks it, Hark keeps the last good version and the menu bar icon says so.
 
-[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.5...HEAD
+[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.6...HEAD
+[0.0.6]: https://github.com/isitanth/hark/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/isitanth/hark/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/isitanth/hark/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/isitanth/hark/compare/v0.0.2...v0.0.3
