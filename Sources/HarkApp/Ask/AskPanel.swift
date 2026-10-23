@@ -27,6 +27,8 @@ final class AskPanel: NSPanel, NSWindowDelegate {
         level = .floating
         // On the Services path Hark is active and a click in the source app deactivates it: the popup stays.
         hidesOnDeactivate = false
+        // It shows while Hark is hidden too (Hide in its Dock icon's menu, ⌥⌘H elsewhere).
+        canHide = false
         becomesKeyOnlyIfNeeded = false
         collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
         isOpaque = false

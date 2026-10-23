@@ -37,6 +37,9 @@ final class HUDPanel: NSPanel {
         level = .floating
         // Hark is never active, so a panel that hid on deactivation would never show.
         hidesOnDeactivate = false
+        // Nor with Hark hidden, which its Dock icon makes possible: a hidden app's windows stay off screen when
+        // ordered front.
+        canHide = false
         // A click on it cannot activate anything or eat a click meant for the app under it.
         ignoresMouseEvents = true
         // Moot beside `canBecomeKey`, kept as belt and braces.

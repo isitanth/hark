@@ -183,6 +183,8 @@ private final class RegionOverlayPanel: NSPanel {
         backgroundColor = .clear
         hasShadow = false
         hidesOnDeactivate = false
+        // With Hark hidden an overlay that hid with it would let the drag through to the app below.
+        canHide = false
         isReleasedWhenClosed = false
         animationBehavior = .none
         // A clear window would let clicks through its transparent pixels.

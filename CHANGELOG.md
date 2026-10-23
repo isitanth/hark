@@ -5,6 +5,25 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Added
+
+- Settings › General › Show Hark in the Dock: Hark gets a Dock icon, a place in ⌘Tab and its own menus, and a
+  click on the icon with no window open opens Settings. Off by default; Hark stays in the menu bar either way.
+
+### Changed
+
+- Settings is a normal window with the panes in a sidebar. It can be resized, remembers its size and place, and
+  every pane fills it: the commands table and the log list take the extra height. ⌘, opens it.
+
+### Fixed
+
+- Settings › Commands is no longer cut off above and below its table.
+- The Settings panes line up: in Commands, the opening verbs, skipped words and polite endings start at the same
+  column and the table names its Test column; in Model, the note and Delete all models… sit in line with the
+  models; Log keeps the same side margins as the other panes.
+- Delete all models… and each model's Delete… are readable in dark mode: plain buttons, with the red kept for
+  their confirmation, which deleting one model now asks for as well.
+
 ## [0.0.7] - 2026-10-23
 
 ### Changed

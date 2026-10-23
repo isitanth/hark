@@ -46,6 +46,32 @@ struct CommandsSettingsView: View {
     private var editable: Bool { !broken && !busy }
 
     var body: some View {
+        // The table takes whatever height the window has beyond the text around it. When the text leaves it less than
+        // its minimum, which a long error, a two-line notice or longer lists in the file can do at the window's
+        // smallest size, the pane scrolls rather than cut off its last lines.
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView { content }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        // A row that left the file, through a text editor or a remove, is not selected any more, and a Test that
+        // worked is about a list that is gone. A problem stays: a conflict reloads the file, and that reload lands
+        // here right after the message saying so. The next Test or change clears it.
+        .onChange(of: commands.map(\.id)) { _, ids in
+            selection.formIntersection(ids)
+            if status?.isProblem == false { status = nil }
+        }
+        .sheet(item: $editing) { editing in
+            CommandEditor(
+                original: editing.original, config: editing.snapshot.config,
+                taken: Set(editing.snapshot.config.commands.map(\.id)), degraded: broken
+            ) { entry in
+                await save(entry, from: editing)
+            }
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("settings.commands.help"))
                 .foregroundStyle(.secondary)
@@ -122,34 +148,25 @@ struct CommandsSettingsView: View {
             }
         }
         .padding(20)
-        .frame(minHeight: 480)
-        // A row that left the file, through a text editor or a remove, is not selected any more, and a Test that
-        // worked is about a list that is gone. A problem stays: a conflict reloads the file, and that reload lands
-        // here right after the message saying so. The next Test or change clears it.
-        .onChange(of: commands.map(\.id)) { _, ids in
-            selection.formIntersection(ids)
-            if status?.isProblem == false { status = nil }
-        }
-        .sheet(item: $editing) { editing in
-            CommandEditor(
-                original: editing.original, config: editing.snapshot.config,
-                taken: Set(editing.snapshot.config.commands.map(\.id)), degraded: broken
-            ) { entry in
-                await save(entry, from: editing)
-            }
-        }
     }
 
+    // A table starts its columns at their ideal widths or wider, and shrinks them only once they fit its width
+    // (measured): ideals that overflow it scroll sideways until the window grows past them. These ideals, with the
+    // Test column, the spacing and the insets, come to 510 pt, under the 546 pt the table has at the window's minimum
+    // width. Any width beyond goes to both columns equally, so the aliases keep 100 pt more than the app.
     private var table: some View {
         Table(commands.map { Row(entry: $0) }, selection: $selection) {
             TableColumn(Text(L("settings.commands.column.app"))) { row in
                 Text(verbatim: row.entry.app)
             }
+            .width(min: 120, ideal: 130)
             TableColumn(Text(L("settings.commands.column.aliases"))) { row in
                 Text(verbatim: row.entry.aliases.joined(separator: ", "))
                     .foregroundStyle(.secondary)
             }
-            TableColumn(Text(verbatim: "")) { row in
+            .width(min: 160, ideal: 230)
+            // Named like its buttons, so no header cell is left empty.
+            TableColumn(Text(L("settings.commands.test"))) { row in
                 let app = row.entry.app
                 Button {
                     test(row.entry)
@@ -187,7 +204,8 @@ struct CommandsSettingsView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .frame(minHeight: 210)
+        // Its height when the pane scrolls, and its least when it does not: low, so the pane scrolls only when it must.
+        .frame(minHeight: 120, idealHeight: 120, maxHeight: .infinity)
     }
 
     private var buttons: some View {
@@ -217,39 +235,38 @@ struct CommandsSettingsView: View {
         }
     }
 
-    /// The verbs, the skipped words and the endings, read-only: they are edited in the file.
-    @ViewBuilder private var words: some View {
+    /// The verbs, the skipped words and the endings, read-only: they are edited in the file. One grid, so the three
+    /// lists start at the same column and wrap within it.
+    private var words: some View {
         let verbs = Self.joined(snapshot.config.openVerbs)
-        if verbs.isEmpty {
-            Label {
-                Text(L("settings.commands.noVerbs"))
-            } icon: {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+        return Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 12, verticalSpacing: 8) {
+            if verbs.isEmpty {
+                GridRow {
+                    Label {
+                        Text(L("settings.commands.noVerbs"))
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
+                    .gridCellColumns(2)
+                }
+            } else {
+                wordsRow(L("settings.commands.verbs"), verbs)
             }
-            .fixedSize(horizontal: false, vertical: true)
-        } else {
-            LabeledContent {
-                Text(verbatim: verbs)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.trailing)
-            } label: {
-                Text(L("settings.commands.verbs"))
-            }
+            wordsRow(L("settings.commands.fillers"), Self.joined(snapshot.config.fillers))
+            wordsRow(L("settings.commands.endings"), Self.joined(snapshot.config.effectiveEndings))
         }
-        LabeledContent {
-            Text(verbatim: Self.joined(snapshot.config.fillers))
+    }
+
+    private func wordsRow(_ title: LocalizedStringResource, _ words: String) -> some View {
+        GridRow {
+            Text(title)
+                .fixedSize()
+            Text(verbatim: words)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.trailing)
-        } label: {
-            Text(L("settings.commands.fillers"))
-        }
-        LabeledContent {
-            Text(verbatim: Self.joined(snapshot.config.effectiveEndings))
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.trailing)
-        } label: {
-            Text(L("settings.commands.endings"))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

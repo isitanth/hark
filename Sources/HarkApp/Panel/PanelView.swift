@@ -8,7 +8,7 @@ struct PanelView: View {
     static let previewWindowID = "panel-preview"
 
     let model: AppModel
-    @Environment(\.openSettings) private var openSettings
+    @Environment(\.openWindow) private var openWindow
     /// The window this panel is in: the menu bar extra's, or the preview window's. Paste closes it, rather than
     /// whichever window happens to be key.
     @State private var window: NSWindow?
@@ -208,7 +208,7 @@ struct PanelView: View {
 
     private func showSettings(_ tab: SettingsTab? = nil) {
         if let tab { model.settingsTab = tab }
-        openSettings()
+        openWindow(id: SettingsView.windowID)
         NSApplication.shared.activate()
     }
 }

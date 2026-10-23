@@ -178,9 +178,6 @@ struct AskSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        // Tall enough for the longest state, a French warning of three lines, so the form never scrolls its first
-        // section out of sight.
-        .frame(height: 640)
         .onAppear {
             address = savedAddress
             guard let profile else { return }

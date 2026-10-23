@@ -82,6 +82,5 @@ struct AboutSettingsView: View {
                 .foregroundStyle(.tertiary)
                 .padding(.bottom, 12)
         }
-        .frame(height: 560)
     }
 }

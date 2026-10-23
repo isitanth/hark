@@ -22,7 +22,7 @@ final class AppModel {
     private(set) var outcome: MenuBarOutcome?
     @ObservationIgnored private var outcomeClear: Task<Void, Never>?
     let iconAnimator = MenuBarIconAnimator()
-    /// The Settings tab on show, so the panel can open Settings on the one that fixes a problem.
+    /// The Settings pane on show, so the panel can open Settings on the one that fixes a problem.
     var settingsTab = SettingsTab.general
     private(set) var microphone = MicPermission.status
     private(set) var accessibilityTrusted = AccessibilityPermission.isTrusted
@@ -65,6 +65,19 @@ final class AppModel {
         }
     }
 
+    /// Settings › General's Show Hark in the Dock, applied at once. The launch reads it in `HarkAppDelegate`.
+    var showsInDock: Bool {
+        didSet {
+            guard showsInDock != oldValue else { return }
+            DockPreference.set(showsInDock, in: defaults)
+            HarkAppDelegate.showInDock(showsInDock)
+            // The toggle is in the Settings window, which stays in front. Hark is active as it is clicked, so asking
+            // now does nothing; leaving the Dock hands the front to the next app a moment later, and asking on the
+            // next turn takes it back. Not measured yet, nor whether joining the Dock shows Hark's menus at once.
+            Task { NSApplication.shared.activate() }
+        }
+    }
+
     var preferences: DictationPreferences {
         didSet {
             guard preferences != oldValue else { return }
@@ -94,7 +107,7 @@ final class AppModel {
     @ObservationIgnored let askPanel: AskPanelModel
     /// The region overlay, the ⌃⌥ monitor and the capture: framing a region during an ask.
     @ObservationIgnored private let framing: RegionFraming
-    /// Set by the status item's view: SwiftUI's Settings window, which only a view can open.
+    /// Set by the status item's view: the Settings window, which only a view's `openWindow` can open.
     @ObservationIgnored var openSettingsWindow: (() -> Void)?
     /// The Model tab's state. Held here because the engine it drives is the one the pipeline was built with.
     @ObservationIgnored let models: ModelsModel
@@ -182,6 +195,7 @@ final class AppModel {
         self.paths = paths
         self.defaults = defaults
         self.preferences = preferences
+        showsInDock = DockPreference.showsInDock(in: defaults)
         let stored = Bundle.main.bundleIdentifier.flatMap { defaults.persistentDomain(forName: $0) }
         let storedLanguages = stored?[DisplayLanguage.defaultsKey] as? [String]
         let displayLanguage = DisplayLanguage(appleLanguages: storedLanguages)
@@ -332,6 +346,7 @@ final class AppModel {
         askPanel.requestScreenRecording = { [weak self] in self?.requestScreenRecording() }
         askPanel.relaunch = { AppRelauncher.relaunch() }
         HarkAppDelegate.servicesProvider = service
+        HarkAppDelegate.openSettings = { [weak self] in self?.openSettings() }
         refreshInputDevices()
         Task { [audio] in await audio.prepare() }
         hotkeys.start(
@@ -685,9 +700,10 @@ final class AppModel {
         return result
     }
 
-    /// Settings on one tab, from outside a view: the Ask panel's Choose another model….
-    func openSettings(_ tab: SettingsTab) {
-        settingsTab = tab
+    /// Settings, on one pane or on the last one shown, from outside a view: the Ask panel's Choose another model…, a
+    /// click on the Dock icon, `-HarkDebugPreview settings`.
+    func openSettings(_ tab: SettingsTab? = nil) {
+        if let tab { settingsTab = tab }
         openSettingsWindow?()
         NSApplication.shared.activate()
     }

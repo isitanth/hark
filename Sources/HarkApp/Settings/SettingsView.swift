@@ -3,9 +3,8 @@ import HarkCore
 import KeyboardShortcuts
 import ServiceManagement
 import SwiftUI
-import os
 
-enum SettingsTab: Hashable {
+enum SettingsTab: Hashable, CaseIterable {
     case general
     case audio
     case model
@@ -13,62 +12,90 @@ enum SettingsTab: Hashable {
     case ask
     case log
     case about
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .general: L("settings.tab.general")
+        case .audio: L("settings.tab.audio")
+        case .model: L("settings.tab.model")
+        case .commands: L("settings.tab.commands")
+        case .ask: L("settings.tab.ask")
+        case .log: L("settings.tab.log")
+        case .about: L("settings.tab.about")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .general: "gear"
+        case .audio: "waveform"
+        case .model: "cpu"
+        case .commands: "terminal"
+        case .ask: "text.bubble"
+        case .log: "doc.text"
+        case .about: "info.circle"
+        }
+    }
 }
 
+/// The Settings window: the panes in a sidebar, the one on show filling the rest, and its name as the window's title.
+/// The selection is the model's, so the panel and the Ask panel can open Settings on the pane that fixes a problem.
 struct SettingsView: View {
+    static let windowID = "settings"
+
     @Bindable var model: AppModel
-    @State private var toolbarTabs = EqualToolbarTabs()
 
     var body: some View {
-        TabView(selection: $model.settingsTab) {
+        NavigationSplitView {
+            List(SettingsTab.allCases, id: \.self, selection: selection) { tab in
+                Label {
+                    Text(tab.title)
+                } icon: {
+                    Image(systemName: tab.symbol)
+                }
+            }
+            // Fixed, so the window's minimum width always leaves the pane the same room.
+            .navigationSplitViewColumnWidth(200)
+        } detail: {
+            pane
+                .navigationTitle(Text(model.settingsTab.title))
+        }
+        .frame(minWidth: Self.minimumSize.width, minHeight: Self.minimumSize.height)
+        .onAppear { NSApplication.shared.activate() }
+    }
+
+    /// Below the toolbar, which adds 52 pt to the window. The pane gets 600 pt, the width every pane was laid out for
+    /// in the toolbar-tab window. The height is French Commands', the longest pane that is not a scrolling form, with
+    /// its table at its minimum: 481 pt measured at that width with a Test's answer, 570 with a broken commands.yaml's
+    /// notice as well. The window's minimum does not follow the pane on show (measured), so this one is set for the
+    /// common case, and Commands scrolls when a longer error or longer lists in the file outgrow it.
+    static let minimumSize = CGSize(width: 800, height: 580)
+
+    /// Never empty: a click that would leave no pane selected keeps the one on show.
+    private var selection: Binding<SettingsTab?> {
+        Binding(get: { model.settingsTab }, set: { if let tab = $0 { model.settingsTab = tab } })
+    }
+
+    @ViewBuilder private var pane: some View {
+        switch model.settingsTab {
+        case .general:
             GeneralSettingsView(model: model)
-                .tabItem { tab(L("settings.tab.general"), "gear") }
-                .tag(SettingsTab.general)
+        case .audio:
             AudioSettingsView(model: model)
-                .tabItem { tab(L("settings.tab.audio"), "waveform") }
-                .tag(SettingsTab.audio)
+        case .model:
             ModelSettingsView(
                 models: model.models,
                 vocabulary: Binding(
                     get: { model.preferences.vocabulary },
-                    set: { model.preferences.vocabulary = Vocabulary.sanitized($0) })
-            )
-            .tabItem { tab(L("settings.tab.model"), "cpu") }
-            .tag(SettingsTab.model)
+                    set: { model.preferences.vocabulary = Vocabulary.sanitized($0) }))
+        case .commands:
             CommandsSettingsView(model: model)
-                .tabItem { tab(L("settings.tab.commands"), "terminal") }
-                .tag(SettingsTab.commands)
+        case .ask:
             AskSettingsView(model: model)
-                .tabItem { tab(L("settings.tab.ask"), "text.bubble") }
-                .tag(SettingsTab.ask)
+        case .log:
             LogSettingsView(model: model)
-                .tabItem { tab(L("settings.tab.log"), "doc.text") }
-                .tag(SettingsTab.log)
+        case .about:
             AboutSettingsView()
-                .tabItem { tab(L("settings.tab.about"), "info.circle") }
-                .tag(SettingsTab.about)
-        }
-        // Seven tabs at the width of the longest label, Commandes in French, fit with even margins from 600 pt; at
-        // 560 the last one went into the toolbar's overflow menu.
-        .frame(width: 600)
-        .onAppear { NSApplication.shared.activate() }
-        .background(
-            WindowReader { [toolbarTabs] window in
-                // Hark has no Dock icon, so every click in another app deactivates it. The Settings scene is
-                // panel-backed and NSPanel hides itself on deactivation, which made the window vanish the moment
-                // you looked at anything else — including while watching a model download. It closes when you
-                // close it, and not before.
-                window.hidesOnDeactivate = false
-                toolbarTabs.attach(to: window)
-            }
-        )
-    }
-
-    private func tab(_ title: LocalizedStringResource, _ symbol: String) -> some View {
-        Label {
-            Text(title)
-        } icon: {
-            Image(systemName: symbol)
         }
     }
 }
@@ -230,6 +257,13 @@ struct GeneralSettingsView: View {
                         }
                     }
                 }
+                Toggle(isOn: Binding(get: { model.showsInDock }, set: { model.showsInDock = $0 })) {
+                    Text(L("settings.general.showInDock"))
+                }
+                Text(L("settings.general.showInDock.help"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .formStyle(.grouped)
@@ -238,90 +272,5 @@ struct GeneralSettingsView: View {
 
     private func preference<Value>(_ keyPath: WritableKeyPath<DictationPreferences, Value>) -> Binding<Value> {
         Binding(get: { model.preferences[keyPath: keyPath] }, set: { model.preferences[keyPath: keyPath] = $0 })
-    }
-}
-
-/// Gives every tab of the Settings toolbar the width of the longest label, so the selection and the pointer's
-/// highlight are the same size on every tab instead of following each label.
-///
-/// `possibleLabels` is how AppKit sizes a toolbar item for the longest text it may show. Each item gets every item's
-/// label, read from the toolbar, so it holds in any display language. SwiftUI fills the toolbar on its own schedule,
-/// so this runs again when an item is added, when the window becomes key and when it resizes, always on a later turn
-/// of the main actor, and changes nothing once the labels are in place. Should the equal tabs not fit, the toolbar
-/// would hide the last ones behind a "»" menu: they go back to their own widths instead, for as long as the window
-/// keeps that width. A restored frame narrower than the content can be measured once before SwiftUI widens it.
-private final class EqualToolbarTabs: NSObject {
-    private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "settings")
-    private weak var window: NSWindow?
-    private var scheduled = false
-    private var overflowedWidth: CGFloat?
-
-    func attach(to window: NSWindow) {
-        if window !== self.window {
-            let center = NotificationCenter.default
-            center.removeObserver(self)
-            self.window = window
-            // Any toolbar: SwiftUI may fill this one before the window holds it. A stranger's item costs a no-op.
-            center.addObserver(
-                self, selector: #selector(toolbarMayHaveChanged), name: NSToolbar.willAddItemNotification, object: nil)
-            center.addObserver(
-                self, selector: #selector(toolbarMayHaveChanged), name: NSWindow.didBecomeKeyNotification,
-                object: window)
-            center.addObserver(
-                self, selector: #selector(toolbarMayHaveChanged), name: NSWindow.didResizeNotification, object: window)
-        }
-        schedule()
-    }
-
-    @objc private func toolbarMayHaveChanged(_ notification: Notification) {
-        schedule()
-    }
-
-    /// The item announced by `willAddItem` is in the toolbar by the next turn; any number of requests until then
-    /// come to one pass.
-    private func schedule() {
-        guard !scheduled else { return }
-        scheduled = true
-        Task { [weak self] in self?.apply() }
-    }
-
-    private func apply() {
-        scheduled = false
-        guard let window, let toolbar = window.toolbar else { return }
-        let items = toolbar.items
-        // SwiftUI may add an item before naming it; a later pass finds it named.
-        guard !items.isEmpty, !items.contains(where: { $0.label.isEmpty }) else { return }
-        let width = window.frame.width
-        let overflowed = overflowedWidth == width
-        let labels: Set<String> = overflowed ? [] : Set(items.map(\.label))
-        for item in items where item.possibleLabels != labels {
-            item.possibleLabels = labels
-        }
-        guard !overflowed, window.isVisible else { return }
-        window.layoutIfNeeded()
-        // A toolbar not laid out yet shows no item at all, which is not an overflow; becoming key asks again.
-        guard let shown = toolbar.visibleItems?.count, shown > 0, shown < items.count else { return }
-        overflowedWidth = width
-        for item in items {
-            item.possibleLabels = []
-        }
-        Self.logger.notice(
-            "the Settings tabs do not fit in \(Int(width)) pt (\(shown) of \(items.count) shown); own widths again")
-    }
-}
-
-/// Hands back the `NSWindow` hosting this view, for the handful of things SwiftUI does not expose.
-private struct WindowReader: NSViewRepresentable {
-    let configure: (NSWindow) -> Void
-
-    func makeNSView(context: Context) -> NSView {
-        NSView(frame: .zero)
-    }
-
-    /// The window is nil until the view is in a hierarchy, so this runs on update rather than on creation, and
-    /// is written to be safe to run more than once.
-    func updateNSView(_ view: NSView, context: Context) {
-        guard let window = view.window else { return }
-        configure(window)
     }
 }

@@ -330,6 +330,40 @@
         "en": {
           "stringUnit": {
             "state": "translated",
+            "value": "Delete…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer…"
+          }
+        }
+      }
+    },
+    "settings.model.delete.confirm %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete the %@ model?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le modèle %@ ?"
+          }
+        }
+      }
+    },
+    "settings.model.delete.confirmAction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
             "value": "Delete"
           }
         },
@@ -4512,13 +4546,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Needs the Small model. Download it in the Model tab."
+            "value": "Needs the Small model. Download it in Settings › Model."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nécessite le modèle Small. Téléchargez-le dans l’onglet Modèle."
+            "value": "Nécessite le modèle Small. Téléchargez-le dans Réglages › Modèle."
           }
         }
       }
@@ -4937,13 +4971,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The language of Hark’s windows, menus and notifications. The language you dictate in is set in the Model tab."
+            "value": "The language of Hark’s windows, menus and notifications. The language you dictate in is set in Settings › Model."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La langue des fenêtres, menus et notifications de Hark. La langue dans laquelle vous dictez se règle dans l’onglet Modèle."
+            "value": "La langue des fenêtres, menus et notifications de Hark. La langue dans laquelle vous dictez se règle dans Réglages › Modèle."
           }
         }
       }
@@ -7001,6 +7035,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cette conversation a déjà %lld cadres : continuez avec des mots."
+          }
+        }
+      }
+    },
+    "settings.window": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark Settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages de Hark"
+          }
+        }
+      }
+    },
+    "settings.general.showInDock": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Hark in the Dock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher Hark dans le Dock"
+          }
+        }
+      }
+    },
+    "settings.general.showInDock.help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark stays in the menu bar either way. In the Dock, it is also in ⌘Tab and has its own menus."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark reste dans la barre des menus dans tous les cas. Dans le Dock, il figure aussi dans ⌘Tab et a ses propres menus."
           }
         }
       }

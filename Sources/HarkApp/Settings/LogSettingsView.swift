@@ -28,7 +28,8 @@ struct LogSettingsView: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
-            .padding(12)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
 
             if page.entries.isEmpty {
                 Text(L("settings.log.empty"))
@@ -62,9 +63,9 @@ struct LogSettingsView: View {
                     Text(L("settings.log.reveal"))
                 }
             }
-            .padding(12)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
         }
-        .frame(height: 440)
         .clearHistoryConfirmation(isPresented: $confirmingClear, clear: model.clearHistory)
         .task(
             id: ReloadKey(

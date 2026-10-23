@@ -21,23 +21,26 @@ struct ModelSettingsView: View {
                         failedToLoad: models.loadFailure == entry.tier,
                         models: models)
                 }
-            } header: {
-                Text(L("settings.model.section"))
-            } footer: {
-                VStack(alignment: .leading, spacing: 8) {
+                // A row of the section rather than its footer, which a grouped form sets at its trailing edge: the
+                // text starts where the rows do, and the button ends where theirs do. A plain button, since the
+                // confirmation it asks for carries the destructive red.
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
                     Text(L("settings.model.footer"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
                     if models.hasAnyInstalled {
-                        Button(role: .destructive) {
+                        Button {
                             confirmingPurge = true
                         } label: {
                             Text(L("settings.model.purge"))
                         }
-                        .controlSize(.small)
+                        .fixedSize()
                     }
                 }
+            } header: {
+                Text(L("settings.model.section"))
             }
 
             Section {
@@ -93,6 +96,7 @@ private struct ModelRow: View {
     let isSelected: Bool
     let failedToLoad: Bool
     let models: ModelsModel
+    @State private var confirmingDelete = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -126,6 +130,16 @@ private struct ModelRow: View {
             }
         }
         .padding(.vertical, 2)
+        .confirmationDialog(
+            Text(L("settings.model.delete.confirm \(entry.displayName)")), isPresented: $confirmingDelete,
+            titleVisibility: .visible
+        ) {
+            Button(role: .destructive) {
+                models.delete(entry.tier)
+            } label: {
+                Text(L("settings.model.delete.confirmAction"))
+            }
+        }
     }
 
     /// What a download of this tier actually fetches, which depends on whether its encoder is wanted.
@@ -150,7 +164,9 @@ private struct ModelRow: View {
             if !isSelected || failedToLoad {
                 Button(L("settings.model.use")) { models.use(entry.tier) }
             }
-            Button(L("settings.model.delete"), role: .destructive) { models.delete(entry.tier) }
+            // A plain button, like Delete all models…: red text on a grey button is hard to read in dark mode, and the
+            // confirmation carries the red.
+            Button(L("settings.model.delete")) { confirmingDelete = true }
                 .disabled(isLoaded)
         }
     }

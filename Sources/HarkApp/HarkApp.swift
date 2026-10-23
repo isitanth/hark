@@ -29,14 +29,26 @@ struct HarkApp: App {
         }
         .windowResizability(.contentSize)
 
-        // Opened only by `-HarkDebugPreview panel`.
+        // Opened only by `-HarkDebugPreview panel`. Kept out of the Window menu, which shows once Hark is in the Dock.
         Window(Text(verbatim: "Hark panel preview"), id: PanelView.previewWindowID) {
             PanelView(model: model)
         }
         .windowResizability(.contentSize)
+        .commandsRemoved()
 
-        Settings {
+        // A window of its own rather than a `Settings` scene: it resizes, its sidebar holds the panes, and every pane
+        // fills it. A Settings scene sized its window from each tab, which a scrolling form cannot give, and cut
+        // Commands short when it came from a shorter tab. SwiftUI keeps its frame under its id.
+        Window(Text(L("settings.window")), id: SettingsView.windowID) {
             SettingsView(model: model)
+        }
+        .defaultSize(width: 860, height: 640)
+        .windowResizability(.contentMinSize)
+        .commands {
+            // With no Settings scene the app menu has no Settings… item, and ⌘, goes with it.
+            CommandGroup(replacing: .appSettings) {
+                SettingsCommand()
+            }
         }
     }
 }
@@ -57,14 +69,34 @@ final class HarkAppDelegate: NSObject, NSApplicationDelegate {
     /// Set by `AppModel`: the Services menu's Ask Hark. A service call can be what launched Hark, so the provider is
     /// in place before the launch finishes.
     static var servicesProvider: AskService?
+    /// Set by `AppModel`: Settings, for a click on the Dock icon while no window is open.
+    static var openSettings: (() -> Void)?
     private static let deadline = Duration.seconds(3)
     private static var isQuitting = false
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "lifecycle")
 
     func applicationWillFinishLaunching(_ notification: Notification) {
+        // Before any window, so the first one already belongs to an app with a Dock icon. With the setting off there
+        // is nothing to do: `LSUIElement` has made Hark an accessory app from the start.
+        if DockPreference.showsInDock(in: .standard) { Self.showInDock(true) }
         NSApp.servicesProvider = Self.servicesProvider
         NSUpdateDynamicServices()
         Self.logger.notice("services provider in place: \(Self.servicesProvider != nil, privacy: .public)")
+    }
+
+    /// A click on the Dock icon. Hark's status item counts as no window (measured), and the HUD and the Ask panel are
+    /// ordered out when they do not show, so the flag is true only while there is something to bring forward.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        guard !flag, let openSettings = Self.openSettings else { return true }
+        openSettings()
+        return false
+    }
+
+    /// A regular app has a Dock icon, a place in ⌘Tab and its menus, and its windows take the active app's look; an
+    /// accessory app lives in the menu bar alone. `LSUIElement` stays in Info.plist, so a launch with the setting off
+    /// never shows an icon even for a moment.
+    static func showInDock(_ shown: Bool) {
+        NSApp.setActivationPolicy(shown ? .regular : .accessory)
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -87,15 +119,14 @@ final class HarkAppDelegate: NSObject, NSApplicationDelegate {
 private struct MenuBarLabel: View {
     let model: AppModel
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         Image(nsImage: MenuBarIconRenderer.image(for: model.menuBarGlyph))
             .accessibilityLabel(Text(model.iconState.label))
             .task {
-                model.openSettingsWindow = { openSettings() }
+                model.openSettingsWindow = { openWindow(id: SettingsView.windowID) }
                 if model.debugPreview.contains("panel") { openWindow(id: PanelView.previewWindowID) }
-                if model.debugPreview.contains("settings") { openSettings() }
+                if model.debugPreview.contains("settings") { model.openSettings() }
                 model.showHUDPreview()
                 model.showAskPreview()
                 model.refreshPermissions()
@@ -103,5 +134,20 @@ private struct MenuBarLabel: View {
                 openWindow(id: OnboardingView.windowID)
                 NSApplication.shared.activate()
             }
+    }
+}
+
+/// The app menu's Settings… and its ⌘,.
+private struct SettingsCommand: View {
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Button {
+            openWindow(id: SettingsView.windowID)
+            NSApplication.shared.activate()
+        } label: {
+            Text(L("panel.settings"))
+        }
+        .keyboardShortcut(",", modifiers: .command)
     }
 }
