@@ -163,7 +163,9 @@ struct AskView: View {
 
     /// What to say while listening: about the selection, the frame, both, or neither (the assistant).
     private var listeningHint: LocalizedStringResource {
-        switch (model.quote.isEmpty, hasRegion) {
+        // A follow-up changes the last answer, and Esc goes back to it.
+        if model.isFollowUp { return hasRegion ? L("ask.followUp.hint.frame") : L("ask.followUp.hint") }
+        return switch (model.quote.isEmpty, hasRegion) {
         case (true, false): L("assistant.listening.hint")
         case (false, false): L("ask.listening.hint")
         case (true, true): L("assistant.listening.hint.frame")
@@ -202,19 +204,35 @@ struct AskView: View {
     private var footerLine: some View {
         if model.showsBusyNudge {
             Label {
-                Text(L("ask.busyNudge"))
+                Text(busyNudge)
                     .fixedSize(horizontal: false, vertical: true)
             } icon: {
                 Image(systemName: "hand.raised.fill")
                     .foregroundStyle(.orange)
             }
             .font(.callout)
+        } else if model.flashesFull {
+            Label {
+                Text(L("ask.footer.full"))
+            } icon: {
+                Image(systemName: "hand.raised.fill")
+                    .foregroundStyle(.orange)
+            }
+            .font(.callout)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         } else if model.state == .reviewing, let hint = model.footerHint {
             Text(footerText(hint))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
+    }
+
+    /// The Cancel key reaches the panel from any app; a plain Esc only while the panel is key.
+    private var busyNudge: LocalizedStringResource {
+        guard let key = KeyboardShortcuts.getShortcut(for: .cancelUtterance) else { return L("ask.busyNudge") }
+        let shortcut = key.description
+        return L("ask.busyNudge.key \(shortcut)")
     }
 
     private func footerText(_ hint: AskFooterHint) -> LocalizedStringResource {
@@ -448,8 +466,18 @@ struct AskView: View {
         if #available(macOS 26, *) { !reduceMotion } else { false }
     }
 
+    /// Before a follow-up's request leaves, Cancel goes back to the answer; after, it ends the conversation.
     private var cancelAction: FooterAction {
-        FooterAction(id: "cancel", title: L("ask.button.cancel"), action: model.cancel)
+        FooterAction(
+            id: "cancel", title: goesBack ? L("ask.button.back") : L("ask.button.cancel"), action: model.cancel)
+    }
+
+    private var goesBack: Bool {
+        guard model.isFollowUp else { return false }
+        switch model.state {
+        case .listening, .transcribing, .awaitingRegion, .regionFailed: return true
+        default: return false
+        }
     }
 
     private var askWithoutImage: FooterAction {
@@ -515,6 +543,9 @@ struct AskView: View {
                 let choose = FooterAction(
                     id: "chooseModel", title: L("ask.button.chooseModel"), action: model.chooseAnotherModel)
                 return FooterLayout(secondary: [choose], primary: askWithoutImage.with(shortcut: .defaultAction))
+            case .profileChanged:
+                // A retry goes to the same pinned profile and fails the same way: close, then ask again.
+                return FooterLayout(primary: copyInstruction)
             default:
                 return FooterLayout(
                     secondary: model.offersAskWithoutImage ? [copyInstruction, askWithoutImage] : [copyInstruction],

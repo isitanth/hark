@@ -5951,6 +5951,40 @@
         }
       }
     },
+    "ask.followUp.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Say what to change or ask next, then press Return. Esc goes back to the answer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites quoi changer ou demander ensuite, puis appuyez sur Retour. Échap revient à la réponse."
+          }
+        }
+      }
+    },
+    "ask.followUp.hint.frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Say what to do with this frame, then press Return. Drag again to replace it; Esc goes back to the answer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites quoi faire de ce cadre, puis appuyez sur Retour. Faites glisser à nouveau pour le remplacer ; Échap revient à la réponse."
+          }
+        }
+      }
+    },
     "assistant.listening.hint": {
       "extractionState": "manual",
       "localizations": {
@@ -6083,6 +6117,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Annuler"
+          }
+        }
+      }
+    },
+    "ask.button.back": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenir"
           }
         }
       }
@@ -6739,13 +6790,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ to follow up · %2$lld/%3$lld"
+            "value": "%1$@ to follow up · request %2$lld of %3$lld"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ pour enchaîner · %2$lld/%3$lld"
+            "value": "%1$@ pour enchaîner · demande %2$lld sur %3$lld"
           }
         }
       }
@@ -6756,13 +6807,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set an Ask key in Settings to follow up · %1$lld/%2$lld"
+            "value": "Set the Ask Hark shortcut in Settings to follow up · request %1$lld of %2$lld"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez une touche Demander dans les Réglages pour enchaîner · %1$lld/%2$lld"
+            "value": "Définissez le raccourci Demander à Hark dans les Réglages pour enchaîner · demande %1$lld sur %2$lld"
           }
         }
       }
@@ -6773,13 +6824,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conversation full"
+            "value": "Conversation full: copy the answer or close"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conversation complète"
+            "value": "Conversation complète : copiez la réponse ou fermez"
           }
         }
       }
@@ -6790,13 +6841,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark is in this conversation: Esc closes it, then dictate."
+            "value": "A conversation is open: close it, then dictate."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark est dans cette conversation : Échap la ferme, puis dictez."
+            "value": "Une conversation est ouverte : fermez-la, puis dictez."
+          }
+        }
+      }
+    },
+    "ask.busyNudge.key %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A conversation is open: %@ closes it, then dictate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une conversation est ouverte : %@ la ferme, puis dictez."
           }
         }
       }
@@ -6841,7 +6909,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "followed up"
+            "value": "followed by another request"
           }
         },
         "fr": {
@@ -6926,13 +6994,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This conversation holds %lld frames: go on in words."
+            "value": "This conversation already has %lld frames: go on in words."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cette conversation contient déjà %lld cadrages : continuez avec des mots."
+            "value": "Cette conversation a déjà %lld cadres : continuez avec des mots."
           }
         }
       }

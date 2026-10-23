@@ -67,6 +67,12 @@ final class AskPanel: NSPanel, NSWindowDelegate {
         orderOut(nil)
     }
 
+    /// Key again without activating Hark, as at the open: a follow-up pressed from another app hears Return and Esc.
+    func focus() {
+        guard isVisible else { return }
+        makeKey()
+    }
+
     /// A change of height keeps the top edge where it is, and the panel on its screen: a long answer grows downwards
     /// to the screen's bottom, then the panel moves up. A move, the user's drag, changes no height and passes as is.
     override func setFrame(_ frameRect: NSRect, display flag: Bool) {

@@ -556,8 +556,13 @@ final class AppModel {
             announce(record)
             // The talk key, or "Hark, …", while the Ask panel shows: busy, and the panel says how to dictate. A busy Ask
             // key or Services press is an ask's and stays silent: the answer is coming.
-            if record.resolution == .discarded, record.error == DiscardReason.busy.rawValue, record.actionType == nil {
-                askPanel.showBusyNudge()
+            if record.resolution == .discarded, record.error == DiscardReason.busy.rawValue {
+                if record.actionType == nil {
+                    askPanel.showBusyNudge()
+                } else if record.actionType == .ask {
+                    // The Ask key at the conversation's cap: the footer says how to finish.
+                    askPanel.showFullNudge()
+                }
             }
         }
         updateIcon(MenuBarIconUpdate(from: self.snapshot, to: snapshot))

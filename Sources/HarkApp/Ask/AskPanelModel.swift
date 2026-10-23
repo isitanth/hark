@@ -53,6 +53,8 @@ final class AskPanelModel {
     private(set) var footerHint: AskFooterHint?
     /// A talk key was pressed while the panel shows: for `AskPresentation.busyNudgeFor`, the panel says how to dictate.
     private(set) var showsBusyNudge = false
+    /// The Ask key pressed at the conversation's cap: the footer says so for two seconds.
+    private(set) var flashesFull = false
     /// Ask without the image is offered only when this turn's frame is the conversation's only one.
     private(set) var offersAskWithoutImage = false
     /// An image ask's restatement of what the user is after: the reply's `%%` line, apart from the answer.
@@ -264,6 +266,18 @@ final class AskPanelModel {
         }
     }
 
+    /// The Ask key turned away as busy while a full conversation is in review: the footer says how to finish.
+    func showFullNudge() {
+        guard !pinned, state == .reviewing, footerHint == .full else { return }
+        nudge?.cancel()
+        flashesFull = true
+        nudge = Task { [weak self] in
+            try? await Task.sleep(for: AskPresentation.busyNudgeFor)
+            guard !Task.isCancelled else { return }
+            self?.flashesFull = false
+        }
+    }
+
     func update(_ update: AskUpdate) {
         guard !pinned, update.id == id else { return }
         reply = update.text
@@ -352,6 +366,9 @@ final class AskPanelModel {
             close()
         } else if !wasOpen {
             panel.open(at: rememberedTopLeft)
+        } else if next == .listening {
+            // A follow-up's capture: the panel takes the keys again, as at the open.
+            panel.focus()
         }
     }
 
@@ -374,6 +391,7 @@ final class AskPanelModel {
         footerHint = nil
         nudge?.cancel()
         showsBusyNudge = false
+        flashesFull = false
         guard let caller else { return }
         self.caller = nil
         Task { [workspace] in
