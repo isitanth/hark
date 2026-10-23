@@ -76,6 +76,7 @@ struct AboutSettingsView: View {
             }
             .formStyle(.grouped)
 
+            // The user's words, the same in every language; StringsGateTests and the bundle self-test pin them.
             Text(L("settings.about.footer"))
                 .font(.caption2)
                 .foregroundStyle(.tertiary)

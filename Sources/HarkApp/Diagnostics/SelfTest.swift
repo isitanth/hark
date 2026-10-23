@@ -83,6 +83,12 @@ private final class Report {
             format: localized("config.location %lld %lld", in: Bundle.module, language: "fr") ?? "", 12, 5)
         check("strings.format.fr", location == "Ligne 12, colonne 5", location)
 
+        // Settings › About's last line: the user's words, the same in every language (their decision of 2026-10-23).
+        let footer = ["en", "fr"].map { localized("settings.about.footer", in: Bundle.module, language: $0) }
+        check(
+            "strings.aboutFooter", footer.allSatisfy { $0 == "Engineered with ❤️" },
+            footer.map { $0 ?? "<missing>" }.joined(separator: " / "))
+
         let plistFR = Bundle.main.url(
             forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: "fr")
         check("strings.InfoPlist.fr", plistFR != nil, plistFR?.path ?? "<missing>")

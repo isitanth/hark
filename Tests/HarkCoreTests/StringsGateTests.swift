@@ -6,8 +6,12 @@ import Testing
 @Suite struct StringsGateTests {
     /// Keys whose French text is the English text on purpose.
     static let identicalInFrench: Set<String> = [
-        "settings.tab.audio", "settings.ask.provider.claude",
+        "settings.tab.audio", "settings.ask.provider.claude", "settings.about.footer",
     ]
+
+    /// Settings › About's last line, in the user's words and the same in every language (their decision of
+    /// 2026-10-23): never translated, never reworded.
+    static let aboutFooter = "Engineered with ❤️"
 
     /// The repo root, or `HARK_STRINGS_GATE_ROOT` to point the gate at a copy of the tree.
     static var root: URL {
@@ -49,6 +53,15 @@ import Testing
             + StringsGate.translated(catalog, allowed: Self.identicalInFrench)
             + StringsGate.frenchSpacing(catalog)
         #expect(problems.isEmpty, "\(problems.count) problems:\n\(problems.joined(separator: "\n"))")
+    }
+
+    @Test func theAboutFooterIsTheSameInEveryLanguage() throws {
+        let catalog = try Self.catalog("Sources/HarkApp/Resources/Localizable.xcstrings", under: Self.root)
+        let languages = catalog.strings["settings.about.footer"]?.localizations?.keys.sorted() ?? []
+        #expect(languages == ["en", "fr"])
+        for language in languages {
+            #expect(catalog.value("settings.about.footer", language) == Self.aboutFooter, "\(language)")
+        }
     }
 
     /// The Services menu's "Ask Hark", keyed by its NSMenuItem title in Info.plist.
