@@ -5,6 +5,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+## [0.0.9] - 2026-10-24
+
+Polish after 0.0.8's Liquid Glass: the Ask panel's buttons stay readable when you work in another app, and the
+Settings panes line up.
+
 ### Fixed
 
 - On macOS 26 and later, the Ask panel's buttons no longer look disabled when you click back into the app you were
@@ -179,7 +184,8 @@ The first public release.
 - Commands in `~/Library/Application Support/Hark/commands.yaml`, edited in Settings › Commands and reloaded when the
   file changes. If an edit breaks it, Hark keeps the last good version and the menu bar icon says so.
 
-[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.8...HEAD
+[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.9...HEAD
+[0.0.9]: https://github.com/isitanth/hark/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/isitanth/hark/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/isitanth/hark/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/isitanth/hark/compare/v0.0.5...v0.0.6
