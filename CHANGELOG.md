@@ -5,6 +5,16 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Fixed
+
+- On macOS 26 and later, the Ask panel's buttons no longer look disabled when you click back into the app you were
+  in while the answer shows: their labels stay readable and the main one, Insert, Replace or Copy, stays blue.
+- A streaming answer in the Ask panel starts on the first line of its box, where the editable answer then takes its
+  place, instead of under a blank line.
+- The Settings panes line up: in Ask, the server address and API key fields start at the same edge in French too;
+  Log's filter sits as far below the toolbar as the other panes' content; and on macOS 26 and later, Commands and
+  Log no longer draw a line under the toolbar.
+
 ## [0.0.8] - 2026-10-23
 
 Settings redrawn: a resizable window with its panes in a sidebar, in macOS 26's Liquid Glass design, and Hark can

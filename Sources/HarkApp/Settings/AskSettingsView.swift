@@ -15,6 +15,13 @@ struct AskSettingsView: View {
     /// Allow… was pressed: macOS reads the grant at launch, so the row offers Reopen Hark.
     @State private var screenRecordingRequested = false
 
+    /// The address and key fields' least width, one for both. The grouped form starts every row's content at one
+    /// column (303 pt into the pane at its 600 pt minimum, 300 at the default 660) unless the content needs more: at
+    /// 120 pt the French key row (field, Enregistrer, Supprimer) did at 600 pt, and its field started 169 pt left of
+    /// the address field (measured 2026-10-24). At 80 both fields start at the column in French and English, at both
+    /// widths; the French key field is then 103 pt wide.
+    private static let fieldMinWidth: CGFloat = 80
+
     private enum Status: Equatable {
         case connected(String)
         case failed(LLMFailure)
@@ -70,7 +77,7 @@ struct AskSettingsView: View {
                         }
                         .labelsHidden()
                         .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 160)
+                        .frame(minWidth: Self.fieldMinWidth)
                         .onSubmit(saveAddress)
                         Button(action: saveAddress) {
                             Text(L("settings.ask.save"))
@@ -88,7 +95,7 @@ struct AskSettingsView: View {
                         }
                         .labelsHidden()
                         .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 120)
+                        .frame(minWidth: Self.fieldMinWidth)
                         .onSubmit(saveKey)
                         // Buttons at their own width: in French, Enregistrer was cut to "Enregist…".
                         Button(action: saveKey) {

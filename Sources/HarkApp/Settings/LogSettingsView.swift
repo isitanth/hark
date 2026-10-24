@@ -19,27 +19,16 @@ struct LogSettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker(selection: $filter) {
-                ForEach(LogFilter.allCases, id: \.self) { filter in
-                    Text(Self.title(filter)).tag(filter)
-                }
-            } label: {
-                Text(L("settings.log.filter"))
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-
-            if page.entries.isEmpty {
-                Text(L("settings.log.empty"))
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            if #available(macOS 26, *) {
+                // The picker in a bar over the entries' scroll view, which then reaches under the toolbar as the other
+                // panes' do: with the picker above it, no scroll view met the toolbar, and it drew its hard edge, a
+                // band and a line, over this pane alone (measured 2026-10-24 in a key window; the picker, the first
+                // row and the empty text keep their frames).
+                entries
+                    .safeAreaBar(edge: .top) { picker }
             } else {
-                List(page.entries) { entry in
-                    LogRow(entry: entry)
-                }
-                .listStyle(.inset(alternatesRowBackgrounds: true))
+                picker
+                entries
             }
 
             Divider()
@@ -74,6 +63,43 @@ struct LogSettingsView: View {
             let reader = model.logReader
             let filter = filter
             page = await Task.detached { reader.read(filter: filter) }.value
+        }
+    }
+
+    private var picker: some View {
+        Picker(selection: $filter) {
+            ForEach(LogFilter.allCases, id: \.self) { filter in
+                Text(Self.title(filter)).tag(filter)
+            }
+        } label: {
+            Text(L("settings.log.filter"))
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .padding(.horizontal, 20)
+        // 20 pt under the toolbar, where the grouped forms start their first section (measured 2026-10-24: 20 in
+        // General and About, 12 here before).
+        .padding(.top, 20)
+        .padding(.bottom, 12)
+    }
+
+    @ViewBuilder private var entries: some View {
+        if page.entries.isEmpty {
+            let empty = Text(L("settings.log.empty")).foregroundStyle(.secondary)
+            if #available(macOS 26, *) {
+                // In a scroll view too, for the bar: a filter with no lines brought the band back. Centred in it as
+                // before, and it never moves.
+                ScrollView { empty.frame(maxWidth: .infinity) }
+                    .defaultScrollAnchor(.center)
+                    .scrollBounceBehavior(.basedOnSize)
+            } else {
+                empty.frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        } else {
+            List(page.entries) { entry in
+                LogRow(entry: entry)
+            }
+            .listStyle(.inset(alternatesRowBackgrounds: true))
         }
     }
 

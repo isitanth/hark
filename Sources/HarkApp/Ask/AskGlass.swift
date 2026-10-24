@@ -58,18 +58,36 @@ extension View {
         }
     }
 
-    /// A footer button: `.glassProminent` for the primary action and `.glass` for the others on macOS 26; below,
+    /// A footer button: `.borderedProminent` for the primary action and `.glass` for the others on macOS 26; below,
     /// `.borderedProminent` for the primary and the system's default for the others, as today.
     @ViewBuilder
     func askButtonStyle(prominent: Bool) -> some View {
         if #available(macOS 26, *) {
             if prominent {
-                buttonStyle(.glassProminent)
+                // Not `.glassProminent`: its blue follows the window's key state and nothing public holds it, so the
+                // primary turned grey whenever the panel lost key (sdk 27, measured 2026-10-24: 5,125,254 key,
+                // 66,66,66 not key under `appearsActive`). `.borderedProminent` under `askAppearsActive()` stays
+                // 0,111,255 either way.
+                buttonStyle(.borderedProminent)
             } else {
                 buttonStyle(.glass)
             }
         } else if prominent {
             buttonStyle(.borderedProminent)
+        } else {
+            self
+        }
+    }
+
+    /// The footer, and the framing row's button, drawn as in a key window while the panel is not key, on macOS 26.
+    /// The panel is non-activating and the user clicks back into the source app while the answer shows, so it is
+    /// mostly not key, and the glass buttons' labels then fell to 92,92,92 as if disabled (sdk 27, measured
+    /// 2026-10-24); under `appearsActive` they stay white. The glass under them follows the window's key state still,
+    /// as the panel's own glass does.
+    @ViewBuilder
+    func askAppearsActive() -> some View {
+        if #available(macOS 26, *) {
+            environment(\.appearsActive, true)
         } else {
             self
         }

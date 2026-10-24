@@ -46,27 +46,44 @@ struct CommandsSettingsView: View {
     private var editable: Bool { !broken && !busy }
 
     var body: some View {
-        // The table takes whatever height the window has beyond the text around it. When the text leaves it less than
-        // its minimum, which a long error, a two-line notice or longer lists in the file can do at the window's
-        // smallest size, the pane scrolls rather than cut off its last lines.
-        ViewThatFits(in: .vertical) {
-            content
-            ScrollView { content }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        // A row that left the file, through a text editor or a remove, is not selected any more, and a Test that
-        // worked is about a list that is gone. A problem stays: a conflict reloads the file, and that reload lands
-        // here right after the message saying so. The next Test or change clears it.
-        .onChange(of: commands.map(\.id)) { _, ids in
-            selection.formIntersection(ids)
-            if status?.isProblem == false { status = nil }
-        }
-        .sheet(item: $editing) { editing in
-            CommandEditor(
-                original: editing.original, config: editing.snapshot.config,
-                taken: Set(editing.snapshot.config.commands.map(\.id)), degraded: broken
-            ) { entry in
-                await save(entry, from: editing)
+        scrolling
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            // A row that left the file, through a text editor or a remove, is not selected any more, and a Test that
+            // worked is about a list that is gone. A problem stays: a conflict reloads the file, and that reload lands
+            // here right after the message saying so. The next Test or change clears it.
+            .onChange(of: commands.map(\.id)) { _, ids in
+                selection.formIntersection(ids)
+                if status?.isProblem == false { status = nil }
+            }
+            .sheet(item: $editing) { editing in
+                CommandEditor(
+                    original: editing.original, config: editing.snapshot.config,
+                    taken: Set(editing.snapshot.config.commands.map(\.id)), degraded: broken
+                ) { entry in
+                    await save(entry, from: editing)
+                }
+            }
+    }
+
+    /// The table takes whatever height the window has beyond the text around it. When the text leaves it less than its
+    /// minimum, which a long error, a two-line notice or longer lists in the file can do at the window's smallest size,
+    /// the pane scrolls rather than cut off its last lines.
+    @ViewBuilder private var scrolling: some View {
+        if #available(macOS 26, *) {
+            // Always in a scroll view, at least the pane's height, as the other panes' grouped forms are: with none
+            // under it, the toolbar drew its hard edge over this pane alone, a band and a line, where the forms get the
+            // soft scroll edge (measured 2026-10-24 in an active window). It moves only when it has to scroll.
+            GeometryReader { proxy in
+                ScrollView {
+                    content
+                        .frame(minHeight: proxy.size.height)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+            }
+        } else {
+            ViewThatFits(in: .vertical) {
+                content
+                ScrollView { content }
             }
         }
     }

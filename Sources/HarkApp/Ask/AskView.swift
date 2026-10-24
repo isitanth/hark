@@ -56,6 +56,7 @@ struct AskView: View {
             footerLine
                 .allowsHitTesting(false)
             footer
+                .askAppearsActive()
         }
         .padding(16)
         .frame(width: AskPanel.width, alignment: .leading)
@@ -270,6 +271,9 @@ struct AskView: View {
                 framingButton(block)
                     .controlSize(.small)
                     .askButtonStyle(prominent: false)
+                    // Outside the footer, so its own: not key, its label fell to 92,92,92 beside the footer's white
+                    // (sdk 27, measured 2026-10-24). On the button alone, as on the footer.
+                    .askAppearsActive()
             }
         } else if !hasRegion {
             Text(frameHint)
@@ -376,6 +380,7 @@ struct AskView: View {
     /// its last line; editable once complete.
     private func answer(editable: Bool) -> some View {
         let text = editable ? model.answer : model.streamed
+        let height = min(max(answerHeight, 44), answerCap)
         return Group {
             if editable {
                 TextEditor(text: $model.answer)
@@ -384,10 +389,12 @@ struct AskView: View {
                     .focused($editing)
             } else {
                 ScrollView {
+                    // As tall as the box while it fits, its text at the top: the bottom anchor put a short answer at
+                    // the box's bottom, under the 44 pt floor. It follows the stream once the answer scrolls.
                     Text(verbatim: text)
                         .font(.body)
                         .padding(.horizontal, 5)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, minHeight: height, alignment: .topLeading)
                 }
                 .defaultScrollAnchor(.bottom)
             }
@@ -395,15 +402,18 @@ struct AskView: View {
         .askScrollEdge()
         // No scroller while the answer fits: on macOS 26 a legacy one that has nothing to scroll still draws its knob.
         .scrollIndicators(answerHeight > answerCap ? .automatic : .never)
-        .frame(height: min(max(answerHeight, 44), answerCap))
+        .frame(height: height)
         .background(alignment: .topLeading) {
-            // A hidden copy of the text measures the height; the line after it leaves room for the caret. It wraps
-            // a scroller's width early, as the editor does once it scrolls; while it fits, the column is wider and
-            // the measure can only be high.
-            Text(verbatim: text + "\n")
+            // A hidden copy of the text measures the height. In review, the line after it leaves room for the caret,
+            // and it wraps a scroller's width early, as the editor does once it scrolls; while it fits, the column is
+            // wider and the measure can only be high. While it streams, the text alone at the width it shows at: the
+            // caret's line showed blank above the streaming text, which then sat a line below the editor's at the
+            // switch to review and cross-faded into it twice (measured 2026-10-24: first line 25 pt under the box's
+            // top streaming, 9 pt in review; 9 pt in both now).
+            Text(verbatim: editable ? text + "\n" : text)
                 .font(.body)
                 .padding(.leading, 5)
-                .padding(.trailing, 5 + Self.scrollerWidth)
+                .padding(.trailing, editable ? 5 + Self.scrollerWidth : 5)
                 .fixedSize(horizontal: false, vertical: true)
                 .hidden()
                 .background(
