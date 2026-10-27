@@ -123,7 +123,7 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
                     id: UtteranceID(11), instruction: "Résume.", restatement: nil, answer: "Un résumé.\nSuite.",
                     region: nil)
             ])
-        #expect(rows.first?.firstLine == "Un résumé.")
+        #expect(rows.first?.foldedLine == "Un résumé.")
     }
 
     /// From the first framed turn on, every reply is split, a turn in words after it included; the one before is not.
@@ -152,10 +152,29 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
         #expect(AskPresentation.earlierTurns(F.askContext()).isEmpty)
     }
 
-    @Test(arguments: [("", ""), ("\n  \nDeux\nTrois", "Deux"), ("  Un  ", "Un")])
+    @Test(arguments: [
+        ("", ""), ("\n  \nDeux\nTrois", "Deux"), ("  Un  ", "Un"), ("Total : 12 + 30\n42", "Total : 12 + 30"),
+    ])
     func theFoldedRowShowsTheFirstLineWithWords(_ answer: String, _ expected: String) {
         #expect(
-            AskTurnRow(id: F.id, instruction: "", restatement: nil, answer: answer, region: nil).firstLine == expected)
+            AskTurnRow(id: F.id, instruction: "", restatement: nil, answer: answer, region: nil).foldedLine == expected)
+    }
+
+    /// Under the image rules a computed answer ends with its result alone on the last line: the row shows the result,
+    /// not the working; an answer whose last line holds no figure, or is a list's last item, still shows its first line.
+    @Test(arguments: [
+        ("Factures : 145,00 + 176,50 = 321,50\nAvoirs : −62,50\n\n259,00 €", "259,00 €"),
+        ("- 145,00 + 176,50 = 321,50\n- Avoirs : 62,50\n\n−62,50 €", "−62,50 €"),
+        ("802,42 €", "802,42 €"),
+        ("Le titulaire est Mme Claire Fontanel.", "Le titulaire est Mme Claire Fontanel."),
+        ("- Café moulu\n- Lessive liquide", "- Café moulu"),
+        ("- Budget validé\n- Lancement au 14 octobre", "- Budget validé"),
+        ("1. Ouvrir la facture\n2. Payer 42 €", "1. Ouvrir la facture"),
+        ("", ""),
+    ])
+    func aFramedTurnFoldsToItsResult(_ answer: String, _ expected: String) {
+        let row = AskTurnRow(id: F.id, instruction: "", restatement: "Tu veux le total.", answer: answer, region: nil)
+        #expect(row.foldedLine == expected)
     }
 
     private static func reviewing(_ context: UtteranceContext, _ instruction: Transcript = F.instruction)

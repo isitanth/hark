@@ -59,8 +59,11 @@ public struct AskPrompt: Sendable, Equatable {
             + "the user is really trying to find out or do, and the assumptions you took to read the image (for "
             + "example which rows count, how a sign or a status is read). One sentence, at most 30 words. Then one "
             + "empty line, then the answer.",
-        "- Then answer, in the language of the request, briefly unless the request asks for detail. Give the result "
-            + "first, then at most a few lines showing how you got it. If you compute, show the figures you added.",
+        // The working before the result: written first, a total is a guess the working then bends to (the 2026-10-26
+        // visual-math measurement: 1 right answer in 20 with the result first, 18 with it last).
+        "- Then answer, in the language of the request, briefly unless the request asks for detail. If you compute, "
+            + "first show the figures you use and the computation in a few lines, then give the result alone on the "
+            + "last line.",
         "- If the image does not show what the request needs, say so in the answer and invent nothing.",
         "- Plain text only: no Markdown headings, no bold, no tables, no code fences. Write lists with \"- \" at the "
             + "start of each item.",

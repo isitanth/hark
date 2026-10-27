@@ -88,8 +88,8 @@ public enum AskPresentation {
     }
 }
 
-/// One earlier turn of a conversation, as the panel's transcript shows it: folded to its instruction and the answer's
-/// first line until a click unfolds it.
+/// One earlier turn of a conversation, as the panel's transcript shows it: folded to its instruction and one line of
+/// the answer (`foldedLine`) until a click unfolds it.
 public struct AskTurnRow: Sendable, Equatable, Identifiable {
     public let id: UtteranceID
     /// What the model got for this turn.
@@ -109,11 +109,20 @@ public struct AskTurnRow: Sendable, Equatable, Identifiable {
         self.region = region
     }
 
-    /// The answer's first line with words, for the folded row.
-    public var firstLine: String {
-        answer.split(whereSeparator: \.isNewline)
-            .lazy.map { $0.trimmingCharacters(in: .whitespaces) }
-            .first { !$0.isEmpty } ?? ""
+    /// The line the folded row shows: the answer's first line with words. Under the image rules (a turn with a
+    /// restatement) a computed answer ends with its result alone on the last line, after the working: when that last
+    /// line holds a figure and is not a list's last item ("- Launch on October 14"), the row shows it instead of the
+    /// working's first line.
+    public var foldedLine: String {
+        let lines = answer.split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        if restatement != nil, lines.count > 1, let last = lines.last, last.contains(where: \.isNumber),
+            last.prefixMatch(of: /(?:[-•*–]|[0-9]+[.)])\s/) == nil
+        {
+            return last
+        }
+        return lines.first ?? ""
     }
 }
 

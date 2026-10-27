@@ -690,14 +690,16 @@ private struct RegionPreviewSample {
             instruction = "Additionne toutes les factures de cette année, combien j'ai vraiment payé ?"
             intent = "Tu veux le net payé en 2026 : factures moins avoirs, la facture de janvier remboursée exclue."
             answer =
-                "802,42 € payés en 2026.\n\n- Factures payées : 1 072,66 €\n- Avoirs : −270,24 €\n"
-                + "- Facture du 6 janvier (108,90 €) remboursée, non comptée"
+                "- Factures payées : 1 072,66 €\n- Avoirs : −270,24 €\n"
+                + "- Facture du 6 janvier (108,90 €) remboursée, non comptée\n- 1 072,66 − 270,24 = 802,42\n\n"
+                + "802,42 € payés en 2026."
         } else {
             instruction = "Add up all of this year's invoices: how much did I really pay?"
             intent = "You want the net paid in 2026: invoices minus credits, the refunded January invoice left out."
             answer =
-                "€802.42 paid in 2026.\n\n- Paid invoices: €1,072.66\n- Credits: −€270.24\n"
-                + "- The January 6 invoice (€108.90) was refunded and is not counted"
+                "- Paid invoices: €1,072.66\n- Credits: −€270.24\n"
+                + "- The January 6 invoice (€108.90) was refunded and is not counted\n- 1,072.66 − 270.24 = 802.42\n\n"
+                + "€802.42 paid in 2026."
         }
     }
 

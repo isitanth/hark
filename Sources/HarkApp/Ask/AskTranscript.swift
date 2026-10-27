@@ -1,8 +1,8 @@
 import HarkCore
 import SwiftUI
 
-/// A conversation's earlier turns above the live one: plain rows, not glass, folded to the instruction and the
-/// answer's first line; a click unfolds one. They scroll within `maxHeight`, anchored to the newest, and report the
+/// A conversation's earlier turns above the live one: plain rows, not glass, folded to the instruction and one line
+/// of the answer (`AskTurnRow.foldedLine`); a click unfolds one. They scroll within `maxHeight`, anchored to the newest, and report the
 /// height they take so the live answer has the rest of the panel's 60%.
 struct AskTranscript: View {
     let model: AskPanelModel
@@ -50,7 +50,7 @@ struct AskTranscript: View {
                             .font(.callout.weight(.medium))
                             .lineLimit(open ? nil : 1)
                         if !open {
-                            Text(verbatim: turn.firstLine)
+                            Text(verbatim: turn.foldedLine)
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)

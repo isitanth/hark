@@ -5,6 +5,14 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Changed
+
+- When you ask about a framed region and the answer needs a calculation, the model now shows the figures it uses and
+  the calculation first, and gives the result alone on the last line. Asked for the result first, it wrote a total
+  before adding anything and was usually wrong: on 20 test tables, 18 results are right this way, against 1 before.
+  In a conversation, an earlier turn that computed a figure folds to its result line, not to the first line of its
+  working.
+
 ## [0.0.9] - 2026-10-24
 
 Polish after 0.0.8's Liquid Glass: the Ask panel's buttons stay readable when you work in another app, and the
