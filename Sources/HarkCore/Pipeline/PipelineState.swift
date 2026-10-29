@@ -52,11 +52,47 @@ public struct UtteranceContext: Sendable, Equatable {
     public var thread: AskThread?
     /// The answered turn this follow-up started from, until the follow-up has words and that turn joins `thread`.
     public var parked: ParkedTurn?
+    /// Exact math, stamped at the press (M13): nil when it is off for this ask, and for dictation. A config change
+    /// mid-ask does not alter the ask in flight.
+    public var math: ExactMathContext?
 
     public init(id: UtteranceID, pressedAt: Date, intent: CaptureIntent = .dictate) {
         self.id = id
         self.pressedAt = pressedAt
         self.intent = intent
+    }
+}
+
+/// Where the reader is with the frame of an exact ask.
+public enum ReadingState: Sendable, Equatable {
+    case idle
+    case pending
+    case read(CellSheet)
+    case failed(ReaderFailure)
+}
+
+/// An exact ask's own part of the context (M13). The sheet lives here as the selection's text lives in the intent:
+/// small, in memory, never logged.
+public struct ExactMathContext: Sendable, Equatable {
+    public var reading: ReadingState
+    /// The words ask for a calculation, decided once at `transcribed`.
+    public var routed: Bool
+    /// Plan calls made for this turn: one, or two after a retry.
+    public var attempts: Int
+    public var computation: Computation?
+    /// Why the exact path gave way to the model's answer, for the line's `error`. Nil when it did not, and when the
+    /// user chose the way out while the reader worked.
+    public var fallback: PipelineFailure?
+
+    public init(
+        reading: ReadingState = .idle, routed: Bool = false, attempts: Int = 0, computation: Computation? = nil,
+        fallback: PipelineFailure? = nil
+    ) {
+        self.reading = reading
+        self.routed = routed
+        self.attempts = attempts
+        self.computation = computation
+        self.fallback = fallback
     }
 }
 
@@ -80,6 +116,13 @@ public enum AskStage: Sendable, Equatable {
     case regionFailed(RegionFailure)
     /// Replace was chosen: the caller is being brought back and its selection checked before anything is written.
     case replacing
+    /// An exact ask (M13): the instruction is heard and asks for a calculation, and the frame's cells are not read
+    /// yet.
+    case reading
+    /// An exact ask: the plan request is out. The panel shows the `understood` line as it streams, nothing else.
+    case planning
+    /// An exact ask: the read, the plan or the arithmetic failed. The panel offers to let the model answer.
+    case mathFailed(MathFailure)
 }
 
 public enum PipelineState: Sendable, Equatable {

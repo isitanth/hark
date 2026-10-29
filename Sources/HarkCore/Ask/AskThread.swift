@@ -62,12 +62,21 @@ public struct AskTurn: Sendable, Equatable {
     public let reply: String
     /// The frame this turn brought: its size and place, never its bytes.
     public let region: RegionSummary?
+    /// An exact turn's cells (M13): what a computational follow-up plans over again. Never logged.
+    public let sheet: CellSheet?
+    /// An exact turn's formula, the plan's text, kept with the turn like `reply`. Never logged.
+    public let formula: String?
 
-    public init(id: UtteranceID, instruction: String, reply: String, region: RegionSummary?) {
+    public init(
+        id: UtteranceID, instruction: String, reply: String, region: RegionSummary?, sheet: CellSheet? = nil,
+        formula: String? = nil
+    ) {
         self.id = id
         self.instruction = instruction
         self.reply = reply
         self.region = region
+        self.sheet = sheet
+        self.formula = formula
     }
 }
 

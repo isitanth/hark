@@ -325,7 +325,7 @@ struct AskView: View {
                 progress(L("ask.awaitingRegion"))
                 preflight
             }
-        case .thinking:
+        case .thinking, .reading, .planning:
             progress(
                 namesServer
                     ? L("ask.thinking.server \(model.server)")
@@ -339,6 +339,14 @@ struct AskView: View {
                     .foregroundStyle(.orange)
             }
         case .regionFailed(let failure):
+            Label {
+                Text(failure.popupText)
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+            }
+        case .mathFailed(let failure):
             Label {
                 Text(failure.popupText)
                     .fixedSize(horizontal: false, vertical: true)
@@ -535,7 +543,9 @@ struct AskView: View {
             return FooterLayout(
                 primary: FooterAction(
                     id: "done", title: L("ask.button.done"), action: model.done, shortcut: .defaultAction))
-        case .transcribing, .awaitingRegion, .thinking, .streaming:
+        case .transcribing, .awaitingRegion, .thinking, .streaming, .reading, .planning:
+            return FooterLayout()
+        case .mathFailed:
             return FooterLayout()
         case .regionFailed(.screenRecordingDenied):
             let allow =

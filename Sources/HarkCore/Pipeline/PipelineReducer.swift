@@ -28,6 +28,12 @@ public struct Rejection: Error, Sendable, Equatable {
 /// A press while busy is its own utterance and logs `discarded(busy)` without touching the current one.
 public struct PipelineReducer: Sendable {
     public var policy: CapturePolicy
+    /// Exact math (M13), stamped on each ask at its press. Off, every transition is today's.
+    public var exactMath = false
+    /// The user's format for an exact result (decision 8), set by the app through the controller. The default only
+    /// keeps tests deterministic: nothing in HarkCore reads the Mac's locale.
+    public var resultLocale = Locale(identifier: "en_US_POSIX")
+    public var rounding = RoundingPolicy.standard
 
     public init(policy: CapturePolicy = .standard) {
         self.policy = policy

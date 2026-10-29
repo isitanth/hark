@@ -60,6 +60,13 @@ public enum PipelineEvent: Sendable, Equatable {
     /// The Ask key while an answer is in review (M12): a follow-up of the same ask, a new utterance with the
     /// conversation so far. Every other press while the panel shows is a `triggerDown`, and busy.
     case followUpDown(UtteranceID, at: Date)
+    /// The reader read the frame into cells (M13).
+    case regionRead(UtteranceID, CellSheet)
+    case regionReadFailed(UtteranceID, ReaderFailure)
+    /// The plan's stream finished with text, the mirror of `generated`: `reply` is the plan's JSON, never shown.
+    case planned(UtteranceID, LLMCallSummary, reply: String)
+    /// Let the model answer: today's framed ask, after a failure of the exact path or while the reader works.
+    case askWithoutExactMath(UtteranceID)
 
     public var utteranceID: UtteranceID? {
         switch self {
@@ -70,7 +77,8 @@ public enum PipelineEvent: Sendable, Equatable {
             .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _), .askReplace(let id, _),
             .selectionChecked(let id, _), .regionStarted(let id), .regionCaptured(let id, _),
             .regionFailed(let id, _), .regionRemoved(let id), .regionAbandoned(let id),
-            .askRetryWithoutRegion(let id), .followUpDown(let id, _):
+            .askRetryWithoutRegion(let id), .followUpDown(let id, _), .regionRead(let id, _),
+            .regionReadFailed(let id, _), .planned(let id, _, _), .askWithoutExactMath(let id):
             id
         case .triggerUp, .cancel:
             nil

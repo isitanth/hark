@@ -65,6 +65,33 @@ public struct NullAskGenerator: AskGenerating {
     }
 }
 
+/// Asks the model for a plan over a sheet's cells (M13): the same stream as an ask, its text the plan's JSON, which the
+/// controller never shows. `AskEngine` implements it.
+public protocol AskPlanning: Sendable {
+    /// `text` pieces, then exactly one `finished` or `failed`, then the end. `image` is the frame the sheet was read
+    /// from; `thread` and `frames` a follow-up's conversation so far, as for `generate`. `correction` is the retry's,
+    /// nil on the first attempt.
+    func plan(
+        instruction: String, sheet: CellSheet, selection: String?, image: ImagePart?, thread: AskThread?,
+        frames: [UtteranceID: ImagePart], correction: PlanCorrection?
+    ) -> AsyncStream<LLMEvent>
+}
+
+/// Refuses every plan, for environments that never compute.
+public struct NullAskPlanner: AskPlanning {
+    public init() {}
+
+    public func plan(
+        instruction: String, sheet: CellSheet, selection: String?, image: ImagePart?, thread: AskThread?,
+        frames: [UtteranceID: ImagePart], correction: PlanCorrection?
+    ) -> AsyncStream<LLMEvent> {
+        AsyncStream { continuation in
+            continuation.yield(.failed(.unreachable(host: ""), LLMCallSummary()))
+            continuation.finish()
+        }
+    }
+}
+
 /// The environment's default, for tests that do not care where text goes: every transcript is copied, as if the
 /// clipboard were the destination the user chose, and normalized like a real resolver would.
 public struct ClipboardSinkResolver: UtteranceResolving {
@@ -111,6 +138,9 @@ public struct PipelineEnvironment: Sendable {
     public var actions: any ActionRunning
     public var asker: any AskGenerating
     public var selection: any SelectionChecking
+    /// The exact path (M13): the model's plan, and the reader of a frame's cells.
+    public var planner: any AskPlanning
+    public var reader: any RegionReading
 
     public init(
         workspace: any Workspace,
@@ -124,7 +154,9 @@ public struct PipelineEnvironment: Sendable {
         inserter: any TextInserting = NullTextInserter(),
         actions: any ActionRunning = NullActionRunner(),
         asker: any AskGenerating = NullAskGenerator(),
-        selection: (any SelectionChecking)? = nil
+        selection: (any SelectionChecking)? = nil,
+        planner: any AskPlanning = NullAskPlanner(),
+        reader: any RegionReading = NullRegionReader()
     ) {
         self.clock = clock
         self.audio = audio
@@ -141,5 +173,7 @@ public struct PipelineEnvironment: Sendable {
             selection
             ?? CallerSelectionChecker(
                 workspace: workspace, focus: self.focus, accessibility: nil, settings: ResolutionSettings())
+        self.planner = planner
+        self.reader = reader
     }
 }

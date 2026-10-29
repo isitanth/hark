@@ -49,6 +49,7 @@ extension LLMFailure {
         case .noVision(nil, _): L("ask.failure.noVision.unnamed")
         case .profileChanged: L("ask.failure.profileChanged")
         case .frameMissing: L("ask.failure.regionFailed")
+        case .formatRefused: L("ask.failure.refused")
         }
     }
 
@@ -69,6 +70,13 @@ extension RegionFailure {
         case .screenRecordingDenied: L("ask.failure.screenRecordingDenied")
         case .captureFailed: L("ask.failure.regionFailed")
         }
+    }
+}
+
+extension MathFailure {
+    /// The Ask panel: why the exact path stopped (M13).
+    var popupText: LocalizedStringResource {
+        L("ask.failure.streamError")
     }
 }
 

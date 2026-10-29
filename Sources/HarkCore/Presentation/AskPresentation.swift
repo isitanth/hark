@@ -16,6 +16,12 @@ public enum AskPanelState: Sendable, Equatable {
     case failed(LLMFailure)
     /// The framed region did not become an image.
     case regionFailed(RegionFailure)
+    /// An exact ask (M13): the frame's cells are being read.
+    case reading
+    /// An exact ask: the plan request is out.
+    case planning
+    /// An exact ask: the read, the plan or the arithmetic failed.
+    case mathFailed(MathFailure)
 }
 
 /// What the reviewed answer can do besides Copy.
@@ -51,6 +57,9 @@ public enum AskPresentation {
             case .reviewing?: return .reviewing
             case .failed(let failure)?: return .failed(failure)
             case .regionFailed(let failure)?: return .regionFailed(failure)
+            case .reading?: return .reading
+            case .planning?: return .planning
+            case .mathFailed(let failure)?: return .mathFailed(failure)
             case .replacing?, nil: return .closed
             }
         case .idle, .resolving, .confirming, .acting, .inserting, .copying:
@@ -85,6 +94,49 @@ public enum AskPresentation {
         let collapsed = selection.split(whereSeparator: \.isWhitespace).joined(separator: " ")
         guard collapsed.count > limit else { return collapsed }
         return collapsed.prefix(limit) + "…"
+    }
+}
+
+/// The cells an exact answer read, drawn over the frame on screen (M13): the lens.
+public struct CellHighlights: Sendable, Equatable {
+    /// `CGDirectDisplayID` of the frame's display.
+    public let displayID: UInt32
+    /// The frame, as `RegionSummary.rect` holds it.
+    public let frame: CGRect
+    public let cells: [HighlightedCell]
+
+    public init(displayID: UInt32, frame: CGRect, cells: [HighlightedCell]) {
+        self.displayID = displayID
+        self.frame = frame
+        self.cells = cells
+    }
+}
+
+/// One cell of the lens: where it is and how it counts.
+public struct HighlightedCell: Sendable, Equatable {
+    public let id: CellID
+    public let box: CGRect
+    public let role: CellRole
+    /// The reader could not confirm it: drawn dashed.
+    public let uncertain: Bool
+
+    public init(id: CellID, box: CGRect, role: CellRole, uncertain: Bool) {
+        self.id = id
+        self.box = box
+        self.role = role
+        self.uncertain = uncertain
+    }
+}
+
+extension AskPresentation {
+    /// The cells an exact answer read, for the lens; nil without one.
+    public static func highlights(_ utterance: UtteranceContext?) -> CellHighlights? {
+        nil
+    }
+
+    /// The exact answer, for the panel; nil without one.
+    public static func exactAnswer(_ utterance: UtteranceContext?) -> ExactAnswer? {
+        nil
     }
 }
 

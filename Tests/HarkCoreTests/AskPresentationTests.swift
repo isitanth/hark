@@ -22,6 +22,12 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
             .regionFailed(.captureFailed)
         ),
         (F.regionAskFailed, false, .failed(.noVision(model: F.bonsai, reason: .noVision))),
+        (.asking(F.regionContext(), F.instruction, .reading), false, .reading),
+        (.asking(F.regionContext(), F.instruction, .planning), true, .planning),
+        (
+            .asking(F.regionContext(), F.instruction, .mathFailed(.math(.noNumber, cell: CellID(3)))), false,
+            .mathFailed(.math(.noNumber, cell: CellID(3)))
+        ),
         (.copying(F.askContext(), F.instruction, .chosen), true, .closed),
         (.idle, false, .closed),
     ])

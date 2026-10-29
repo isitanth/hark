@@ -26,10 +26,13 @@ public struct PipelineSnapshot: Sendable, Equatable {
 public struct AskUpdate: Sendable, Equatable {
     public let id: UtteranceID
     public let text: String
+    /// An exact ask's plan as it streams (M13): its `understood` line so far, never the JSON. Nil otherwise.
+    public let planText: String?
 
-    public init(id: UtteranceID, text: String) {
+    public init(id: UtteranceID, text: String, planText: String? = nil) {
         self.id = id
         self.text = text
+        self.planText = planText
     }
 }
 
@@ -47,7 +50,7 @@ public actor PipelineController {
     private let askContinuation: AsyncStream<AskUpdate>.Continuation
     private let environment: PipelineEnvironment
     private let log: UtteranceLog
-    private let reducer: PipelineReducer
+    private var reducer: PipelineReducer
     private let stopwatch = ContinuousClock()
 
     private var state = PipelineState.idle
@@ -151,9 +154,21 @@ public actor PipelineController {
         send(.regionStarted(id))
     }
 
+    /// Exact math (M13), from the config: it applies from the next press. `locale` is the user's format for the result.
+    public func setExactMath(_ on: Bool, locale: Locale) {
+        reducer.exactMath = on
+        reducer.resultLocale = locale
+    }
+
+    /// Let the model answer: today's framed ask, after a failure of the exact path or while the reader works.
+    public func retryWithoutExactMath(_ id: UtteranceID) {}
+
     /// The framed region's image, for `id` only: the app's one door for pixels. They stay in a private store, never in
-    /// the state or a snapshot, and are freed on every path to idle.
-    public func attachRegion(_ image: ImagePart, summary: RegionSummary, for id: UtteranceID) {
+    /// the state or a snapshot, and are freed on every path to idle. `raster` is the frame at the display's own
+    /// resolution, for the reader and the cell highlights of an exact ask (M13).
+    public func attachRegion(
+        _ image: ImagePart, summary: RegionSummary, for id: UtteranceID, raster: RegionRaster? = nil
+    ) {
         guard state.context?.id == id else { return }
         let previous = frames[id]
         frames[id] = image
@@ -190,6 +205,14 @@ public actor PipelineController {
 
     /// How many framed turns' pixels are held.
     public var heldFrames: Int { frames.count }
+
+    /// Whether a frame's native raster is held (M13): for the tests that check every path frees it.
+    public var holdsRaster: Bool { false }
+
+    /// The native raster of `id`'s frame, while the frame lives: what the cell highlights draw from.
+    public func raster(for id: UtteranceID) async -> RegionRaster? {
+        nil
+    }
 
     /// The answer in review, if any: the Ask key then starts a follow-up instead of a busy press.
     public var reviewingAsk: UtteranceID? {
@@ -406,6 +429,10 @@ public actor PipelineController {
             Task {
                 send(.selectionChecked(id, await env.selection.check(selection)))
             }
+
+        // Exact math's effects (M13) end the utterance until the controller runs them.
+        case .readRegion(let id), .cancelReading(let id), .plan(let id, _, _, _, _, _), .publishAnswer(let id, _):
+            Task { send(.failed(id, .readerFailed(.vision))) }
         }
     }
 }

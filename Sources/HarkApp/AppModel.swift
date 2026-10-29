@@ -540,6 +540,13 @@ final class AppModel {
         return await write(next, basedOn: snapshot)
     }
 
+    /// Writes `exact_math` (M13): Settings › Ask's toggle.
+    func saveExactMath(_ on: Bool) async -> ServerAddressProblem? {
+        let snapshot = config
+        guard let next = snapshot.config.settingExactMath(on) else { return .notAnAddress }
+        return await write(next, basedOn: snapshot)
+    }
+
     private func write(_ next: CommandConfig, basedOn snapshot: ConfigSnapshot) async -> ServerAddressProblem? {
         do throws(ConfigWriteError) {
             try await configStore.write(next.yaml(), basedOn: snapshot.diskRevision)
@@ -723,7 +730,8 @@ final class AppModel {
             if let model = snapshot.utterance?.llmModel { ask.record(.connected(model: model)) }
         case .failed(let failure):
             ask.record(.failed(failure))
-        case .awaitingRegion, .generating, .replacing, .regionFailed:
+        // A failure of the exact path says nothing about the server.
+        case .awaitingRegion, .generating, .replacing, .regionFailed, .reading, .planning, .mathFailed:
             break
         }
     }

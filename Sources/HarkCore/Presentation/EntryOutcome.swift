@@ -81,6 +81,12 @@ public enum EntryOutcome: Sendable, Equatable {
         case regionFailed
         /// A follow-up after the active profile changed: nothing was sent.
         case llmProfileChanged
+        /// An exact ask: the frame's cells could not be read.
+        case readerFailed
+        /// An exact ask: the model's calculation could not be checked.
+        case planInvalid
+        /// An exact ask: the calculation has no result.
+        case mathError
         /// A code this build does not know, or none.
         case other(String?)
     }
@@ -123,16 +129,22 @@ public enum EntryOutcome: Sendable, Equatable {
         if case .copied(let reason) = self { reason.isFallback } else { false }
     }
 
+    /// An ask whose exact path gave way to the model's answer writes why (M13); its copy is still the one the user
+    /// chose.
     private static func copyReason(_ code: String) -> CopyReason {
         switch code {
-        case ClipboardReason.noTextField.code: .noTextField
-        case ClipboardReason.secureField.code: .secureField
-        case PipelineFailure.focusChanged.code: .focusChanged
-        case PipelineFailure.insertionFailed.code: .insertionFailed
-        case PipelineFailure.insertionTimedOut.code: .insertionTimedOut
-        case PipelineFailure.pasteNotConsumed.code: .pasteNotConsumed
-        case PipelineFailure.selectionChanged.code: .selectionChanged
-        default: .other(code)
+        case ClipboardReason.noTextField.code: return .noTextField
+        case ClipboardReason.secureField.code: return .secureField
+        case PipelineFailure.focusChanged.code: return .focusChanged
+        case PipelineFailure.insertionFailed.code: return .insertionFailed
+        case PipelineFailure.insertionTimedOut.code: return .insertionTimedOut
+        case PipelineFailure.pasteNotConsumed.code: return .pasteNotConsumed
+        case PipelineFailure.selectionChanged.code: return .selectionChanged
+        default:
+            switch code.split(separator: ":", maxSplits: 1).first ?? "" {
+            case "reader_failed", "plan_invalid", "math_error": return .chosen
+            default: return .other(code)
+            }
         }
     }
 
@@ -168,6 +180,9 @@ public enum EntryOutcome: Sendable, Equatable {
         case "screen_recording_denied": return .screenRecordingDenied
         case "region_failed": return .regionFailed
         case "llm_profile_changed": return .llmProfileChanged
+        case "reader_failed": return .readerFailed
+        case "plan_invalid": return .planInvalid
+        case "math_error": return .mathError
         default: return .other(code)
         }
     }

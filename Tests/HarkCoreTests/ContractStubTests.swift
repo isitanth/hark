@@ -1,0 +1,51 @@
+import CoreGraphics
+import Foundation
+import HarkCore
+import Testing
+
+private typealias F = Fixture
+
+/// What wave 1 relies on while the M13 contract's stubs stand. Each builder deletes the rows its bodies no longer
+/// satisfy, in the commit that lands them.
+@Suite struct ContractStubTests {
+    /// S1 replaces the stub with the word check.
+    @Test func theWordCheckSendsNothingToTheExactPath() {
+        #expect(!MathIntent.isComputation("How much did I really pay this year?"))
+        #expect(!MathIntent.isComputation("Combien j'ai payé en tout ?"))
+    }
+
+    @Test func theNullReaderFailsWithVision() async throws {
+        let bitmap = try #require(
+            CGContext(
+                data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        let raster = RegionRaster(image: try #require(bitmap.makeImage()))
+        #expect(await NullRegionReader().read(raster) == .failure(.vision))
+    }
+
+    @Test func theNullPlannerFails() async {
+        let sheet = CellSheet(cells: [], convention: .plain, readMs: 0)
+        var events: [LLMEvent] = []
+        for await event in NullAskPlanner().plan(
+            instruction: "Total ?", sheet: sheet, selection: nil, image: nil, thread: nil, frames: [:],
+            correction: nil)
+        {
+            events.append(event)
+        }
+        #expect(events == [.failed(.unreachable(host: ""), LLMCallSummary())])
+    }
+
+    @Test func exactMathIsOffByDefault() {
+        #expect(!PipelineReducer().exactMath)
+        #expect(!LLMConfig.standard.exactMath)
+    }
+
+    /// With exact math off nothing stamps an ask: every existing transition is today's.
+    @Test(arguments: [
+        F.capturing, F.transcribing, F.resolving, F.inserting, F.copying, F.acting, F.askCapturing, F.askTranscribing,
+        F.generating, F.reviewing, F.awaitingRegion, F.regionAskFailed, F.assistGenerating, F.assistReviewing,
+    ])
+    func noFixtureCarriesExactMath(_ state: PipelineState) {
+        #expect(state.context?.math == nil)
+    }
+}

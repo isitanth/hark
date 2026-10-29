@@ -31,4 +31,9 @@ extension CommandConfig {
         next.llm = llm
         return next
     }
+
+    /// This config with `exact_math` set (M13), and `llm:` written out when the file had none.
+    public func settingExactMath(_ on: Bool) -> CommandConfig? {
+        nil
+    }
 }

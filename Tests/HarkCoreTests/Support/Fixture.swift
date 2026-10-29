@@ -165,6 +165,10 @@ extension PipelineEffect {
         case .generate(_, _, _, let hasRegion, _): hasRegion ? "generate+region" : "generate"
         case .cancelGeneration: "cancelGeneration"
         case .checkSelection: "checkSelection"
+        case .readRegion: "readRegion"
+        case .cancelReading: "cancelReading"
+        case .plan(_, _, _, _, _, let correction): correction == nil ? "plan" : "plan+correction"
+        case .publishAnswer: "publishAnswer"
         case .writeLog(let record):
             (["log", record.resolution.rawValue] + [record.error].compactMap(\.self)).joined(separator: ":")
         }

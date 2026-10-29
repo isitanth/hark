@@ -71,6 +71,12 @@ public enum PipelineFailure: Error, Sendable, Equatable {
     case regionFailed
     /// A follow-up, after the active profile changed since turn 1: nothing was sent.
     case llmProfileChanged
+    /// An exact ask (M13): the reader gave no sheet.
+    case readerFailed(ReaderFailure)
+    /// An exact ask: the model's plan could not be used.
+    case planInvalid(PlanDefect)
+    /// An exact ask: a cell the formula read cannot be computed with.
+    case mathError(MathDefect)
 
     /// Failures that only the microphone side can raise. Once an utterance's audio is in, a late one is stale.
     public var isCaptureFailure: Bool {
@@ -115,6 +121,9 @@ public enum PipelineFailure: Error, Sendable, Equatable {
         case .screenRecordingDenied: "screen_recording_denied"
         case .regionFailed: "region_failed"
         case .llmProfileChanged: "llm_profile_changed"
+        case .readerFailed(let failure): "reader_failed:\(failure.rawValue)"
+        case .planInvalid(let defect): "plan_invalid:\(defect.code)"
+        case .mathError(let defect): "math_error:\(defect.rawValue)"
         }
     }
 }

@@ -20,6 +20,15 @@ forbid "only Sources/HarkCore/Transcription may import whisper" \
     "$(grep -rnE '^[[:space:]]*(@[A-Za-z_]+[[:space:]]+)*import[[:space:]]+whisper([[:space:]]|$)' Sources Tests | grep -v '^Sources/HarkCore/Transcription/' || true)"
 forbid "URLSession is only allowed in URLSessionDownloader.swift and Ask/LLMClient.swift" \
     "$(grep -rn 'URLSession' Sources | grep -vE '^Sources/HarkCore/(Models/URLSessionDownloader|Ask/LLMClient)\.swift:' || true)"
+# Exact math (M13): Vision reads the frame in one file; the engine computes in Decimal, never in binary floating point
+# or through an expression evaluator. The reader's two files keep their geometry in CGFloat and Double, and no value
+# they compute reaches a result except through DisplayedNumber.
+forbid "only Sources/HarkCore/Math/VisionRegionReader.swift may import Vision" \
+    "$(grep -rnE '^[[:space:]]*(@[A-Za-z_]+[[:space:]]+)*import[[:space:]]+Vision([[:space:]]|$)' Sources Tests | grep -v '^Sources/HarkCore/Math/VisionRegionReader\.swift:' || true)"
+forbid "the exact-math engine computes in Decimal only" \
+    "$(grep -rnE 'NSExpression|JSContext|import[[:space:]]+JavaScriptCore|sqlite3_' Sources || true; grep -rnE 'Decimal\(string:|(^|[^[:alnum:]_])(Double|Float)([^[:alnum:]_]|$)' Sources/HarkCore/Math | grep -vE '^Sources/HarkCore/Math/(VisionRegionReader|SheetBuilder)\.swift:' || true)"
+forbid "the number parser reads the document's own separators" \
+    "$(grep -n 'Locale(identifier:' Sources/HarkCore/Math/DisplayedNumber.swift 2>/dev/null || true)"
 # An API key lives in the Keychain only. Sources/ holds the default commands.yaml too. A Bearer token or an sk- key
 # written out, or an api_key with a value, fails; "Bearer \(key)" and prose about Bearer do not. In YAML, a profile's
 # key: is keychain or none, nothing else.

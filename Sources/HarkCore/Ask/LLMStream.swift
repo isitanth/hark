@@ -63,10 +63,12 @@ public struct LLMCallSummary: Sendable, Equatable {
     /// The profile and model turn 1's request went to, filled by the engine: what a first follow-up pins. Nil when no
     /// request was resolved, and on a follow-up, which keeps its thread's pin.
     public var pin: ProfilePin?
+    /// A plan request's `Warning` header (M13): the server answered without enforcing the schema. Nil otherwise.
+    public var formatWarning: String?
 
     public init(
         model: String? = nil, ms: Int? = nil, finishReason: String? = nil, promptTokens: Int? = nil,
-        completionTokens: Int? = nil, pin: ProfilePin? = nil
+        completionTokens: Int? = nil, pin: ProfilePin? = nil, formatWarning: String? = nil
     ) {
         self.model = model
         self.ms = ms
@@ -74,6 +76,7 @@ public struct LLMCallSummary: Sendable, Equatable {
         self.promptTokens = promptTokens
         self.completionTokens = completionTokens
         self.pin = pin
+        self.formatWarning = formatWarning
     }
 }
 
@@ -105,6 +108,8 @@ public enum LLMFailure: Error, Sendable, Equatable {
     /// A follow-up whose conversation names a framed turn the controller holds no image for: nothing was sent, so the
     /// model is never told about an image that is not there.
     case frameMissing
+    /// A plan request (M13): the server refused the JSON schema. `model` is the id asked for, when known.
+    case formatRefused(model: String?)
 
     /// The log's code for it.
     public var pipelineFailure: PipelineFailure {
@@ -118,6 +123,7 @@ public enum LLMFailure: Error, Sendable, Equatable {
         case .noVision: .llmNoVision
         case .profileChanged: .llmProfileChanged
         case .frameMissing: .regionFailed
+        case .formatRefused: .planInvalid(.json)
         }
     }
 }
@@ -172,10 +178,14 @@ public protocol LLMTransport: Sendable {
 public struct LLMHTTPResponse: Sendable {
     public let status: Int
     public let body: AsyncThrowingStream<Data, any Error>
+    /// The response's `Warning` header, when it has one (M13): oMLX sends one with a 200 when it cannot enforce a
+    /// schema.
+    public let warning: String?
 
-    public init(status: Int, body: AsyncThrowingStream<Data, any Error>) {
+    public init(status: Int, body: AsyncThrowingStream<Data, any Error>, warning: String? = nil) {
         self.status = status
         self.body = body
+        self.warning = warning
     }
 }
 

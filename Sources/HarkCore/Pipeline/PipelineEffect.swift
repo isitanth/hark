@@ -30,4 +30,14 @@ public enum PipelineEffect: Sendable, Equatable {
     /// Brings the caller back and checks its selection is still the one asked about (`SelectionGuard`).
     case checkSelection(UtteranceID, SelectionSnapshot)
     case writeLog(UtteranceRecord)
+    /// Reads the frame's cells (M13). The controller looks the raster up; the effect never carries it.
+    case readRegion(UtteranceID)
+    case cancelReading(UtteranceID)
+    /// Streams the model's plan over `sheet`; the controller adds the frame's image, as for `generate`. `correction`
+    /// is the retry's, nil on the first attempt.
+    case plan(
+        UtteranceID, instruction: String, sheet: CellSheet, selection: SelectionSnapshot?, thread: AskThread?,
+        correction: PlanCorrection?)
+    /// The answer Hark composed, published to the panel as one update.
+    case publishAnswer(UtteranceID, String)
 }

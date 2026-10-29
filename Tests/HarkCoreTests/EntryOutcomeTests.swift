@@ -82,6 +82,16 @@ let outcomeReadCases: [OutcomeReadCase] = [
     .init("model cannot read the frame", .failed, error: "llm_no_vision", .failed(.llmNoVision)),
     .init("no Screen Recording grant", .failed, error: "screen_recording_denied", .failed(.screenRecordingDenied)),
     .init("the frame was not captured", .failed, error: "region_failed", .failed(.regionFailed)),
+    .init("the reader gave no cells", .failed, error: "reader_failed:vision", .failed(.readerFailed)),
+    .init("the reader timed out", .failed, error: "reader_failed:timeout", .failed(.readerFailed)),
+    .init("the plan was not JSON", .failed, error: "plan_invalid:json", .failed(.planInvalid)),
+    .init("the plan named no cell", .failed, error: "plan_invalid:unknown_cell", .failed(.planInvalid)),
+    .init("a cell held no number", .failed, error: "math_error:no_number", .failed(.mathError)),
+    .init("a division by zero", .failed, error: "math_error:division_by_zero", .failed(.mathError)),
+    // An exact ask that gave way to the model's answer, which the user then copied: the copy is still theirs.
+    .init("copied after the reader failed", .textClipboard, error: "reader_failed:vision", .copied(.chosen)),
+    .init("copied after the plan failed", .textClipboard, error: "plan_invalid:syntax", .copied(.chosen)),
+    .init("copied after the arithmetic failed", .textClipboard, error: "math_error:garbled", .copied(.chosen)),
     .init("an unknown failure", .failed, error: "cosmic_ray", .failed(.other("cosmic_ray"))),
     .init("a failure with no code", .failed, .failed(.other(nil))),
 ]
