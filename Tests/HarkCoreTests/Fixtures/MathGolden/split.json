@@ -1,0 +1,11904 @@
+[
+ {
+  "text": "Date",
+  "parts": [
+   "Date"
+  ]
+ },
+ {
+  "text": "Type",
+  "parts": [
+   "Type"
+  ]
+ },
+ {
+  "text": "Amount",
+  "parts": [
+   "Amount"
+  ]
+ },
+ {
+  "text": "Status",
+  "parts": [
+   "Status"
+  ]
+ },
+ {
+  "text": "Sep 22, 2026",
+  "parts": [
+   "Sep 22, 2026"
+  ]
+ },
+ {
+  "text": "Invoice",
+  "parts": [
+   "Invoice"
+  ]
+ },
+ {
+  "text": "€145.00",
+  "parts": [
+   "€145.00"
+  ]
+ },
+ {
+  "text": "Paid",
+  "parts": [
+   "Paid"
+  ]
+ },
+ {
+  "text": "Sep 8, 2026",
+  "parts": [
+   "Sep 8, 2026"
+  ]
+ },
+ {
+  "text": "Credit note",
+  "parts": [
+   "Credit note"
+  ]
+ },
+ {
+  "text": "−€62.50",
+  "parts": [
+   "−€62.50"
+  ]
+ },
+ {
+  "text": "Aug 19, 2026",
+  "parts": [
+   "Aug 19, 2026"
+  ]
+ },
+ {
+  "text": "€176.50",
+  "parts": [
+   "€176.50"
+  ]
+ },
+ {
+  "text": "Jul 28, 2026",
+  "parts": [
+   "Jul 28, 2026"
+  ]
+ },
+ {
+  "text": "€99.00",
+  "parts": [
+   "€99.00"
+  ]
+ },
+ {
+  "text": "Jun 30, 2026",
+  "parts": [
+   "Jun 30, 2026"
+  ]
+ },
+ {
+  "text": "−€112.74",
+  "parts": [
+   "−€112.74"
+  ]
+ },
+ {
+  "text": "Jun 12, 2026",
+  "parts": [
+   "Jun 12, 2026"
+  ]
+ },
+ {
+  "text": "€158.36",
+  "parts": [
+   "€158.36"
+  ]
+ },
+ {
+  "text": "May 15, 2026",
+  "parts": [
+   "May 15, 2026"
+  ]
+ },
+ {
+  "text": "€64.90",
+  "parts": [
+   "€64.90"
+  ]
+ },
+ {
+  "text": "Apr 9, 2026",
+  "parts": [
+   "Apr 9, 2026"
+  ]
+ },
+ {
+  "text": "€212.40",
+  "parts": [
+   "€212.40"
+  ]
+ },
+ {
+  "text": "Mar 18, 2026",
+  "parts": [
+   "Mar 18, 2026"
+  ]
+ },
+ {
+  "text": "−€95.00",
+  "parts": [
+   "−€95.00"
+  ]
+ },
+ {
+  "text": "Feb 24, 2026",
+  "parts": [
+   "Feb 24, 2026"
+  ]
+ },
+ {
+  "text": "€87.50",
+  "parts": [
+   "€87.50"
+  ]
+ },
+ {
+  "text": "Jan 27, 2026",
+  "parts": [
+   "Jan 27, 2026"
+  ]
+ },
+ {
+  "text": "€129.00",
+  "parts": [
+   "€129.00"
+  ]
+ },
+ {
+  "text": "Jan 6, 2026",
+  "parts": [
+   "Jan 6, 2026"
+  ]
+ },
+ {
+  "text": "€108.90",
+  "parts": [
+   "€108.90"
+  ]
+ },
+ {
+  "text": "Refunded",
+  "parts": [
+   "Refunded"
+  ]
+ },
+ {
+  "text": "Billing",
+  "parts": [
+   "Billing"
+  ]
+ },
+ {
+  "text": "corvalo.app/settings/billing",
+  "parts": [
+   "corvalo.app/settings/billing"
+  ]
+ },
+ {
+  "text": "Manage your plan, payment method and invoices.",
+  "parts": [
+   "Manage your plan, payment method and invoices."
+  ]
+ },
+ {
+  "text": "Plan",
+  "parts": [
+   "Plan"
+  ]
+ },
+ {
+  "text": "Studio · billed monthly",
+  "parts": [
+   "Studio · billed monthly"
+  ]
+ },
+ {
+  "text": "Payment method",
+  "parts": [
+   "Payment method"
+  ]
+ },
+ {
+  "text": "Card ending 4417",
+  "parts": [
+   "Card ending 4417"
+  ]
+ },
+ {
+  "text": "Expires 08/28",
+  "parts": [
+   "Expires 08/28"
+  ]
+ },
+ {
+  "text": "Billing contact",
+  "parts": [
+   "Billing contact"
+  ]
+ },
+ {
+  "text": "Nadia Ferreira",
+  "parts": [
+   "Nadia Ferreira"
+  ]
+ },
+ {
+  "text": "Invoices 2026",
+  "parts": [
+   "Invoices 2026"
+  ]
+ },
+ {
+  "text": "Showing 12 documents",
+  "parts": [
+   "Showing 12 documents"
+  ]
+ },
+ {
+  "text": "• Invoice",
+  "parts": [
+   "• Invoice"
+  ]
+ },
+ {
+  "text": "-€62.50",
+  "parts": [
+   "-€62.50"
+  ]
+ },
+ {
+  "text": "-€112.74",
+  "parts": [
+   "-€112.74"
+  ]
+ },
+ {
+  "text": "-€95.00",
+  "parts": [
+   "-€95.00"
+  ]
+ },
+ {
+  "text": "へ",
+  "parts": [
+   "へ"
+  ]
+ },
+ {
+  "text": "• corvalo.app/settings/billing",
+  "parts": [
+   "• corvalo.app/settings/billing"
+  ]
+ },
+ {
+  "text": "Dashboard",
+  "parts": [
+   "Dashboard"
+  ]
+ },
+ {
+  "text": "Projects",
+  "parts": [
+   "Projects"
+  ]
+ },
+ {
+  "text": "Roadmap - Q4 planning",
+  "parts": [
+   "Roadmap - Q4 planning"
+  ]
+ },
+ {
+  "text": "Corvalo",
+  "parts": [
+   "Corvalo"
+  ]
+ },
+ {
+  "text": "WORKSPACE",
+  "parts": [
+   "WORKSPACE"
+  ]
+ },
+ {
+  "text": "General",
+  "parts": [
+   "General"
+  ]
+ },
+ {
+  "text": "Members",
+  "parts": [
+   "Members"
+  ]
+ },
+ {
+  "text": "Integrations",
+  "parts": [
+   "Integrations"
+  ]
+ },
+ {
+  "text": "Security",
+  "parts": [
+   "Security"
+  ]
+ },
+ {
+  "text": "ACCOUNT",
+  "parts": [
+   "ACCOUNT"
+  ]
+ },
+ {
+  "text": "Profile",
+  "parts": [
+   "Profile"
+  ]
+ },
+ {
+  "text": "Notifications",
+  "parts": [
+   "Notifications"
+  ]
+ },
+ {
+  "text": "Team",
+  "parts": [
+   "Team"
+  ]
+ },
+ {
+  "text": "Settings",
+  "parts": [
+   "Settings"
+  ]
+ },
+ {
+  "text": "plan",
+  "parts": [
+   "plan"
+  ]
+ },
+ {
+  "text": "Studio • billed monthly",
+  "parts": [
+   "Studio • billed monthly"
+  ]
+ },
+ {
+  "text": "Change plan",
+  "parts": [
+   "Change plan"
+  ]
+ },
+ {
+  "text": "Invoices 2026 Showing 12 documents",
+  "parts": [
+   "Invoices 2026",
+   "Showing 12 documents"
+  ]
+ },
+ {
+  "text": "•••",
+  "parts": [
+   "•••"
+  ]
+ },
+ {
+  "text": "NF",
+  "parts": [
+   "NF"
+  ]
+ },
+ {
+  "text": "Edit contact",
+  "parts": [
+   "Edit contact"
+  ]
+ },
+ {
+  "text": "Download all",
+  "parts": [
+   "Download all"
+  ]
+ },
+ {
+  "text": "N°",
+  "parts": [
+   "N°"
+  ]
+ },
+ {
+  "text": "Fournisseur",
+  "parts": [
+   "Fournisseur"
+  ]
+ },
+ {
+  "text": "Échéance",
+  "parts": [
+   "Échéance"
+  ]
+ },
+ {
+  "text": "Montant TTC",
+  "parts": [
+   "Montant TTC"
+  ]
+ },
+ {
+  "text": "Statut",
+  "parts": [
+   "Statut"
+  ]
+ },
+ {
+  "text": "FA-2026-0412",
+  "parts": [
+   "FA-2026-0412"
+  ]
+ },
+ {
+  "text": "Imprimerie Vasseur",
+  "parts": [
+   "Imprimerie Vasseur"
+  ]
+ },
+ {
+  "text": "02/10/2026",
+  "parts": [
+   "02/10/2026"
+  ]
+ },
+ {
+  "text": "01/11/2026",
+  "parts": [
+   "01/11/2026"
+  ]
+ },
+ {
+  "text": "1 284,00 €",
+  "parts": [
+   "1 284,00 €"
+  ]
+ },
+ {
+  "text": "En attente",
+  "parts": [
+   "En attente"
+  ]
+ },
+ {
+  "text": "AK-10233",
+  "parts": [
+   "AK-10233"
+  ]
+ },
+ {
+  "text": "Assurances Kerval",
+  "parts": [
+   "Assurances Kerval"
+  ]
+ },
+ {
+  "text": "01/10/2026",
+  "parts": [
+   "01/10/2026"
+  ]
+ },
+ {
+  "text": "31/10/2026",
+  "parts": [
+   "31/10/2026"
+  ]
+ },
+ {
+  "text": "214,65 €",
+  "parts": [
+   "214,65 €"
+  ]
+ },
+ {
+  "text": "TL-26-0871",
+  "parts": [
+   "TL-26-0871"
+  ]
+ },
+ {
+  "text": "Transports Léonard",
+  "parts": [
+   "Transports Léonard"
+  ]
+ },
+ {
+  "text": "28/09/2026",
+  "parts": [
+   "28/09/2026"
+  ]
+ },
+ {
+  "text": "28/10/2026",
+  "parts": [
+   "28/10/2026"
+  ]
+ },
+ {
+  "text": "642,50 €",
+  "parts": [
+   "642,50 €"
+  ]
+ },
+ {
+  "text": "2026-1187",
+  "parts": [
+   "2026-1187"
+  ]
+ },
+ {
+  "text": "Atelier Brunel",
+  "parts": [
+   "Atelier Brunel"
+  ]
+ },
+ {
+  "text": "21/09/2026",
+  "parts": [
+   "21/09/2026"
+  ]
+ },
+ {
+  "text": "21/10/2026",
+  "parts": [
+   "21/10/2026"
+  ]
+ },
+ {
+  "text": "318,90 €",
+  "parts": [
+   "318,90 €"
+  ]
+ },
+ {
+  "text": "En retard",
+  "parts": [
+   "En retard"
+  ]
+ },
+ {
+  "text": "F26-0093",
+  "parts": [
+   "F26-0093"
+  ]
+ },
+ {
+  "text": "Cabinet Morvan",
+  "parts": [
+   "Cabinet Morvan"
+  ]
+ },
+ {
+  "text": "15/09/2026",
+  "parts": [
+   "15/09/2026"
+  ]
+ },
+ {
+  "text": "15/10/2026",
+  "parts": [
+   "15/10/2026"
+  ]
+ },
+ {
+  "text": "1 950,00 €",
+  "parts": [
+   "1 950,00 €"
+  ]
+ },
+ {
+  "text": "Payée",
+  "parts": [
+   "Payée"
+  ]
+ },
+ {
+  "text": "PDL-5520",
+  "parts": [
+   "PDL-5520"
+  ]
+ },
+ {
+  "text": "Papeterie du Lac",
+  "parts": [
+   "Papeterie du Lac"
+  ]
+ },
+ {
+  "text": "12/09/2026",
+  "parts": [
+   "12/09/2026"
+  ]
+ },
+ {
+  "text": "12/10/2026",
+  "parts": [
+   "12/10/2026"
+  ]
+ },
+ {
+  "text": "87,40 €",
+  "parts": [
+   "87,40 €"
+  ]
+ },
+ {
+  "text": "NC-0938",
+  "parts": [
+   "NC-0938"
+  ]
+ },
+ {
+  "text": "Nettoyage Clairval",
+  "parts": [
+   "Nettoyage Clairval"
+  ]
+ },
+ {
+  "text": "05/09/2026",
+  "parts": [
+   "05/09/2026"
+  ]
+ },
+ {
+  "text": "05/10/2026",
+  "parts": [
+   "05/10/2026"
+  ]
+ },
+ {
+  "text": "456,00 €",
+  "parts": [
+   "456,00 €"
+  ]
+ },
+ {
+  "text": "MA-2026-077",
+  "parts": [
+   "MA-2026-077"
+  ]
+ },
+ {
+  "text": "Menuiserie Aubry",
+  "parts": [
+   "Menuiserie Aubry"
+  ]
+ },
+ {
+  "text": "30/08/2026",
+  "parts": [
+   "30/08/2026"
+  ]
+ },
+ {
+  "text": "29/09/2026",
+  "parts": [
+   "29/09/2026"
+  ]
+ },
+ {
+  "text": "2 310,75 €",
+  "parts": [
+   "2 310,75 €"
+  ]
+ },
+ {
+  "text": "EG-14862",
+  "parts": [
+   "EG-14862"
+  ]
+ },
+ {
+  "text": "Électricité Garnier",
+  "parts": [
+   "Électricité Garnier"
+  ]
+ },
+ {
+  "text": "25/08/2026",
+  "parts": [
+   "25/08/2026"
+  ]
+ },
+ {
+  "text": "24/09/2026",
+  "parts": [
+   "24/09/2026"
+  ]
+ },
+ {
+  "text": "735,20 €",
+  "parts": [
+   "735,20 €"
+  ]
+ },
+ {
+  "text": "FD-3391",
+  "parts": [
+   "FD-3391"
+  ]
+ },
+ {
+  "text": "Fournitures Delmas",
+  "parts": [
+   "Fournitures Delmas"
+  ]
+ },
+ {
+  "text": "18/08/2026",
+  "parts": [
+   "18/08/2026"
+  ]
+ },
+ {
+  "text": "17/09/2026",
+  "parts": [
+   "17/09/2026"
+  ]
+ },
+ {
+  "text": "129,95 €",
+  "parts": [
+   "129,95 €"
+  ]
+ },
+ {
+  "text": "LMR-0614",
+  "parts": [
+   "LMR-0614"
+  ]
+ },
+ {
+  "text": "Location Matériel Rives",
+  "parts": [
+   "Location Matériel Rives"
+  ]
+ },
+ {
+  "text": "10/08/2026",
+  "parts": [
+   "10/08/2026"
+  ]
+ },
+ {
+  "text": "09/09/2026",
+  "parts": [
+   "09/09/2026"
+  ]
+ },
+ {
+  "text": "1 080,00 €",
+  "parts": [
+   "1 080,00 €"
+  ]
+ },
+ {
+  "text": "Factures fournisseurs",
+  "parts": [
+   "Factures fournisseurs"
+  ]
+ },
+ {
+  "text": "11 factures",
+  "parts": [
+   "11 factures"
+  ]
+ },
+ {
+  "text": "Toutes",
+  "parts": [
+   "Toutes"
+  ]
+ },
+ {
+  "text": "À payer",
+  "parts": [
+   "À payer"
+  ]
+ },
+ {
+  "text": "Payées",
+  "parts": [
+   "Payées"
+  ]
+ },
+ {
+  "text": "Rechercher",
+  "parts": [
+   "Rechercher"
+  ]
+ },
+ {
+  "text": "11 factures · triées par date d’émission",
+  "parts": [
+   "11 factures · triées par date d’émission"
+  ]
+ },
+ {
+  "text": "11",
+  "parts": [
+   "11"
+  ]
+ },
+ {
+  "text": "Fournisseurs",
+  "parts": [
+   "Fournisseurs"
+  ]
+ },
+ {
+  "text": "Notes de frais",
+  "parts": [
+   "Notes de frais"
+  ]
+ },
+ {
+  "text": "Ventes",
+  "parts": [
+   "Ventes"
+  ]
+ },
+ {
+  "text": "Factures clients",
+  "parts": [
+   "Factures clients"
+  ]
+ },
+ {
+  "text": "Devis",
+  "parts": [
+   "Devis"
+  ]
+ },
+ {
+  "text": "Clients",
+  "parts": [
+   "Clients"
+  ]
+ },
+ {
+  "text": "Banque",
+  "parts": [
+   "Banque"
+  ]
+ },
+ {
+  "text": "Rapprochement",
+  "parts": [
+   "Rapprochement"
+  ]
+ },
+ {
+  "text": "Factures fournisseurs\n11 factures",
+  "parts": [
+   "Factures fournisseurs\n11 factures"
+  ]
+ },
+ {
+  "text": "À payer\nPayées",
+  "parts": [
+   "À payer\nPayées"
+  ]
+ },
+ {
+  "text": "Q Rechercher",
+  "parts": [
+   "Q Rechercher"
+  ]
+ },
+ {
+  "text": "N。\nFournisseur",
+  "parts": [
+   "N。\nFournisseur"
+  ]
+ },
+ {
+  "text": "Date •",
+  "parts": [
+   "Date •"
+  ]
+ },
+ {
+  "text": "FA-2026-0412\nImprimerie Vasseur",
+  "parts": [
+   "FA-2026-0412\nImprimerie Vasseur"
+  ]
+ },
+ {
+  "text": "1 284,00 €",
+  "parts": [
+   "1 284,00 €"
+  ]
+ },
+ {
+  "text": "AK-10233\nAssurances Kerval",
+  "parts": [
+   "AK-10233\nAssurances Kerval"
+  ]
+ },
+ {
+  "text": "214,65 €",
+  "parts": [
+   "214,65 €"
+  ]
+ },
+ {
+  "text": "TL-26-0871\nTransports Léonard",
+  "parts": [
+   "TL-26-0871\nTransports Léonard"
+  ]
+ },
+ {
+  "text": "28/09/202ćł",
+  "parts": [
+   "28/09/202ćł"
+  ]
+ },
+ {
+  "text": "642,50 €",
+  "parts": [
+   "642,50 €"
+  ]
+ },
+ {
+  "text": "2026-1187\nAtelier Brunel",
+  "parts": [
+   "2026-1187\nAtelier Brunel"
+  ]
+ },
+ {
+  "text": "318,90 €",
+  "parts": [
+   "318,90 €"
+  ]
+ },
+ {
+  "text": "F26-0093\nCabinet Morvan\nPDL-5520\nPapeterie du Lac",
+  "parts": [
+   "F26-0093\nCabinet Morvan\nPDL-5520\nPapeterie du Lac"
+  ]
+ },
+ {
+  "text": "15/09/2026\n12/09/2026",
+  "parts": [
+   "15/09/2026\n12/09/2026"
+  ]
+ },
+ {
+  "text": "15/10/2026\n12/10/2026",
+  "parts": [
+   "15/10/2026\n12/10/2026"
+  ]
+ },
+ {
+  "text": "1 950,00 €\n87,40 €",
+  "parts": [
+   "1 950,00 €",
+   "87,40 €"
+  ]
+ },
+ {
+  "text": "Payée\nPayée",
+  "parts": [
+   "Payée\nPayée"
+  ]
+ },
+ {
+  "text": "NC-0938\nNettoyage Clairval",
+  "parts": [
+   "NC-0938\nNettoyage Clairval"
+  ]
+ },
+ {
+  "text": "456,00 €",
+  "parts": [
+   "456,00 €"
+  ]
+ },
+ {
+  "text": "MA-2026-077\nMenuiserie Aubry",
+  "parts": [
+   "MA-2026-077\nMenuiserie Aubry"
+  ]
+ },
+ {
+  "text": "2 310,75 €",
+  "parts": [
+   "2 310,75 €"
+  ]
+ },
+ {
+  "text": "EG-14862\nÉlectricité Garnier",
+  "parts": [
+   "EG-14862\nÉlectricité Garnier"
+  ]
+ },
+ {
+  "text": "735,20 łą",
+  "parts": [
+   "735,20 łą"
+  ]
+ },
+ {
+  "text": "FD-3391\nFournitures Delmas",
+  "parts": [
+   "FD-3391\nFournitures Delmas"
+  ]
+ },
+ {
+  "text": "129,95 €",
+  "parts": [
+   "129,95 €"
+  ]
+ },
+ {
+  "text": "LMR-0614\nLocation Matériel Rives",
+  "parts": [
+   "LMR-0614\nLocation Matériel Rives"
+  ]
+ },
+ {
+  "text": "1 080,00 €",
+  "parts": [
+   "1 080,00 €"
+  ]
+ },
+ {
+  "text": "Achats",
+  "parts": [
+   "Achats"
+  ]
+ },
+ {
+  "text": "11 factures • triées par date d'émission",
+  "parts": [
+   "11 factures • triées par date d'émission"
+  ]
+ },
+ {
+  "text": "+",
+  "parts": [
+   "+"
+  ]
+ },
+ {
+  "text": "Libellé",
+  "parts": [
+   "Libellé"
+  ]
+ },
+ {
+  "text": "Catégorie",
+  "parts": [
+   "Catégorie"
+  ]
+ },
+ {
+  "text": "Montant",
+  "parts": [
+   "Montant"
+  ]
+ },
+ {
+  "text": "24/10",
+  "parts": [
+   "24/10"
+  ]
+ },
+ {
+  "text": "CB LE COMPTOIR DES ARTS",
+  "parts": [
+   "CB LE COMPTOIR DES ARTS"
+  ]
+ },
+ {
+  "text": "Restaurants",
+  "parts": [
+   "Restaurants"
+  ]
+ },
+ {
+  "text": "−38,40 €",
+  "parts": [
+   "−38,40 €"
+  ]
+ },
+ {
+  "text": "23/10",
+  "parts": [
+   "23/10"
+  ]
+ },
+ {
+  "text": "CB MARCHÉ FRAIS ODÉON",
+  "parts": [
+   "CB MARCHÉ FRAIS ODÉON"
+  ]
+ },
+ {
+  "text": "Courses",
+  "parts": [
+   "Courses"
+  ]
+ },
+ {
+  "text": "−64,17 €",
+  "parts": [
+   "−64,17 €"
+  ]
+ },
+ {
+  "text": "22/10",
+  "parts": [
+   "22/10"
+  ]
+ },
+ {
+  "text": "PRLV TÉLÉPHONIE ALTIS",
+  "parts": [
+   "PRLV TÉLÉPHONIE ALTIS"
+  ]
+ },
+ {
+  "text": "Abonnements",
+  "parts": [
+   "Abonnements"
+  ]
+ },
+ {
+  "text": "−19,99 €",
+  "parts": [
+   "−19,99 €"
+  ]
+ },
+ {
+  "text": "21/10",
+  "parts": [
+   "21/10"
+  ]
+ },
+ {
+  "text": "CB TRATTORIA DEL PONTE",
+  "parts": [
+   "CB TRATTORIA DEL PONTE"
+  ]
+ },
+ {
+  "text": "−52,00 €",
+  "parts": [
+   "−52,00 €"
+  ]
+ },
+ {
+  "text": "19/10",
+  "parts": [
+   "19/10"
+  ]
+ },
+ {
+  "text": "CB BOULANGERIE MAISON FERRAND",
+  "parts": [
+   "CB BOULANGERIE MAISON FERRAND"
+  ]
+ },
+ {
+  "text": "−8,60 €",
+  "parts": [
+   "−8,60 €"
+  ]
+ },
+ {
+  "text": "18/10",
+  "parts": [
+   "18/10"
+  ]
+ },
+ {
+  "text": "VIR RECU J. DUPRAT",
+  "parts": [
+   "VIR RECU J. DUPRAT"
+  ]
+ },
+ {
+  "text": "Virements reçus",
+  "parts": [
+   "Virements reçus"
+  ]
+ },
+ {
+  "text": "+45,00 €",
+  "parts": [
+   "+45,00 €"
+  ]
+ },
+ {
+  "text": "17/10",
+  "parts": [
+   "17/10"
+  ]
+ },
+ {
+  "text": "CB SUSHI KAZE",
+  "parts": [
+   "CB SUSHI KAZE"
+  ]
+ },
+ {
+  "text": "−27,80 €",
+  "parts": [
+   "−27,80 €"
+  ]
+ },
+ {
+  "text": "15/10",
+  "parts": [
+   "15/10"
+  ]
+ },
+ {
+  "text": "CB STATION RELAIS A6",
+  "parts": [
+   "CB STATION RELAIS A6"
+  ]
+ },
+ {
+  "text": "Transport",
+  "parts": [
+   "Transport"
+  ]
+ },
+ {
+  "text": "−71,35 €",
+  "parts": [
+   "−71,35 €"
+  ]
+ },
+ {
+  "text": "14/10",
+  "parts": [
+   "14/10"
+  ]
+ },
+ {
+  "text": "PRLV LOYER SCI DES TILLEULS",
+  "parts": [
+   "PRLV LOYER SCI DES TILLEULS"
+  ]
+ },
+ {
+  "text": "Logement",
+  "parts": [
+   "Logement"
+  ]
+ },
+ {
+  "text": "−845,00 €",
+  "parts": [
+   "−845,00 €"
+  ]
+ },
+ {
+  "text": "12/10",
+  "parts": [
+   "12/10"
+  ]
+ },
+ {
+  "text": "CB CINÉMA LE LUX",
+  "parts": [
+   "CB CINÉMA LE LUX"
+  ]
+ },
+ {
+  "text": "Loisirs",
+  "parts": [
+   "Loisirs"
+  ]
+ },
+ {
+  "text": "−23,00 €",
+  "parts": [
+   "−23,00 €"
+  ]
+ },
+ {
+  "text": "11/10",
+  "parts": [
+   "11/10"
+  ]
+ },
+ {
+  "text": "CB BRASSERIE DU MARCHÉ",
+  "parts": [
+   "CB BRASSERIE DU MARCHÉ"
+  ]
+ },
+ {
+  "text": "−64,50 €",
+  "parts": [
+   "−64,50 €"
+  ]
+ },
+ {
+  "text": "09/10",
+  "parts": [
+   "09/10"
+  ]
+ },
+ {
+  "text": "CB PHARMACIE DES QUAIS",
+  "parts": [
+   "CB PHARMACIE DES QUAIS"
+  ]
+ },
+ {
+  "text": "Santé",
+  "parts": [
+   "Santé"
+  ]
+ },
+ {
+  "text": "−16,90 €",
+  "parts": [
+   "−16,90 €"
+  ]
+ },
+ {
+  "text": "07/10",
+  "parts": [
+   "07/10"
+  ]
+ },
+ {
+  "text": "CB SUPERMARCHÉ PRIMEUR",
+  "parts": [
+   "CB SUPERMARCHÉ PRIMEUR"
+  ]
+ },
+ {
+  "text": "−112,48 €",
+  "parts": [
+   "−112,48 €"
+  ]
+ },
+ {
+  "text": "05/10",
+  "parts": [
+   "05/10"
+  ]
+ },
+ {
+  "text": "CB CRÊPERIE TY GWENN",
+  "parts": [
+   "CB CRÊPERIE TY GWENN"
+  ]
+ },
+ {
+  "text": "−31,20 €",
+  "parts": [
+   "−31,20 €"
+  ]
+ },
+ {
+  "text": "03/10",
+  "parts": [
+   "03/10"
+  ]
+ },
+ {
+  "text": "VIR SALAIRE ATELIERS MERLIN",
+  "parts": [
+   "VIR SALAIRE ATELIERS MERLIN"
+  ]
+ },
+ {
+  "text": "Revenus",
+  "parts": [
+   "Revenus"
+  ]
+ },
+ {
+  "text": "+2 315,00 €",
+  "parts": [
+   "+2 315,00 €"
+  ]
+ },
+ {
+  "text": "02/10",
+  "parts": [
+   "02/10"
+  ]
+ },
+ {
+  "text": "CB CAFÉ DE LA GARE",
+  "parts": [
+   "CB CAFÉ DE LA GARE"
+  ]
+ },
+ {
+  "text": "−12,40 €",
+  "parts": [
+   "−12,40 €"
+  ]
+ },
+ {
+  "text": "01/10",
+  "parts": [
+   "01/10"
+  ]
+ },
+ {
+  "text": "PRLV ÉNERGIES DU RHÔNE",
+  "parts": [
+   "PRLV ÉNERGIES DU RHÔNE"
+  ]
+ },
+ {
+  "text": "−68,70 €",
+  "parts": [
+   "−68,70 €"
+  ]
+ },
+ {
+  "text": "Banque Lisière",
+  "parts": [
+   "Banque Lisière"
+  ]
+ },
+ {
+  "text": "Compte courant",
+  "parts": [
+   "Compte courant"
+  ]
+ },
+ {
+  "text": "M. Julien Arnaud · n° •••• 7731",
+  "parts": [
+   "M. Julien Arnaud · n° •••• 7731"
+  ]
+ },
+ {
+  "text": "Solde au 24/10/2026",
+  "parts": [
+   "Solde au 24/10/2026"
+  ]
+ },
+ {
+  "text": "1 846,12 €",
+  "parts": [
+   "1 846,12 €"
+  ]
+ },
+ {
+  "text": "Octobre 2026",
+  "parts": [
+   "Octobre 2026"
+  ]
+ },
+ {
+  "text": "Opérations",
+  "parts": [
+   "Opérations"
+  ]
+ },
+ {
+  "text": "Toutes les catégories ▾",
+  "parts": [
+   "Toutes les catégories ▾"
+  ]
+ },
+ {
+  "text": "17 opérations",
+  "parts": [
+   "17 opérations"
+  ]
+ },
+ {
+  "text": "Opérations\nOctobre 2026",
+  "parts": [
+   "Opérations\nOctobre 2026"
+  ]
+ },
+ {
+  "text": "Toutes les catégories - 17 opérations",
+  "parts": [
+   "Toutes les catégories - 17 opérations"
+  ]
+ },
+ {
+  "text": "Date\nLibellé",
+  "parts": [
+   "Date\nLibellé"
+  ]
+ },
+ {
+  "text": "24/10\nCB LE COMPTOIR DES ARTS",
+  "parts": [
+   "24/10\nCB LE COMPTOIR DES ARTS"
+  ]
+ },
+ {
+  "text": "• Restaurants",
+  "parts": [
+   "• Restaurants"
+  ]
+ },
+ {
+  "text": "-38,40 €",
+  "parts": [
+   "-38,40 €"
+  ]
+ },
+ {
+  "text": "23/10\nCB MARCHÉ FRAIS ODÉON",
+  "parts": [
+   "23/10\nCB MARCHÉ FRAIS ODÉON"
+  ]
+ },
+ {
+  "text": "• Courses",
+  "parts": [
+   "• Courses"
+  ]
+ },
+ {
+  "text": "-64,17 €",
+  "parts": [
+   "-64,17 €"
+  ]
+ },
+ {
+  "text": "22/10\nPRLV TÉLÉPHONIE ALTIS",
+  "parts": [
+   "22/10\nPRLV TÉLÉPHONIE ALTIS"
+  ]
+ },
+ {
+  "text": "• Abonnements",
+  "parts": [
+   "• Abonnements"
+  ]
+ },
+ {
+  "text": "-19,99 €",
+  "parts": [
+   "-19,99 €"
+  ]
+ },
+ {
+  "text": "21/10\nCB TRATTORIA DEL PONTE",
+  "parts": [
+   "21/10\nCB TRATTORIA DEL PONTE"
+  ]
+ },
+ {
+  "text": "-52,00 €",
+  "parts": [
+   "-52,00 €"
+  ]
+ },
+ {
+  "text": "19/10\nCB BOULANGERIE MAISON FERRAND",
+  "parts": [
+   "19/10\nCB BOULANGERIE MAISON FERRAND"
+  ]
+ },
+ {
+  "text": "-8,60 €",
+  "parts": [
+   "-8,60 €"
+  ]
+ },
+ {
+  "text": "18/10\nVIR RECU J. DUPRAT",
+  "parts": [
+   "18/10\nVIR RECU J. DUPRAT"
+  ]
+ },
+ {
+  "text": "• Virements reçus",
+  "parts": [
+   "• Virements reçus"
+  ]
+ },
+ {
+  "text": "+45,00 €",
+  "parts": [
+   "+45,00 €"
+  ]
+ },
+ {
+  "text": "17/10\nCB SUSHI KAZE",
+  "parts": [
+   "17/10\nCB SUSHI KAZE"
+  ]
+ },
+ {
+  "text": "-27,80 €",
+  "parts": [
+   "-27,80 €"
+  ]
+ },
+ {
+  "text": "15/10\nCB STATION RELAIS A6",
+  "parts": [
+   "15/10\nCB STATION RELAIS A6"
+  ]
+ },
+ {
+  "text": "• Transport",
+  "parts": [
+   "• Transport"
+  ]
+ },
+ {
+  "text": "-71,35 €",
+  "parts": [
+   "-71,35 €"
+  ]
+ },
+ {
+  "text": "14/10\nPRLV LOYER SCI DES TILLEULS",
+  "parts": [
+   "14/10\nPRLV LOYER SCI DES TILLEULS"
+  ]
+ },
+ {
+  "text": "• Logement",
+  "parts": [
+   "• Logement"
+  ]
+ },
+ {
+  "text": "-845,00 €",
+  "parts": [
+   "-845,00 €"
+  ]
+ },
+ {
+  "text": "12/10\nCB CINÉMA LE LUX",
+  "parts": [
+   "12/10\nCB CINÉMA LE LUX"
+  ]
+ },
+ {
+  "text": "• Loisirs",
+  "parts": [
+   "• Loisirs"
+  ]
+ },
+ {
+  "text": "-23,00 €",
+  "parts": [
+   "-23,00 €"
+  ]
+ },
+ {
+  "text": "11/10\nCB BRASSERIE DU MARCHE",
+  "parts": [
+   "11/10\nCB BRASSERIE DU MARCHE"
+  ]
+ },
+ {
+  "text": "-64,50 €",
+  "parts": [
+   "-64,50 €"
+  ]
+ },
+ {
+  "text": "09/10\nCB PHARMACIE DES QUAIS",
+  "parts": [
+   "09/10\nCB PHARMACIE DES QUAIS"
+  ]
+ },
+ {
+  "text": "• Santé",
+  "parts": [
+   "• Santé"
+  ]
+ },
+ {
+  "text": "- 16,90 €",
+  "parts": [
+   "- 16,90 €"
+  ]
+ },
+ {
+  "text": "07/10\nCB SUPERMARCHE PRIMEUR",
+  "parts": [
+   "07/10\nCB SUPERMARCHE PRIMEUR"
+  ]
+ },
+ {
+  "text": "- 112,48 €",
+  "parts": [
+   "- 112,48 €"
+  ]
+ },
+ {
+  "text": "05/10\nCB CRÊPERIE TY GWENN",
+  "parts": [
+   "05/10\nCB CRÊPERIE TY GWENN"
+  ]
+ },
+ {
+  "text": "-31,20 €",
+  "parts": [
+   "-31,20 €"
+  ]
+ },
+ {
+  "text": "03/10\nVIR SALAIRE ATELIERS MERLIN",
+  "parts": [
+   "03/10\nVIR SALAIRE ATELIERS MERLIN"
+  ]
+ },
+ {
+  "text": "• Revenus",
+  "parts": [
+   "• Revenus"
+  ]
+ },
+ {
+  "text": "+2315,00 €",
+  "parts": [
+   "+2315,00 €"
+  ]
+ },
+ {
+  "text": "02/10\nCB CAFÉ DE LA GARE",
+  "parts": [
+   "02/10\nCB CAFÉ DE LA GARE"
+  ]
+ },
+ {
+  "text": "-12,40 €",
+  "parts": [
+   "-12,40 €"
+  ]
+ },
+ {
+  "text": "01/10\nPRLV ÉNERGIES DU RHÔNE",
+  "parts": [
+   "01/10\nPRLV ÉNERGIES DU RHÔNE"
+  ]
+ },
+ {
+  "text": "-68,70 €",
+  "parts": [
+   "-68,70 €"
+  ]
+ },
+ {
+  "text": "Mes comptes",
+  "parts": [
+   "Mes comptes"
+  ]
+ },
+ {
+  "text": "Virements",
+  "parts": [
+   "Virements"
+  ]
+ },
+ {
+  "text": "Cartes",
+  "parts": [
+   "Cartes"
+  ]
+ },
+ {
+  "text": "Épargne",
+  "parts": [
+   "Épargne"
+  ]
+ },
+ {
+  "text": "Messagerie",
+  "parts": [
+   "Messagerie"
+  ]
+ },
+ {
+  "text": "M. Julien Arnaud • n° ... • 7731",
+  "parts": [
+   "M. Julien Arnaud • n° ... • 7731"
+  ]
+ },
+ {
+  "text": "Déconnexion",
+  "parts": [
+   "Déconnexion"
+  ]
+ },
+ {
+  "text": "1846,12 €",
+  "parts": [
+   "1846,12 €"
+  ]
+ },
+ {
+  "text": "Description",
+  "parts": [
+   "Description"
+  ]
+ },
+ {
+  "text": "Debit",
+  "parts": [
+   "Debit"
+  ]
+ },
+ {
+  "text": "Credit",
+  "parts": [
+   "Credit"
+  ]
+ },
+ {
+  "text": "Balance",
+  "parts": [
+   "Balance"
+  ]
+ },
+ {
+  "text": "10/01",
+  "parts": [
+   "10/01"
+  ]
+ },
+ {
+  "text": "Beginning balance",
+  "parts": [
+   "Beginning balance"
+  ]
+ },
+ {
+  "text": "$1,912.44",
+  "parts": [
+   "$1,912.44"
+  ]
+ },
+ {
+  "text": "10/02",
+  "parts": [
+   "10/02"
+  ]
+ },
+ {
+  "text": "Direct deposit · HALVORSEN LOGISTICS PAYROLL",
+  "parts": [
+   "Direct deposit · HALVORSEN LOGISTICS PAYROLL"
+  ]
+ },
+ {
+  "text": "2,145.83",
+  "parts": [
+   "2,145.83"
+  ]
+ },
+ {
+  "text": "4,058.27",
+  "parts": [
+   "4,058.27"
+  ]
+ },
+ {
+  "text": "10/03",
+  "parts": [
+   "10/03"
+  ]
+ },
+ {
+  "text": "Rent · Maple Court Apartments",
+  "parts": [
+   "Rent · Maple Court Apartments"
+  ]
+ },
+ {
+  "text": "1,650.00",
+  "parts": [
+   "1,650.00"
+  ]
+ },
+ {
+  "text": "2,408.27",
+  "parts": [
+   "2,408.27"
+  ]
+ },
+ {
+  "text": "10/04",
+  "parts": [
+   "10/04"
+  ]
+ },
+ {
+  "text": "Debit card purchase · GREENLEAF MARKET",
+  "parts": [
+   "Debit card purchase · GREENLEAF MARKET"
+  ]
+ },
+ {
+  "text": "86.42",
+  "parts": [
+   "86.42"
+  ]
+ },
+ {
+  "text": "2,321.85",
+  "parts": [
+   "2,321.85"
+  ]
+ },
+ {
+  "text": "10/06",
+  "parts": [
+   "10/06"
+  ]
+ },
+ {
+  "text": "Online bill pay · Riverside Water & Power",
+  "parts": [
+   "Online bill pay · Riverside Water & Power"
+  ]
+ },
+ {
+  "text": "74.18",
+  "parts": [
+   "74.18"
+  ]
+ },
+ {
+  "text": "2,247.67",
+  "parts": [
+   "2,247.67"
+  ]
+ },
+ {
+  "text": "10/08",
+  "parts": [
+   "10/08"
+  ]
+ },
+ {
+  "text": "Debit card purchase · CORNER FUEL #22",
+  "parts": [
+   "Debit card purchase · CORNER FUEL #22"
+  ]
+ },
+ {
+  "text": "48.10",
+  "parts": [
+   "48.10"
+  ]
+ },
+ {
+  "text": "2,199.57",
+  "parts": [
+   "2,199.57"
+  ]
+ },
+ {
+  "text": "10/09",
+  "parts": [
+   "10/09"
+  ]
+ },
+ {
+  "text": "Mobile check deposit · Check #1042",
+  "parts": [
+   "Mobile check deposit · Check #1042"
+  ]
+ },
+ {
+  "text": "350.00",
+  "parts": [
+   "350.00"
+  ]
+ },
+ {
+  "text": "2,549.57",
+  "parts": [
+   "2,549.57"
+  ]
+ },
+ {
+  "text": "10/11",
+  "parts": [
+   "10/11"
+  ]
+ },
+ {
+  "text": "ATM withdrawal · 5th & Elm",
+  "parts": [
+   "ATM withdrawal · 5th & Elm"
+  ]
+ },
+ {
+  "text": "100.00",
+  "parts": [
+   "100.00"
+  ]
+ },
+ {
+  "text": "2,449.57",
+  "parts": [
+   "2,449.57"
+  ]
+ },
+ {
+  "text": "10/13",
+  "parts": [
+   "10/13"
+  ]
+ },
+ {
+  "text": "Debit card purchase · BLUE KETTLE CAFE",
+  "parts": [
+   "Debit card purchase · BLUE KETTLE CAFE"
+  ]
+ },
+ {
+  "text": "12.75",
+  "parts": [
+   "12.75"
+  ]
+ },
+ {
+  "text": "2,436.82",
+  "parts": [
+   "2,436.82"
+  ]
+ },
+ {
+  "text": "10/15",
+  "parts": [
+   "10/15"
+  ]
+ },
+ {
+  "text": "Transfer to Savings ••6630",
+  "parts": [
+   "Transfer to Savings ••6630"
+  ]
+ },
+ {
+  "text": "300.00",
+  "parts": [
+   "300.00"
+  ]
+ },
+ {
+  "text": "2,136.82",
+  "parts": [
+   "2,136.82"
+  ]
+ },
+ {
+  "text": "10/16",
+  "parts": [
+   "10/16"
+  ]
+ },
+ {
+  "text": "4,282.65",
+  "parts": [
+   "4,282.65"
+  ]
+ },
+ {
+  "text": "10/19",
+  "parts": [
+   "10/19"
+  ]
+ },
+ {
+  "text": "Check #318",
+  "parts": [
+   "Check #318"
+  ]
+ },
+ {
+  "text": "220.00",
+  "parts": [
+   "220.00"
+  ]
+ },
+ {
+  "text": "4,062.65",
+  "parts": [
+   "4,062.65"
+  ]
+ },
+ {
+  "text": "10/21",
+  "parts": [
+   "10/21"
+  ]
+ },
+ {
+  "text": "ATM cash deposit · Main St branch",
+  "parts": [
+   "ATM cash deposit · Main St branch"
+  ]
+ },
+ {
+  "text": "200.00",
+  "parts": [
+   "200.00"
+  ]
+ },
+ {
+  "text": "4,262.65",
+  "parts": [
+   "4,262.65"
+  ]
+ },
+ {
+  "text": "10/23",
+  "parts": [
+   "10/23"
+  ]
+ },
+ {
+  "text": "Debit card purchase · HOMEWORKS HARDWARE",
+  "parts": [
+   "Debit card purchase · HOMEWORKS HARDWARE"
+  ]
+ },
+ {
+  "text": "63.29",
+  "parts": [
+   "63.29"
+  ]
+ },
+ {
+  "text": "4,199.36",
+  "parts": [
+   "4,199.36"
+  ]
+ },
+ {
+  "text": "10/25",
+  "parts": [
+   "10/25"
+  ]
+ },
+ {
+  "text": "Online bill pay · Summit Auto Loan",
+  "parts": [
+   "Online bill pay · Summit Auto Loan"
+  ]
+ },
+ {
+  "text": "389.62",
+  "parts": [
+   "389.62"
+  ]
+ },
+ {
+  "text": "3,809.74",
+  "parts": [
+   "3,809.74"
+  ]
+ },
+ {
+  "text": "10/27",
+  "parts": [
+   "10/27"
+  ]
+ },
+ {
+  "text": "Mobile check deposit · Check #1057",
+  "parts": [
+   "Mobile check deposit · Check #1057"
+  ]
+ },
+ {
+  "text": "1,275.50",
+  "parts": [
+   "1,275.50"
+  ]
+ },
+ {
+  "text": "5,085.24",
+  "parts": [
+   "5,085.24"
+  ]
+ },
+ {
+  "text": "10/29",
+  "parts": [
+   "10/29"
+  ]
+ },
+ {
+  "text": "Monthly maintenance fee",
+  "parts": [
+   "Monthly maintenance fee"
+  ]
+ },
+ {
+  "text": "12.00",
+  "parts": [
+   "12.00"
+  ]
+ },
+ {
+  "text": "5,073.24",
+  "parts": [
+   "5,073.24"
+  ]
+ },
+ {
+  "text": "10/30",
+  "parts": [
+   "10/30"
+  ]
+ },
+ {
+  "text": "54.88",
+  "parts": [
+   "54.88"
+  ]
+ },
+ {
+  "text": "5,018.36",
+  "parts": [
+   "5,018.36"
+  ]
+ },
+ {
+  "text": "10/31",
+  "parts": [
+   "10/31"
+  ]
+ },
+ {
+  "text": "Ending balance",
+  "parts": [
+   "Ending balance"
+  ]
+ },
+ {
+  "text": "$5,018.36",
+  "parts": [
+   "$5,018.36"
+  ]
+ },
+ {
+  "text": "Cedar Hollow Credit Union",
+  "parts": [
+   "Cedar Hollow Credit Union"
+  ]
+ },
+ {
+  "text": "Accounts › Statements & documents",
+  "parts": [
+   "Accounts › Statements & documents"
+  ]
+ },
+ {
+  "text": "Everyday Checking ••2208",
+  "parts": [
+   "Everyday Checking ••2208"
+  ]
+ },
+ {
+  "text": "Statement period: October 1 – October 31, 2026",
+  "parts": [
+   "Statement period: October 1 – October 31, 2026"
+  ]
+ },
+ {
+  "text": "October 2026 ▾",
+  "parts": [
+   "October 2026 ▾"
+  ]
+ },
+ {
+  "text": "Download PDF",
+  "parts": [
+   "Download PDF"
+  ]
+ },
+ {
+  "text": "Account activity",
+  "parts": [
+   "Account activity"
+  ]
+ },
+ {
+  "text": "Amounts in US dollars",
+  "parts": [
+   "Amounts in US dollars"
+  ]
+ },
+ {
+  "text": "Direct deposit • HALVORSEN LOGISTICS PAYROLL",
+  "parts": [
+   "Direct deposit • HALVORSEN LOGISTICS PAYROLL"
+  ]
+ },
+ {
+  "text": "Rent • Maple Court Apartments",
+  "parts": [
+   "Rent • Maple Court Apartments"
+  ]
+ },
+ {
+  "text": "Debit card purchase • GREENLEAF MARKETI",
+  "parts": [
+   "Debit card purchase • GREENLEAF MARKETI"
+  ]
+ },
+ {
+  "text": "Online bill pay • Riverside Water & Power",
+  "parts": [
+   "Online bill pay • Riverside Water & Power"
+  ]
+ },
+ {
+  "text": "Debit card purchase • CORNER FUEL #22",
+  "parts": [
+   "Debit card purchase • CORNER FUEL #22"
+  ]
+ },
+ {
+  "text": "Mobile check deposit • Check #1042",
+  "parts": [
+   "Mobile check deposit • Check #1042"
+  ]
+ },
+ {
+  "text": "ATM withdrawal • 5th & Elm",
+  "parts": [
+   "ATM withdrawal • 5th & Elm"
+  ]
+ },
+ {
+  "text": "Debit card purchase • BLUE KETTLE CAFE",
+  "parts": [
+   "Debit card purchase • BLUE KETTLE CAFE"
+  ]
+ },
+ {
+  "text": "2,436.82.",
+  "parts": [
+   "2,436.82."
+  ]
+ },
+ {
+  "text": "Transfer to Savings • •6630",
+  "parts": [
+   "Transfer to Savings • •6630"
+  ]
+ },
+ {
+  "text": "ATM cash deposit • Main St branch",
+  "parts": [
+   "ATM cash deposit • Main St branch"
+  ]
+ },
+ {
+  "text": "Debit card purchase • HOMEWORKS HARDWARE",
+  "parts": [
+   "Debit card purchase • HOMEWORKS HARDWARE"
+  ]
+ },
+ {
+  "text": "Online bill pay • Summit Auto Loan",
+  "parts": [
+   "Online bill pay • Summit Auto Loan"
+  ]
+ },
+ {
+  "text": "Mobile check deposit • Check #1057",
+  "parts": [
+   "Mobile check deposit • Check #1057"
+  ]
+ },
+ {
+  "text": "1,275.5łął",
+  "parts": [
+   "1,275.5łął"
+  ]
+ },
+ {
+  "text": "Debit card purchase • GREENLEAF MARKET",
+  "parts": [
+   "Debit card purchase • GREENLEAF MARKET"
+  ]
+ },
+ {
+  "text": "Accounts",
+  "parts": [
+   "Accounts"
+  ]
+ },
+ {
+  "text": "Transfers",
+  "parts": [
+   "Transfers"
+  ]
+ },
+ {
+  "text": "Bill pay",
+  "parts": [
+   "Bill pay"
+  ]
+ },
+ {
+  "text": "Statements",
+  "parts": [
+   "Statements"
+  ]
+ },
+ {
+  "text": "Statement period: October 1 - October 31, 2026",
+  "parts": [
+   "Statement period: October 1 - October 31, 2026"
+  ]
+ },
+ {
+  "text": "DM",
+  "parts": [
+   "DM"
+  ]
+ },
+ {
+  "text": "Dana Mercer",
+  "parts": [
+   "Dana Mercer"
+  ]
+ },
+ {
+  "text": "October 2026 •",
+  "parts": [
+   "October 2026 •"
+  ]
+ },
+ {
+  "text": "Money in",
+  "parts": [
+   "Money in"
+  ]
+ },
+ {
+  "text": "Money out",
+  "parts": [
+   "Money out"
+  ]
+ },
+ {
+  "text": "01 Oct",
+  "parts": [
+   "01 Oct"
+  ]
+ },
+ {
+  "text": "Hollins Grocers",
+  "parts": [
+   "Hollins Grocers"
+  ]
+ },
+ {
+  "text": "Card payment",
+  "parts": [
+   "Card payment"
+  ]
+ },
+ {
+  "text": "£42.18",
+  "parts": [
+   "£42.18"
+  ]
+ },
+ {
+  "text": "02 Oct",
+  "parts": [
+   "02 Oct"
+  ]
+ },
+ {
+  "text": "Brackenford District Council",
+  "parts": [
+   "Brackenford District Council"
+  ]
+ },
+ {
+  "text": "Direct debit",
+  "parts": [
+   "Direct debit"
+  ]
+ },
+ {
+  "text": "£154.00",
+  "parts": [
+   "£154.00"
+  ]
+ },
+ {
+  "text": "03 Oct",
+  "parts": [
+   "03 Oct"
+  ]
+ },
+ {
+  "text": "S Okafor",
+  "parts": [
+   "S Okafor"
+  ]
+ },
+ {
+  "text": "Faster payment",
+  "parts": [
+   "Faster payment"
+  ]
+ },
+ {
+  "text": "£60.00",
+  "parts": [
+   "£60.00"
+  ]
+ },
+ {
+  "text": "05 Oct",
+  "parts": [
+   "05 Oct"
+  ]
+ },
+ {
+  "text": "The Copper Kettle",
+  "parts": [
+   "The Copper Kettle"
+  ]
+ },
+ {
+  "text": "£18.40",
+  "parts": [
+   "£18.40"
+  ]
+ },
+ {
+  "text": "07 Oct",
+  "parts": [
+   "07 Oct"
+  ]
+ },
+ {
+  "text": "Maple Mews Lettings",
+  "parts": [
+   "Maple Mews Lettings"
+  ]
+ },
+ {
+  "text": "Standing order",
+  "parts": [
+   "Standing order"
+  ]
+ },
+ {
+  "text": "£875.00",
+  "parts": [
+   "£875.00"
+  ]
+ },
+ {
+  "text": "10 Oct",
+  "parts": [
+   "10 Oct"
+  ]
+ },
+ {
+  "text": "Brightway Rail",
+  "parts": [
+   "Brightway Rail"
+  ]
+ },
+ {
+  "text": "£36.90",
+  "parts": [
+   "£36.90"
+  ]
+ },
+ {
+  "text": "12 Oct",
+  "parts": [
+   "12 Oct"
+  ]
+ },
+ {
+  "text": "Refund",
+  "parts": [
+   "Refund"
+  ]
+ },
+ {
+  "text": "£7.25",
+  "parts": [
+   "£7.25"
+  ]
+ },
+ {
+  "text": "15 Oct",
+  "parts": [
+   "15 Oct"
+  ]
+ },
+ {
+  "text": "Pemberton Analytics Ltd",
+  "parts": [
+   "Pemberton Analytics Ltd"
+  ]
+ },
+ {
+  "text": "Salary",
+  "parts": [
+   "Salary"
+  ]
+ },
+ {
+  "text": "£2,418.62",
+  "parts": [
+   "£2,418.62"
+  ]
+ },
+ {
+  "text": "16 Oct",
+  "parts": [
+   "16 Oct"
+  ]
+ },
+ {
+  "text": "Tidewater Energy",
+  "parts": [
+   "Tidewater Energy"
+  ]
+ },
+ {
+  "text": "£97.33",
+  "parts": [
+   "£97.33"
+  ]
+ },
+ {
+  "text": "18 Oct",
+  "parts": [
+   "18 Oct"
+  ]
+ },
+ {
+  "text": "Oakfield Pharmacy",
+  "parts": [
+   "Oakfield Pharmacy"
+  ]
+ },
+ {
+  "text": "£11.49",
+  "parts": [
+   "£11.49"
+  ]
+ },
+ {
+  "text": "20 Oct",
+  "parts": [
+   "20 Oct"
+  ]
+ },
+ {
+  "text": "Cash machine, High St",
+  "parts": [
+   "Cash machine, High St"
+  ]
+ },
+ {
+  "text": "Cash withdrawal",
+  "parts": [
+   "Cash withdrawal"
+  ]
+ },
+ {
+  "text": "£50.00",
+  "parts": [
+   "£50.00"
+  ]
+ },
+ {
+  "text": "21 Oct",
+  "parts": [
+   "21 Oct"
+  ]
+ },
+ {
+  "text": "To Rainy Day Pot",
+  "parts": [
+   "To Rainy Day Pot"
+  ]
+ },
+ {
+  "text": "Transfer",
+  "parts": [
+   "Transfer"
+  ]
+ },
+ {
+  "text": "£200.00",
+  "parts": [
+   "£200.00"
+  ]
+ },
+ {
+  "text": "23 Oct",
+  "parts": [
+   "23 Oct"
+  ]
+ },
+ {
+  "text": "£63.71",
+  "parts": [
+   "£63.71"
+  ]
+ },
+ {
+  "text": "24 Oct",
+  "parts": [
+   "24 Oct"
+  ]
+ },
+ {
+  "text": "J Whitlock",
+  "parts": [
+   "J Whitlock"
+  ]
+ },
+ {
+  "text": "£25.00",
+  "parts": [
+   "£25.00"
+  ]
+ },
+ {
+  "text": "Larkspur",
+  "parts": [
+   "Larkspur"
+  ]
+ },
+ {
+  "text": "Everyday Current Account",
+  "parts": [
+   "Everyday Current Account"
+  ]
+ },
+ {
+  "text": "Current account · ••••8826",
+  "parts": [
+   "Current account · ••••8826"
+  ]
+ },
+ {
+  "text": "Transactions",
+  "parts": [
+   "Transactions"
+  ]
+ },
+ {
+  "text": "1 Oct 2026 – 24 Oct 2026 ▾",
+  "parts": [
+   "1 Oct 2026 – 24 Oct 2026 ▾"
+  ]
+ },
+ {
+  "text": "Opening balance on 1 October 2026",
+  "parts": [
+   "Opening balance on 1 October 2026"
+  ]
+ },
+ {
+  "text": "£1,284.37",
+  "parts": [
+   "£1,284.37"
+  ]
+ },
+ {
+  "text": "14 transactions",
+  "parts": [
+   "14 transactions"
+  ]
+ },
+ {
+  "text": "£1,284.37\nMoney out",
+  "parts": [
+   "£1,284.37\nMoney out"
+  ]
+ },
+ {
+  "text": "£2,418.6ąłą",
+  "parts": [
+   "£2,418.6ąłą"
+  ]
+ },
+ {
+  "text": "十",
+  "parts": [
+   "十"
+  ]
+ },
+ {
+  "text": "Home",
+  "parts": [
+   "Home"
+  ]
+ },
+ {
+  "text": "Payments",
+  "parts": [
+   "Payments"
+  ]
+ },
+ {
+  "text": "• Savings",
+  "parts": [
+   "• Savings"
+  ]
+ },
+ {
+  "text": "• Help",
+  "parts": [
+   "• Help"
+  ]
+ },
+ {
+  "text": "Current account • •••• 8826",
+  "parts": [
+   "Current account • •••• 8826"
+  ]
+ },
+ {
+  "text": "Standing orders",
+  "parts": [
+   "Standing orders"
+  ]
+ },
+ {
+  "text": "Account details",
+  "parts": [
+   "Account details"
+  ]
+ },
+ {
+  "text": "1 Oct 2026 - 24 Oct 2026 •",
+  "parts": [
+   "1 Oct 2026 - 24 Oct 2026 •"
+  ]
+ },
+ {
+  "text": "All types •",
+  "parts": [
+   "All types •"
+  ]
+ },
+ {
+  "text": "Seats",
+  "parts": [
+   "Seats"
+  ]
+ },
+ {
+  "text": "Price / seat / month",
+  "parts": [
+   "Price / seat / month"
+  ]
+ },
+ {
+  "text": "Engineering",
+  "parts": [
+   "Engineering"
+  ]
+ },
+ {
+  "text": "Pro",
+  "parts": [
+   "Pro"
+  ]
+ },
+ {
+  "text": "28",
+  "parts": [
+   "28"
+  ]
+ },
+ {
+  "text": "$19.50",
+  "parts": [
+   "$19.50"
+  ]
+ },
+ {
+  "text": "Active",
+  "parts": [
+   "Active"
+  ]
+ },
+ {
+  "text": "Product Design",
+  "parts": [
+   "Product Design"
+  ]
+ },
+ {
+  "text": "9",
+  "parts": [
+   "9"
+  ]
+ },
+ {
+  "text": "Customer Support",
+  "parts": [
+   "Customer Support"
+  ]
+ },
+ {
+  "text": "Starter",
+  "parts": [
+   "Starter"
+  ]
+ },
+ {
+  "text": "14",
+  "parts": [
+   "14"
+  ]
+ },
+ {
+  "text": "$9.00",
+  "parts": [
+   "$9.00"
+  ]
+ },
+ {
+  "text": "Sales EMEA",
+  "parts": [
+   "Sales EMEA"
+  ]
+ },
+ {
+  "text": "Cancelled",
+  "parts": [
+   "Cancelled"
+  ]
+ },
+ {
+  "text": "Data Platform",
+  "parts": [
+   "Data Platform"
+  ]
+ },
+ {
+  "text": "Enterprise",
+  "parts": [
+   "Enterprise"
+  ]
+ },
+ {
+  "text": "6",
+  "parts": [
+   "6"
+  ]
+ },
+ {
+  "text": "$38.75",
+  "parts": [
+   "$38.75"
+  ]
+ },
+ {
+  "text": "Marketing",
+  "parts": [
+   "Marketing"
+  ]
+ },
+ {
+  "text": "8",
+  "parts": [
+   "8"
+  ]
+ },
+ {
+  "text": "Finance & Ops",
+  "parts": [
+   "Finance & Ops"
+  ]
+ },
+ {
+  "text": "5",
+  "parts": [
+   "5"
+  ]
+ },
+ {
+  "text": "3",
+  "parts": [
+   "3"
+  ]
+ },
+ {
+  "text": "Halden Labs",
+  "parts": [
+   "Halden Labs"
+  ]
+ },
+ {
+  "text": "Billing & seats",
+  "parts": [
+   "Billing & seats"
+  ]
+ },
+ {
+  "text": "Billed monthly in USD · renews Nov 1, 2026",
+  "parts": [
+   "Billed monthly in USD · renews Nov 1, 2026"
+  ]
+ },
+ {
+  "text": "Active seats",
+  "parts": [
+   "Active seats"
+  ]
+ },
+ {
+  "text": "65",
+  "parts": [
+   "65"
+  ]
+ },
+ {
+  "text": "Billing cycle",
+  "parts": [
+   "Billing cycle"
+  ]
+ },
+ {
+  "text": "Monthly",
+  "parts": [
+   "Monthly"
+  ]
+ },
+ {
+  "text": "Next renewal",
+  "parts": [
+   "Next renewal"
+  ]
+ },
+ {
+  "text": "Nov 1, 2026",
+  "parts": [
+   "Nov 1, 2026"
+  ]
+ },
+ {
+  "text": "Seats by team",
+  "parts": [
+   "Seats by team"
+  ]
+ },
+ {
+  "text": "+ Add team",
+  "parts": [
+   "+ Add team"
+  ]
+ },
+ {
+  "text": "• Active",
+  "parts": [
+   "• Active"
+  ]
+ },
+ {
+  "text": "• Cancelled",
+  "parts": [
+   "• Cancelled"
+  ]
+ },
+ {
+  "text": "H",
+  "parts": [
+   "H"
+  ]
+ },
+ {
+  "text": "Workspace settings",
+  "parts": [
+   "Workspace settings"
+  ]
+ },
+ {
+  "text": "Billed monthly in USD • renews Nov 1, 2026",
+  "parts": [
+   "Billed monthly in USD • renews Nov 1, 2026"
+  ]
+ },
+ {
+  "text": "ORGANIZATION",
+  "parts": [
+   "ORGANIZATION"
+  ]
+ },
+ {
+  "text": "Overview",
+  "parts": [
+   "Overview"
+  ]
+ },
+ {
+  "text": "Teams",
+  "parts": [
+   "Teams"
+  ]
+ },
+ {
+  "text": "ADMIN",
+  "parts": [
+   "ADMIN"
+  ]
+ },
+ {
+  "text": "Audit log",
+  "parts": [
+   "Audit log"
+  ]
+ },
+ {
+  "text": "API tokens",
+  "parts": [
+   "API tokens"
+  ]
+ },
+ {
+  "text": "Libellé de l’opération",
+  "parts": [
+   "Libellé de l’opération"
+  ]
+ },
+ {
+  "text": "Ville",
+  "parts": [
+   "Ville"
+  ]
+ },
+ {
+  "text": "Montant (EUR)",
+  "parts": [
+   "Montant (EUR)"
+  ]
+ },
+ {
+  "text": "LIBRAIRIE DES CARMES",
+  "parts": [
+   "LIBRAIRIE DES CARMES"
+  ]
+ },
+ {
+  "text": "TOULOUSE",
+  "parts": [
+   "TOULOUSE"
+  ]
+ },
+ {
+  "text": "34,50",
+  "parts": [
+   "34,50"
+  ]
+ },
+ {
+  "text": "04/10",
+  "parts": [
+   "04/10"
+  ]
+ },
+ {
+  "text": "HÔTEL LES GLYCINES",
+  "parts": [
+   "HÔTEL LES GLYCINES"
+  ]
+ },
+ {
+  "text": "ANNECY",
+  "parts": [
+   "ANNECY"
+  ]
+ },
+ {
+  "text": "312,00",
+  "parts": [
+   "312,00"
+  ]
+ },
+ {
+  "text": "ÉLECTROMÉNAGER DUVAL",
+  "parts": [
+   "ÉLECTROMÉNAGER DUVAL"
+  ]
+ },
+ {
+  "text": "LYON",
+  "parts": [
+   "LYON"
+  ]
+ },
+ {
+  "text": "1 089,99",
+  "parts": [
+   "1 089,99"
+  ]
+ },
+ {
+  "text": "RESTAURANT L'OLIVIER",
+  "parts": [
+   "RESTAURANT L'OLIVIER"
+  ]
+ },
+ {
+  "text": "58,40",
+  "parts": [
+   "58,40"
+  ]
+ },
+ {
+  "text": "REMB. ÉLECTROMÉNAGER DUVAL",
+  "parts": [
+   "REMB. ÉLECTROMÉNAGER DUVAL"
+  ]
+ },
+ {
+  "text": "(129,99)",
+  "parts": [
+   "(129,99)"
+  ]
+ },
+ {
+  "text": "PHARMACIE CENTRALE",
+  "parts": [
+   "PHARMACIE CENTRALE"
+  ]
+ },
+ {
+  "text": "23,15",
+  "parts": [
+   "23,15"
+  ]
+ },
+ {
+  "text": "VÊTEMENTS MAËLLE",
+  "parts": [
+   "VÊTEMENTS MAËLLE"
+  ]
+ },
+ {
+  "text": "VILLEURBANNE",
+  "parts": [
+   "VILLEURBANNE"
+  ]
+ },
+ {
+  "text": "89,00",
+  "parts": [
+   "89,00"
+  ]
+ },
+ {
+  "text": "16/10",
+  "parts": [
+   "16/10"
+  ]
+ },
+ {
+  "text": "REMB. VÊTEMENTS MAËLLE",
+  "parts": [
+   "REMB. VÊTEMENTS MAËLLE"
+  ]
+ },
+ {
+  "text": "(35,00)",
+  "parts": [
+   "(35,00)"
+  ]
+ },
+ {
+  "text": "GARAGE DES PINS",
+  "parts": [
+   "GARAGE DES PINS"
+  ]
+ },
+ {
+  "text": "BRON",
+  "parts": [
+   "BRON"
+  ]
+ },
+ {
+  "text": "246,30",
+  "parts": [
+   "246,30"
+  ]
+ },
+ {
+  "text": "20/10",
+  "parts": [
+   "20/10"
+  ]
+ },
+ {
+  "text": "BILLETTERIE RAIL EXPRESS",
+  "parts": [
+   "BILLETTERIE RAIL EXPRESS"
+  ]
+ },
+ {
+  "text": "74,00",
+  "parts": [
+   "74,00"
+  ]
+ },
+ {
+  "text": "SUPERMARCHÉ LES HALLES",
+  "parts": [
+   "SUPERMARCHÉ LES HALLES"
+  ]
+ },
+ {
+  "text": "96,82",
+  "parts": [
+   "96,82"
+  ]
+ },
+ {
+  "text": "25/10",
+  "parts": [
+   "25/10"
+  ]
+ },
+ {
+  "text": "AVOIR HÔTEL LES GLYCINES",
+  "parts": [
+   "AVOIR HÔTEL LES GLYCINES"
+  ]
+ },
+ {
+  "text": "(48,00)",
+  "parts": [
+   "(48,00)"
+  ]
+ },
+ {
+  "text": "27/10",
+  "parts": [
+   "27/10"
+  ]
+ },
+ {
+  "text": "CAVE À VINS LE CEP",
+  "parts": [
+   "CAVE À VINS LE CEP"
+  ]
+ },
+ {
+  "text": "41,60",
+  "parts": [
+   "41,60"
+  ]
+ },
+ {
+  "text": "29/10",
+  "parts": [
+   "29/10"
+  ]
+ },
+ {
+  "text": "ABONNEMENT CINÉVISION",
+  "parts": [
+   "ABONNEMENT CINÉVISION"
+  ]
+ },
+ {
+  "text": "PARIS",
+  "parts": [
+   "PARIS"
+  ]
+ },
+ {
+  "text": "13,99",
+  "parts": [
+   "13,99"
+  ]
+ },
+ {
+  "text": "Releve_carte_octobre_2026.pdf",
+  "parts": [
+   "Releve_carte_octobre_2026.pdf"
+  ]
+ },
+ {
+  "text": "Page 1",
+  "parts": [
+   "Page 1"
+  ]
+ },
+ {
+  "text": "sur 1",
+  "parts": [
+   "sur 1"
+  ]
+ },
+ {
+  "text": "Banque Halbrand",
+  "parts": [
+   "Banque Halbrand"
+  ]
+ },
+ {
+  "text": "Relevé des opérations carte",
+  "parts": [
+   "Relevé des opérations carte"
+  ]
+ },
+ {
+  "text": "Carte Opaline · débit différé",
+  "parts": [
+   "Carte Opaline · débit différé"
+  ]
+ },
+ {
+  "text": "Mme Claire Fontanel",
+  "parts": [
+   "Mme Claire Fontanel"
+  ]
+ },
+ {
+  "text": "Carte n° •••• •••• •••• 5093",
+  "parts": [
+   "Carte n° •••• •••• •••• 5093"
+  ]
+ },
+ {
+  "text": "Période : du 01/10/2026 au 31/10/2026",
+  "parts": [
+   "Période : du 01/10/2026 au 31/10/2026"
+  ]
+ },
+ {
+  "text": "Date de prélèvement : 05/11/2026",
+  "parts": [
+   "Date de prélèvement : 05/11/2026"
+  ]
+ },
+ {
+  "text": "Les montants entre parenthèses sont des crédits (remboursements, avoirs).",
+  "parts": [
+   "Les montants entre parenthèses sont des crédits (remboursements, avoirs)."
+  ]
+ },
+ {
+  "text": "Banque Halbrand · Relevé des opérations carte · page 1/1",
+  "parts": [
+   "Banque Halbrand · Relevé des opérations carte · page 1/1"
+  ]
+ },
+ {
+  "text": "Page 1 sur 1",
+  "parts": [
+   "Page 1",
+   "sur 1"
+  ]
+ },
+ {
+  "text": "Libellé de l'opération",
+  "parts": [
+   "Libellé de l'opération"
+  ]
+ },
+ {
+  "text": "1 089,9",
+  "parts": [
+   "1 089,9"
+  ]
+ },
+ {
+  "text": "Carte Opaline • débit différé",
+  "parts": [
+   "Carte Opaline • débit différé"
+  ]
+ },
+ {
+  "text": "Carte n°",
+  "parts": [
+   "Carte n°"
+  ]
+ },
+ {
+  "text": "••5093",
+  "parts": [
+   "••5093"
+  ]
+ },
+ {
+  "text": "Banque Halbrand • Relevé des opérations carte • page 1/1",
+  "parts": [
+   "Banque Halbrand • Relevé des opérations carte • page 1/1"
+  ]
+ },
+ {
+  "text": "LAIT DEMI-ÉCRÉMÉ 1L",
+  "parts": [
+   "LAIT DEMI-ÉCRÉMÉ 1L"
+  ]
+ },
+ {
+  "text": "x 1,09",
+  "parts": [
+   "x 1,09"
+  ]
+ },
+ {
+  "text": "6,54",
+  "parts": [
+   "6,54"
+  ]
+ },
+ {
+  "text": "A",
+  "parts": [
+   "A"
+  ]
+ },
+ {
+  "text": "BAGUETTE TRADITION",
+  "parts": [
+   "BAGUETTE TRADITION"
+  ]
+ },
+ {
+  "text": "1,10",
+  "parts": [
+   "1,10"
+  ]
+ },
+ {
+  "text": "LESSIVE LIQUIDE 2L",
+  "parts": [
+   "LESSIVE LIQUIDE 2L"
+  ]
+ },
+ {
+  "text": "9,45",
+  "parts": [
+   "9,45"
+  ]
+ },
+ {
+  "text": "B",
+  "parts": [
+   "B"
+  ]
+ },
+ {
+  "text": "POMMES GALA",
+  "parts": [
+   "POMMES GALA"
+  ]
+ },
+ {
+  "text": "1,236 kg",
+  "parts": [
+   "1,236 kg"
+  ]
+ },
+ {
+  "text": "x 2,49 €/kg",
+  "parts": [
+   "x 2,49 €/kg"
+  ]
+ },
+ {
+  "text": "3,08",
+  "parts": [
+   "3,08"
+  ]
+ },
+ {
+  "text": "YAOURTS NATURE X8",
+  "parts": [
+   "YAOURTS NATURE X8"
+  ]
+ },
+ {
+  "text": "2,35",
+  "parts": [
+   "2,35"
+  ]
+ },
+ {
+  "text": "REMISE IMMÉDIATE",
+  "parts": [
+   "REMISE IMMÉDIATE"
+  ]
+ },
+ {
+  "text": "−0,50",
+  "parts": [
+   "−0,50"
+  ]
+ },
+ {
+  "text": "ESSUIE-TOUT X4",
+  "parts": [
+   "ESSUIE-TOUT X4"
+  ]
+ },
+ {
+  "text": "2",
+  "parts": [
+   "2"
+  ]
+ },
+ {
+  "text": "x 3,29",
+  "parts": [
+   "x 3,29"
+  ]
+ },
+ {
+  "text": "6,58",
+  "parts": [
+   "6,58"
+  ]
+ },
+ {
+  "text": "CAFÉ MOULU 250G",
+  "parts": [
+   "CAFÉ MOULU 250G"
+  ]
+ },
+ {
+  "text": "3,79",
+  "parts": [
+   "3,79"
+  ]
+ },
+ {
+  "text": "VIN ROUGE CÔTES 75CL",
+  "parts": [
+   "VIN ROUGE CÔTES 75CL"
+  ]
+ },
+ {
+  "text": "5,90",
+  "parts": [
+   "5,90"
+  ]
+ },
+ {
+  "text": "PÂTES FUSILLI 500G",
+  "parts": [
+   "PÂTES FUSILLI 500G"
+  ]
+ },
+ {
+  "text": "0,89",
+  "parts": [
+   "0,89"
+  ]
+ },
+ {
+  "text": "SHAMPOOING DOUX 250ML",
+  "parts": [
+   "SHAMPOOING DOUX 250ML"
+  ]
+ },
+ {
+  "text": "2,65",
+  "parts": [
+   "2,65"
+  ]
+ },
+ {
+  "text": "BEURRE DOUX 250G",
+  "parts": [
+   "BEURRE DOUX 250G"
+  ]
+ },
+ {
+  "text": "2,49",
+  "parts": [
+   "2,49"
+  ]
+ },
+ {
+  "text": "PILES AA X4",
+  "parts": [
+   "PILES AA X4"
+  ]
+ },
+ {
+  "text": "4,99",
+  "parts": [
+   "4,99"
+  ]
+ },
+ {
+  "text": "EAU MINÉRALE 6X1,5L",
+  "parts": [
+   "EAU MINÉRALE 6X1,5L"
+  ]
+ },
+ {
+  "text": "2,10",
+  "parts": [
+   "2,10"
+  ]
+ },
+ {
+  "text": "Tilleuls & Moi",
+  "parts": [
+   "Tilleuls & Moi"
+  ]
+ },
+ {
+  "text": "Mes tickets",
+  "parts": [
+   "Mes tickets"
+  ]
+ },
+ {
+  "text": "OCTOBRE 2026",
+  "parts": [
+   "OCTOBRE 2026"
+  ]
+ },
+ {
+  "text": "Mar. 20 oct. Marché des Tilleuls · Lyon 8e 51,41 €",
+  "parts": [
+   "Mar. 20 oct. Marché des Tilleuls · Lyon 8e 51,41 €"
+  ]
+ },
+ {
+  "text": "19 articles",
+  "parts": [
+   "19 articles"
+  ]
+ },
+ {
+  "text": "Ven. 16 oct. Marché des Tilleuls · Lyon 8e 23,87 €",
+  "parts": [
+   "Ven. 16 oct. Marché des Tilleuls · Lyon 8e 23,87 €"
+  ]
+ },
+ {
+  "text": "7 articles",
+  "parts": [
+   "7 articles"
+  ]
+ },
+ {
+  "text": "Dim. 11 oct. Marché des Tilleuls · Lyon 8e 74,02 €",
+  "parts": [
+   "Dim. 11 oct. Marché des Tilleuls · Lyon 8e 74,02 €"
+  ]
+ },
+ {
+  "text": "26 articles",
+  "parts": [
+   "26 articles"
+  ]
+ },
+ {
+  "text": "Mer. 7 oct. Marché des Tilleuls · Villeurbanne 12,60 €",
+  "parts": [
+   "Mer. 7 oct. Marché des Tilleuls · Villeurbanne 12,60 €"
+  ]
+ },
+ {
+  "text": "4 articles",
+  "parts": [
+   "4 articles"
+  ]
+ },
+ {
+  "text": "Ven. 2 oct. Marché des Tilleuls · Lyon 8e 38,15 €",
+  "parts": [
+   "Ven. 2 oct. Marché des Tilleuls · Lyon 8e 38,15 €"
+  ]
+ },
+ {
+  "text": "13 articles",
+  "parts": [
+   "13 articles"
+  ]
+ },
+ {
+  "text": "Sam. 26 sept. Marché des Tilleuls · Lyon 8e 56,30 €",
+  "parts": [
+   "Sam. 26 sept. Marché des Tilleuls · Lyon 8e 56,30 €"
+  ]
+ },
+ {
+  "text": "21 articles",
+  "parts": [
+   "21 articles"
+  ]
+ },
+ {
+  "text": "MARCHÉ DES TILLEULS",
+  "parts": [
+   "MARCHÉ DES TILLEULS"
+  ]
+ },
+ {
+  "text": "12 rue des Tilleuls",
+  "parts": [
+   "12 rue des Tilleuls"
+  ]
+ },
+ {
+  "text": "69008 Lyon",
+  "parts": [
+   "69008 Lyon"
+  ]
+ },
+ {
+  "text": "20/10/2026 18:42",
+  "parts": [
+   "20/10/2026 18:42"
+  ]
+ },
+ {
+  "text": "Caisse 04",
+  "parts": [
+   "Caisse 04"
+  ]
+ },
+ {
+  "text": "· Ticket 0187",
+  "parts": [
+   "· Ticket 0187"
+  ]
+ },
+ {
+  "text": "19 ARTICLES",
+  "parts": [
+   "19 ARTICLES"
+  ]
+ },
+ {
+  "text": "TOTAL 51,41 €",
+  "parts": [
+   "TOTAL 51,41 €"
+  ]
+ },
+ {
+  "text": "CB SANS CONTACT 51,41 €",
+  "parts": [
+   "CB SANS CONTACT 51,41 €"
+  ]
+ },
+ {
+  "text": "CODES TVA",
+  "parts": [
+   "CODES TVA"
+  ]
+ },
+ {
+  "text": "A = TVA 5,5 %",
+  "parts": [
+   "A = TVA 5,5 %"
+  ]
+ },
+ {
+  "text": "B = TVA 20 %",
+  "parts": [
+   "B = TVA 20 %"
+  ]
+ },
+ {
+  "text": "Merci de votre visite !",
+  "parts": [
+   "Merci de votre visite !"
+  ]
+ },
+ {
+  "text": "À bientôt",
+  "parts": [
+   "À bientôt"
+  ]
+ },
+ {
+  "text": "6 x 1,09",
+  "parts": [
+   "6",
+   "x 1,09"
+  ]
+ },
+ {
+  "text": "1,236 kg x 2,49 €/kg",
+  "parts": [
+   "1,236 kg",
+   "x 2,49 €/kg"
+  ]
+ },
+ {
+  "text": "2 x 3,29",
+  "parts": [
+   "2",
+   "x 3,29"
+  ]
+ },
+ {
+  "text": "Mar. 20 oct. Marché des Tilleuls · Lyon 8e 51,41 € 19 articles",
+  "parts": [
+   "Mar. 20 oct. Marché des Tilleuls · Lyon 8e 51,41 €",
+   "19 articles"
+  ]
+ },
+ {
+  "text": "Ven. 16 oct. Marché des Tilleuls · Lyon 8e 23,87 € 7 articles",
+  "parts": [
+   "Ven. 16 oct. Marché des Tilleuls · Lyon 8e 23,87 €",
+   "7 articles"
+  ]
+ },
+ {
+  "text": "Dim. 11 oct. Marché des Tilleuls · Lyon 8e 74,02 € 26 articles",
+  "parts": [
+   "Dim. 11 oct. Marché des Tilleuls · Lyon 8e 74,02 €",
+   "26 articles"
+  ]
+ },
+ {
+  "text": "Mer. 7 oct. Marché des Tilleuls · Villeurbanne 12,60 € 4 articles",
+  "parts": [
+   "Mer. 7 oct. Marché des Tilleuls · Villeurbanne 12,60 €",
+   "4 articles"
+  ]
+ },
+ {
+  "text": "Ven. 2 oct. Marché des Tilleuls · Lyon 8e 38,15 € 13 articles",
+  "parts": [
+   "Ven. 2 oct. Marché des Tilleuls · Lyon 8e 38,15 €",
+   "13 articles"
+  ]
+ },
+ {
+  "text": "Sam. 26 sept. Marché des Tilleuls · Lyon 8e 56,30 € 21 articles",
+  "parts": [
+   "Sam. 26 sept. Marché des Tilleuls · Lyon 8e 56,30 €",
+   "21 articles"
+  ]
+ },
+ {
+  "text": "Caisse 04 · Ticket 0187",
+  "parts": [
+   "Caisse 04",
+   "· Ticket 0187"
+  ]
+ },
+ {
+  "text": "Tickets dématérialisés de votre carte",
+  "parts": [
+   "Tickets dématérialisés de votre carte"
+  ]
+ },
+ {
+  "text": "Mar. 20 oct.\nMarché des Tilleuls • Lyon 8e",
+  "parts": [
+   "Mar. 20 oct.\nMarché des Tilleuls • Lyon 8e"
+  ]
+ },
+ {
+  "text": "51,41 €\n19 articles",
+  "parts": [
+   "51,41 €",
+   "19 articles"
+  ]
+ },
+ {
+  "text": "Ven. 16 oct.\nMarché des Tilleuls • Lyon 8e",
+  "parts": [
+   "Ven. 16 oct.\nMarché des Tilleuls • Lyon 8e"
+  ]
+ },
+ {
+  "text": "23,87 €\n7 articles",
+  "parts": [
+   "23,87 €",
+   "7 articles"
+  ]
+ },
+ {
+  "text": "Dim. 11 oct.\nMarché des Tilleuls • Lyon 8e",
+  "parts": [
+   "Dim. 11 oct.\nMarché des Tilleuls • Lyon 8e"
+  ]
+ },
+ {
+  "text": "74,02 €\n26 articles",
+  "parts": [
+   "74,02 €",
+   "26 articles"
+  ]
+ },
+ {
+  "text": "Mer. 7 oct.\nMarché des Tilleuls • Villeurbanne 4 articles",
+  "parts": [
+   "Mer. 7 oct.\nMarché des Tilleuls • Villeurbanne 4 articles"
+  ]
+ },
+ {
+  "text": "12,60 €",
+  "parts": [
+   "12,60 €"
+  ]
+ },
+ {
+  "text": "Ven. 2 oct.\nMarché des Tilleuls • Lyon 8e",
+  "parts": [
+   "Ven. 2 oct.\nMarché des Tilleuls • Lyon 8e"
+  ]
+ },
+ {
+  "text": "38,15 €\n13 articles",
+  "parts": [
+   "38,15 €",
+   "13 articles"
+  ]
+ },
+ {
+  "text": "Sam. 26 sept.\nMarché des Tilleuls • Lyon 8e",
+  "parts": [
+   "Sam. 26 sept.\nMarché des Tilleuls • Lyon 8e"
+  ]
+ },
+ {
+  "text": "56,30 €\n21 articles",
+  "parts": [
+   "56,30 €",
+   "21 articles"
+  ]
+ },
+ {
+  "text": "Accueil",
+  "parts": [
+   "Accueil"
+  ]
+ },
+ {
+  "text": "Mes avantages",
+  "parts": [
+   "Mes avantages"
+  ]
+ },
+ {
+  "text": "Magasins",
+  "parts": [
+   "Magasins"
+  ]
+ },
+ {
+  "text": "20/10/2026",
+  "parts": [
+   "20/10/2026"
+  ]
+ },
+ {
+  "text": "Caisse 04 • Ticket 0187",
+  "parts": [
+   "Caisse 04",
+   "• Ticket 0187"
+  ]
+ },
+ {
+  "text": "6 × 1,09",
+  "parts": [
+   "6",
+   "× 1,09"
+  ]
+ },
+ {
+  "text": "PATES FUSILLI 500G",
+  "parts": [
+   "PATES FUSILLI 500G"
+  ]
+ },
+ {
+  "text": "TOTAL",
+  "parts": [
+   "TOTAL"
+  ]
+ },
+ {
+  "text": "CB SANS CONTACT",
+  "parts": [
+   "CB SANS CONTACT"
+  ]
+ },
+ {
+  "text": "A = TVA 5,5 %",
+  "parts": [
+   "A = TVA 5,5 %"
+  ]
+ },
+ {
+  "text": "B = TVA 20 %",
+  "parts": [
+   "B = TVA 20 %"
+  ]
+ },
+ {
+  "text": "18:42",
+  "parts": [
+   "18:42"
+  ]
+ },
+ {
+  "text": "6,54 A",
+  "parts": [
+   "6,54 A"
+  ]
+ },
+ {
+  "text": "1,10 A",
+  "parts": [
+   "1,10 A"
+  ]
+ },
+ {
+  "text": "9,45 îęîł",
+  "parts": [
+   "9,45 îęîł"
+  ]
+ },
+ {
+  "text": "3,08 ął",
+  "parts": [
+   "3,08 ął"
+  ]
+ },
+ {
+  "text": "2,35 A",
+  "parts": [
+   "2,35 A"
+  ]
+ },
+ {
+  "text": "-0,50 A",
+  "parts": [
+   "-0,50 A"
+  ]
+ },
+ {
+  "text": "51,41€",
+  "parts": [
+   "51,41€"
+  ]
+ },
+ {
+  "text": "51,41 €",
+  "parts": [
+   "51,41 €"
+  ]
+ },
+ {
+  "text": "CL",
+  "parts": [
+   "CL"
+  ]
+ },
+ {
+  "text": "Télécharger le PDF",
+  "parts": [
+   "Télécharger le PDF"
+  ]
+ },
+ {
+  "text": "Partager",
+  "parts": [
+   "Partager"
+  ]
+ },
+ {
+  "text": "Signaler un problème",
+  "parts": [
+   "Signaler un problème"
+  ]
+ },
+ {
+  "text": "Ticket enregistré",
+  "parts": [
+   "Ticket enregistré"
+  ]
+ },
+ {
+  "text": "automatiquement avec votre",
+  "parts": [
+   "automatiquement avec votre"
+  ]
+ },
+ {
+  "text": "carte de fidélité.",
+  "parts": [
+   "carte de fidélité."
+  ]
+ },
+ {
+  "text": "IPA Draft",
+  "parts": [
+   "IPA Draft"
+  ]
+ },
+ {
+  "text": "Pint",
+  "parts": [
+   "Pint"
+  ]
+ },
+ {
+  "text": "$8.00",
+  "parts": [
+   "$8.00"
+  ]
+ },
+ {
+  "text": "House Red",
+  "parts": [
+   "House Red"
+  ]
+ },
+ {
+  "text": "Glass · Grenache",
+  "parts": [
+   "Glass · Grenache"
+  ]
+ },
+ {
+  "text": "$12.00",
+  "parts": [
+   "$12.00"
+  ]
+ },
+ {
+  "text": "Sparkling Water",
+  "parts": [
+   "Sparkling Water"
+  ]
+ },
+ {
+  "text": "Large bottle",
+  "parts": [
+   "Large bottle"
+  ]
+ },
+ {
+  "text": "$4.50",
+  "parts": [
+   "$4.50"
+  ]
+ },
+ {
+  "text": "Burrata Salad",
+  "parts": [
+   "Burrata Salad"
+  ]
+ },
+ {
+  "text": "Heirloom tomato, basil",
+  "parts": [
+   "Heirloom tomato, basil"
+  ]
+ },
+ {
+  "text": "$14.50",
+  "parts": [
+   "$14.50"
+  ]
+ },
+ {
+  "text": "Truffle Fries",
+  "parts": [
+   "Truffle Fries"
+  ]
+ },
+ {
+  "text": "Parmesan, garlic aioli",
+  "parts": [
+   "Parmesan, garlic aioli"
+  ]
+ },
+ {
+  "text": "Grilled Salmon",
+  "parts": [
+   "Grilled Salmon"
+  ]
+ },
+ {
+  "text": "Lemon butter, greens",
+  "parts": [
+   "Lemon butter, greens"
+  ]
+ },
+ {
+  "text": "$28.00",
+  "parts": [
+   "$28.00"
+  ]
+ },
+ {
+  "text": "Ribeye Steak",
+  "parts": [
+   "Ribeye Steak"
+  ]
+ },
+ {
+  "text": "Medium rare · peppercorn sauce",
+  "parts": [
+   "Medium rare · peppercorn sauce"
+  ]
+ },
+ {
+  "text": "$42.00",
+  "parts": [
+   "$42.00"
+  ]
+ },
+ {
+  "text": "Mushroom Risotto",
+  "parts": [
+   "Mushroom Risotto"
+  ]
+ },
+ {
+  "text": "Add shaved parmesan",
+  "parts": [
+   "Add shaved parmesan"
+  ]
+ },
+ {
+  "text": "$23.50",
+  "parts": [
+   "$23.50"
+  ]
+ },
+ {
+  "text": "Chocolate Torte",
+  "parts": [
+   "Chocolate Torte"
+  ]
+ },
+ {
+  "text": "Sea salt, whipped cream",
+  "parts": [
+   "Sea salt, whipped cream"
+  ]
+ },
+ {
+  "text": "$11.00",
+  "parts": [
+   "$11.00"
+  ]
+ },
+ {
+  "text": "Juniper & Rye",
+  "parts": [
+   "Juniper & Rye"
+  ]
+ },
+ {
+  "text": "Table 12",
+  "parts": [
+   "Table 12"
+  ]
+ },
+ {
+  "text": "· 4 guests · Opened 7:02 PM",
+  "parts": [
+   "· 4 guests · Opened 7:02 PM"
+  ]
+ },
+ {
+  "text": "Menu",
+  "parts": [
+   "Menu"
+  ]
+ },
+ {
+  "text": "Your table",
+  "parts": [
+   "Your table"
+  ]
+ },
+ {
+  "text": "Requests",
+  "parts": [
+   "Requests"
+  ]
+ },
+ {
+  "text": "Ordered",
+  "parts": [
+   "Ordered"
+  ]
+ },
+ {
+  "text": "10 items",
+  "parts": [
+   "10 items"
+  ]
+ },
+ {
+  "text": "Round 1 · 7:14 PM Sent",
+  "parts": [
+   "Round 1 · 7:14 PM Sent"
+  ]
+ },
+ {
+  "text": "Round 2 · 7:41 PM Sent",
+  "parts": [
+   "Round 2 · 7:41 PM Sent"
+  ]
+ },
+ {
+  "text": "Round 3 · 8:26 PM Sent",
+  "parts": [
+   "Round 3 · 8:26 PM Sent"
+  ]
+ },
+ {
+  "text": "Prices include sales tax. Tip is added at checkout.",
+  "parts": [
+   "Prices include sales tax. Tip is added at checkout."
+  ]
+ },
+ {
+  "text": "Call server",
+  "parts": [
+   "Call server"
+  ]
+ },
+ {
+  "text": "Review & pay",
+  "parts": [
+   "Review & pay"
+  ]
+ },
+ {
+  "text": "Table 12 · 4 guests · Opened 7:02 PM",
+  "parts": [
+   "Table 12",
+   "· 4 guests · Opened 7:02 PM"
+  ]
+ },
+ {
+  "text": "• Round 1 • 7:14 PM",
+  "parts": [
+   "• Round 1 • 7:14 PM"
+  ]
+ },
+ {
+  "text": "Sent",
+  "parts": [
+   "Sent"
+  ]
+ },
+ {
+  "text": "IPA Draft\nPint",
+  "parts": [
+   "IPA Draft\nPint"
+  ]
+ },
+ {
+  "text": "House Red\nGlass • Grenache",
+  "parts": [
+   "House Red\nGlass • Grenache"
+  ]
+ },
+ {
+  "text": "Sparkling Water\nLarge bottle",
+  "parts": [
+   "Sparkling Water\nLarge bottle"
+  ]
+ },
+ {
+  "text": "Burrata Salad\nHeirloom tomato, basil",
+  "parts": [
+   "Burrata Salad\nHeirloom tomato, basil"
+  ]
+ },
+ {
+  "text": "Truffle Fries\nParmesan, garlic aioli",
+  "parts": [
+   "Truffle Fries\nParmesan, garlic aioli"
+  ]
+ },
+ {
+  "text": "• Round 2 • 7:41 PM",
+  "parts": [
+   "• Round 2 • 7:41 PM"
+  ]
+ },
+ {
+  "text": "Grilled Salmon\nLemon butter, greens",
+  "parts": [
+   "Grilled Salmon\nLemon butter, greens"
+  ]
+ },
+ {
+  "text": "Ribeye Steak\nMedium rare • peppercorn sauce",
+  "parts": [
+   "Ribeye Steak\nMedium rare • peppercorn sauce"
+  ]
+ },
+ {
+  "text": "Mushroom Risotto\nAdd shaved parmesan",
+  "parts": [
+   "Mushroom Risotto\nAdd shaved parmesan"
+  ]
+ },
+ {
+  "text": "• Round 3 • 8:26 PM",
+  "parts": [
+   "• Round 3 • 8:26 PM"
+  ]
+ },
+ {
+  "text": "Chocolate Torte\nSea salt, whipped cream",
+  "parts": [
+   "Chocolate Torte\nSea salt, whipped cream"
+  ]
+ },
+ {
+  "text": "Table 12 • 4 guests • Opened 7:02 PM",
+  "parts": [
+   "Table 12",
+   "• 4 guests • Opened 7:02 PM"
+  ]
+ },
+ {
+  "text": "Project / Task",
+  "parts": [
+   "Project / Task"
+  ]
+ },
+ {
+  "text": "Client",
+  "parts": [
+   "Client"
+  ]
+ },
+ {
+  "text": "Mon 19",
+  "parts": [
+   "Mon 19"
+  ]
+ },
+ {
+  "text": "Tue 20",
+  "parts": [
+   "Tue 20"
+  ]
+ },
+ {
+  "text": "Wed 21",
+  "parts": [
+   "Wed 21"
+  ]
+ },
+ {
+  "text": "Thu 22",
+  "parts": [
+   "Thu 22"
+  ]
+ },
+ {
+  "text": "Fri 23",
+  "parts": [
+   "Fri 23"
+  ]
+ },
+ {
+  "text": "Apollo – Build",
+  "parts": [
+   "Apollo – Build"
+  ]
+ },
+ {
+  "text": "Halcyon Freight",
+  "parts": [
+   "Halcyon Freight"
+  ]
+ },
+ {
+  "text": "3.00",
+  "parts": [
+   "3.00"
+  ]
+ },
+ {
+  "text": "2.50",
+  "parts": [
+   "2.50"
+  ]
+ },
+ {
+  "text": "4.00",
+  "parts": [
+   "4.00"
+  ]
+ },
+ {
+  "text": "3.25",
+  "parts": [
+   "3.25"
+  ]
+ },
+ {
+  "text": "1.75",
+  "parts": [
+   "1.75"
+  ]
+ },
+ {
+  "text": "Borealis – Support",
+  "parts": [
+   "Borealis – Support"
+  ]
+ },
+ {
+  "text": "Brightwater Labs",
+  "parts": [
+   "Brightwater Labs"
+  ]
+ },
+ {
+  "text": "1.00",
+  "parts": [
+   "1.00"
+  ]
+ },
+ {
+  "text": "0.50",
+  "parts": [
+   "0.50"
+  ]
+ },
+ {
+  "text": "1.50",
+  "parts": [
+   "1.50"
+  ]
+ },
+ {
+  "text": "0.75",
+  "parts": [
+   "0.75"
+  ]
+ },
+ {
+  "text": "Cobalt – Data migration",
+  "parts": [
+   "Cobalt – Data migration"
+  ]
+ },
+ {
+  "text": "Ostara Health",
+  "parts": [
+   "Ostara Health"
+  ]
+ },
+ {
+  "text": "2.00",
+  "parts": [
+   "2.00"
+  ]
+ },
+ {
+  "text": "Apollo – Design",
+  "parts": [
+   "Apollo – Design"
+  ]
+ },
+ {
+  "text": "Internal – Meetings",
+  "parts": [
+   "Internal – Meetings"
+  ]
+ },
+ {
+  "text": "Internal",
+  "parts": [
+   "Internal"
+  ]
+ },
+ {
+  "text": "Internal – Training",
+  "parts": [
+   "Internal – Training"
+  ]
+ },
+ {
+  "text": "Daily total",
+  "parts": [
+   "Daily total"
+  ]
+ },
+ {
+  "text": "8.50",
+  "parts": [
+   "8.50"
+  ]
+ },
+ {
+  "text": "9.00",
+  "parts": [
+   "9.00"
+  ]
+ },
+ {
+  "text": "9.50",
+  "parts": [
+   "9.50"
+  ]
+ },
+ {
+  "text": "8.75",
+  "parts": [
+   "8.75"
+  ]
+ },
+ {
+  "text": "Timesheet",
+  "parts": [
+   "Timesheet"
+  ]
+ },
+ {
+  "text": "Oct 19 – Oct 23, 2026",
+  "parts": [
+   "Oct 19 – Oct 23, 2026"
+  ]
+ },
+ {
+  "text": "Draft",
+  "parts": [
+   "Draft"
+  ]
+ },
+ {
+  "text": "Copy last week",
+  "parts": [
+   "Copy last week"
+  ]
+ },
+ {
+  "text": "Submit for approval",
+  "parts": [
+   "Submit for approval"
+  ]
+ },
+ {
+  "text": "Jordan Mercer",
+  "parts": [
+   "Jordan Mercer"
+  ]
+ },
+ {
+  "text": "Week total 45.25 h",
+  "parts": [
+   "Week total 45.25 h"
+  ]
+ },
+ {
+  "text": "Approver Dana Whitlock",
+  "parts": [
+   "Approver Dana Whitlock"
+  ]
+ },
+ {
+  "text": "+ Add row",
+  "parts": [
+   "+ Add row"
+  ]
+ },
+ {
+  "text": "• Apollo - Build",
+  "parts": [
+   "• Apollo - Build"
+  ]
+ },
+ {
+  "text": "...",
+  "parts": [
+   "..."
+  ]
+ },
+ {
+  "text": "Borealis - Support",
+  "parts": [
+   "Borealis - Support"
+  ]
+ },
+ {
+  "text": "• Cobalt - Data migration",
+  "parts": [
+   "• Cobalt - Data migration"
+  ]
+ },
+ {
+  "text": "• Apollo - Design",
+  "parts": [
+   "• Apollo - Design"
+  ]
+ },
+ {
+  "text": "• Internal - Meetings",
+  "parts": [
+   "• Internal - Meetings"
+  ]
+ },
+ {
+  "text": "• Internal - Training",
+  "parts": [
+   "• Internal - Training"
+  ]
+ },
+ {
+  "text": "•",
+  "parts": [
+   "•"
+  ]
+ },
+ {
+  "text": "JM",
+  "parts": [
+   "JM"
+  ]
+ },
+ {
+  "text": "Oct 19 - Oct 23, 2026",
+  "parts": [
+   "Oct 19 - Oct 23, 2026"
+  ]
+ },
+ {
+  "text": "Mois",
+  "parts": [
+   "Mois"
+  ]
+ },
+ {
+  "text": "Période",
+  "parts": [
+   "Période"
+  ]
+ },
+ {
+  "text": "Consommation",
+  "parts": [
+   "Consommation"
+  ]
+ },
+ {
+  "text": "Facture",
+  "parts": [
+   "Facture"
+  ]
+ },
+ {
+  "text": "01/10 – 31/10",
+  "parts": [
+   "01/10 – 31/10"
+  ]
+ },
+ {
+  "text": "412 kWh",
+  "parts": [
+   "412 kWh"
+  ]
+ },
+ {
+  "text": "96,85 €",
+  "parts": [
+   "96,85 €"
+  ]
+ },
+ {
+  "text": "PDF",
+  "parts": [
+   "PDF"
+  ]
+ },
+ {
+  "text": "Septembre 2026",
+  "parts": [
+   "Septembre 2026"
+  ]
+ },
+ {
+  "text": "01/09 – 30/09",
+  "parts": [
+   "01/09 – 30/09"
+  ]
+ },
+ {
+  "text": "318 kWh",
+  "parts": [
+   "318 kWh"
+  ]
+ },
+ {
+  "text": "74,18 €",
+  "parts": [
+   "74,18 €"
+  ]
+ },
+ {
+  "text": "Août 2026",
+  "parts": [
+   "Août 2026"
+  ]
+ },
+ {
+  "text": "01/08 – 31/08",
+  "parts": [
+   "01/08 – 31/08"
+  ]
+ },
+ {
+  "text": "264 kWh",
+  "parts": [
+   "264 kWh"
+  ]
+ },
+ {
+  "text": "63,40 €",
+  "parts": [
+   "63,40 €"
+  ]
+ },
+ {
+  "text": "Juillet 2026",
+  "parts": [
+   "Juillet 2026"
+  ]
+ },
+ {
+  "text": "01/07 – 31/07",
+  "parts": [
+   "01/07 – 31/07"
+  ]
+ },
+ {
+  "text": "251 kWh",
+  "parts": [
+   "251 kWh"
+  ]
+ },
+ {
+  "text": "61,07 €",
+  "parts": [
+   "61,07 €"
+  ]
+ },
+ {
+  "text": "Juin 2026",
+  "parts": [
+   "Juin 2026"
+  ]
+ },
+ {
+  "text": "01/06 – 30/06",
+  "parts": [
+   "01/06 – 30/06"
+  ]
+ },
+ {
+  "text": "279 kWh",
+  "parts": [
+   "279 kWh"
+  ]
+ },
+ {
+  "text": "66,93 €",
+  "parts": [
+   "66,93 €"
+  ]
+ },
+ {
+  "text": "Mai 2026",
+  "parts": [
+   "Mai 2026"
+  ]
+ },
+ {
+  "text": "01/05 – 31/05",
+  "parts": [
+   "01/05 – 31/05"
+  ]
+ },
+ {
+  "text": "342 kWh",
+  "parts": [
+   "342 kWh"
+  ]
+ },
+ {
+  "text": "79,56 €",
+  "parts": [
+   "79,56 €"
+  ]
+ },
+ {
+  "text": "Énergies du Val Clair",
+  "parts": [
+   "Énergies du Val Clair"
+  ]
+ },
+ {
+  "text": "Espace client",
+  "parts": [
+   "Espace client"
+  ]
+ },
+ {
+  "text": "Bonjour, Camille Roussel",
+  "parts": [
+   "Bonjour, Camille Roussel"
+  ]
+ },
+ {
+  "text": "Mes factures",
+  "parts": [
+   "Mes factures"
+  ]
+ },
+ {
+  "text": "Électricité · Offre Base 6 kVA · Facturation mensuelle sur relevé",
+  "parts": [
+   "Électricité · Offre Base 6 kVA · Facturation mensuelle sur relevé"
+  ]
+ },
+ {
+  "text": "Prochain prélèvement 96,85 € le 16/11/2026",
+  "parts": [
+   "Prochain prélèvement 96,85 € le 16/11/2026"
+  ]
+ },
+ {
+  "text": "Consommation 2026 4 096 kWh de janvier à octobre",
+  "parts": [
+   "Consommation 2026 4 096 kWh de janvier à octobre"
+  ]
+ },
+ {
+  "text": "Moyenne mensuelle 73,67 €",
+  "parts": [
+   "Moyenne mensuelle 73,67 €"
+  ]
+ },
+ {
+  "text": "sur les 6 derniers mois",
+  "parts": [
+   "sur les 6 derniers mois"
+  ]
+ },
+ {
+  "text": "Montant de mes factures",
+  "parts": [
+   "Montant de mes factures"
+  ]
+ },
+ {
+  "text": "6 derniers mois",
+  "parts": [
+   "6 derniers mois"
+  ]
+ },
+ {
+  "text": "mai juin juil. août sept. oct.",
+  "parts": [
+   "mai juin juil. août sept. oct."
+  ]
+ },
+ {
+  "text": "Moyenne mensuelle 73,67 € sur les 6 derniers mois",
+  "parts": [
+   "Moyenne mensuelle 73,67 €",
+   "sur les 6 derniers mois"
+  ]
+ },
+ {
+  "text": "01/10 - 31/10",
+  "parts": [
+   "01/10 - 31/10"
+  ]
+ },
+ {
+  "text": "412 kWh",
+  "parts": [
+   "412 kWh"
+  ]
+ },
+ {
+  "text": "96,85 €",
+  "parts": [
+   "96,85 €"
+  ]
+ },
+ {
+  "text": "A payer",
+  "parts": [
+   "A payer"
+  ]
+ },
+ {
+  "text": "01/09 - 30/09",
+  "parts": [
+   "01/09 - 30/09"
+  ]
+ },
+ {
+  "text": "318 kWh",
+  "parts": [
+   "318 kWh"
+  ]
+ },
+ {
+  "text": "74,18 €",
+  "parts": [
+   "74,18 €"
+  ]
+ },
+ {
+  "text": "01/08 - 31/08",
+  "parts": [
+   "01/08 - 31/08"
+  ]
+ },
+ {
+  "text": "264 kWh",
+  "parts": [
+   "264 kWh"
+  ]
+ },
+ {
+  "text": "63,40 €",
+  "parts": [
+   "63,40 €"
+  ]
+ },
+ {
+  "text": "01/07 - 31/07",
+  "parts": [
+   "01/07 - 31/07"
+  ]
+ },
+ {
+  "text": "251 kWh",
+  "parts": [
+   "251 kWh"
+  ]
+ },
+ {
+  "text": "61,07 €",
+  "parts": [
+   "61,07 €"
+  ]
+ },
+ {
+  "text": "01/06 - 30/06",
+  "parts": [
+   "01/06 - 30/06"
+  ]
+ },
+ {
+  "text": "279 kWh",
+  "parts": [
+   "279 kWh"
+  ]
+ },
+ {
+  "text": "66,93 €",
+  "parts": [
+   "66,93 €"
+  ]
+ },
+ {
+  "text": "01/05 - 31/05",
+  "parts": [
+   "01/05 - 31/05"
+  ]
+ },
+ {
+  "text": "342 kWh",
+  "parts": [
+   "342 kWh"
+  ]
+ },
+ {
+  "text": "79,56 €",
+  "parts": [
+   "79,56 €"
+  ]
+ },
+ {
+  "text": "Ma consommation",
+  "parts": [
+   "Ma consommation"
+  ]
+ },
+ {
+  "text": "Mon contrat",
+  "parts": [
+   "Mon contrat"
+  ]
+ },
+ {
+  "text": "Mes paiements",
+  "parts": [
+   "Mes paiements"
+  ]
+ },
+ {
+  "text": "Aide et contact",
+  "parts": [
+   "Aide et contact"
+  ]
+ },
+ {
+  "text": "Électricité • Offre Base 6 kVA • Facturation mensuelle sur relevé",
+  "parts": [
+   "Électricité • Offre Base 6 kVA • Facturation mensuelle sur relevé"
+  ]
+ },
+ {
+  "text": "Prochain prélèvement",
+  "parts": [
+   "Prochain prélèvement"
+  ]
+ },
+ {
+  "text": "le 16/11/2026",
+  "parts": [
+   "le 16/11/2026"
+  ]
+ },
+ {
+  "text": "Consommation 2026",
+  "parts": [
+   "Consommation 2026"
+  ]
+ },
+ {
+  "text": "4096 kWh",
+  "parts": [
+   "4096 kWh"
+  ]
+ },
+ {
+  "text": "de janvier à octobre",
+  "parts": [
+   "de janvier à octobre"
+  ]
+ },
+ {
+  "text": "mai",
+  "parts": [
+   "mai"
+  ]
+ },
+ {
+  "text": "juin",
+  "parts": [
+   "juin"
+  ]
+ },
+ {
+  "text": "juil.",
+  "parts": [
+   "juil."
+  ]
+ },
+ {
+  "text": "août",
+  "parts": [
+   "août"
+  ]
+ },
+ {
+  "text": "CR",
+  "parts": [
+   "CR"
+  ]
+ },
+ {
+  "text": "Moyenne mensuelle",
+  "parts": [
+   "Moyenne mensuelle"
+  ]
+ },
+ {
+  "text": "73,67 €",
+  "parts": [
+   "73,67 €"
+  ]
+ },
+ {
+  "text": "sept.",
+  "parts": [
+   "sept."
+  ]
+ },
+ {
+  "text": "oct.",
+  "parts": [
+   "oct."
+  ]
+ },
+ {
+  "text": "Harbour Market",
+  "parts": [
+   "Harbour Market"
+  ]
+ },
+ {
+  "text": "rolled oats",
+  "parts": [
+   "rolled oats"
+  ]
+ },
+ {
+  "text": "Delivery slot",
+  "parts": [
+   "Delivery slot"
+  ]
+ },
+ {
+  "text": "Thu 29 Oct, 8–9am",
+  "parts": [
+   "Thu 29 Oct, 8–9am"
+  ]
+ },
+ {
+  "text": "£23.40",
+  "parts": [
+   "£23.40"
+  ]
+ },
+ {
+  "text": "Fresh",
+  "parts": [
+   "Fresh"
+  ]
+ },
+ {
+  "text": "Bakery",
+  "parts": [
+   "Bakery"
+  ]
+ },
+ {
+  "text": "Food cupboard",
+  "parts": [
+   "Food cupboard"
+  ]
+ },
+ {
+  "text": "Frozen",
+  "parts": [
+   "Frozen"
+  ]
+ },
+ {
+  "text": "Drinks",
+  "parts": [
+   "Drinks"
+  ]
+ },
+ {
+  "text": "Household",
+  "parts": [
+   "Household"
+  ]
+ },
+ {
+  "text": "Offers",
+  "parts": [
+   "Offers"
+  ]
+ },
+ {
+  "text": "Filter by",
+  "parts": [
+   "Filter by"
+  ]
+ },
+ {
+  "text": "Brand",
+  "parts": [
+   "Brand"
+  ]
+ },
+ {
+  "text": "Dietary",
+  "parts": [
+   "Dietary"
+  ]
+ },
+ {
+  "text": "Vegan",
+  "parts": [
+   "Vegan"
+  ]
+ },
+ {
+  "text": "Wholegrain",
+  "parts": [
+   "Wholegrain"
+  ]
+ },
+ {
+  "text": "Organic",
+  "parts": [
+   "Organic"
+  ]
+ },
+ {
+  "text": "On offer",
+  "parts": [
+   "On offer"
+  ]
+ },
+ {
+  "text": "Groceries › Food cupboard › Cereals › Porridge & oats",
+  "parts": [
+   "Groceries › Food cupboard › Cereals › Porridge & oats"
+  ]
+ },
+ {
+  "text": "Rolled oats 5 products",
+  "parts": [
+   "Rolled oats 5 products"
+  ]
+ },
+ {
+  "text": "Sort by: Size ▾",
+  "parts": [
+   "Sort by: Size ▾"
+  ]
+ },
+ {
+  "text": "400g",
+  "parts": [
+   "400g"
+  ]
+ },
+ {
+  "text": "Harbour Market Scottish Rolled Oats 400g",
+  "parts": [
+   "Harbour Market Scottish Rolled Oats 400g"
+  ]
+ },
+ {
+  "text": "(212)",
+  "parts": [
+   "(212)"
+  ]
+ },
+ {
+  "text": "85p",
+  "parts": [
+   "85p"
+  ]
+ },
+ {
+  "text": "Add",
+  "parts": [
+   "Add"
+  ]
+ },
+ {
+  "text": "750g",
+  "parts": [
+   "750g"
+  ]
+ },
+ {
+  "text": "Harbour Market Scottish Rolled Oats 750g",
+  "parts": [
+   "Harbour Market Scottish Rolled Oats 750g"
+  ]
+ },
+ {
+  "text": "(168)",
+  "parts": [
+   "(168)"
+  ]
+ },
+ {
+  "text": "£1.45",
+  "parts": [
+   "£1.45"
+  ]
+ },
+ {
+  "text": "1200g",
+  "parts": [
+   "1200g"
+  ]
+ },
+ {
+  "text": "Harbour Market Scottish Rolled Oats 1200g",
+  "parts": [
+   "Harbour Market Scottish Rolled Oats 1200g"
+  ]
+ },
+ {
+  "text": "(94)",
+  "parts": [
+   "(94)"
+  ]
+ },
+ {
+  "text": "£2.19",
+  "parts": [
+   "£2.19"
+  ]
+ },
+ {
+  "text": "Offer",
+  "parts": [
+   "Offer"
+  ]
+ },
+ {
+  "text": "1500g",
+  "parts": [
+   "1500g"
+  ]
+ },
+ {
+  "text": "Harbour Market Scottish Rolled Oats 1500g",
+  "parts": [
+   "Harbour Market Scottish Rolled Oats 1500g"
+  ]
+ },
+ {
+  "text": "(57)",
+  "parts": [
+   "(57)"
+  ]
+ },
+ {
+  "text": "£2.69",
+  "parts": [
+   "£2.69"
+  ]
+ },
+ {
+  "text": "Was £2.99",
+  "parts": [
+   "Was £2.99"
+  ]
+ },
+ {
+  "text": "2500g",
+  "parts": [
+   "2500g"
+  ]
+ },
+ {
+  "text": "Harbour Market Scottish Rolled Oats 2500g",
+  "parts": [
+   "Harbour Market Scottish Rolled Oats 2500g"
+  ]
+ },
+ {
+  "text": "(131)",
+  "parts": [
+   "(131)"
+  ]
+ },
+ {
+  "text": "£4.55",
+  "parts": [
+   "£4.55"
+  ]
+ },
+ {
+  "text": "a",
+  "parts": [
+   "a"
+  ]
+ },
+ {
+  "text": "Scottish Rolled Oats",
+  "parts": [
+   "Scottish Rolled Oats"
+  ]
+ },
+ {
+  "text": "Thu 29 Oct, 8-9am",
+  "parts": [
+   "Thu 29 Oct, 8-9am"
+  ]
+ },
+ {
+  "text": "£2.69 Was £2.99",
+  "parts": [
+   "£2.69",
+   "Was £2.99"
+  ]
+ },
+ {
+  "text": "7 £23.40",
+  "parts": [
+   "7",
+   "£23.40"
+  ]
+ },
+ {
+  "text": "Sort by: Size •",
+  "parts": [
+   "Sort by: Size •"
+  ]
+ },
+ {
+  "text": "Merchant",
+  "parts": [
+   "Merchant"
+  ]
+ },
+ {
+  "text": "Category",
+  "parts": [
+   "Category"
+  ]
+ },
+ {
+  "text": "Oct 5",
+  "parts": [
+   "Oct 5"
+  ]
+ },
+ {
+  "text": "Skyline Air",
+  "parts": [
+   "Skyline Air"
+  ]
+ },
+ {
+  "text": "Flight, round trip",
+  "parts": [
+   "Flight, round trip"
+  ]
+ },
+ {
+  "text": "Travel",
+  "parts": [
+   "Travel"
+  ]
+ },
+ {
+  "text": "$1,248.60",
+  "parts": [
+   "$1,248.60"
+  ]
+ },
+ {
+  "text": "Pending",
+  "parts": [
+   "Pending"
+  ]
+ },
+ {
+  "text": "Metro Cab Co.",
+  "parts": [
+   "Metro Cab Co."
+  ]
+ },
+ {
+  "text": "Airport to hotel",
+  "parts": [
+   "Airport to hotel"
+  ]
+ },
+ {
+  "text": "$54.20",
+  "parts": [
+   "$54.20"
+  ]
+ },
+ {
+  "text": "Reimbursed",
+  "parts": [
+   "Reimbursed"
+  ]
+ },
+ {
+  "text": "Oct 6",
+  "parts": [
+   "Oct 6"
+  ]
+ },
+ {
+  "text": "Harborview Hotel",
+  "parts": [
+   "Harborview Hotel"
+  ]
+ },
+ {
+  "text": "Hotel, 3 nights",
+  "parts": [
+   "Hotel, 3 nights"
+  ]
+ },
+ {
+  "text": "$412.35",
+  "parts": [
+   "$412.35"
+  ]
+ },
+ {
+  "text": "Cedar Grill",
+  "parts": [
+   "Cedar Grill"
+  ]
+ },
+ {
+  "text": "Client dinner",
+  "parts": [
+   "Client dinner"
+  ]
+ },
+ {
+  "text": "Meals",
+  "parts": [
+   "Meals"
+  ]
+ },
+ {
+  "text": "$64.80",
+  "parts": [
+   "$64.80"
+  ]
+ },
+ {
+  "text": "Oct 7",
+  "parts": [
+   "Oct 7"
+  ]
+ },
+ {
+  "text": "Paper & Pine Supply",
+  "parts": [
+   "Paper & Pine Supply"
+  ]
+ },
+ {
+  "text": "Notebooks, pens",
+  "parts": [
+   "Notebooks, pens"
+  ]
+ },
+ {
+  "text": "Office",
+  "parts": [
+   "Office"
+  ]
+ },
+ {
+  "text": "$23.49",
+  "parts": [
+   "$23.49"
+  ]
+ },
+ {
+  "text": "Oct 8",
+  "parts": [
+   "Oct 8"
+  ]
+ },
+ {
+  "text": "Coastline Rail",
+  "parts": [
+   "Coastline Rail"
+  ]
+ },
+ {
+  "text": "Train to Milwaukee",
+  "parts": [
+   "Train to Milwaukee"
+  ]
+ },
+ {
+  "text": "$96.00",
+  "parts": [
+   "$96.00"
+  ]
+ },
+ {
+  "text": "Oct 9",
+  "parts": [
+   "Oct 9"
+  ]
+ },
+ {
+  "text": "Bluebird Café",
+  "parts": [
+   "Bluebird Café"
+  ]
+ },
+ {
+  "text": "Breakfast meeting",
+  "parts": [
+   "Breakfast meeting"
+  ]
+ },
+ {
+  "text": "$18.75",
+  "parts": [
+   "$18.75"
+  ]
+ },
+ {
+  "text": "Oct 12",
+  "parts": [
+   "Oct 12"
+  ]
+ },
+ {
+  "text": "Office to client site",
+  "parts": [
+   "Office to client site"
+  ]
+ },
+ {
+  "text": "$38.90",
+  "parts": [
+   "$38.90"
+  ]
+ },
+ {
+  "text": "Oct 14",
+  "parts": [
+   "Oct 14"
+  ]
+ },
+ {
+  "text": "Hotel, 2 nights",
+  "parts": [
+   "Hotel, 2 nights"
+  ]
+ },
+ {
+  "text": "$310.00",
+  "parts": [
+   "$310.00"
+  ]
+ },
+ {
+  "text": "Oct 15",
+  "parts": [
+   "Oct 15"
+  ]
+ },
+ {
+  "text": "Inkwell Print",
+  "parts": [
+   "Inkwell Print"
+  ]
+ },
+ {
+  "text": "Workshop handouts",
+  "parts": [
+   "Workshop handouts"
+  ]
+ },
+ {
+  "text": "$142.10",
+  "parts": [
+   "$142.10"
+  ]
+ },
+ {
+  "text": "Oct 16",
+  "parts": [
+   "Oct 16"
+  ]
+ },
+ {
+  "text": "Lantern Noodle House",
+  "parts": [
+   "Lantern Noodle House"
+  ]
+ },
+ {
+  "text": "Team lunch",
+  "parts": [
+   "Team lunch"
+  ]
+ },
+ {
+  "text": "$47.30",
+  "parts": [
+   "$47.30"
+  ]
+ },
+ {
+  "text": "Oct 19",
+  "parts": [
+   "Oct 19"
+  ]
+ },
+ {
+  "text": "Checked bag fee",
+  "parts": [
+   "Checked bag fee"
+  ]
+ },
+ {
+  "text": "$35.00",
+  "parts": [
+   "$35.00"
+  ]
+ },
+ {
+  "text": "Quillspend",
+  "parts": [
+   "Quillspend"
+  ]
+ },
+ {
+  "text": "Expenses",
+  "parts": [
+   "Expenses"
+  ]
+ },
+ {
+  "text": "Trips",
+  "parts": [
+   "Trips"
+  ]
+ },
+ {
+  "text": "Approvals",
+  "parts": [
+   "Approvals"
+  ]
+ },
+ {
+  "text": "Sam Rivera",
+  "parts": [
+   "Sam Rivera"
+  ]
+ },
+ {
+  "text": "Q4 client visits – Chicago",
+  "parts": [
+   "Q4 client visits – Chicago"
+  ]
+ },
+ {
+  "text": "ER-2026-1042 · Submitted by Sam Rivera · October 2026",
+  "parts": [
+   "ER-2026-1042 · Submitted by Sam Rivera · October 2026"
+  ]
+ },
+ {
+  "text": "Export",
+  "parts": [
+   "Export"
+  ]
+ },
+ {
+  "text": "Add expense",
+  "parts": [
+   "Add expense"
+  ]
+ },
+ {
+  "text": "Total claimed $2,491.49",
+  "parts": [
+   "Total claimed $2,491.49"
+  ]
+ },
+ {
+  "text": "Reimbursed $406.44",
+  "parts": [
+   "Reimbursed $406.44"
+  ]
+ },
+ {
+  "text": "Pending $2,085.05",
+  "parts": [
+   "Pending $2,085.05"
+  ]
+ },
+ {
+  "text": "Expense lines 12",
+  "parts": [
+   "Expense lines 12"
+  ]
+ },
+ {
+  "text": "Pending\n$2,085.05",
+  "parts": [
+   "Pending\n$2,085.05"
+  ]
+ },
+ {
+  "text": "Expense lines\n12",
+  "parts": [
+   "Expense lines\n12"
+  ]
+ },
+ {
+  "text": "Date\nMerchant",
+  "parts": [
+   "Date\nMerchant"
+  ]
+ },
+ {
+  "text": "Amount\nStatus",
+  "parts": [
+   "Amount\nStatus"
+  ]
+ },
+ {
+  "text": "Oct 5\nSkyline Air",
+  "parts": [
+   "Oct 5\nSkyline Air"
+  ]
+ },
+ {
+  "text": "$1,248.60\n• Pending",
+  "parts": [
+   "$1,248.60\n• Pending"
+  ]
+ },
+ {
+  "text": "Oct 5\nMetro Cab Co.",
+  "parts": [
+   "Oct 5\nMetro Cab Co."
+  ]
+ },
+ {
+  "text": "$54.20\n• Reimbursed",
+  "parts": [
+   "$54.20\n• Reimbursed"
+  ]
+ },
+ {
+  "text": "Oct 6\nHarborview Hotel",
+  "parts": [
+   "Oct 6\nHarborview Hotel"
+  ]
+ },
+ {
+  "text": "$412.35\n• Pending",
+  "parts": [
+   "$412.35\n• Pending"
+  ]
+ },
+ {
+  "text": "Oct 6\nCedar Grill",
+  "parts": [
+   "Oct 6\nCedar Grill"
+  ]
+ },
+ {
+  "text": "$64.80\n• Pending",
+  "parts": [
+   "$64.80\n• Pending"
+  ]
+ },
+ {
+  "text": "Oct 7\nPaper & Pine Supply",
+  "parts": [
+   "Oct 7\nPaper & Pine Supply"
+  ]
+ },
+ {
+  "text": "$23.49\n• Reimbursed",
+  "parts": [
+   "$23.49\n• Reimbursed"
+  ]
+ },
+ {
+  "text": "Oct 8\nCoastline Rail",
+  "parts": [
+   "Oct 8\nCoastline Rail"
+  ]
+ },
+ {
+  "text": "$96.00\n• Pending",
+  "parts": [
+   "$96.00\n• Pending"
+  ]
+ },
+ {
+  "text": "Oct 9\nBluebird Café",
+  "parts": [
+   "Oct 9\nBluebird Café"
+  ]
+ },
+ {
+  "text": "$18.75\n• Reimbursed",
+  "parts": [
+   "$18.75\n• Reimbursed"
+  ]
+ },
+ {
+  "text": "Oct 12\nMetro Cab Co.",
+  "parts": [
+   "Oct 12\nMetro Cab Co."
+  ]
+ },
+ {
+  "text": "$38.90\n• Pending",
+  "parts": [
+   "$38.90\n• Pending"
+  ]
+ },
+ {
+  "text": "Oct 14\nHarborview Hotel",
+  "parts": [
+   "Oct 14\nHarborview Hotel"
+  ]
+ },
+ {
+  "text": "$310.00\n• Reimbursed",
+  "parts": [
+   "$310.00\n• Reimbursed"
+  ]
+ },
+ {
+  "text": "Oct 15\nInkwell Print",
+  "parts": [
+   "Oct 15\nInkwell Print"
+  ]
+ },
+ {
+  "text": "$142.10\n• Pending",
+  "parts": [
+   "$142.10\n• Pending"
+  ]
+ },
+ {
+  "text": "Oct 16\nLantern Noodle House",
+  "parts": [
+   "Oct 16\nLantern Noodle House"
+  ]
+ },
+ {
+  "text": "$47.30\n• Pending",
+  "parts": [
+   "$47.30\n• Pending"
+  ]
+ },
+ {
+  "text": "Oct 19\nSkyline Air",
+  "parts": [
+   "Oct 19\nSkyline Air"
+  ]
+ },
+ {
+  "text": "$35.00\n• Pending",
+  "parts": [
+   "$35.00\n• Pending"
+  ]
+ },
+ {
+  "text": "Q4 client visits - Chicago",
+  "parts": [
+   "Q4 client visits - Chicago"
+  ]
+ },
+ {
+  "text": "ER-2026-1042 • Submitted by Sam Rivera • October 2026",
+  "parts": [
+   "ER-2026-1042 • Submitted by Sam Rivera • October 2026"
+  ]
+ },
+ {
+  "text": "SR",
+  "parts": [
+   "SR"
+  ]
+ },
+ {
+  "text": "Month",
+  "parts": [
+   "Month"
+  ]
+ },
+ {
+  "text": "Revenue",
+  "parts": [
+   "Revenue"
+  ]
+ },
+ {
+  "text": "Net income",
+  "parts": [
+   "Net income"
+  ]
+ },
+ {
+  "text": "Jan 2026",
+  "parts": [
+   "Jan 2026"
+  ]
+ },
+ {
+  "text": "$41,287.30",
+  "parts": [
+   "$41,287.30"
+  ]
+ },
+ {
+  "text": "$38,904.15",
+  "parts": [
+   "$38,904.15"
+  ]
+ },
+ {
+  "text": "$2,383.15",
+  "parts": [
+   "$2,383.15"
+  ]
+ },
+ {
+  "text": "Feb 2026",
+  "parts": [
+   "Feb 2026"
+  ]
+ },
+ {
+  "text": "$38,962.75",
+  "parts": [
+   "$38,962.75"
+  ]
+ },
+ {
+  "text": "$40,202.85",
+  "parts": [
+   "$40,202.85"
+  ]
+ },
+ {
+  "text": "($1,240.10)",
+  "parts": [
+   "($1,240.10)"
+  ]
+ },
+ {
+  "text": "Mar 2026",
+  "parts": [
+   "Mar 2026"
+  ]
+ },
+ {
+  "text": "$45,110.40",
+  "parts": [
+   "$45,110.40"
+  ]
+ },
+ {
+  "text": "$39,880.20",
+  "parts": [
+   "$39,880.20"
+  ]
+ },
+ {
+  "text": "$5,230.20",
+  "parts": [
+   "$5,230.20"
+  ]
+ },
+ {
+  "text": "Apr 2026",
+  "parts": [
+   "Apr 2026"
+  ]
+ },
+ {
+  "text": "$47,835.00",
+  "parts": [
+   "$47,835.00"
+  ]
+ },
+ {
+  "text": "$41,215.60",
+  "parts": [
+   "$41,215.60"
+  ]
+ },
+ {
+  "text": "$6,619.40",
+  "parts": [
+   "$6,619.40"
+  ]
+ },
+ {
+  "text": "May 2026",
+  "parts": [
+   "May 2026"
+  ]
+ },
+ {
+  "text": "$50,214.65",
+  "parts": [
+   "$50,214.65"
+  ]
+ },
+ {
+  "text": "$42,770.35",
+  "parts": [
+   "$42,770.35"
+  ]
+ },
+ {
+  "text": "$7,444.30",
+  "parts": [
+   "$7,444.30"
+  ]
+ },
+ {
+  "text": "Jun 2026",
+  "parts": [
+   "Jun 2026"
+  ]
+ },
+ {
+  "text": "$48,770.20",
+  "parts": [
+   "$48,770.20"
+  ]
+ },
+ {
+  "text": "$43,118.90",
+  "parts": [
+   "$43,118.90"
+  ]
+ },
+ {
+  "text": "$5,651.30",
+  "parts": [
+   "$5,651.30"
+  ]
+ },
+ {
+  "text": "Jul 2026",
+  "parts": [
+   "Jul 2026"
+  ]
+ },
+ {
+  "text": "$52,318.75",
+  "parts": [
+   "$52,318.75"
+  ]
+ },
+ {
+  "text": "$44,602.40",
+  "parts": [
+   "$44,602.40"
+  ]
+ },
+ {
+  "text": "$7,716.35",
+  "parts": [
+   "$7,716.35"
+  ]
+ },
+ {
+  "text": "Aug 2026",
+  "parts": [
+   "Aug 2026"
+  ]
+ },
+ {
+  "text": "$49,906.40",
+  "parts": [
+   "$49,906.40"
+  ]
+ },
+ {
+  "text": "$45,980.15",
+  "parts": [
+   "$45,980.15"
+  ]
+ },
+ {
+  "text": "$3,926.25",
+  "parts": [
+   "$3,926.25"
+  ]
+ },
+ {
+  "text": "Sep 2026",
+  "parts": [
+   "Sep 2026"
+  ]
+ },
+ {
+  "text": "$55,127.90",
+  "parts": [
+   "$55,127.90"
+  ]
+ },
+ {
+  "text": "$46,301.75",
+  "parts": [
+   "$46,301.75"
+  ]
+ },
+ {
+  "text": "$8,826.15",
+  "parts": [
+   "$8,826.15"
+  ]
+ },
+ {
+  "text": "Oct 2026",
+  "parts": [
+   "Oct 2026"
+  ]
+ },
+ {
+  "text": "$53,440.15",
+  "parts": [
+   "$53,440.15"
+  ]
+ },
+ {
+  "text": "$45,712.80",
+  "parts": [
+   "$45,712.80"
+  ]
+ },
+ {
+  "text": "$7,727.35",
+  "parts": [
+   "$7,727.35"
+  ]
+ },
+ {
+  "text": "Nov 2026",
+  "parts": [
+   "Nov 2026"
+  ]
+ },
+ {
+  "text": "$58,912.60",
+  "parts": [
+   "$58,912.60"
+  ]
+ },
+ {
+  "text": "$49,085.25",
+  "parts": [
+   "$49,085.25"
+  ]
+ },
+ {
+  "text": "$9,827.35",
+  "parts": [
+   "$9,827.35"
+  ]
+ },
+ {
+  "text": "Dec 2026",
+  "parts": [
+   "Dec 2026"
+  ]
+ },
+ {
+  "text": "$64,205.35",
+  "parts": [
+   "$64,205.35"
+  ]
+ },
+ {
+  "text": "$52,640.90",
+  "parts": [
+   "$52,640.90"
+  ]
+ },
+ {
+  "text": "$11,564.45",
+  "parts": [
+   "$11,564.45"
+  ]
+ },
+ {
+  "text": "Total",
+  "parts": [
+   "Total"
+  ]
+ },
+ {
+  "text": "$606,091.45",
+  "parts": [
+   "$606,091.45"
+  ]
+ },
+ {
+  "text": "$530,415.30",
+  "parts": [
+   "$530,415.30"
+  ]
+ },
+ {
+  "text": "$75,676.15",
+  "parts": [
+   "$75,676.15"
+  ]
+ },
+ {
+  "text": "Halcyon Tea Co. — Monthly P&L 2026",
+  "parts": [
+   "Halcyon Tea Co. — Monthly P&L 2026"
+  ]
+ },
+ {
+  "text": "All amounts in USD",
+  "parts": [
+   "All amounts in USD"
+  ]
+ },
+ {
+  "text": "PL-2026.xlsx — Saved to this Mac",
+  "parts": [
+   "PL-2026.xlsx — Saved to this Mac"
+  ]
+ },
+ {
+  "text": "B16",
+  "parts": [
+   "B16"
+  ]
+ },
+ {
+  "text": "=SUM(B4:B15)",
+  "parts": [
+   "=SUM(B4:B15)"
+  ]
+ },
+ {
+  "text": "P&L 2026",
+  "parts": [
+   "P&L 2026"
+  ]
+ },
+ {
+  "text": "Notes",
+  "parts": [
+   "Notes"
+  ]
+ },
+ {
+  "text": "D",
+  "parts": [
+   "D"
+  ]
+ },
+ {
+  "text": "G",
+  "parts": [
+   "G"
+  ]
+ },
+ {
+  "text": "1",
+  "parts": [
+   "1"
+  ]
+ },
+ {
+  "text": "Halcyon Tea Co.",
+  "parts": [
+   "Halcyon Tea Co."
+  ]
+ },
+ {
+  "text": "Monthly P&L 2026",
+  "parts": [
+   "Monthly P&L 2026"
+  ]
+ },
+ {
+  "text": "З",
+  "parts": [
+   "З"
+  ]
+ },
+ {
+  "text": "4",
+  "parts": [
+   "4"
+  ]
+ },
+ {
+  "text": "10",
+  "parts": [
+   "10"
+  ]
+ },
+ {
+  "text": "12",
+  "parts": [
+   "12"
+  ]
+ },
+ {
+  "text": "13",
+  "parts": [
+   "13"
+  ]
+ },
+ {
+  "text": "15",
+  "parts": [
+   "15"
+  ]
+ },
+ {
+  "text": "16",
+  "parts": [
+   "16"
+  ]
+ },
+ {
+  "text": "17",
+  "parts": [
+   "17"
+  ]
+ },
+ {
+  "text": "18",
+  "parts": [
+   "18"
+  ]
+ },
+ {
+  "text": "19",
+  "parts": [
+   "19"
+  ]
+ },
+ {
+  "text": "20",
+  "parts": [
+   "20"
+  ]
+ },
+ {
+  "text": "P&L 2026\nNotes\n+",
+  "parts": [
+   "P&L 2026\nNotes\n+"
+  ]
+ },
+ {
+  "text": "Ready",
+  "parts": [
+   "Ready"
+  ]
+ },
+ {
+  "text": "Accessibility: Good to go",
+  "parts": [
+   "Accessibility: Good to go"
+  ]
+ },
+ {
+  "text": "目",
+  "parts": [
+   "目"
+  ]
+ },
+ {
+  "text": "100%",
+  "parts": [
+   "100%"
+  ]
+ },
+ {
+  "text": "٦ ٢",
+  "parts": [
+   "٦",
+   "٢"
+  ]
+ },
+ {
+  "text": "Insert",
+  "parts": [
+   "Insert"
+  ]
+ },
+ {
+  "text": "Draw",
+  "parts": [
+   "Draw"
+  ]
+ },
+ {
+  "text": "System Font",
+  "parts": [
+   "System Font"
+  ]
+ },
+ {
+  "text": "Page Layout",
+  "parts": [
+   "Page Layout"
+  ]
+ },
+ {
+  "text": "Formulas",
+  "parts": [
+   "Formulas"
+  ]
+ },
+ {
+  "text": "Paste",
+  "parts": [
+   "Paste"
+  ]
+ },
+ {
+  "text": "PL-2026.xlsx - Saved to this Mac",
+  "parts": [
+   "PL-2026.xlsx - Saved to this Mac"
+  ]
+ },
+ {
+  "text": "Data",
+  "parts": [
+   "Data"
+  ]
+ },
+ {
+  "text": "Review",
+  "parts": [
+   "Review"
+  ]
+ },
+ {
+  "text": "View",
+  "parts": [
+   "View"
+  ]
+ },
+ {
+  "text": "Currency",
+  "parts": [
+   "Currency"
+  ]
+ },
+ {
+  "text": "$ % ,",
+  "parts": [
+   "$ % ,"
+  ]
+ },
+ {
+  "text": ".0 .00",
+  "parts": [
+   ".0",
+   ".00"
+  ]
+ },
+ {
+  "text": "9 Search",
+  "parts": [
+   "9 Search"
+  ]
+ },
+ {
+  "text": "Share",
+  "parts": [
+   "Share"
+  ]
+ },
+ {
+  "text": "Conditional Format as Table Cell Styles",
+  "parts": [
+   "Conditional Format as Table Cell Styles"
+  ]
+ },
+ {
+  "text": "↑↓",
+  "parts": [
+   "↑↓"
+  ]
+ },
+ {
+  "text": "AutoSum Sort & Filter",
+  "parts": [
+   "AutoSum Sort & Filter"
+  ]
+ },
+ {
+  "text": "x v fx",
+  "parts": [
+   "x v fx"
+  ]
+ },
+ {
+  "text": "Région",
+  "parts": [
+   "Région"
+  ]
+ },
+ {
+  "text": "T1",
+  "parts": [
+   "T1"
+  ]
+ },
+ {
+  "text": "T2",
+  "parts": [
+   "T2"
+  ]
+ },
+ {
+  "text": "T3",
+  "parts": [
+   "T3"
+  ]
+ },
+ {
+  "text": "T4",
+  "parts": [
+   "T4"
+  ]
+ },
+ {
+  "text": "Île-de-France",
+  "parts": [
+   "Île-de-France"
+  ]
+ },
+ {
+  "text": "142 380,50 €",
+  "parts": [
+   "142 380,50 €"
+  ]
+ },
+ {
+  "text": "151 204,00 €",
+  "parts": [
+   "151 204,00 €"
+  ]
+ },
+ {
+  "text": "128 915,75 €",
+  "parts": [
+   "128 915,75 €"
+  ]
+ },
+ {
+  "text": "167 440,20 €",
+  "parts": [
+   "167 440,20 €"
+  ]
+ },
+ {
+  "text": "Auvergne-Rhône-Alpes",
+  "parts": [
+   "Auvergne-Rhône-Alpes"
+  ]
+ },
+ {
+  "text": "156 720,00 €",
+  "parts": [
+   "156 720,00 €"
+  ]
+ },
+ {
+  "text": "149 885,40 €",
+  "parts": [
+   "149 885,40 €"
+  ]
+ },
+ {
+  "text": "141 300,25 €",
+  "parts": [
+   "141 300,25 €"
+  ]
+ },
+ {
+  "text": "149 210,90 €",
+  "parts": [
+   "149 210,90 €"
+  ]
+ },
+ {
+  "text": "Hauts-de-France",
+  "parts": [
+   "Hauts-de-France"
+  ]
+ },
+ {
+  "text": "98 450,10 €",
+  "parts": [
+   "98 450,10 €"
+  ]
+ },
+ {
+  "text": "102 337,80 €",
+  "parts": [
+   "102 337,80 €"
+  ]
+ },
+ {
+  "text": "95 120,00 €",
+  "parts": [
+   "95 120,00 €"
+  ]
+ },
+ {
+  "text": "110 845,60 €",
+  "parts": [
+   "110 845,60 €"
+  ]
+ },
+ {
+  "text": "Nouvelle-Aquitaine",
+  "parts": [
+   "Nouvelle-Aquitaine"
+  ]
+ },
+ {
+  "text": "112 905,35 €",
+  "parts": [
+   "112 905,35 €"
+  ]
+ },
+ {
+  "text": "118 460,00 €",
+  "parts": [
+   "118 460,00 €"
+  ]
+ },
+ {
+  "text": "121 775,90 €",
+  "parts": [
+   "121 775,90 €"
+  ]
+ },
+ {
+  "text": "124 018,45 €",
+  "parts": [
+   "124 018,45 €"
+  ]
+ },
+ {
+  "text": "Occitanie",
+  "parts": [
+   "Occitanie"
+  ]
+ },
+ {
+  "text": "104 220,80 €",
+  "parts": [
+   "104 220,80 €"
+  ]
+ },
+ {
+  "text": "109 615,25 €",
+  "parts": [
+   "109 615,25 €"
+  ]
+ },
+ {
+  "text": "117 940,60 €",
+  "parts": [
+   "117 940,60 €"
+  ]
+ },
+ {
+  "text": "120 305,15 €",
+  "parts": [
+   "120 305,15 €"
+  ]
+ },
+ {
+  "text": "Provence-Alpes-Côte d’Azur",
+  "parts": [
+   "Provence-Alpes-Côte d’Azur"
+  ]
+ },
+ {
+  "text": "131 008,40 €",
+  "parts": [
+   "131 008,40 €"
+  ]
+ },
+ {
+  "text": "127 560,70 €",
+  "parts": [
+   "127 560,70 €"
+  ]
+ },
+ {
+  "text": "138 994,85 €",
+  "parts": [
+   "138 994,85 €"
+  ]
+ },
+ {
+  "text": "145 112,30 €",
+  "parts": [
+   "145 112,30 €"
+  ]
+ },
+ {
+  "text": "Grand Est",
+  "parts": [
+   "Grand Est"
+  ]
+ },
+ {
+  "text": "87 615,90 €",
+  "parts": [
+   "87 615,90 €"
+  ]
+ },
+ {
+  "text": "91 230,45 €",
+  "parts": [
+   "91 230,45 €"
+  ]
+ },
+ {
+  "text": "89 407,10 €",
+  "parts": [
+   "89 407,10 €"
+  ]
+ },
+ {
+  "text": "96 880,75 €",
+  "parts": [
+   "96 880,75 €"
+  ]
+ },
+ {
+  "text": "Bretagne",
+  "parts": [
+   "Bretagne"
+  ]
+ },
+ {
+  "text": "76 340,25 €",
+  "parts": [
+   "76 340,25 €"
+  ]
+ },
+ {
+  "text": "80 115,60 €",
+  "parts": [
+   "80 115,60 €"
+  ]
+ },
+ {
+  "text": "85 902,40 €",
+  "parts": [
+   "85 902,40 €"
+  ]
+ },
+ {
+  "text": "83 476,95 €",
+  "parts": [
+   "83 476,95 €"
+  ]
+ },
+ {
+  "text": "Ventes par région — 2026",
+  "parts": [
+   "Ventes par région — 2026"
+  ]
+ },
+ {
+  "text": "Chiffre d’affaires HT, en euros",
+  "parts": [
+   "Chiffre d’affaires HT, en euros"
+  ]
+ },
+ {
+  "text": "Ventes régionales 2026 — Modifié",
+  "parts": [
+   "Ventes régionales 2026 — Modifié"
+  ]
+ },
+ {
+  "text": "Ventes 2026",
+  "parts": [
+   "Ventes 2026"
+  ]
+ },
+ {
+  "text": "Objectifs",
+  "parts": [
+   "Objectifs"
+  ]
+ },
+ {
+  "text": "Hypothèses",
+  "parts": [
+   "Hypothèses"
+  ]
+ },
+ {
+  "text": "142 380,50 €",
+  "parts": [
+   "142 380,50 €"
+  ]
+ },
+ {
+  "text": "151 204,00 €",
+  "parts": [
+   "151 204,00 €"
+  ]
+ },
+ {
+  "text": "128915,75 €",
+  "parts": [
+   "128915,75 €"
+  ]
+ },
+ {
+  "text": "167 440,20 €",
+  "parts": [
+   "167 440,20 €"
+  ]
+ },
+ {
+  "text": "156720,00 €",
+  "parts": [
+   "156720,00 €"
+  ]
+ },
+ {
+  "text": "149885,40 €",
+  "parts": [
+   "149885,40 €"
+  ]
+ },
+ {
+  "text": "141 300,25 ł",
+  "parts": [
+   "141 300,25 ł"
+  ]
+ },
+ {
+  "text": "149 210,90 €",
+  "parts": [
+   "149 210,90 €"
+  ]
+ },
+ {
+  "text": "98450,10 €",
+  "parts": [
+   "98450,10 €"
+  ]
+ },
+ {
+  "text": "102337,80 €",
+  "parts": [
+   "102337,80 €"
+  ]
+ },
+ {
+  "text": "95 120,00 €",
+  "parts": [
+   "95 120,00 €"
+  ]
+ },
+ {
+  "text": "110845,60 €",
+  "parts": [
+   "110845,60 €"
+  ]
+ },
+ {
+  "text": "5l",
+  "parts": [
+   "5l"
+  ]
+ },
+ {
+  "text": "112905,35 €",
+  "parts": [
+   "112905,35 €"
+  ]
+ },
+ {
+  "text": "118460,00 €",
+  "parts": [
+   "118460,00 €"
+  ]
+ },
+ {
+  "text": "121775,90 €",
+  "parts": [
+   "121775,90 €"
+  ]
+ },
+ {
+  "text": "124018,45 €",
+  "parts": [
+   "124018,45 €"
+  ]
+ },
+ {
+  "text": "104220,80 €",
+  "parts": [
+   "104220,80 €"
+  ]
+ },
+ {
+  "text": "109615,25 €",
+  "parts": [
+   "109615,25 €"
+  ]
+ },
+ {
+  "text": "117 940,60 €",
+  "parts": [
+   "117 940,60 €"
+  ]
+ },
+ {
+  "text": "120 305,15 €",
+  "parts": [
+   "120 305,15 €"
+  ]
+ },
+ {
+  "text": "7",
+  "parts": [
+   "7"
+  ]
+ },
+ {
+  "text": "Provence-Alpes-Côte d'Azur",
+  "parts": [
+   "Provence-Alpes-Côte d'Azur"
+  ]
+ },
+ {
+  "text": "131 008,40 €",
+  "parts": [
+   "131 008,40 €"
+  ]
+ },
+ {
+  "text": "127 560,70 €",
+  "parts": [
+   "127 560,70 €"
+  ]
+ },
+ {
+  "text": "138994,85 €",
+  "parts": [
+   "138994,85 €"
+  ]
+ },
+ {
+  "text": "145112,30 €",
+  "parts": [
+   "145112,30 €"
+  ]
+ },
+ {
+  "text": "87615,90 €",
+  "parts": [
+   "87615,90 €"
+  ]
+ },
+ {
+  "text": "91230,45 €",
+  "parts": [
+   "91230,45 €"
+  ]
+ },
+ {
+  "text": "89407,10 €",
+  "parts": [
+   "89407,10 €"
+  ]
+ },
+ {
+  "text": "96880,75 €",
+  "parts": [
+   "96880,75 €"
+  ]
+ },
+ {
+  "text": "76340,25 €",
+  "parts": [
+   "76340,25 €"
+  ]
+ },
+ {
+  "text": "80 115,60 €",
+  "parts": [
+   "80 115,60 €"
+  ]
+ },
+ {
+  "text": "85902,40 €",
+  "parts": [
+   "85902,40 €"
+  ]
+ },
+ {
+  "text": "83 476,95 €",
+  "parts": [
+   "83 476,95 €"
+  ]
+ },
+ {
+  "text": "Affichage",
+  "parts": [
+   "Affichage"
+  ]
+ },
+ {
+  "text": "Zoom",
+  "parts": [
+   "Zoom"
+  ]
+ },
+ {
+  "text": "Ventes régionales 2026 - Modifié",
+  "parts": [
+   "Ventes régionales 2026 - Modifié"
+  ]
+ },
+ {
+  "text": "Insérer",
+  "parts": [
+   "Insérer"
+  ]
+ },
+ {
+  "text": "Tableau Graphique",
+  "parts": [
+   "Tableau Graphique"
+  ]
+ },
+ {
+  "text": "Texte",
+  "parts": [
+   "Texte"
+  ]
+ },
+ {
+  "text": "Forme",
+  "parts": [
+   "Forme"
+  ]
+ },
+ {
+  "text": "Média",
+  "parts": [
+   "Média"
+  ]
+ },
+ {
+  "text": "Commentaire",
+  "parts": [
+   "Commentaire"
+  ]
+ },
+ {
+  "text": "Collaborer Format",
+  "parts": [
+   "Collaborer Format"
+  ]
+ },
+ {
+  "text": "Organiser",
+  "parts": [
+   "Organiser"
+  ]
+ },
+ {
+  "text": "Ventes par région - 2026",
+  "parts": [
+   "Ventes par région - 2026"
+  ]
+ },
+ {
+  "text": "Chiffre d'affaires HT, en euros",
+  "parts": [
+   "Chiffre d'affaires HT, en euros"
+  ]
+ },
+ {
+  "text": "Tableau",
+  "parts": [
+   "Tableau"
+  ]
+ },
+ {
+  "text": "Styles de tableau",
+  "parts": [
+   "Styles de tableau"
+  ]
+ },
+ {
+  "text": "Cellule Texte Organiser",
+  "parts": [
+   "Cellule Texte Organiser"
+  ]
+ },
+ {
+  "text": "CI",
+  "parts": [
+   "CI"
+  ]
+ },
+ {
+  "text": "DI",
+  "parts": [
+   "DI"
+  ]
+ },
+ {
+  "text": "Options du tableau",
+  "parts": [
+   "Options du tableau"
+  ]
+ },
+ {
+  "text": "Titre",
+  "parts": [
+   "Titre"
+  ]
+ },
+ {
+  "text": "Légende",
+  "parts": [
+   "Légende"
+  ]
+ },
+ {
+  "text": "Bordure du tableau",
+  "parts": [
+   "Bordure du tableau"
+  ]
+ },
+ {
+  "text": "Couleur de rang alternée",
+  "parts": [
+   "Couleur de rang alternée"
+  ]
+ },
+ {
+  "text": "Police du tableau",
+  "parts": [
+   "Police du tableau"
+  ]
+ },
+ {
+  "text": "Police système",
+  "parts": [
+   "Police système"
+  ]
+ },
+ {
+  "text": "Product",
+  "parts": [
+   "Product"
+  ]
+ },
+ {
+  "text": "Q1 2026",
+  "parts": [
+   "Q1 2026"
+  ]
+ },
+ {
+  "text": "Q2 2026",
+  "parts": [
+   "Q2 2026"
+  ]
+ },
+ {
+  "text": "Q3 2026",
+  "parts": [
+   "Q3 2026"
+  ]
+ },
+ {
+  "text": "Q4 2026",
+  "parts": [
+   "Q4 2026"
+  ]
+ },
+ {
+  "text": "FY 2026",
+  "parts": [
+   "FY 2026"
+  ]
+ },
+ {
+  "text": "Product A",
+  "parts": [
+   "Product A"
+  ]
+ },
+ {
+  "text": "£24,310",
+  "parts": [
+   "£24,310"
+  ]
+ },
+ {
+  "text": "£25,980",
+  "parts": [
+   "£25,980"
+  ]
+ },
+ {
+  "text": "£23,745",
+  "parts": [
+   "£23,745"
+  ]
+ },
+ {
+  "text": "£27,160",
+  "parts": [
+   "£27,160"
+  ]
+ },
+ {
+  "text": "£101,195",
+  "parts": [
+   "£101,195"
+  ]
+ },
+ {
+  "text": "Product B",
+  "parts": [
+   "Product B"
+  ]
+ },
+ {
+  "text": "£16,875",
+  "parts": [
+   "£16,875"
+  ]
+ },
+ {
+  "text": "£18,450",
+  "parts": [
+   "£18,450"
+  ]
+ },
+ {
+  "text": "£21,327",
+  "parts": [
+   "£21,327"
+  ]
+ },
+ {
+  "text": "£22,904",
+  "parts": [
+   "£22,904"
+  ]
+ },
+ {
+  "text": "£79,556",
+  "parts": [
+   "£79,556"
+  ]
+ },
+ {
+  "text": "Product C",
+  "parts": [
+   "Product C"
+  ]
+ },
+ {
+  "text": "£31,220",
+  "parts": [
+   "£31,220"
+  ]
+ },
+ {
+  "text": "£29,860",
+  "parts": [
+   "£29,860"
+  ]
+ },
+ {
+  "text": "£30,415",
+  "parts": [
+   "£30,415"
+  ]
+ },
+ {
+  "text": "£33,970",
+  "parts": [
+   "£33,970"
+  ]
+ },
+ {
+  "text": "£125,465",
+  "parts": [
+   "£125,465"
+  ]
+ },
+ {
+  "text": "Product D",
+  "parts": [
+   "Product D"
+  ]
+ },
+ {
+  "text": "£9,640",
+  "parts": [
+   "£9,640"
+  ]
+ },
+ {
+  "text": "£11,205",
+  "parts": [
+   "£11,205"
+  ]
+ },
+ {
+  "text": "£12,890",
+  "parts": [
+   "£12,890"
+  ]
+ },
+ {
+  "text": "£12,115",
+  "parts": [
+   "£12,115"
+  ]
+ },
+ {
+  "text": "£45,850",
+  "parts": [
+   "£45,850"
+  ]
+ },
+ {
+  "text": "Product E",
+  "parts": [
+   "Product E"
+  ]
+ },
+ {
+  "text": "£14,580",
+  "parts": [
+   "£14,580"
+  ]
+ },
+ {
+  "text": "£13,925",
+  "parts": [
+   "£13,925"
+  ]
+ },
+ {
+  "text": "£15,760",
+  "parts": [
+   "£15,760"
+  ]
+ },
+ {
+  "text": "£17,340",
+  "parts": [
+   "£17,340"
+  ]
+ },
+ {
+  "text": "£61,605",
+  "parts": [
+   "£61,605"
+  ]
+ },
+ {
+  "text": "Product F",
+  "parts": [
+   "Product F"
+  ]
+ },
+ {
+  "text": "£7,215",
+  "parts": [
+   "£7,215"
+  ]
+ },
+ {
+  "text": "£8,030",
+  "parts": [
+   "£8,030"
+  ]
+ },
+ {
+  "text": "£7,665",
+  "parts": [
+   "£7,665"
+  ]
+ },
+ {
+  "text": "£9,480",
+  "parts": [
+   "£9,480"
+  ]
+ },
+ {
+  "text": "£32,390",
+  "parts": [
+   "£32,390"
+  ]
+ },
+ {
+  "text": "£103,840",
+  "parts": [
+   "£103,840"
+  ]
+ },
+ {
+  "text": "£107,450",
+  "parts": [
+   "£107,450"
+  ]
+ },
+ {
+  "text": "£111,802",
+  "parts": [
+   "£111,802"
+  ]
+ },
+ {
+  "text": "£122,969",
+  "parts": [
+   "£122,969"
+  ]
+ },
+ {
+  "text": "£446,061",
+  "parts": [
+   "£446,061"
+  ]
+ },
+ {
+  "text": "Product revenue 2026",
+  "parts": [
+   "Product revenue 2026"
+  ]
+ },
+ {
+  "text": "tabula.example",
+  "parts": [
+   "tabula.example"
+  ]
+ },
+ {
+  "text": "A1",
+  "parts": [
+   "A1"
+  ]
+ },
+ {
+  "text": "Figures in GBP, net of VAT. Source: order ledger export.",
+  "parts": [
+   "Figures in GBP, net of VAT. Source: order ledger export."
+  ]
+ },
+ {
+  "text": "Units",
+  "parts": [
+   "Units"
+  ]
+ },
+ {
+  "text": "Targets",
+  "parts": [
+   "Targets"
+  ]
+ },
+ {
+  "text": "C",
+  "parts": [
+   "C"
+  ]
+ },
+ {
+  "text": "Fr",
+  "parts": [
+   "Fr"
+  ]
+ },
+ {
+  "text": "GI",
+  "parts": [
+   "GI"
+  ]
+ },
+ {
+  "text": "£24,31ął",
+  "parts": [
+   "£24,31ął"
+  ]
+ },
+ {
+  "text": "£27,16ął",
+  "parts": [
+   "£27,16ął"
+  ]
+ },
+ {
+  "text": "£21,32łł",
+  "parts": [
+   "£21,32łł"
+  ]
+ },
+ {
+  "text": "£13,92ął",
+  "parts": [
+   "£13,92ął"
+  ]
+ },
+ {
+  "text": "田",
+  "parts": [
+   "田"
+  ]
+ },
+ {
+  "text": "• tabula.example",
+  "parts": [
+   "• tabula.example"
+  ]
+ },
+ {
+  "text": "Product revenue 2026 *",
+  "parts": [
+   "Product revenue 2026 *"
+  ]
+ },
+ {
+  "text": "File Edit View Insert Format Data",
+  "parts": [
+   "File Edit View Insert Format Data"
+  ]
+ },
+ {
+  "text": "Tools Extensions Help",
+  "parts": [
+   "Tools Extensions Help"
+  ]
+ },
+ {
+  "text": "100%-",
+  "parts": [
+   "100%-"
+  ]
+ },
+ {
+  "text": "£%.0←.00→ 123-",
+  "parts": [
+   "£%.0",
+   "←.00",
+   "→ 123-"
+  ]
+ },
+ {
+  "text": "Default-",
+  "parts": [
+   "Default-"
+  ]
+ },
+ {
+  "text": "日",
+  "parts": [
+   "日"
+  ]
+ },
+ {
+  "text": "T、",
+  "parts": [
+   "T、"
+  ]
+ },
+ {
+  "text": "Revenue •",
+  "parts": [
+   "Revenue •"
+  ]
+ },
+ {
+  "text": "JS",
+  "parts": [
+   "JS"
+  ]
+ },
+ {
+  "text": "MR",
+  "parts": [
+   "MR"
+  ]
+ },
+ {
+  "text": "٤",
+  "parts": [
+   "٤"
+  ]
+ },
+ {
+  "text": "ORDER",
+  "parts": [
+   "ORDER"
+  ]
+ },
+ {
+  "text": "CUSTOMER",
+  "parts": [
+   "CUSTOMER"
+  ]
+ },
+ {
+  "text": "PLACED",
+  "parts": [
+   "PLACED"
+  ]
+ },
+ {
+  "text": "ITEMS",
+  "parts": [
+   "ITEMS"
+  ]
+ },
+ {
+  "text": "STATUS",
+  "parts": [
+   "STATUS"
+  ]
+ },
+ {
+  "text": "#10495",
+  "parts": [
+   "#10495"
+  ]
+ },
+ {
+  "text": "NS Niko Sauer",
+  "parts": [
+   "NS Niko Sauer"
+  ]
+ },
+ {
+  "text": "11:52 AM",
+  "parts": [
+   "11:52 AM"
+  ]
+ },
+ {
+  "text": "$612.35",
+  "parts": [
+   "$612.35"
+  ]
+ },
+ {
+  "text": "Processing",
+  "parts": [
+   "Processing"
+  ]
+ },
+ {
+  "text": "#10494",
+  "parts": [
+   "#10494"
+  ]
+ },
+ {
+  "text": "YB Yara Bellweather",
+  "parts": [
+   "YB Yara Bellweather"
+  ]
+ },
+ {
+  "text": "11:37 AM",
+  "parts": [
+   "11:37 AM"
+  ]
+ },
+ {
+  "text": "$50.00",
+  "parts": [
+   "$50.00"
+  ]
+ },
+ {
+  "text": "#10493",
+  "parts": [
+   "#10493"
+  ]
+ },
+ {
+  "text": "OK Owen Kestrel",
+  "parts": [
+   "OK Owen Kestrel"
+  ]
+ },
+ {
+  "text": "11:20 AM",
+  "parts": [
+   "11:20 AM"
+  ]
+ },
+ {
+  "text": "$329.60",
+  "parts": [
+   "$329.60"
+  ]
+ },
+ {
+  "text": "#10492",
+  "parts": [
+   "#10492"
+  ]
+ },
+ {
+  "text": "RD Rosa Delacourt",
+  "parts": [
+   "RD Rosa Delacourt"
+  ]
+ },
+ {
+  "text": "11:04 AM",
+  "parts": [
+   "11:04 AM"
+  ]
+ },
+ {
+  "text": "$501.10",
+  "parts": [
+   "$501.10"
+  ]
+ },
+ {
+  "text": "#10491",
+  "parts": [
+   "#10491"
+  ]
+ },
+ {
+  "text": "FA Felix Arden",
+  "parts": [
+   "FA Felix Arden"
+  ]
+ },
+ {
+  "text": "10:48 AM",
+  "parts": [
+   "10:48 AM"
+  ]
+ },
+ {
+  "text": "$45.20",
+  "parts": [
+   "$45.20"
+  ]
+ },
+ {
+  "text": "#10490",
+  "parts": [
+   "#10490"
+  ]
+ },
+ {
+  "text": "SW Sana Whitlock",
+  "parts": [
+   "SW Sana Whitlock"
+  ]
+ },
+ {
+  "text": "10:31 AM",
+  "parts": [
+   "10:31 AM"
+  ]
+ },
+ {
+  "text": "$2,080.00",
+  "parts": [
+   "$2,080.00"
+  ]
+ },
+ {
+  "text": "Shipped",
+  "parts": [
+   "Shipped"
+  ]
+ },
+ {
+  "text": "#10489",
+  "parts": [
+   "#10489"
+  ]
+ },
+ {
+  "text": "HF Hugo Fairbanks",
+  "parts": [
+   "HF Hugo Fairbanks"
+  ]
+ },
+ {
+  "text": "10:15 AM",
+  "parts": [
+   "10:15 AM"
+  ]
+ },
+ {
+  "text": "$118.75",
+  "parts": [
+   "$118.75"
+  ]
+ },
+ {
+  "text": "#10488",
+  "parts": [
+   "#10488"
+  ]
+ },
+ {
+  "text": "PR Priya Ramanathan",
+  "parts": [
+   "PR Priya Ramanathan"
+  ]
+ },
+ {
+  "text": "10:02 AM",
+  "parts": [
+   "10:02 AM"
+  ]
+ },
+ {
+  "text": "$735.25",
+  "parts": [
+   "$735.25"
+  ]
+ },
+ {
+  "text": "#10487",
+  "parts": [
+   "#10487"
+  ]
+ },
+ {
+  "text": "QH Quentin Hale",
+  "parts": [
+   "QH Quentin Hale"
+  ]
+ },
+ {
+  "text": "9:47 AM",
+  "parts": [
+   "9:47 AM"
+  ]
+ },
+ {
+  "text": "$499.99",
+  "parts": [
+   "$499.99"
+  ]
+ },
+ {
+  "text": "#10486",
+  "parts": [
+   "#10486"
+  ]
+ },
+ {
+  "text": "LM Lena Marchetti",
+  "parts": [
+   "LM Lena Marchetti"
+  ]
+ },
+ {
+  "text": "9:39 AM",
+  "parts": [
+   "9:39 AM"
+  ]
+ },
+ {
+  "text": "$64.00",
+  "parts": [
+   "$64.00"
+  ]
+ },
+ {
+  "text": "#10485",
+  "parts": [
+   "#10485"
+  ]
+ },
+ {
+  "text": "DO Dev Okafor",
+  "parts": [
+   "DO Dev Okafor"
+  ]
+ },
+ {
+  "text": "9:26 AM",
+  "parts": [
+   "9:26 AM"
+  ]
+ },
+ {
+  "text": "$1,249.00",
+  "parts": [
+   "$1,249.00"
+  ]
+ },
+ {
+  "text": "#10484",
+  "parts": [
+   "#10484"
+  ]
+ },
+ {
+  "text": "IC Ines Calloway",
+  "parts": [
+   "IC Ines Calloway"
+  ]
+ },
+ {
+  "text": "9:18 AM",
+  "parts": [
+   "9:18 AM"
+  ]
+ },
+ {
+  "text": "$500.00",
+  "parts": [
+   "$500.00"
+  ]
+ },
+ {
+  "text": "#10483",
+  "parts": [
+   "#10483"
+  ]
+ },
+ {
+  "text": "TW Tobias Wren",
+  "parts": [
+   "TW Tobias Wren"
+  ]
+ },
+ {
+  "text": "9:14 AM",
+  "parts": [
+   "9:14 AM"
+  ]
+ },
+ {
+  "text": "$512.90",
+  "parts": [
+   "$512.90"
+  ]
+ },
+ {
+  "text": "#10482",
+  "parts": [
+   "#10482"
+  ]
+ },
+ {
+  "text": "ME Mara Ellison",
+  "parts": [
+   "ME Mara Ellison"
+  ]
+ },
+ {
+  "text": "8:58 AM",
+  "parts": [
+   "8:58 AM"
+  ]
+ },
+ {
+  "text": "$86.40",
+  "parts": [
+   "$86.40"
+  ]
+ },
+ {
+  "text": "Today · Mon, Oct 26, 2026",
+  "parts": [
+   "Today · Mon, Oct 26, 2026"
+  ]
+ },
+ {
+  "text": "Gross sales",
+  "parts": [
+   "Gross sales"
+  ]
+ },
+ {
+  "text": "$7,384.54",
+  "parts": [
+   "$7,384.54"
+  ]
+ },
+ {
+  "text": "▲ +12.4% vs yesterday",
+  "parts": [
+   "▲ +12.4% vs yesterday"
+  ]
+ },
+ {
+  "text": "Orders",
+  "parts": [
+   "Orders"
+  ]
+ },
+ {
+  "text": "▲ +3 vs yesterday",
+  "parts": [
+   "▲ +3 vs yesterday"
+  ]
+ },
+ {
+  "text": "Avg. order value",
+  "parts": [
+   "Avg. order value"
+  ]
+ },
+ {
+  "text": "$527.47",
+  "parts": [
+   "$527.47"
+  ]
+ },
+ {
+  "text": "▲ +4.1% vs yesterday",
+  "parts": [
+   "▲ +4.1% vs yesterday"
+  ]
+ },
+ {
+  "text": "Refunds",
+  "parts": [
+   "Refunds"
+  ]
+ },
+ {
+  "text": "same as yesterday",
+  "parts": [
+   "same as yesterday"
+  ]
+ },
+ {
+  "text": "Today’s orders",
+  "parts": [
+   "Today’s orders"
+  ]
+ },
+ {
+  "text": "14 orders · updated just now",
+  "parts": [
+   "14 orders · updated just now"
+  ]
+ },
+ {
+  "text": "Showing all 14 orders placed today",
+  "parts": [
+   "Showing all 14 orders placed today"
+  ]
+ },
+ {
+  "text": "NS\nNiko Sauer",
+  "parts": [
+   "NS\nNiko Sauer"
+  ]
+ },
+ {
+  "text": "• Processing",
+  "parts": [
+   "• Processing"
+  ]
+ },
+ {
+  "text": "YB\nYara Bellweather",
+  "parts": [
+   "YB\nYara Bellweather"
+  ]
+ },
+ {
+  "text": "• Paid",
+  "parts": [
+   "• Paid"
+  ]
+ },
+ {
+  "text": "OK\nOwen Kestrel",
+  "parts": [
+   "OK\nOwen Kestrel"
+  ]
+ },
+ {
+  "text": "• Pending",
+  "parts": [
+   "• Pending"
+  ]
+ },
+ {
+  "text": "RD\nRosa Delacourt",
+  "parts": [
+   "RD\nRosa Delacourt"
+  ]
+ },
+ {
+  "text": "Felix Arden",
+  "parts": [
+   "Felix Arden"
+  ]
+ },
+ {
+  "text": "Sana Whitlock",
+  "parts": [
+   "Sana Whitlock"
+  ]
+ },
+ {
+  "text": "• Shipped",
+  "parts": [
+   "• Shipped"
+  ]
+ },
+ {
+  "text": "HF\nHugo Fairbanks",
+  "parts": [
+   "HF\nHugo Fairbanks"
+  ]
+ },
+ {
+  "text": "PR\nPriya Ramanathan",
+  "parts": [
+   "PR\nPriya Ramanathan"
+  ]
+ },
+ {
+  "text": "QH\nQuentin Hale",
+  "parts": [
+   "QH\nQuentin Hale"
+  ]
+ },
+ {
+  "text": "Lena Marchetti",
+  "parts": [
+   "Lena Marchetti"
+  ]
+ },
+ {
+  "text": "• Refunded",
+  "parts": [
+   "• Refunded"
+  ]
+ },
+ {
+  "text": "DO\nDev Okafor",
+  "parts": [
+   "DO\nDev Okafor"
+  ]
+ },
+ {
+  "text": "IC\nInes Calloway",
+  "parts": [
+   "IC\nInes Calloway"
+  ]
+ },
+ {
+  "text": "Tobias Wren",
+  "parts": [
+   "Tobias Wren"
+  ]
+ },
+ {
+  "text": "ME\nMara Ellison",
+  "parts": [
+   "ME\nMara Ellison"
+  ]
+ },
+ {
+  "text": "F",
+  "parts": [
+   "F"
+  ]
+ },
+ {
+  "text": "Fernhollow Goods",
+  "parts": [
+   "Fernhollow Goods"
+  ]
+ },
+ {
+  "text": "Store admin",
+  "parts": [
+   "Store admin"
+  ]
+ },
+ {
+  "text": "•0",
+  "parts": [
+   "•0"
+  ]
+ },
+ {
+  "text": "Products",
+  "parts": [
+   "Products"
+  ]
+ },
+ {
+  "text": "Customers",
+  "parts": [
+   "Customers"
+  ]
+ },
+ {
+  "text": "Discounts",
+  "parts": [
+   "Discounts"
+  ]
+ },
+ {
+  "text": "Ill Analytics",
+  "parts": [
+   "Ill Analytics"
+  ]
+ },
+ {
+  "text": "Search orders, customers, products",
+  "parts": [
+   "Search orders, customers, products"
+  ]
+ },
+ {
+  "text": "• +12.4% vs yesterday",
+  "parts": [
+   "• +12.4% vs yesterday"
+  ]
+ },
+ {
+  "text": "A +3 vs yesterday",
+  "parts": [
+   "A +3 vs yesterday"
+  ]
+ },
+ {
+  "text": "A +4.1% vs yesterday",
+  "parts": [
+   "A +4.1% vs yesterday"
+  ]
+ },
+ {
+  "text": "All",
+  "parts": [
+   "All"
+  ]
+ },
+ {
+  "text": "Today • Mon, Oct 26, 2026",
+  "parts": [
+   "Today • Mon, Oct 26, 2026"
+  ]
+ },
+ {
+  "text": "AK",
+  "parts": [
+   "AK"
+  ]
+ },
+ {
+  "text": "②",
+  "parts": [
+   "②"
+  ]
+ },
+ {
+  "text": "Help center",
+  "parts": [
+   "Help center"
+  ]
+ },
+ {
+  "text": "Today's orders",
+  "parts": [
+   "Today's orders"
+  ]
+ },
+ {
+  "text": "14 orders • updated just now",
+  "parts": [
+   "14 orders • updated just now"
+  ]
+ },
+ {
+  "text": "‹ Prev",
+  "parts": [
+   "‹ Prev"
+  ]
+ },
+ {
+  "text": "Next ›",
+  "parts": [
+   "Next ›"
+  ]
+ },
+ {
+  "text": "Matière",
+  "parts": [
+   "Matière"
+  ]
+ },
+ {
+  "text": "Professeur",
+  "parts": [
+   "Professeur"
+  ]
+ },
+ {
+  "text": "Note /20",
+  "parts": [
+   "Note /20"
+  ]
+ },
+ {
+  "text": "Coefficient",
+  "parts": [
+   "Coefficient"
+  ]
+ },
+ {
+  "text": "Moy. classe",
+  "parts": [
+   "Moy. classe"
+  ]
+ },
+ {
+  "text": "Français",
+  "parts": [
+   "Français"
+  ]
+ },
+ {
+  "text": "Mme Vasseur",
+  "parts": [
+   "Mme Vasseur"
+  ]
+ },
+ {
+  "text": "12,50",
+  "parts": [
+   "12,50"
+  ]
+ },
+ {
+  "text": "11,85",
+  "parts": [
+   "11,85"
+  ]
+ },
+ {
+  "text": "Mathématiques",
+  "parts": [
+   "Mathématiques"
+  ]
+ },
+ {
+  "text": "M. Lefort",
+  "parts": [
+   "M. Lefort"
+  ]
+ },
+ {
+  "text": "15,25",
+  "parts": [
+   "15,25"
+  ]
+ },
+ {
+  "text": "10,92",
+  "parts": [
+   "10,92"
+  ]
+ },
+ {
+  "text": "Histoire-géographie",
+  "parts": [
+   "Histoire-géographie"
+  ]
+ },
+ {
+  "text": "Mme Ondine",
+  "parts": [
+   "Mme Ondine"
+  ]
+ },
+ {
+  "text": "12,00",
+  "parts": [
+   "12,00"
+  ]
+ },
+ {
+  "text": "12,40",
+  "parts": [
+   "12,40"
+  ]
+ },
+ {
+  "text": "Anglais LVA",
+  "parts": [
+   "Anglais LVA"
+  ]
+ },
+ {
+  "text": "Mme Pradel",
+  "parts": [
+   "Mme Pradel"
+  ]
+ },
+ {
+  "text": "16,50",
+  "parts": [
+   "16,50"
+  ]
+ },
+ {
+  "text": "13,10",
+  "parts": [
+   "13,10"
+  ]
+ },
+ {
+  "text": "Espagnol LVB",
+  "parts": [
+   "Espagnol LVB"
+  ]
+ },
+ {
+  "text": "M. Ibarra",
+  "parts": [
+   "M. Ibarra"
+  ]
+ },
+ {
+  "text": "11,75",
+  "parts": [
+   "11,75"
+  ]
+ },
+ {
+  "text": "12,65",
+  "parts": [
+   "12,65"
+  ]
+ },
+ {
+  "text": "Physique-chimie",
+  "parts": [
+   "Physique-chimie"
+  ]
+ },
+ {
+  "text": "M. Caradec",
+  "parts": [
+   "M. Caradec"
+  ]
+ },
+ {
+  "text": "14,00",
+  "parts": [
+   "14,00"
+  ]
+ },
+ {
+  "text": "11,20",
+  "parts": [
+   "11,20"
+  ]
+ },
+ {
+  "text": "SVT",
+  "parts": [
+   "SVT"
+  ]
+ },
+ {
+  "text": "Mme Lagarde",
+  "parts": [
+   "Mme Lagarde"
+  ]
+ },
+ {
+  "text": "13,00",
+  "parts": [
+   "13,00"
+  ]
+ },
+ {
+  "text": "12,05",
+  "parts": [
+   "12,05"
+  ]
+ },
+ {
+  "text": "Enseignement scientifique",
+  "parts": [
+   "Enseignement scientifique"
+  ]
+ },
+ {
+  "text": "11,70",
+  "parts": [
+   "11,70"
+  ]
+ },
+ {
+  "text": "EPS",
+  "parts": [
+   "EPS"
+  ]
+ },
+ {
+  "text": "M. Royer",
+  "parts": [
+   "M. Royer"
+  ]
+ },
+ {
+  "text": "18,50",
+  "parts": [
+   "18,50"
+  ]
+ },
+ {
+  "text": "14,30",
+  "parts": [
+   "14,30"
+  ]
+ },
+ {
+  "text": "Ecolia",
+  "parts": [
+   "Ecolia"
+  ]
+ },
+ {
+  "text": "Lycée des Tilleuls · Espace élève",
+  "parts": [
+   "Lycée des Tilleuls · Espace élève"
+  ]
+ },
+ {
+  "text": "Camille Roussel",
+  "parts": [
+   "Camille Roussel"
+  ]
+ },
+ {
+  "text": "Première B",
+  "parts": [
+   "Première B"
+  ]
+ },
+ {
+  "text": "Notes › Moyennes par matière",
+  "parts": [
+   "Notes › Moyennes par matière"
+  ]
+ },
+ {
+  "text": "Mes moyennes — Trimestre 1",
+  "parts": [
+   "Mes moyennes — Trimestre 1"
+  ]
+ },
+ {
+  "text": "Année 2026-2027",
+  "parts": [
+   "Année 2026-2027"
+  ]
+ },
+ {
+  "text": "Trimestre 1",
+  "parts": [
+   "Trimestre 1"
+  ]
+ },
+ {
+  "text": "Trimestre 2",
+  "parts": [
+   "Trimestre 2"
+  ]
+ },
+ {
+  "text": "Trimestre 3",
+  "parts": [
+   "Trimestre 3"
+  ]
+ },
+ {
+  "text": "La moyenne générale sera publiée après le conseil de classe.",
+  "parts": [
+   "La moyenne générale sera publiée après le conseil de classe."
+  ]
+ },
+ {
+  "text": "Mes moyennes - Trimestre 1 Année 2026-2027",
+  "parts": [
+   "Mes moyennes - Trimestre 1 Année 2026-2027"
+  ]
+ },
+ {
+  "text": "Trimestre 1\nTrimestre 2\nCoefficient",
+  "parts": [
+   "Trimestre 1",
+   "Trimestre 2 Coefficient"
+  ]
+ },
+ {
+  "text": "Trimestre 3\nMoy. classe",
+  "parts": [
+   "Trimestre 3\nMoy. classe"
+  ]
+ },
+ {
+  "text": "• Ecolia | Lycée des Tilleuls • Espace élève",
+  "parts": [
+   "• Ecolia | Lycée des Tilleuls • Espace élève"
+  ]
+ },
+ {
+  "text": "Cahier de textes",
+  "parts": [
+   "Cahier de textes"
+  ]
+ },
+ {
+  "text": "Emploi du temps",
+  "parts": [
+   "Emploi du temps"
+  ]
+ },
+ {
+  "text": "Vie scolaire",
+  "parts": [
+   "Vie scolaire"
+  ]
+ },
+ {
+  "text": "Account",
+  "parts": [
+   "Account"
+  ]
+ },
+ {
+  "text": "Rep",
+  "parts": [
+   "Rep"
+  ]
+ },
+ {
+  "text": "Region",
+  "parts": [
+   "Region"
+  ]
+ },
+ {
+  "text": "Amount (USD)",
+  "parts": [
+   "Amount (USD)"
+  ]
+ },
+ {
+  "text": "INV-30411",
+  "parts": [
+   "INV-30411"
+  ]
+ },
+ {
+  "text": "07/02/2026",
+  "parts": [
+   "07/02/2026"
+  ]
+ },
+ {
+  "text": "Bramblewood Clinic",
+  "parts": [
+   "Bramblewood Clinic"
+  ]
+ },
+ {
+  "text": "R. Okoye",
+  "parts": [
+   "R. Okoye"
+  ]
+ },
+ {
+  "text": "North",
+  "parts": [
+   "North"
+  ]
+ },
+ {
+  "text": "3,482.10",
+  "parts": [
+   "3,482.10"
+  ]
+ },
+ {
+  "text": "INV-30412",
+  "parts": [
+   "INV-30412"
+  ]
+ },
+ {
+  "text": "07/03/2026",
+  "parts": [
+   "07/03/2026"
+  ]
+ },
+ {
+  "text": "Calder Freight",
+  "parts": [
+   "Calder Freight"
+  ]
+ },
+ {
+  "text": "J. Mendes",
+  "parts": [
+   "J. Mendes"
+  ]
+ },
+ {
+  "text": "East",
+  "parts": [
+   "East"
+  ]
+ },
+ {
+  "text": "2,215.00",
+  "parts": [
+   "2,215.00"
+  ]
+ },
+ {
+  "text": "INV-30415",
+  "parts": [
+   "INV-30415"
+  ]
+ },
+ {
+  "text": "07/07/2026",
+  "parts": [
+   "07/07/2026"
+  ]
+ },
+ {
+  "text": "Pinecrest Dental",
+  "parts": [
+   "Pinecrest Dental"
+  ]
+ },
+ {
+  "text": "L. Varga",
+  "parts": [
+   "L. Varga"
+  ]
+ },
+ {
+  "text": "South",
+  "parts": [
+   "South"
+  ]
+ },
+ {
+  "text": "5,130.75",
+  "parts": [
+   "5,130.75"
+  ]
+ },
+ {
+  "text": "INV-30418",
+  "parts": [
+   "INV-30418"
+  ]
+ },
+ {
+  "text": "07/09/2026",
+  "parts": [
+   "07/09/2026"
+  ]
+ },
+ {
+  "text": "Hollis & Moor",
+  "parts": [
+   "Hollis & Moor"
+  ]
+ },
+ {
+  "text": "T. Brandt",
+  "parts": [
+   "T. Brandt"
+  ]
+ },
+ {
+  "text": "West",
+  "parts": [
+   "West"
+  ]
+ },
+ {
+  "text": "1,288.40",
+  "parts": [
+   "1,288.40"
+  ]
+ },
+ {
+  "text": "INV-30421",
+  "parts": [
+   "INV-30421"
+  ]
+ },
+ {
+  "text": "07/14/2026",
+  "parts": [
+   "07/14/2026"
+  ]
+ },
+ {
+  "text": "Ostrander Labs",
+  "parts": [
+   "Ostrander Labs"
+  ]
+ },
+ {
+  "text": "4,067.25",
+  "parts": [
+   "4,067.25"
+  ]
+ },
+ {
+  "text": "INV-30424",
+  "parts": [
+   "INV-30424"
+  ]
+ },
+ {
+  "text": "07/16/2026",
+  "parts": [
+   "07/16/2026"
+  ]
+ },
+ {
+  "text": "Wexley Hardware",
+  "parts": [
+   "Wexley Hardware"
+  ]
+ },
+ {
+  "text": "742.90",
+  "parts": [
+   "742.90"
+  ]
+ },
+ {
+  "text": "INV-30427",
+  "parts": [
+   "INV-30427"
+  ]
+ },
+ {
+  "text": "07/21/2026",
+  "parts": [
+   "07/21/2026"
+  ]
+ },
+ {
+  "text": "Saltmarsh Foods",
+  "parts": [
+   "Saltmarsh Foods"
+  ]
+ },
+ {
+  "text": "2,394.60",
+  "parts": [
+   "2,394.60"
+  ]
+ },
+ {
+  "text": "CRN-30429",
+  "parts": [
+   "CRN-30429"
+  ]
+ },
+ {
+  "text": "07/23/2026",
+  "parts": [
+   "07/23/2026"
+  ]
+ },
+ {
+  "text": "-4",
+  "parts": [
+   "-4"
+  ]
+ },
+ {
+  "text": "-1,120.00",
+  "parts": [
+   "-1,120.00"
+  ]
+ },
+ {
+  "text": "INV-30432",
+  "parts": [
+   "INV-30432"
+  ]
+ },
+ {
+  "text": "07/28/2026",
+  "parts": [
+   "07/28/2026"
+  ]
+ },
+ {
+  "text": "Redfern Analytics",
+  "parts": [
+   "Redfern Analytics"
+  ]
+ },
+ {
+  "text": "4,870.00",
+  "parts": [
+   "4,870.00"
+  ]
+ },
+ {
+  "text": "INV-30436",
+  "parts": [
+   "INV-30436"
+  ]
+ },
+ {
+  "text": "08/01/2026",
+  "parts": [
+   "08/01/2026"
+  ]
+ },
+ {
+  "text": "Kingsbury Tooling",
+  "parts": [
+   "Kingsbury Tooling"
+  ]
+ },
+ {
+  "text": "A. Lindqvist",
+  "parts": [
+   "A. Lindqvist"
+  ]
+ },
+ {
+  "text": "1,915.35",
+  "parts": [
+   "1,915.35"
+  ]
+ },
+ {
+  "text": "INV-30439",
+  "parts": [
+   "INV-30439"
+  ]
+ },
+ {
+  "text": "08/05/2026",
+  "parts": [
+   "08/05/2026"
+  ]
+ },
+ {
+  "text": "Ferro Lane Studio",
+  "parts": [
+   "Ferro Lane Studio"
+  ]
+ },
+ {
+  "text": "2,960.80",
+  "parts": [
+   "2,960.80"
+  ]
+ },
+ {
+  "text": "INV-30441",
+  "parts": [
+   "INV-30441"
+  ]
+ },
+ {
+  "text": "08/08/2026",
+  "parts": [
+   "08/08/2026"
+  ]
+ },
+ {
+  "text": "Ashgrove Vets",
+  "parts": [
+   "Ashgrove Vets"
+  ]
+ },
+ {
+  "text": "1,604.20",
+  "parts": [
+   "1,604.20"
+  ]
+ },
+ {
+  "text": "INV-30444",
+  "parts": [
+   "INV-30444"
+  ]
+ },
+ {
+  "text": "08/12/2026",
+  "parts": [
+   "08/12/2026"
+  ]
+ },
+ {
+  "text": "Tamsin Row Bakery",
+  "parts": [
+   "Tamsin Row Bakery"
+  ]
+ },
+ {
+  "text": "455.00",
+  "parts": [
+   "455.00"
+  ]
+ },
+ {
+  "text": "INV-30447",
+  "parts": [
+   "INV-30447"
+  ]
+ },
+ {
+  "text": "08/15/2026",
+  "parts": [
+   "08/15/2026"
+  ]
+ },
+ {
+  "text": "Northgate Mills",
+  "parts": [
+   "Northgate Mills"
+  ]
+ },
+ {
+  "text": "22",
+  "parts": [
+   "22"
+  ]
+ },
+ {
+  "text": "5,871.40",
+  "parts": [
+   "5,871.40"
+  ]
+ },
+ {
+  "text": "INV-30450",
+  "parts": [
+   "INV-30450"
+  ]
+ },
+ {
+  "text": "08/19/2026",
+  "parts": [
+   "08/19/2026"
+  ]
+ },
+ {
+  "text": "Larkspur Hotels",
+  "parts": [
+   "Larkspur Hotels"
+  ]
+ },
+ {
+  "text": "2,648.90",
+  "parts": [
+   "2,648.90"
+  ]
+ },
+ {
+  "text": "INV-30453",
+  "parts": [
+   "INV-30453"
+  ]
+ },
+ {
+  "text": "08/22/2026",
+  "parts": [
+   "08/22/2026"
+  ]
+ },
+ {
+  "text": "Quillon Print",
+  "parts": [
+   "Quillon Print"
+  ]
+ },
+ {
+  "text": "1,012.55",
+  "parts": [
+   "1,012.55"
+  ]
+ },
+ {
+  "text": "INV-30455",
+  "parts": [
+   "INV-30455"
+  ]
+ },
+ {
+  "text": "08/26/2026",
+  "parts": [
+   "08/26/2026"
+  ]
+ },
+ {
+  "text": "Cobalt Ridge Farm",
+  "parts": [
+   "Cobalt Ridge Farm"
+  ]
+ },
+ {
+  "text": "3,326.10",
+  "parts": [
+   "3,326.10"
+  ]
+ },
+ {
+  "text": "INV-30458",
+  "parts": [
+   "INV-30458"
+  ]
+ },
+ {
+  "text": "08/29/2026",
+  "parts": [
+   "08/29/2026"
+  ]
+ },
+ {
+  "text": "Dunmore Supply",
+  "parts": [
+   "Dunmore Supply"
+  ]
+ },
+ {
+  "text": "1,544.00",
+  "parts": [
+   "1,544.00"
+  ]
+ },
+ {
+  "text": "INV-30461",
+  "parts": [
+   "INV-30461"
+  ]
+ },
+ {
+  "text": "09/02/2026",
+  "parts": [
+   "09/02/2026"
+  ]
+ },
+ {
+  "text": "Elmstead Clinic",
+  "parts": [
+   "Elmstead Clinic"
+  ]
+ },
+ {
+  "text": "2,390.45",
+  "parts": [
+   "2,390.45"
+  ]
+ },
+ {
+  "text": "INV-30464",
+  "parts": [
+   "INV-30464"
+  ]
+ },
+ {
+  "text": "09/08/2026",
+  "parts": [
+   "09/08/2026"
+  ]
+ },
+ {
+  "text": "Marigold Transit",
+  "parts": [
+   "Marigold Transit"
+  ]
+ },
+ {
+  "text": "4,218.30",
+  "parts": [
+   "4,218.30"
+  ]
+ },
+ {
+  "text": "INV-30466",
+  "parts": [
+   "INV-30466"
+  ]
+ },
+ {
+  "text": "09/11/2026",
+  "parts": [
+   "09/11/2026"
+  ]
+ },
+ {
+  "text": "Brackenfield Co-op",
+  "parts": [
+   "Brackenfield Co-op"
+  ]
+ },
+ {
+  "text": "1,307.65",
+  "parts": [
+   "1,307.65"
+  ]
+ },
+ {
+  "text": "INV-30469",
+  "parts": [
+   "INV-30469"
+  ]
+ },
+ {
+  "text": "09/16/2026",
+  "parts": [
+   "09/16/2026"
+  ]
+ },
+ {
+  "text": "Harrow Peak Outfitters",
+  "parts": [
+   "Harrow Peak Outfitters"
+  ]
+ },
+ {
+  "text": "1,866.20",
+  "parts": [
+   "1,866.20"
+  ]
+ },
+ {
+  "text": "INV-30472",
+  "parts": [
+   "INV-30472"
+  ]
+ },
+ {
+  "text": "09/22/2026",
+  "parts": [
+   "09/22/2026"
+  ]
+ },
+ {
+  "text": "3,705.80",
+  "parts": [
+   "3,705.80"
+  ]
+ },
+ {
+  "text": "INV-30475",
+  "parts": [
+   "INV-30475"
+  ]
+ },
+ {
+  "text": "09/29/2026",
+  "parts": [
+   "09/29/2026"
+  ]
+ },
+ {
+  "text": "Southbank Optics",
+  "parts": [
+   "Southbank Optics"
+  ]
+ },
+ {
+  "text": "2,087.15",
+  "parts": [
+   "2,087.15"
+  ]
+ },
+ {
+  "text": "Total (24 rows)",
+  "parts": [
+   "Total (24 rows)"
+  ]
+ },
+ {
+  "text": "226",
+  "parts": [
+   "226"
+  ]
+ },
+ {
+  "text": "59,984.85",
+  "parts": [
+   "59,984.85"
+  ]
+ },
+ {
+  "text": "Ledgerline",
+  "parts": [
+   "Ledgerline"
+  ]
+ },
+ {
+  "text": "Sales Ledger — Q3 2026",
+  "parts": [
+   "Sales Ledger — Q3 2026"
+  ]
+ },
+ {
+  "text": "Invoices and credit notes · generated Oct 3, 2026 08:15",
+  "parts": [
+   "Invoices and credit notes · generated Oct 3, 2026 08:15"
+  ]
+ },
+ {
+  "text": "Period: Jul 1 – Sep 30, 2026",
+  "parts": [
+   "Period: Jul 1 – Sep 30, 2026"
+  ]
+ },
+ {
+  "text": "Region: All",
+  "parts": [
+   "Region: All"
+  ]
+ },
+ {
+  "text": "Rep: All",
+  "parts": [
+   "Rep: All"
+  ]
+ },
+ {
+  "text": "Type: All",
+  "parts": [
+   "Type: All"
+  ]
+ },
+ {
+  "text": "24 rows",
+  "parts": [
+   "24 rows"
+  ]
+ },
+ {
+  "text": "Sorted by Date, ascending",
+  "parts": [
+   "Sorted by Date, ascending"
+  ]
+ },
+ {
+  "text": "of 1",
+  "parts": [
+   "of 1"
+  ]
+ },
+ {
+  "text": "Page 1 of 1",
+  "parts": [
+   "Page 1",
+   "of 1"
+  ]
+ },
+ {
+  "text": "Period: Jul 1 - Sep 30, 2026\nRegion: All •\nRep: All •\nType: All -",
+  "parts": [
+   "Period: Jul 1 - Sep 30, 2026\nRegion: All •\nRep: All •\nType: All -"
+  ]
+ },
+ {
+  "text": "• North",
+  "parts": [
+   "• North"
+  ]
+ },
+ {
+  "text": "• West",
+  "parts": [
+   "• West"
+  ]
+ },
+ {
+  "text": "• South",
+  "parts": [
+   "• South"
+  ]
+ },
+ {
+  "text": "/ West",
+  "parts": [
+   "/ West"
+  ]
+ },
+ {
+  "text": "1,915.35ą",
+  "parts": [
+   "1,915.35ą"
+  ]
+ },
+ {
+  "text": "• East",
+  "parts": [
+   "• East"
+  ]
+ },
+ {
+  "text": "08/08/202łą",
+  "parts": [
+   "08/08/202łą"
+  ]
+ },
+ {
+  "text": "NV-30472",
+  "parts": [
+   "NV-30472"
+  ]
+ },
+ {
+  "text": "09/22/202ćł",
+  "parts": [
+   "09/22/202ćł"
+  ]
+ },
+ {
+  "text": "24 rows\nSorted by Date, ascending",
+  "parts": [
+   "24 rows\nSorted by Date, ascending"
+  ]
+ },
+ {
+  "text": "Reports",
+  "parts": [
+   "Reports"
+  ]
+ },
+ {
+  "text": "Dashboards",
+  "parts": [
+   "Dashboards"
+  ]
+ },
+ {
+  "text": "Data sources",
+  "parts": [
+   "Data sources"
+  ]
+ },
+ {
+  "text": "Schedules",
+  "parts": [
+   "Schedules"
+  ]
+ },
+ {
+  "text": "Sales Ledger - Q3 2026",
+  "parts": [
+   "Sales Ledger - Q3 2026"
+  ]
+ },
+ {
+  "text": "Invoices and credit notes • generated Oct 3, 2026 08:15",
+  "parts": [
+   "Invoices and credit notes • generated Oct 3, 2026 08:15"
+  ]
+ },
+ {
+  "text": "Help",
+  "parts": [
+   "Help"
+  ]
+ },
+ {
+  "text": "KD",
+  "parts": [
+   "KD"
+  ]
+ },
+ {
+  "text": "Filter",
+  "parts": [
+   "Filter"
+  ]
+ },
+ {
+  "text": "Columns",
+  "parts": [
+   "Columns"
+  ]
+ },
+ {
+  "text": "Print",
+  "parts": [
+   "Print"
+  ]
+ },
+ {
+  "text": "Export CSV",
+  "parts": [
+   "Export CSV"
+  ]
+ },
+ {
+  "text": "Budget",
+  "parts": [
+   "Budget"
+  ]
+ },
+ {
+  "text": "Réel",
+  "parts": [
+   "Réel"
+  ]
+ },
+ {
+  "text": "1 050,00 €",
+  "parts": [
+   "1 050,00 €"
+  ]
+ },
+ {
+  "text": "420,00 €",
+  "parts": [
+   "420,00 €"
+  ]
+ },
+ {
+  "text": "486,35 €",
+  "parts": [
+   "486,35 €"
+  ]
+ },
+ {
+  "text": "120,00 €",
+  "parts": [
+   "120,00 €"
+  ]
+ },
+ {
+  "text": "97,60 €",
+  "parts": [
+   "97,60 €"
+  ]
+ },
+ {
+  "text": "150,00 €",
+  "parts": [
+   "150,00 €"
+  ]
+ },
+ {
+  "text": "212,80 €",
+  "parts": [
+   "212,80 €"
+  ]
+ },
+ {
+  "text": "100,00 €",
+  "parts": [
+   "100,00 €"
+  ]
+ },
+ {
+  "text": "143,90 €",
+  "parts": [
+   "143,90 €"
+  ]
+ },
+ {
+  "text": "45,00 €",
+  "parts": [
+   "45,00 €"
+  ]
+ },
+ {
+  "text": "52,97 €",
+  "parts": [
+   "52,97 €"
+  ]
+ },
+ {
+  "text": "60,00 €",
+  "parts": [
+   "60,00 €"
+  ]
+ },
+ {
+  "text": "23,50 €",
+  "parts": [
+   "23,50 €"
+  ]
+ },
+ {
+  "text": "Vêtements",
+  "parts": [
+   "Vêtements"
+  ]
+ },
+ {
+  "text": "80,00 €",
+  "parts": [
+   "80,00 €"
+  ]
+ },
+ {
+  "text": "134,25 €",
+  "parts": [
+   "134,25 €"
+  ]
+ },
+ {
+  "text": "Cadeaux",
+  "parts": [
+   "Cadeaux"
+  ]
+ },
+ {
+  "text": "50,00 €",
+  "parts": [
+   "50,00 €"
+  ]
+ },
+ {
+  "text": "0,00 €",
+  "parts": [
+   "0,00 €"
+  ]
+ },
+ {
+  "text": "Tirelire",
+  "parts": [
+   "Tirelire"
+  ]
+ },
+ {
+  "text": "Budget d’octobre",
+  "parts": [
+   "Budget d’octobre"
+  ]
+ },
+ {
+  "text": "9 catégories",
+  "parts": [
+   "9 catégories"
+  ]
+ },
+ {
+  "text": "5 dépassements",
+  "parts": [
+   "5 dépassements"
+  ]
+ },
+ {
+  "text": "Compte joint",
+  "parts": [
+   "Compte joint"
+  ]
+ },
+ {
+  "text": "Catégorie\nBudget\nRéel",
+  "parts": [
+   "Catégorie\nBudget\nRéel"
+  ]
+ },
+ {
+  "text": "Logement\n1 050,00 €\n1 050,00 €",
+  "parts": [
+   "Logement 1 050,00 €",
+   "1 050,00 €"
+  ]
+ },
+ {
+  "text": "Courses\n420,00 €\n486,35 €",
+  "parts": [
+   "Courses 420,00 €",
+   "486,35 €"
+  ]
+ },
+ {
+  "text": "Transport\n120,00 €\n97,60 €",
+  "parts": [
+   "Transport 120,00 €",
+   "97,60 €"
+  ]
+ },
+ {
+  "text": "R",
+  "parts": [
+   "R"
+  ]
+ },
+ {
+  "text": "Restaurants\n150,00 €\n212,80 €",
+  "parts": [
+   "Restaurants 150,00 €",
+   "212,80 €"
+  ]
+ },
+ {
+  "text": "Loisirs\n100,00€\n143,90 €",
+  "parts": [
+   "Loisirs 100,00€",
+   "143,90 €"
+  ]
+ },
+ {
+  "text": "Abonnements\n45,00 €\n52,97 €",
+  "parts": [
+   "Abonnements 45,00 €",
+   "52,97 €"
+  ]
+ },
+ {
+  "text": "S",
+  "parts": [
+   "S"
+  ]
+ },
+ {
+  "text": "Santé\n60,00 €\n23,50 €",
+  "parts": [
+   "Santé 60,00 €",
+   "23,50 €"
+  ]
+ },
+ {
+  "text": "Vêtements\n80,00 €\n134,25€",
+  "parts": [
+   "Vêtements 80,00 €",
+   "134,25€"
+  ]
+ },
+ {
+  "text": "Cadeaux\n50,00 €\n€ 0,00",
+  "parts": [
+   "Cadeaux 50,00 €",
+   "€ 0,00"
+  ]
+ },
+ {
+  "text": "‹ Octobre 2026 ›",
+  "parts": [
+   "‹ Octobre 2026 ›"
+  ]
+ },
+ {
+  "text": "Tableau de bord",
+  "parts": [
+   "Tableau de bord"
+  ]
+ },
+ {
+  "text": "Comptes",
+  "parts": [
+   "Comptes"
+  ]
+ },
+ {
+  "text": "Il Rapports",
+  "parts": [
+   "Il Rapports"
+  ]
+ },
+ {
+  "text": "Budget d'octobre",
+  "parts": [
+   "Budget d'octobre"
+  ]
+ },
+ {
+  "text": "Marché des Tilleuls",
+  "parts": [
+   "Marché des Tilleuls"
+  ]
+ },
+ {
+  "text": "Rechercher un produit",
+  "parts": [
+   "Rechercher un produit"
+  ]
+ },
+ {
+  "text": "Panier · 3 articles",
+  "parts": [
+   "Panier · 3 articles"
+  ]
+ },
+ {
+  "text": "Épicerie › Café, thé › Café moulu",
+  "parts": [
+   "Épicerie › Café, thé › Café moulu"
+  ]
+ },
+ {
+  "text": "Café moulu pur arabica",
+  "parts": [
+   "Café moulu pur arabica"
+  ]
+ },
+ {
+  "text": "Café moulu pur arabica 250 g",
+  "parts": [
+   "Café moulu pur arabica 250 g"
+  ]
+ },
+ {
+  "text": "Torréfaction artisanale",
+  "parts": [
+   "Torréfaction artisanale"
+  ]
+ },
+ {
+  "text": "3,49 €",
+  "parts": [
+   "3,49 €"
+  ]
+ },
+ {
+  "text": "Ajouter",
+  "parts": [
+   "Ajouter"
+  ]
+ },
+ {
+  "text": "Café moulu pur arabica 400 g",
+  "parts": [
+   "Café moulu pur arabica 400 g"
+  ]
+ },
+ {
+  "text": "Promo −12 %",
+  "parts": [
+   "Promo −12 %"
+  ]
+ },
+ {
+  "text": "5,19 €",
+  "parts": [
+   "5,19 €"
+  ]
+ },
+ {
+  "text": "4,59 €",
+  "parts": [
+   "4,59 €"
+  ]
+ },
+ {
+  "text": "Café moulu pur arabica 500 g",
+  "parts": [
+   "Café moulu pur arabica 500 g"
+  ]
+ },
+ {
+  "text": "Le plus vendu",
+  "parts": [
+   "Le plus vendu"
+  ]
+ },
+ {
+  "text": "6,29 €",
+  "parts": [
+   "6,29 €"
+  ]
+ },
+ {
+  "text": "Café moulu pur arabica 750 g",
+  "parts": [
+   "Café moulu pur arabica 750 g"
+  ]
+ },
+ {
+  "text": "Format famille",
+  "parts": [
+   "Format famille"
+  ]
+ },
+ {
+  "text": "8,95 €",
+  "parts": [
+   "8,95 €"
+  ]
+ },
+ {
+  "text": "Café moulu pur arabica 1000 g",
+  "parts": [
+   "Café moulu pur arabica 1000 g"
+  ]
+ },
+ {
+  "text": "Grand format",
+  "parts": [
+   "Grand format"
+  ]
+ },
+ {
+  "text": "12,40 €",
+  "parts": [
+   "12,40 €"
+  ]
+ },
+ {
+  "text": "Deals (Sep)",
+  "parts": [
+   "Deals (Sep)"
+  ]
+ },
+ {
+  "text": "Revenue Aug",
+  "parts": [
+   "Revenue Aug"
+  ]
+ },
+ {
+  "text": "Revenue Sep",
+  "parts": [
+   "Revenue Sep"
+  ]
+ },
+ {
+  "text": "Change",
+  "parts": [
+   "Change"
+  ]
+ },
+ {
+  "text": "Northeast",
+  "parts": [
+   "Northeast"
+  ]
+ },
+ {
+  "text": "41",
+  "parts": [
+   "41"
+  ]
+ },
+ {
+  "text": "$176,410.00",
+  "parts": [
+   "$176,410.00"
+  ]
+ },
+ {
+  "text": "$184,250.00",
+  "parts": [
+   "$184,250.00"
+  ]
+ },
+ {
+  "text": "+4.4%",
+  "parts": [
+   "+4.4%"
+  ]
+ },
+ {
+  "text": "Southeast",
+  "parts": [
+   "Southeast"
+  ]
+ },
+ {
+  "text": "38",
+  "parts": [
+   "38"
+  ]
+ },
+ {
+  "text": "$169,002.30",
+  "parts": [
+   "$169,002.30"
+  ]
+ },
+ {
+  "text": "$171,980.50",
+  "parts": [
+   "$171,980.50"
+  ]
+ },
+ {
+  "text": "+1.8%",
+  "parts": [
+   "+1.8%"
+  ]
+ },
+ {
+  "text": "Midwest",
+  "parts": [
+   "Midwest"
+  ]
+ },
+ {
+  "text": "44",
+  "parts": [
+   "44"
+  ]
+ },
+ {
+  "text": "$181,775.40",
+  "parts": [
+   "$181,775.40"
+  ]
+ },
+ {
+  "text": "$192,404.75",
+  "parts": [
+   "$192,404.75"
+  ]
+ },
+ {
+  "text": "+5.8%",
+  "parts": [
+   "+5.8%"
+  ]
+ },
+ {
+  "text": "Southwest",
+  "parts": [
+   "Southwest"
+  ]
+ },
+ {
+  "text": "36",
+  "parts": [
+   "36"
+  ]
+ },
+ {
+  "text": "$190,120.00",
+  "parts": [
+   "$190,120.00"
+  ]
+ },
+ {
+  "text": "$188,120.00",
+  "parts": [
+   "$188,120.00"
+  ]
+ },
+ {
+  "text": "−1.1%",
+  "parts": [
+   "−1.1%"
+  ]
+ },
+ {
+  "text": "47",
+  "parts": [
+   "47"
+  ]
+ },
+ {
+  "text": "$201,300.00",
+  "parts": [
+   "$201,300.00"
+  ]
+ },
+ {
+  "text": "$191,880.00",
+  "parts": [
+   "$191,880.00"
+  ]
+ },
+ {
+  "text": "−4.7%",
+  "parts": [
+   "−4.7%"
+  ]
+ },
+ {
+  "text": "206",
+  "parts": [
+   "206"
+  ]
+ },
+ {
+  "text": "$918,607.70",
+  "parts": [
+   "$918,607.70"
+  ]
+ },
+ {
+  "text": "$928,635.25",
+  "parts": [
+   "$928,635.25"
+  ]
+ },
+ {
+  "text": "+1.1%",
+  "parts": [
+   "+1.1%"
+  ]
+ },
+ {
+  "text": "Northwind Analytics",
+  "parts": [
+   "Northwind Analytics"
+  ]
+ },
+ {
+  "text": "Pipeline",
+  "parts": [
+   "Pipeline"
+  ]
+ },
+ {
+  "text": "Forecast",
+  "parts": [
+   "Forecast"
+  ]
+ },
+ {
+  "text": "Aug – Sep 2026",
+  "parts": [
+   "Aug – Sep 2026"
+  ]
+ },
+ {
+  "text": "Revenue by region",
+  "parts": [
+   "Revenue by region"
+  ]
+ },
+ {
+  "text": "Closed-won deals, booked revenue in US dollars",
+  "parts": [
+   "Closed-won deals, booked revenue in US dollars"
+  ]
+ },
+ {
+  "text": "Désignation",
+  "parts": [
+   "Désignation"
+  ]
+ },
+ {
+  "text": "Qté",
+  "parts": [
+   "Qté"
+  ]
+ },
+ {
+  "text": "Unité",
+  "parts": [
+   "Unité"
+  ]
+ },
+ {
+  "text": "PU HT",
+  "parts": [
+   "PU HT"
+  ]
+ },
+ {
+  "text": "Total HT",
+  "parts": [
+   "Total HT"
+  ]
+ },
+ {
+  "text": "Dépose de l'ancien carrelage",
+  "parts": [
+   "Dépose de l'ancien carrelage"
+  ]
+ },
+ {
+  "text": "m²",
+  "parts": [
+   "m²"
+  ]
+ },
+ {
+  "text": "14,50 €",
+  "parts": [
+   "14,50 €"
+  ]
+ },
+ {
+  "text": "261,00 €",
+  "parts": [
+   "261,00 €"
+  ]
+ },
+ {
+  "text": "Ragréage du sol",
+  "parts": [
+   "Ragréage du sol"
+  ]
+ },
+ {
+  "text": "21,00 €",
+  "parts": [
+   "21,00 €"
+  ]
+ },
+ {
+  "text": "378,00 €",
+  "parts": [
+   "378,00 €"
+  ]
+ },
+ {
+  "text": "Pose de carrelage grès cérame 60×60",
+  "parts": [
+   "Pose de carrelage grès cérame 60×60"
+  ]
+ },
+ {
+  "text": "48,75 €",
+  "parts": [
+   "48,75 €"
+  ]
+ },
+ {
+  "text": "877,50 €",
+  "parts": [
+   "877,50 €"
+  ]
+ },
+ {
+  "text": "Plinthes assorties",
+  "parts": [
+   "Plinthes assorties"
+  ]
+ },
+ {
+  "text": "ml",
+  "parts": [
+   "ml"
+  ]
+ },
+ {
+  "text": "272,80 €",
+  "parts": [
+   "272,80 €"
+  ]
+ },
+ {
+  "text": "Évacuation des gravats",
+  "parts": [
+   "Évacuation des gravats"
+  ]
+ },
+ {
+  "text": "forfait",
+  "parts": [
+   "forfait"
+  ]
+ },
+ {
+  "text": "185,00 €",
+  "parts": [
+   "185,00 €"
+  ]
+ },
+ {
+  "text": "Atelier Brunet",
+  "parts": [
+   "Atelier Brunet"
+  ]
+ },
+ {
+  "text": "Factures",
+  "parts": [
+   "Factures"
+  ]
+ },
+ {
+  "text": "Brouillon",
+  "parts": [
+   "Brouillon"
+  ]
+ },
+ {
+  "text": "Devis n° D-2026-118",
+  "parts": [
+   "Devis n° D-2026-118"
+  ]
+ },
+ {
+  "text": "Rénovation salle de bains · Mme Lefort, Annecy",
+  "parts": [
+   "Rénovation salle de bains · Mme Lefort, Annecy"
+  ]
+ },
+ {
+  "text": "Émis le 27/10/2026",
+  "parts": [
+   "Émis le 27/10/2026"
+  ]
+ },
+ {
+  "text": "Valable 30 jours",
+  "parts": [
+   "Valable 30 jours"
+  ]
+ },
+ {
+  "text": "1 974,30 €",
+  "parts": [
+   "1 974,30 €"
+  ]
+ },
+ {
+  "text": "Taux de TVA (travaux de rénovation)",
+  "parts": [
+   "Taux de TVA (travaux de rénovation)"
+  ]
+ },
+ {
+  "text": "10 %",
+  "parts": [
+   "10 %"
+  ]
+ },
+ {
+  "text": "calculé à la validation",
+  "parts": [
+   "calculé à la validation"
+  ]
+ },
+ {
+  "text": "Acompte de 30 %",
+  "parts": [
+   "Acompte de 30 %"
+  ]
+ },
+ {
+  "text": "à la signature. Travaux réalisés sous 4 semaines après acceptation.",
+  "parts": [
+   "à la signature. Travaux réalisés sous 4 semaines après acceptation."
+  ]
+ },
+ {
+  "text": "Acompte de 30 % à la signature. Travaux réalisés sous 4 semaines après acceptation.",
+  "parts": [
+   "Acompte de 30 %",
+   "à la signature. Travaux réalisés sous 4 semaines après acceptation."
+  ]
+ },
+ {
+  "text": "NORTHRIDGE OUTFITTERS",
+  "parts": [
+   "NORTHRIDGE OUTFITTERS"
+  ]
+ },
+ {
+  "text": "Cart",
+  "parts": [
+   "Cart"
+  ]
+ },
+ {
+  "text": "Shipping",
+  "parts": [
+   "Shipping"
+  ]
+ },
+ {
+  "text": "Payment",
+  "parts": [
+   "Payment"
+  ]
+ },
+ {
+  "text": "Your items",
+  "parts": [
+   "Your items"
+  ]
+ },
+ {
+  "text": "Trail running jacket",
+  "parts": [
+   "Trail running jacket"
+  ]
+ },
+ {
+  "text": "Slate · M",
+  "parts": [
+   "Slate · M"
+  ]
+ },
+ {
+  "text": "Qty 1",
+  "parts": [
+   "Qty 1"
+  ]
+ },
+ {
+  "text": "× $129.00",
+  "parts": [
+   "× $129.00"
+  ]
+ },
+ {
+  "text": "$129.00",
+  "parts": [
+   "$129.00"
+  ]
+ },
+ {
+  "text": "Merino base layer",
+  "parts": [
+   "Merino base layer"
+  ]
+ },
+ {
+  "text": "Charcoal · M",
+  "parts": [
+   "Charcoal · M"
+  ]
+ },
+ {
+  "text": "Qty 2",
+  "parts": [
+   "Qty 2"
+  ]
+ },
+ {
+  "text": "× $48.50",
+  "parts": [
+   "× $48.50"
+  ]
+ },
+ {
+  "text": "$97.00",
+  "parts": [
+   "$97.00"
+  ]
+ },
+ {
+  "text": "Running socks, 3-pack",
+  "parts": [
+   "Running socks, 3-pack"
+  ]
+ },
+ {
+  "text": "Mixed · 40–42",
+  "parts": [
+   "Mixed · 40–42"
+  ]
+ },
+ {
+  "text": "× $22.90",
+  "parts": [
+   "× $22.90"
+  ]
+ },
+ {
+  "text": "$22.90",
+  "parts": [
+   "$22.90"
+  ]
+ },
+ {
+  "text": "Insulated bottle 750 ml",
+  "parts": [
+   "Insulated bottle 750 ml"
+  ]
+ },
+ {
+  "text": "Moss",
+  "parts": [
+   "Moss"
+  ]
+ },
+ {
+  "text": "× $37.50",
+  "parts": [
+   "× $37.50"
+  ]
+ },
+ {
+  "text": "$37.50",
+  "parts": [
+   "$37.50"
+  ]
+ },
+ {
+  "text": "Order summary",
+  "parts": [
+   "Order summary"
+  ]
+ },
+ {
+  "text": "Subtotal",
+  "parts": [
+   "Subtotal"
+  ]
+ },
+ {
+  "text": "$286.40",
+  "parts": [
+   "$286.40"
+  ]
+ },
+ {
+  "text": "Free",
+  "parts": [
+   "Free"
+  ]
+ },
+ {
+  "text": "Order total",
+  "parts": [
+   "Order total"
+  ]
+ },
+ {
+  "text": "Discount code",
+  "parts": [
+   "Discount code"
+  ]
+ },
+ {
+  "text": "Apply",
+  "parts": [
+   "Apply"
+  ]
+ },
+ {
+  "text": "Continue to payment",
+  "parts": [
+   "Continue to payment"
+  ]
+ },
+ {
+  "text": "Qty 1 × $129.00",
+  "parts": [
+   "Qty 1",
+   "× $129.00"
+  ]
+ },
+ {
+  "text": "Qty 2 × $48.50",
+  "parts": [
+   "Qty 2",
+   "× $48.50"
+  ]
+ },
+ {
+  "text": "Qty 1 × $22.90",
+  "parts": [
+   "Qty 1",
+   "× $22.90"
+  ]
+ },
+ {
+  "text": "Qty 1 × $37.50",
+  "parts": [
+   "Qty 1",
+   "× $37.50"
+  ]
+ },
+ {
+  "text": "Jour",
+  "parts": [
+   "Jour"
+  ]
+ },
+ {
+  "text": "Début",
+  "parts": [
+   "Début"
+  ]
+ },
+ {
+  "text": "Fin",
+  "parts": [
+   "Fin"
+  ]
+ },
+ {
+  "text": "Projet",
+  "parts": [
+   "Projet"
+  ]
+ },
+ {
+  "text": "Tâche",
+  "parts": [
+   "Tâche"
+  ]
+ },
+ {
+  "text": "Durée",
+  "parts": [
+   "Durée"
+  ]
+ },
+ {
+  "text": "Lun. 26/10",
+  "parts": [
+   "Lun. 26/10"
+  ]
+ },
+ {
+  "text": "8:30",
+  "parts": [
+   "8:30"
+  ]
+ },
+ {
+  "text": "12:00",
+  "parts": [
+   "12:00"
+  ]
+ },
+ {
+  "text": "Atlas",
+  "parts": [
+   "Atlas"
+  ]
+ },
+ {
+  "text": "Atelier de cadrage",
+  "parts": [
+   "Atelier de cadrage"
+  ]
+ },
+ {
+  "text": "3h30",
+  "parts": [
+   "3h30"
+  ]
+ },
+ {
+  "text": "13:30",
+  "parts": [
+   "13:30"
+  ]
+ },
+ {
+  "text": "15:30",
+  "parts": [
+   "15:30"
+  ]
+ },
+ {
+  "text": "Borée",
+  "parts": [
+   "Borée"
+  ]
+ },
+ {
+  "text": "Revue de code",
+  "parts": [
+   "Revue de code"
+  ]
+ },
+ {
+  "text": "2h",
+  "parts": [
+   "2h"
+  ]
+ },
+ {
+  "text": "Mar. 27/10",
+  "parts": [
+   "Mar. 27/10"
+  ]
+ },
+ {
+  "text": "9:00",
+  "parts": [
+   "9:00"
+  ]
+ },
+ {
+  "text": "11:15",
+  "parts": [
+   "11:15"
+  ]
+ },
+ {
+  "text": "Maquettes écran d'accueil",
+  "parts": [
+   "Maquettes écran d'accueil"
+  ]
+ },
+ {
+  "text": "2h15",
+  "parts": [
+   "2h15"
+  ]
+ },
+ {
+  "text": "11:30",
+  "parts": [
+   "11:30"
+  ]
+ },
+ {
+  "text": "14:45",
+  "parts": [
+   "14:45"
+  ]
+ },
+ {
+  "text": "Cassini",
+  "parts": [
+   "Cassini"
+  ]
+ },
+ {
+  "text": "Support client",
+  "parts": [
+   "Support client"
+  ]
+ },
+ {
+  "text": "3h15",
+  "parts": [
+   "3h15"
+  ]
+ },
+ {
+  "text": "Mer. 28/10",
+  "parts": [
+   "Mer. 28/10"
+  ]
+ },
+ {
+  "text": "8:45",
+  "parts": [
+   "8:45"
+  ]
+ },
+ {
+  "text": "10:30",
+  "parts": [
+   "10:30"
+  ]
+ },
+ {
+  "text": "Point d'équipe",
+  "parts": [
+   "Point d'équipe"
+  ]
+ },
+ {
+  "text": "1h45",
+  "parts": [
+   "1h45"
+  ]
+ },
+ {
+  "text": "14:00",
+  "parts": [
+   "14:00"
+  ]
+ },
+ {
+  "text": "18:00",
+  "parts": [
+   "18:00"
+  ]
+ },
+ {
+  "text": "Intégration API",
+  "parts": [
+   "Intégration API"
+  ]
+ },
+ {
+  "text": "4h",
+  "parts": [
+   "4h"
+  ]
+ },
+ {
+  "text": "Jeu. 29/10",
+  "parts": [
+   "Jeu. 29/10"
+  ]
+ },
+ {
+  "text": "12:30",
+  "parts": [
+   "12:30"
+  ]
+ },
+ {
+  "text": "Tests de charge",
+  "parts": [
+   "Tests de charge"
+  ]
+ },
+ {
+  "text": "Ven. 30/10",
+  "parts": [
+   "Ven. 30/10"
+  ]
+ },
+ {
+  "text": "10:00",
+  "parts": [
+   "10:00"
+  ]
+ },
+ {
+  "text": "10:45",
+  "parts": [
+   "10:45"
+  ]
+ },
+ {
+  "text": "Démo client",
+  "parts": [
+   "Démo client"
+  ]
+ },
+ {
+  "text": "0h45",
+  "parts": [
+   "0h45"
+  ]
+ },
+ {
+  "text": "Chronos",
+  "parts": [
+   "Chronos"
+  ]
+ },
+ {
+  "text": "Feuilles de temps",
+  "parts": [
+   "Feuilles de temps"
+  ]
+ },
+ {
+  "text": "Projets",
+  "parts": [
+   "Projets"
+  ]
+ },
+ {
+  "text": "Rapports",
+  "parts": [
+   "Rapports"
+  ]
+ },
+ {
+  "text": "Ma feuille de temps",
+  "parts": [
+   "Ma feuille de temps"
+  ]
+ },
+ {
+  "text": "Semaine 44",
+  "parts": [
+   "Semaine 44"
+  ]
+ },
+ {
+  "text": "· 26 – 30 oct. 2026",
+  "parts": [
+   "· 26 – 30 oct. 2026"
+  ]
+ },
+ {
+  "text": "Camille Roux · Équipe produit",
+  "parts": [
+   "Camille Roux · Équipe produit"
+  ]
+ },
+ {
+  "text": "Total semaine",
+  "parts": [
+   "Total semaine"
+  ]
+ },
+ {
+  "text": "21h",
+  "parts": [
+   "21h"
+  ]
+ },
+ {
+  "text": "Semaine 44 · 26 – 30 oct. 2026",
+  "parts": [
+   "Semaine 44",
+   "· 26 – 30 oct. 2026"
+  ]
+ },
+ {
+  "text": "31.10.2026",
+  "parts": [
+   "31.10.2026"
+  ]
+ },
+ {
+  "text": "Bergmarkt Lausanne",
+  "parts": [
+   "Bergmarkt Lausanne"
+  ]
+ },
+ {
+  "text": "Groceries",
+  "parts": [
+   "Groceries"
+  ]
+ },
+ {
+  "text": "−CHF 84.35",
+  "parts": [
+   "−CHF 84.35"
+  ]
+ },
+ {
+  "text": "30.10.2026",
+  "parts": [
+   "30.10.2026"
+  ]
+ },
+ {
+  "text": "Rail pass top-up",
+  "parts": [
+   "Rail pass top-up"
+  ]
+ },
+ {
+  "text": "−CHF 120.00",
+  "parts": [
+   "−CHF 120.00"
+  ]
+ },
+ {
+  "text": "28.10.2026",
+  "parts": [
+   "28.10.2026"
+  ]
+ },
+ {
+  "text": "Seeladen Ouchy",
+  "parts": [
+   "Seeladen Ouchy"
+  ]
+ },
+ {
+  "text": "−CHF 23.90",
+  "parts": [
+   "−CHF 23.90"
+  ]
+ },
+ {
+  "text": "27.10.2026",
+  "parts": [
+   "27.10.2026"
+  ]
+ },
+ {
+  "text": "Salary October",
+  "parts": [
+   "Salary October"
+  ]
+ },
+ {
+  "text": "Income",
+  "parts": [
+   "Income"
+  ]
+ },
+ {
+  "text": "CHF 6'840.00",
+  "parts": [
+   "CHF 6'840.00"
+  ]
+ },
+ {
+  "text": "25.10.2026",
+  "parts": [
+   "25.10.2026"
+  ]
+ },
+ {
+  "text": "−CHF 112.60",
+  "parts": [
+   "−CHF 112.60"
+  ]
+ },
+ {
+  "text": "22.10.2026",
+  "parts": [
+   "22.10.2026"
+  ]
+ },
+ {
+  "text": "Café du Lac",
+  "parts": [
+   "Café du Lac"
+  ]
+ },
+ {
+  "text": "Dining",
+  "parts": [
+   "Dining"
+  ]
+ },
+ {
+  "text": "−CHF 38.50",
+  "parts": [
+   "−CHF 38.50"
+  ]
+ },
+ {
+  "text": "19.10.2026",
+  "parts": [
+   "19.10.2026"
+  ]
+ },
+ {
+  "text": "Rent November",
+  "parts": [
+   "Rent November"
+  ]
+ },
+ {
+  "text": "Housing",
+  "parts": [
+   "Housing"
+  ]
+ },
+ {
+  "text": "−CHF 1'950.00",
+  "parts": [
+   "−CHF 1'950.00"
+  ]
+ },
+ {
+  "text": "16.10.2026",
+  "parts": [
+   "16.10.2026"
+  ]
+ },
+ {
+  "text": "Fromagerie Bovet",
+  "parts": [
+   "Fromagerie Bovet"
+  ]
+ },
+ {
+  "text": "−CHF 41.05",
+  "parts": [
+   "−CHF 41.05"
+  ]
+ },
+ {
+  "text": "12.10.2026",
+  "parts": [
+   "12.10.2026"
+  ]
+ },
+ {
+  "text": "Electricity Q3",
+  "parts": [
+   "Electricity Q3"
+  ]
+ },
+ {
+  "text": "Utilities",
+  "parts": [
+   "Utilities"
+  ]
+ },
+ {
+  "text": "−CHF 214.80",
+  "parts": [
+   "−CHF 214.80"
+  ]
+ },
+ {
+  "text": "05.10.2026",
+  "parts": [
+   "05.10.2026"
+  ]
+ },
+ {
+  "text": "Pharmacie Centrale",
+  "parts": [
+   "Pharmacie Centrale"
+  ]
+ },
+ {
+  "text": "Health",
+  "parts": [
+   "Health"
+  ]
+ },
+ {
+  "text": "−CHF 27.45",
+  "parts": [
+   "−CHF 27.45"
+  ]
+ },
+ {
+  "text": "Banque Cantonale du Léman",
+  "parts": [
+   "Banque Cantonale du Léman"
+  ]
+ },
+ {
+  "text": "Cards",
+  "parts": [
+   "Cards"
+  ]
+ },
+ {
+  "text": "Private account",
+  "parts": [
+   "Private account"
+  ]
+ },
+ {
+  "text": "CH47 0901 4482 3105 6617 2 · October 2026",
+  "parts": [
+   "CH47 0901 4482 3105 6617 2 · October 2026"
+  ]
+ },
+ {
+  "text": "Balance on 31.10.2026",
+  "parts": [
+   "Balance on 31.10.2026"
+  ]
+ },
+ {
+  "text": "CHF 7'640.10",
+  "parts": [
+   "CHF 7'640.10"
+  ]
+ },
+ {
+  "text": "All categories",
+  "parts": [
+   "All categories"
+  ]
+ },
+ {
+  "text": "October 2026",
+  "parts": [
+   "October 2026"
+  ]
+ },
+ {
+  "text": "Campaign",
+  "parts": [
+   "Campaign"
+  ]
+ },
+ {
+  "text": "Channel",
+  "parts": [
+   "Channel"
+  ]
+ },
+ {
+  "text": "Visits",
+  "parts": [
+   "Visits"
+  ]
+ },
+ {
+  "text": "Sign-ups",
+  "parts": [
+   "Sign-ups"
+  ]
+ },
+ {
+  "text": "Conv. rate",
+  "parts": [
+   "Conv. rate"
+  ]
+ },
+ {
+  "text": "Autumn launch",
+  "parts": [
+   "Autumn launch"
+  ]
+ },
+ {
+  "text": "Paid social",
+  "parts": [
+   "Paid social"
+  ]
+ },
+ {
+  "text": "48.2k",
+  "parts": [
+   "48.2k"
+  ]
+ },
+ {
+  "text": "1.2k",
+  "parts": [
+   "1.2k"
+  ]
+ },
+ {
+  "text": "2.5%",
+  "parts": [
+   "2.5%"
+  ]
+ },
+ {
+  "text": "Referral push",
+  "parts": [
+   "Referral push"
+  ]
+ },
+ {
+  "text": "Email",
+  "parts": [
+   "Email"
+  ]
+ },
+ {
+  "text": "22.9k",
+  "parts": [
+   "22.9k"
+  ]
+ },
+ {
+  "text": "860",
+  "parts": [
+   "860"
+  ]
+ },
+ {
+  "text": "3.8%",
+  "parts": [
+   "3.8%"
+  ]
+ },
+ {
+  "text": "Webinar series",
+  "parts": [
+   "Webinar series"
+  ]
+ },
+ {
+  "text": "Events",
+  "parts": [
+   "Events"
+  ]
+ },
+ {
+  "text": "61.5k",
+  "parts": [
+   "61.5k"
+  ]
+ },
+ {
+  "text": "2.4k",
+  "parts": [
+   "2.4k"
+  ]
+ },
+ {
+  "text": "3.9%",
+  "parts": [
+   "3.9%"
+  ]
+ },
+ {
+  "text": "Lumen Growth",
+  "parts": [
+   "Lumen Growth"
+  ]
+ },
+ {
+  "text": "Campaigns",
+  "parts": [
+   "Campaigns"
+  ]
+ },
+ {
+  "text": "Audiences",
+  "parts": [
+   "Audiences"
+  ]
+ },
+ {
+  "text": "Last 30 days",
+  "parts": [
+   "Last 30 days"
+  ]
+ },
+ {
+  "text": "Campaign performance",
+  "parts": [
+   "Campaign performance"
+  ]
+ },
+ {
+  "text": "132.6k",
+  "parts": [
+   "132.6k"
+  ]
+ },
+ {
+  "text": "+18% vs Sep",
+  "parts": [
+   "+18% vs Sep"
+  ]
+ },
+ {
+  "text": "Active campaigns",
+  "parts": [
+   "Active campaigns"
+  ]
+ },
+ {
+  "text": "1 scheduled",
+  "parts": [
+   "1 scheduled"
+  ]
+ },
+ {
+  "text": "Avg. cost per sign-up",
+  "parts": [
+   "Avg. cost per sign-up"
+  ]
+ },
+ {
+  "text": "$4.12",
+  "parts": [
+   "$4.12"
+  ]
+ },
+ {
+  "text": "−6% vs Sep",
+  "parts": [
+   "−6% vs Sep"
+  ]
+ },
+ {
+  "text": "Q3 2026 (draft)",
+  "parts": [
+   "Q3 2026 (draft)"
+  ]
+ },
+ {
+  "text": "45,900",
+  "parts": [
+   "45,900"
+  ]
+ },
+ {
+  "text": "48,200",
+  "parts": [
+   "48,200"
+  ]
+ },
+ {
+  "text": "Cost of goods sold",
+  "parts": [
+   "Cost of goods sold"
+  ]
+ },
+ {
+  "text": "(16,480)",
+  "parts": [
+   "(16,480)"
+  ]
+ },
+ {
+  "text": "(17,350)",
+  "parts": [
+   "(17,350)"
+  ]
+ },
+ {
+  "text": "Gross profit",
+  "parts": [
+   "Gross profit"
+  ]
+ },
+ {
+  "text": "29,420",
+  "parts": [
+   "29,420"
+  ]
+ },
+ {
+  "text": "30,850",
+  "parts": [
+   "30,850"
+  ]
+ },
+ {
+  "text": "Salaries",
+  "parts": [
+   "Salaries"
+  ]
+ },
+ {
+  "text": "(14,600)",
+  "parts": [
+   "(14,600)"
+  ]
+ },
+ {
+  "text": "Rent",
+  "parts": [
+   "Rent"
+  ]
+ },
+ {
+  "text": "(3,200)",
+  "parts": [
+   "(3,200)"
+  ]
+ },
+ {
+  "text": "(2,310)",
+  "parts": [
+   "(2,310)"
+  ]
+ },
+ {
+  "text": "(1,240)",
+  "parts": [
+   "(1,240)"
+  ]
+ },
+ {
+  "text": "Software",
+  "parts": [
+   "Software"
+  ]
+ },
+ {
+  "text": "(790)",
+  "parts": [
+   "(790)"
+  ]
+ },
+ {
+  "text": "(860)",
+  "parts": [
+   "(860)"
+  ]
+ },
+ {
+  "text": "Operating profit",
+  "parts": [
+   "Operating profit"
+  ]
+ },
+ {
+  "text": "8,520",
+  "parts": [
+   "8,520"
+  ]
+ },
+ {
+  "text": "PnL 2026",
+  "parts": [
+   "PnL 2026"
+  ]
+ },
+ {
+  "text": "File",
+  "parts": [
+   "File"
+  ]
+ },
+ {
+  "text": "Edit",
+  "parts": [
+   "Edit"
+  ]
+ },
+ {
+  "text": "Format",
+  "parts": [
+   "Format"
+  ]
+ },
+ {
+  "text": "fx",
+  "parts": [
+   "fx"
+  ]
+ },
+ {
+  "text": "Amounts in USD",
+  "parts": [
+   "Amounts in USD"
+  ]
+ },
+ {
+  "text": "Amounts in USD. Q3 is a draft until the books close.",
+  "parts": [
+   "Amounts in USD. Q3 is a draft until the books close."
+  ]
+ }
+]

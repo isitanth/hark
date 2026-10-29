@@ -1,0 +1,138 @@
+# M13 word check table: question <TAB> lang <TAB> expected. Lines starting with # are comments.
+# The 28 computational cases: c01-c20 measured, c21-c28 new (G4).
+How much did I really pay this year?	en	true
+Combien il me reste à payer ?	fr	true
+Combien j'ai dépensé en restaurants en octobre ?	fr	true
+What were my total deposits this month?	en	true
+What's my balance after the last transaction?	en	true
+How much will we pay per year for the active seats?	en	true
+Quel est le total net de mes achats ce mois-ci ?	fr	true
+Combien j'ai payé pour les articles à 20 % de TVA ?	fr	true
+Split the bill four ways with an 18% tip on the subtotal	en	true
+How many hours did I log on Apollo this week?	en	true
+De combien ma facture d'octobre a augmenté par rapport à septembre, en pourcentage ?	fr	true
+Which pack is cheapest per kilo, and how much is it per kilo?	en	true
+How much travel is still to be reimbursed?	en	true
+What's the average monthly revenue for Q3?	en	true
+Combien a vendu sur l'année la région qui a vendu le plus ?	fr	true
+By how much did Product B grow from Q2 to Q3, in percent?	en	true
+How many orders were over $500?	en	true
+Quelle est ma moyenne pondérée ?	fr	true
+What's the total amount for the North region?	en	true
+Au total, de combien mes dépenses d'octobre dépassent mon budget total ?	fr	true
+Quel paquet de café est le moins cher au kilo ?	fr	true
+Which region brought in the most revenue in September?	en	true
+Combien je vais payer TTC pour ce devis ?	fr	true
+What will this order come to with my 15% discount?	en	true
+Combien d'heures j'ai passées sur le projet Atlas cette semaine ?	fr	true
+How much did I spend on groceries this month?	en	true
+How many sign-ups did the three campaigns bring in altogether?	en	true
+What's the operating profit for the third quarter?	en	true
+# Whisper's French spacing variants: U+00A0 and U+202F before "?" and "%".
+Combien il me reste à payer ?	fr	true
+Combien j’ai payé pour les articles à 20 % de TVA ?	fr	true
+# The non-math set (non-math-set.tsv), all false.
+Which merchant is the hotel?	en	false
+What does this page show, in one sentence?	en	false
+Translate the table's title into English.	en	false
+Qui est le titulaire de la carte ?	fr	false
+Summarize this email in two lines.	en	false
+Who signed this contract?	en	false
+What date is the invoice due?	en	false
+Rewrite this paragraph in a friendlier tone.	en	false
+What does the column labelled "Ref" stand for?	en	false
+Is there a phone number on this receipt?	en	false
+Which airline is this flight with?	en	false
+What language is this written in?	en	false
+Explain what this chart is about.	en	false
+Find the date of the next meeting.	en	false
+What's the name of the account holder?	en	false
+Who is the sender of this message?	en	false
+What does this error message say?	en	false
+Which bank issued this card?	en	false
+Traduis ce paragraphe en anglais.	fr	false
+Résume ce document en une phrase.	fr	false
+Qui a envoyé ce courriel ?	fr	false
+Quelle est la date d'échéance de la facture ?	fr	false
+De quel magasin vient ce ticket ?	fr	false
+Que veut dire l'abréviation dans la deuxième colonne ?	fr	false
+Reformule ce message de façon plus polie.	fr	false
+Quel est le nom du fournisseur ?	fr	false
+À quelle adresse dois-je envoyer le colis ?	fr	false
+Explique-moi ce que montre ce graphique.	fr	false
+Quelle est la langue de ce texte ?	fr	false
+Corrige les fautes de cette phrase.	fr	false
+Qui est le destinataire de ce virement ?	fr	false
+Où se trouve le siège de cette entreprise ?	fr	false
+Trouve la date du prochain rendez-vous.	fr	false
+Quel est le titre de ce tableau ?	fr	false
+Ce document est-il signé ?	fr	false
+What account number is shown here?	en	false
+# Near misses, both ways.
+How much does this say about the budget?	en	false
+How much does this article say about pricing?	en	false
+Combien de lignes y a-t-il dans ce tableau ?	fr	true
+How many rows are in this table?	en	true
+Translate the totals into French.	en	false
+What is the total called in French?	en	false
+Traduis le total en anglais.	fr	false
+Comment dit-on « total » en anglais ?	fr	false
+Explain what the Total column means.	en	false
+What does "solde" mean?	en	false
+Que signifie la colonne Solde ?	fr	false
+# "Is the total right?" is true: checking a total means recomputing it from the cells, which is the exact path's job.
+Is the total right?	en	true
+Le total est-il juste ?	fr	true
+Which merchant charged me the most?	en	true
+What's the most important point here?	en	false
+Quel est le point le plus important ?	fr	false
+What's the most recent transaction?	en	false
+Divide the bill by three.	en	true
+How much is 120 dollars in euros?	en	true
+What's the VAT number of this company?	en	false
+Quel est le numéro de TVA de ce fournisseur ?	fr	false
+Quel est le montant HT ?	fr	true
+Rewrite the total in words.	en	false
+Who paid the least?	en	true
+# 2026-10-28, before the captures: the capture list's questions and a blind generator's, both ways (M13.md, change 3).
+Quelle a été ma plus grosse dépense le mois dernier ?	fr	true
+C'est quoi ma plus grosse dépense sur le relevé ?	fr	true
+Ça fait quoi en tout ?	fr	true
+Et en tout ?	fr	true
+Dis-moi ce que j'ai reçu sur PayPal cette semaine, en tout.	fr	true
+Mon ticket moyen, c'est quoi ?	fr	true
+Bon, l'évolution du CA d'un mois sur l'autre, tu me la donnes en pourcent ?	fr	true
+Donc là, mon net imposable cumulé depuis janvier, ça donne quoi ?	fr	true
+Sors-moi le taux horaire moyen de ce tableau.	fr	true
+Tu peux additionner les montants ?	fr	true
+Fais le calcul.	fr	true
+Qu'est-ce que j'ai dépensé chez Amazon ?	fr	true
+J'ai dépensé quoi ce mois-ci ?	fr	true
+En tout cas, après tous ces débits, je suis à découvert de combien ?	fr	true
+Mon plus gros client, il pèse combien ?	fr	true
+So what's my biggest expense this month?	en	true
+Okay, what did I spend on groceries?	en	true
+Add all these up for me.	en	true
+What's the gap between the two quotes?	en	true
+If I pay it in three installments, what's each one?	en	true
+What's the unit price on the bulk pack?	en	true
+Can you tally up the hours on this timesheet?	en	true
+What was my priciest thing on this receipt?	en	true
+So what does that work out to per hour?	en	true
+What's the conversion rate, signups over visitors?	en	true
+What am I paying per kilowatt hour, then?	en	true
+Can you calculate my share?	en	true
+What's the subtotal?	en	true
+Total minus refunds?	en	true
+# Fillers and superlatives that rank something other than an amount.
+En tout cas, c'est quoi ce document ?	fr	false
+En tout cas, ce relevé est à quel nom ?	fr	false
+En tout cas, je lui réponds quoi, à ce mail ?	fr	false
+Quel est le plus gros risque dans ce contrat ?	fr	false
+D'après ce rapport, c'est quoi le plus grand défi pour l'équipe ?	fr	false
+Parmi ces mails, lequel est le plus urgent ?	fr	false
+What's the biggest risk in this contract?	en	false
+What's the biggest concern in this report?	en	false
+Que montre cette feuille de calcul ?	fr	false
+Quel moyen de paiement j'ai utilisé ?	fr	false
+Add a comment to this line.	en	false

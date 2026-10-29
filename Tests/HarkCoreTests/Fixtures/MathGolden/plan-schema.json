@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "properties": {
+    "understood": {
+      "type": "string"
+    },
+    "formula": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "USD",
+        "GBP",
+        "percent",
+        "count",
+        "hours",
+        "none"
+      ]
+    }
+  },
+  "required": [
+    "understood",
+    "formula",
+    "unit"
+  ],
+  "additionalProperties": false
+}
