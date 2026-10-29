@@ -7140,6 +7140,57 @@
           }
         }
       }
+    },
+    "entry.failure.mathError": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the calculation had no result"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le calcul n’a pas eu de résultat"
+          }
+        }
+      }
+    },
+    "entry.failure.planInvalid": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the model’s calculation was not valid"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · le calcul du modèle n’était pas valide"
+          }
+        }
+      }
+    },
+    "entry.failure.readerFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the frame’s figures could not be read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · les chiffres du cadre n’ont pas pu être lus"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -112,7 +112,9 @@ extension LogEntry {
         case .screenRecordingDenied: return L("entry.failure.screenRecordingDenied")
         case .regionFailed: return L("entry.failure.regionFailed")
         case .llmProfileChanged: return L("entry.failure.llmProfileChanged")
-        case .readerFailed, .planInvalid, .mathError: return L("entry.failure.llmErrorInStream")
+        case .readerFailed: return L("entry.failure.readerFailed")
+        case .planInvalid: return L("entry.failure.planInvalid")
+        case .mathError: return L("entry.failure.mathError")
         case .audioEngine(nil), .transcription(nil), .appNotFound(nil), .appNotActivated(nil), .appExited(nil),
             .actionExit, .automationDenied, .focusNotRestored, .other:
             return L("entry.outcome.failed \(code)")
