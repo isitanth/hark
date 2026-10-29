@@ -115,4 +115,18 @@ private func plain(_ text: String) -> String {
             ])
         #expect(exact.understood != nil)
     }
+
+    /// A figure inside a longer number, or the same value in another unit, is not on screen: the check line shows.
+    @Test func aFigureIsOnACellOnlyWholeAndInItsUnit() throws {
+        let exact = try answer(
+            "C1 + C2", ["11 200 €", "12 €"], instruction: "total",
+            understood: "You want 1 200 € and 12 % of it, with 11 200 € and 12 € as read.")
+        #expect(
+            exact.figures == [
+                UnderstoodFigure(text: "1 200 €", source: .nowhere),
+                UnderstoodFigure(text: "12 %", source: .nowhere),
+                UnderstoodFigure(text: "11 200 €", source: .cell(CellID(1))),
+                UnderstoodFigure(text: "12 €", source: .cell(CellID(2))),
+            ])
+    }
 }

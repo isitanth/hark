@@ -244,9 +244,8 @@ enum UnderstoodFigures {
             let value = amount.value < 0 ? -amount.value : amount.value
             let integer = RoundingPolicy.round(value, scale: 0, rule: .down) == value
             if amount.unit == .number, integer, value < 1000 || (1900...2099).contains(value) { return nil }
-            if let id = computation.read.first(where: { matches(sheet[$0], value: value, text: text) }) {
-                return UnderstoodFigure(text: text, source: .cell(id))
-            }
+            let shown = computation.read.first { matches(sheet[$0], value: value, unit: amount.unit, text: text) }
+            if let id = shown { return UnderstoodFigure(text: text, source: .cell(id)) }
             let spoken = computation.formula.constants.contains { constant in
                 [constant, constant * 100, (constant - 1) * 100, (1 - constant) * 100].contains(value)
             }
@@ -254,10 +253,34 @@ enum UnderstoodFigures {
         }
     }
 
-    static func matches(_ cell: Cell?, value: Decimal, text: String) -> Bool {
+    /// The cell shows the figure: its text holds it whole, or its value is the figure's in a unit that agrees. A
+    /// figure inside a longer number (`1 200 €` in `11 200 €`) or in another unit (`12 %` beside `12 €`) is not on it.
+    static func matches(_ cell: Cell?, value: Decimal, unit: CellUnit, text: String) -> Bool {
         guard let cell else { return false }
-        if cell.text.contains(text) { return true }
-        guard case .amount(let amount) = cell.reading else { return false }
-        return amount.value == value || amount.value == -value
+        if holds(cell.text, whole: text) { return true }
+        guard case .amount(let amount) = cell.reading, amount.value == value || amount.value == -value else {
+            return false
+        }
+        return unit == .number || amount.unit == .number || unit == amount.unit
+    }
+
+    /// `needle` in `haystack` with no digit glued on either side, directly or across one separator.
+    static func holds(_ haystack: String, whole needle: String) -> Bool {
+        let characters = Array(haystack)
+        let pattern = Array(needle)
+        guard !pattern.isEmpty, pattern.count <= characters.count else { return false }
+        let separators: Set<Character> = [" ", "\u{00A0}", "\u{202F}", ",", ".", "'", "\u{2019}"]
+        func glued(_ index: Int, step: Int) -> Bool {
+            guard characters.indices.contains(index) else { return false }
+            if characters[index].isNumber { return true }
+            let next = index + step
+            return separators.contains(characters[index]) && characters.indices.contains(next)
+                && characters[next].isNumber
+        }
+        for start in 0...(characters.count - pattern.count)
+        where Array(characters[start..<(start + pattern.count)]) == pattern {
+            if !glued(start - 1, step: -1), !glued(start + pattern.count, step: 1) { return true }
+        }
+        return false
     }
 }
