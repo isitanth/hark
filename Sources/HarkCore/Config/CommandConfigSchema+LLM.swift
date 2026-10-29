@@ -4,7 +4,7 @@ import Yams
 /// `llm:`, version 3 only. No key is ever read from the file, and no problem found here repeats what looked like one:
 /// those are `keyInFile`, which carries only the path.
 extension CommandConfigSchema {
-    static let llmKeys = ["provider", "profiles", "max_selection_chars"]
+    static let llmKeys = ["provider", "profiles", "max_selection_chars", "exact_math"]
     static let profileKeys = ["base_url", "api", "key", "model", "temperature", "max_tokens", "extra"]
     /// An Anthropic profile: no `temperature` (Claude's current models refuse it) and no `extra` (meant for a server
     /// on this Mac), but `effort`.
@@ -26,18 +26,21 @@ extension CommandConfigSchema {
         var provider: (name: String, node: Node)?
         var profiles = LLMConfig.standard.profiles
         var maxSelectionChars = LLMConfig.defaultMaxSelectionChars
+        var exactMath = ExactMathSetting.off
         try ConfigNodes.fields(of: node, path: "llm", allowed: llmKeys) { key, value throws(ConfigError) in
             let path = "llm.\(key)"
             switch key {
             case "provider": provider = (try ConfigNodes.text(value, path: path), value)
             case "profiles": profiles = try Self.profiles(value)
             case "max_selection_chars": maxSelectionChars = try integer(value, path: path, in: maxSelectionCharsRange)
+            case "exact_math": exactMath = try ConfigNodes.choice(value, path: path)
             default: break
             }
         }
         let name = provider?.name ?? ProviderProfile.local.name
         guard profiles[name] != nil else { throw ConfigNodes.error(.unknownProfile(name), at: provider?.node ?? node) }
-        return LLMConfig(provider: name, profiles: profiles, maxSelectionChars: maxSelectionChars)
+        return LLMConfig(
+            provider: name, profiles: profiles, maxSelectionChars: maxSelectionChars, exactMath: exactMath == .on)
     }
 
     /// A profile name is a Keychain account: lowercase ASCII, digits, `_` and `-`, 32 at most.
@@ -208,4 +211,10 @@ extension CommandConfigSchema {
         if let value = try? ConfigNodes.number(node, path: path) { return .double(value) }
         return .string(scalar.string)
     }
+}
+
+/// `llm.exact_math`, read as the text it is written as: `on` is never YAML 1.1's boolean, and `true`, `yes` or `1` is
+/// an invalid choice. Absent, or null, is off.
+enum ExactMathSetting: String, CaseIterable {
+    case on, off
 }

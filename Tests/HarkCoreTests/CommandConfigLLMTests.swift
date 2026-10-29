@@ -123,7 +123,25 @@ let llmAcceptCases: [LLMAcceptCase] = [
     .init("https to any host", LLMTexts.url("https://10.0.0.2:8443/v1"), local("https://10.0.0.2:8443/v1")),
     .init("a null extra is empty", LLMTexts.with("extra:"), local("https://example.com/v1")),
     .init("a null extra field is absent", LLMTexts.with("extra: {top_k: ~}"), local("https://example.com/v1")),
+    .init("no exact_math is off", LLMTexts.url("https://example.com/v1"), local("https://example.com/v1")),
+    .init("exact_math on", LLMTexts.file(["exact_math: on"]), exact(.standard)),
+    .init("exact_math off", LLMTexts.file(["exact_math: off"]), .standard),
+    .init("a null exact_math is off", LLMTexts.file(["exact_math:"]), .standard),
+    .init(
+        "exact_math on beside a claude profile",
+        LLMTexts.file([
+            "provider: claude", "exact_math: on", "profiles:", "  local:", "    base_url: \"http://127.0.0.1:8000/v1\"",
+            "    extra: {enable_thinking: false}", "  claude:", "    base_url: \"https://api.anthropic.com/v1\"",
+            "    api: anthropic", "    model: \"claude-opus-5-5\"", "    effort: low",
+        ]),
+        LLMConfig(provider: "claude", profiles: ["local": .local, "claude": .claude], exactMath: true)),
 ]
+
+private func exact(_ llm: LLMConfig) -> LLMConfig {
+    var llm = llm
+    llm.exactMath = true
+    return llm
+}
 
 private let profilePath = "llm.profiles.local"
 
@@ -269,7 +287,22 @@ let llmProblemCases: [LLMProblemCase] = [
     .init(
         "extra max_tokens is a standard field, not a secret", LLMTexts.with("extra: {max_tokens: 5}"),
         .outOfRange(path: "\(profilePath).extra", value: "max_tokens")),
+    .init("exact_math true", LLMTexts.file(["exact_math: true"]), exactMathChoice("true")),
+    .init("exact_math yes", LLMTexts.file(["exact_math: yes"]), exactMathChoice("yes")),
+    .init("exact_math ON", LLMTexts.file(["exact_math: ON"]), exactMathChoice("ON")),
+    .init("exact_math 1", LLMTexts.file(["exact_math: 1"]), exactMathChoice("1")),
+    .init("exact_math \"on \"", LLMTexts.file(["exact_math: \"on \""]), exactMathChoice("on ")),
+    .init(
+        "exact_math as a list", LLMTexts.file(["exact_math: [on]"]),
+        .wrongType(path: "llm.exact_math", expected: .text)),
+    .init(
+        "exact_mat misspelt", LLMTexts.file(["exact_mat: on"]),
+        .unknownKey("exact_mat", path: "llm", suggestion: "exact_math")),
 ]
+
+private func exactMathChoice(_ value: String) -> ConfigProblem {
+    .invalidChoice(path: "llm.exact_math", value: value, allowed: ["on", "off"])
+}
 
 struct LLMRoundTripCase: Sendable, CustomTestStringConvertible {
     let name: String
@@ -346,6 +379,7 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
         let config = try CommandConfig.parse(try Data(contentsOf: url))
         #expect(config.llm == LLMConfig.standard)
         #expect(config.effectiveLLM.activeProfile == ProviderProfile.local)
+        #expect(!config.effectiveLLM.exactMath)
     }
 
     /// A key that reached the file is never repeated: not in the log's description, not in the UI's text.
