@@ -59,12 +59,16 @@ public actor VisionRegionReader: RegionReading {
         return { start.duration(to: clock.now) }
     }
 
+    /// A cancelled read reads nothing: the controller drops its result, and it neither logs nor counts as warm.
     public func read(_ raster: RegionRaster) async -> Result<CellSheet, ReaderFailure> {
         await acquire()
         defer { release() }
         let start = elapsed()
         guard !Task.isCancelled else { return .success(Self.emptySheet) }
-        guard let image = Self.capped(raster.image, cap: options.inputCap) else { return .failure(.vision) }
+        guard let image = Self.capped(raster.image, cap: options.inputCap) else {
+            Self.logger.error("reader: the frame could not be scaled to the reader's cap")
+            return .failure(.vision)
+        }
         let document: RawDocument
         do {
             document = try await recognizer.document(image)
@@ -75,9 +79,12 @@ public actor VisionRegionReader: RegionReading {
         guard !Task.isCancelled else { return .success(Self.emptySheet) }
         let recognizer = recognizer
         let onCrop = onCrop
+        // The re-reads are cut from the native raster: its boxes are normalized, so a capped frame's map unchanged.
+        let native = raster.image
         let built = await SheetBuilder.build(document, options: options, amounts: amounts) { boxes, rung in
-            await Self.cropReads(image, boxes: boxes, rung: rung, recognizer: recognizer, onCrop: onCrop)
+            await Self.cropReads(native, boxes: boxes, rung: rung, recognizer: recognizer, onCrop: onCrop)
         }
+        guard !Task.isCancelled else { return .success(Self.emptySheet) }
         let ms = Int((elapsed() - start) / .milliseconds(1))
         lastWarm = elapsed()
         let tables = Set(built.sheet.cells.compactMap(\.table)).count
@@ -87,19 +94,22 @@ public actor VisionRegionReader: RegionReading {
         return .success(CellSheet(cells: built.sheet.cells, convention: built.sheet.convention, readMs: ms))
     }
 
+    /// Under the read's lock, so a read that comes during a cold warm-up waits for it instead of loading the models a
+    /// second time. Only a warm-up that succeeded counts.
     public func prewarm() async {
         if busy { return }
         if let lastWarm, elapsed() - lastWarm < Self.warmFor { return }
-        lastWarm = elapsed()
         guard let image = Self.warmUpImage() else { return }
+        await acquire()
+        defer { release() }
         do {
             _ = try await recognizer.document(image)
             _ = try await recognizer.lines(image, level: .accurate)
             _ = try await recognizer.lines(image, level: .fast)
+            lastWarm = elapsed()
         } catch {
             Self.logger.error("reader: the warm-up failed")
         }
-        lastWarm = elapsed()
     }
 
     private static let emptySheet = CellSheet(cells: [], convention: .plain, readMs: 0)

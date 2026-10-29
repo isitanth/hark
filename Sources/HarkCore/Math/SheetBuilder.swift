@@ -619,7 +619,8 @@ extension SheetBuilder {
         return text[whole].first
     }
 
-    private static let minusForm = ReaderVocabulary.regex(#"(?:^|[\s(])([-−–])\s*[€$£]?\s*\d"#)
+    /// A sign attached to its number: an en dash with a space after it is a range or a bullet, not a minus.
+    private static let minusForm = ReaderVocabulary.regex(#"(?:^|[\s(])([-−–])[€$£]?\d"#)
     private static let currencyForm = ReaderVocabulary.regex(#"\d([   ]?)(?:[€$£]|EUR\b|USD\b|GBP\b)"#)
     private static let percentForm = ReaderVocabulary.regex(#"\d([   ]?)%"#)
 

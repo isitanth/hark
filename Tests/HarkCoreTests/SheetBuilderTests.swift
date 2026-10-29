@@ -247,6 +247,12 @@ private func ladderDocument(_ last: String) -> RawDocument {
         #expect(grouped.count == rows)
     }
 
+    /// Exactly 0.35 of the line height joins: 0.85 − 0.5 is 0.35 × 1 in binary floating point too.
+    @Test func theToleranceItselfJoins() {
+        #expect(SheetBuilder.rows([line("a", 0.1, 0.5, height: 1), line("b", 0.5, 0.85, height: 1)]).count == 1)
+        #expect(SheetBuilder.rows([line("a", 0.1, 0.5, height: 1), line("b", 0.5, 0.86, height: 1)]).count == 2)
+    }
+
     @Test func aChainOfThreeIsOneRow() {
         let rows = SheetBuilder.rows([line("a", 0.1, 0.5), line("b", 0.3, 0.506), line("c", 0.5, 0.512)])
         #expect(rows.map { $0.map(\.text) } == [["a", "b", "c"]])
@@ -374,6 +380,7 @@ private func receipt(letters: [String] = ["A", "B"]) -> RawDocument {
         (["−48,90"], "−" as Character, nil as Character?, nil as Character?),
         (["-48,90", "−2,00", "-1,00"], "-", nil, nil),
         (["FA-2026", "12,00"], "-", nil, nil),
+        (["10 – 12", "– 3 items", "−4,00"], "−", nil, nil),
         (["12\u{202F}%"], "-", nil, "\u{202F}"),
         (["12%"], "-", nil, nil),
         (["12,50\u{00A0}€", "3,00\u{00A0}€", "4 €"], "-", "\u{00A0}", nil),

@@ -89,6 +89,28 @@ import Testing
         #expect(recognizer.calls.count == 6)
     }
 
+    /// A read that comes during a warm-up waits for it: two cold loads never run at once.
+    @available(macOS 26, *)
+    @Test func aReadDuringAWarmUpWaitsForIt() async throws {
+        let recognizer = ScriptedRecognizer(documentPause: .milliseconds(50))
+        let reader = reader(recognizer)
+        let warm = Task { await reader.prewarm() }
+        while recognizer.events.isEmpty { try await Task.sleep(for: .milliseconds(1)) }
+        _ = await reader.read(try raster())
+        await warm.value
+        #expect(recognizer.events == ["start", "end", "start", "end"])
+    }
+
+    /// A warm-up that failed loaded nothing: the next one tries again.
+    @available(macOS 26, *)
+    @Test func aFailedWarmUpDoesNotCount() async throws {
+        let recognizer = ScriptedRecognizer(failDocument: true)
+        let reader = reader(recognizer)
+        await reader.prewarm()
+        await reader.prewarm()
+        #expect(recognizer.calls.map(\.kind) == ["document", "document"])
+    }
+
     @available(macOS 26, *)
     @Test func aReadCountsAsWarm() async throws {
         let recognizer = ScriptedRecognizer()
