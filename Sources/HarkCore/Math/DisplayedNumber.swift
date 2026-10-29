@@ -180,7 +180,7 @@ public enum DisplayedNumber {
             let normalized = normalize(item.text)
             for token in tokens(in: normalized) {
                 let verdict = shape(token.number)
-                if let decimal = verdict.decimal { decimals[decimal, default: 0] += 1 }
+                if let decimal = vote(verdict) { decimals[decimal, default: 0] += 1 }
                 if let grouping = verdict.grouping { groupings[grouping, default: 0] += 1 }
                 if let sign = token.sign, minusSigns.contains(sign) { minuses[sign, default: 0] += 1 }
                 if let mark = token.suffix.currencyMark {
@@ -216,15 +216,21 @@ public enum DisplayedNumber {
         var decimals: [Character: Int] = [:]
         for text in texts {
             for token in tokens(in: normalize(text)) {
-                let verdict = shape(token.number)
-                if let decimal = verdict.decimal {
-                    decimals[decimal, default: 0] += 1
-                } else if let grouping = verdict.grouping, grouping == "," || grouping == "." {
-                    decimals[grouping == "," ? "." : ",", default: 0] += 1
-                }
+                if let decimal = vote(shape(token.number)) { decimals[decimal, default: 0] += 1 }
             }
         }
         return majority(decimals)
+    }
+
+    /// The decimal separator one unambiguous number shows: its decimal, or the other mark when `,` or `.` groups it.
+    /// `convention(of:)` and `decimalVote` count the same votes, so the region decides with the separator that voted.
+    static func vote(_ verdict: Shape) -> Character? {
+        if let decimal = verdict.decimal { return decimal }
+        switch verdict.grouping {
+        case ","?: return "."
+        case "."?: return ","
+        default: return nil
+        }
     }
 
     /// The key most votes went to; a tie keeps none.
@@ -334,9 +340,11 @@ extension DisplayedNumber {
             let spanEnd = rest.prefixMatch(of: suffixPattern).map { offset($0.range.upperBound, in: text) } ?? numberEnd
             let start = offset(match.range.lowerBound, in: blank)
             let pre = match.output.pre ?? match.output.inner
+            // A plus then a minus (`+€-12`, `+ -3`) is negative: the minus wins.
+            let signs = [match.output.sign, match.output.late].compactMap { $0?.first }
             var token = Token(
                 start: start, spanEnd: spanEnd, numberStart: numberStart, numberEnd: numberEnd, number: number,
-                sign: (match.output.sign ?? match.output.late)?.first, currencyBefore: pre.map(String.init),
+                sign: signs.first { minusSigns.contains($0) } ?? signs.first, currencyBefore: pre.map(String.init),
                 parenthesis: match.output.paren != nil, suffix: Suffix(end: numberEnd))
             token.suffix = suffix(of: token, in: Array(text))
             found.append(token)

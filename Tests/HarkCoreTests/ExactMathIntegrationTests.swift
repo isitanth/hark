@@ -116,6 +116,20 @@ import Testing
         #expect(try #require(amount(sheet.cells.first { $0.text == "18,450" })).value == 18450)
     }
 
+    /// A dot grouping votes for the comma, and the region decides with the very separator that voted: beside
+    /// `1.234.567`, `18,450` is 18.45, whatever the Mac says.
+    @Test func theRegionDecidesWithTheSeparatorItVoted() async throws {
+        let document = RawDocument(lines: [
+            RawLine(text: "1.234.567", box: CGRect(x: 0.1, y: 0.1, width: 0.2, height: 0.05)),
+            RawLine(text: "18,450", box: CGRect(x: 0.1, y: 0.5, width: 0.2, height: 0.05)),
+        ])
+        var options = ReaderOptions.frozen
+        options.macDecimal = "."
+        let sheet = await SheetBuilder.build(document, options: options, crop: Self.blank).sheet
+        #expect(sheet.convention.decimalSeparator == ",")
+        #expect(try #require(amount(sheet.cells.first { $0.text == "18,450" })).value == Decimal(string: "18.45"))
+    }
+
     /// In a receipt's lines (the text-rows table) a place in the line is no column: a minus in one line does not make
     /// the bracketed number at the same place in another line negative.
     @Test func aReceiptLinesPlaceIsNoColumn() async throws {
