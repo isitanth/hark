@@ -86,6 +86,7 @@ let outcomeReadCases: [OutcomeReadCase] = [
     .init("the reader timed out", .failed, error: "reader_failed:timeout", .failed(.readerFailed)),
     .init("the plan was not JSON", .failed, error: "plan_invalid:json", .failed(.planInvalid)),
     .init("the plan named no cell", .failed, error: "plan_invalid:unknown_cell", .failed(.planInvalid)),
+    .init("the plan mixed units", .failed, error: "plan_invalid:unit", .failed(.planInvalid)),
     .init("a cell held no number", .failed, error: "math_error:no_number", .failed(.mathError)),
     .init("a division by zero", .failed, error: "math_error:division_by_zero", .failed(.mathError)),
     // An exact ask that gave way to the model's answer, which the user then copied: the copy is still theirs.
@@ -138,6 +139,21 @@ let outcomeReadCases: [OutcomeReadCase] = [
             #expect(!EntryOutcome.copied(reason).isFallback)
         }
         #expect(!EntryOutcome.inserted(app: nil).isFallback)
+    }
+
+    /// An exact ask that gave way to the model's answer: its copy is still chosen, and its insertion is not cut.
+    @Test(arguments: [
+        "reader_failed:vision", "reader_failed:timeout", "plan_invalid:json", "plan_invalid:unit",
+        "math_error:division_by_zero",
+    ])
+    func anExactFallbackReasonIsNeverAFallbackCopy(_ code: String) {
+        let copied = EntryOutcome(
+            LogEntry(id: "x", timestamp: F.pressedAt, rawText: "hi", resolution: .textClipboard, error: code))
+        #expect(copied == .copied(.chosen))
+        #expect(!copied.isFallback)
+        let inserted = EntryOutcome(
+            LogEntry(id: "x", timestamp: F.pressedAt, rawText: "hi", resolution: .textInserted, error: code))
+        #expect(inserted == .inserted(app: nil, cut: false))
     }
 
     /// Only a command or an insertion whose line says `max_duration` reads as cut.

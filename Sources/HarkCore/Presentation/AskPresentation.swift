@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 
 /// What the Ask panel shows.
@@ -94,49 +95,6 @@ public enum AskPresentation {
         let collapsed = selection.split(whereSeparator: \.isWhitespace).joined(separator: " ")
         guard collapsed.count > limit else { return collapsed }
         return collapsed.prefix(limit) + "…"
-    }
-}
-
-/// The cells an exact answer read, drawn over the frame on screen (M13): the lens.
-public struct CellHighlights: Sendable, Equatable {
-    /// `CGDirectDisplayID` of the frame's display.
-    public let displayID: UInt32
-    /// The frame, as `RegionSummary.rect` holds it.
-    public let frame: CGRect
-    public let cells: [HighlightedCell]
-
-    public init(displayID: UInt32, frame: CGRect, cells: [HighlightedCell]) {
-        self.displayID = displayID
-        self.frame = frame
-        self.cells = cells
-    }
-}
-
-/// One cell of the lens: where it is and how it counts.
-public struct HighlightedCell: Sendable, Equatable {
-    public let id: CellID
-    public let box: CGRect
-    public let role: CellRole
-    /// The reader could not confirm it: drawn dashed.
-    public let uncertain: Bool
-
-    public init(id: CellID, box: CGRect, role: CellRole, uncertain: Bool) {
-        self.id = id
-        self.box = box
-        self.role = role
-        self.uncertain = uncertain
-    }
-}
-
-extension AskPresentation {
-    /// The cells an exact answer read, for the lens; nil without one.
-    public static func highlights(_ utterance: UtteranceContext?) -> CellHighlights? {
-        nil
-    }
-
-    /// The exact answer, for the panel; nil without one.
-    public static func exactAnswer(_ utterance: UtteranceContext?) -> ExactAnswer? {
-        nil
     }
 }
 
@@ -261,5 +219,266 @@ extension AskPresentation {
         guard state(snapshot, streamed: true) == .reviewing, let utterance = snapshot.utterance else { return nil }
         if utterance.conversationFull(instruction: snapshot.ask?.instruction ?? "") { return .full }
         return .followUp(turn: utterance.conversationTurns, of: AskThread.maxTurns)
+    }
+}
+
+/// The cells an exact answer read, drawn over the frame on screen (M13): the lens.
+public struct CellHighlights: Sendable, Equatable {
+    /// The turn whose frame the sheet was read from: the lens asks for that frame's pixels.
+    public let frameID: UtteranceID
+    /// `CGDirectDisplayID` of the frame's display.
+    public let displayID: UInt32
+    /// The frame, as `RegionSummary.rect` holds it: the display's points, top-left origin.
+    public let frame: CGRect
+    public let cells: [HighlightedCell]
+
+    public init(frameID: UtteranceID, displayID: UInt32, frame: CGRect, cells: [HighlightedCell]) {
+        self.frameID = frameID
+        self.displayID = displayID
+        self.frame = frame
+        self.cells = cells
+    }
+
+    /// Whether a point in Cocoa's global coordinates (bottom-left origin, the main display's) falls on the frame,
+    /// edges included. `displayFrame` is the frame's display in the same coordinates (`NSScreen.frame`).
+    public func contains(cocoaPoint point: CGPoint, displayFrame: CGRect) -> Bool {
+        let x = point.x - displayFrame.minX
+        let y = displayFrame.maxY - point.y
+        return x >= frame.minX && x <= frame.maxX && y >= frame.minY && y <= frame.maxY
+    }
+}
+
+/// One cell of the lens: where it is and how it counts.
+public struct HighlightedCell: Sendable, Equatable {
+    public let id: CellID
+    /// The display's points, top-left origin, padded by `AskPresentation.cellPadding`.
+    public let box: CGRect
+    /// Nil for the cell a failure names: drawn red.
+    public let role: CellRole?
+    /// The reader could not confirm it: drawn dashed.
+    public let uncertain: Bool
+
+    public init(id: CellID, box: CGRect, role: CellRole?, uncertain: Bool) {
+        self.id = id
+        self.box = box
+        self.role = role
+        self.uncertain = uncertain
+    }
+}
+
+/// Decision 17: a figure the understood line names that no cell read holds.
+public enum UnderstoodCheck: Sendable, Equatable {
+    /// It came from the user's words.
+    case spoken(String)
+    /// Neither the cells used nor the words hold it.
+    case notRead(String)
+}
+
+/// One cell read, as the disclosure under an exact answer lists it.
+public struct ExactCellRow: Sendable, Equatable, Identifiable {
+    public let id: CellID
+    public let role: CellRole
+    /// The text exactly as read.
+    public let text: String
+    /// The row's other cells that hold no number, joined by " · ", at most `AskPresentation.labelLimit` characters.
+    public let label: String
+    public let uncertain: Bool
+
+    public init(id: CellID, role: CellRole, text: String, label: String, uncertain: Bool) {
+        self.id = id
+        self.role = role
+        self.text = text
+        self.label = label
+        self.uncertain = uncertain
+    }
+}
+
+/// What the panel shows of an answer Hark computed (M13).
+public struct ExactPresentation: Sendable, Equatable {
+    public let understood: String?
+    public let understoodCheck: UnderstoodCheck?
+    /// In the Language & Region format (decision 8).
+    public let result: String
+    /// The unrounded value, when rounding changed it: for the help and VoiceOver.
+    public let exact: String?
+    /// In the document's format, as read; nil for a COUNT or past 12 terms.
+    public let working: String?
+    public let cellsUsed: Int
+    public let added: Int
+    public let subtracted: Int
+    public let rows: [ExactCellRow]
+    /// Two at most with the understood check, in `AskPresentation.checkOrder`. Never `rounded`.
+    public let checks: [MathWarning]
+
+    /// The signs line shows only when the result both adds and subtracts.
+    public var showsSigns: Bool { added > 0 && subtracted > 0 }
+}
+
+extension AskPresentation {
+    /// How far a highlight reaches past the cell's box, in points.
+    public static let cellPadding: CGFloat = 2
+    /// A row label's longest length, its "…" included.
+    public static let labelLimit = 40
+    /// The check lines under an exact answer, the understood check among them.
+    public static let maxChecks = 2
+
+    /// The cells an exact answer read, for the lens; nil without one. In a follow-up, the frame of the turn whose
+    /// sheet was planned over.
+    public static func highlights(_ utterance: UtteranceContext?) -> CellHighlights? {
+        guard let utterance, let computation = utterance.math?.computation,
+            let (sheet, frameID, region) = framedSheet(utterance)
+        else { return nil }
+        let cells = computation.read.compactMap { id -> HighlightedCell? in
+            guard let cell = sheet[id] else { return nil }
+            return HighlightedCell(
+                id: id, box: box(cell.box, in: region.rect), role: computation.roles[id] ?? .added,
+                uncertain: uncertain(cell, computation.warnings))
+        }
+        return CellHighlights(frameID: frameID, displayID: region.displayID, frame: region.rect, cells: cells)
+    }
+
+    /// The one cell a math failure names, outlined red; nil when no single cell is at fault or it is not in the sheet.
+    public static func failureCell(_ failure: MathFailure, utterance: UtteranceContext?) -> CellHighlights? {
+        guard case .math(let defect, let id?) = failure, defect != .overflow, let utterance,
+            let (sheet, frameID, region) = framedSheet(utterance), let cell = sheet[id]
+        else { return nil }
+        let highlighted = HighlightedCell(id: id, box: box(cell.box, in: region.rect), role: nil, uncertain: false)
+        return CellHighlights(frameID: frameID, displayID: region.displayID, frame: region.rect, cells: [highlighted])
+    }
+
+    /// The exact answer as S1 writes it, for the panel; nil without one.
+    public static func exactAnswer(_ utterance: UtteranceContext?, locale: Locale) -> ExactAnswer? {
+        guard let math = utterance?.math, let computation = math.computation, case .read(let sheet) = math.reading
+        else { return nil }
+        return ExactAnswer(computation, sheet: sheet, policy: .standard, fallback: locale)
+    }
+
+    /// The panel's exact answer; nil unless the live turn has a computation. `locale` is the user's Language & Region.
+    public static func exact(_ utterance: UtteranceContext?, locale: Locale) -> ExactPresentation? {
+        guard let math = utterance?.math, let computation = math.computation, case .read(let sheet) = math.reading,
+            let answer = exactAnswer(utterance, locale: locale)
+        else { return nil }
+        let roles = computation.read.map { computation.roles[$0] ?? .added }
+        let check = understoodCheck(answer.figures)
+        return ExactPresentation(
+            understood: answer.understood, understoodCheck: check, result: answer.result, exact: answer.exact,
+            working: answer.working, cellsUsed: computation.read.count,
+            added: roles.filter { $0 == .added || $0 == .counted }.count,
+            subtracted: roles.filter { $0 == .subtracted }.count,
+            rows: rows(computation, sheet: sheet),
+            checks: checks(computation.warnings, limit: maxChecks - (check == nil ? 0 : 1)))
+    }
+
+    /// The first figure the understood line names that no cell read holds.
+    public static func understoodCheck(_ figures: [UnderstoodFigure]) -> UnderstoodCheck? {
+        for figure in figures {
+            switch figure.source {
+            case .cell: continue
+            case .spoken: return .spoken(figure.text)
+            case .nowhere: return .notRead(figure.text)
+            }
+        }
+        return nil
+    }
+
+    /// The order the check lines come in.
+    static func checkRank(_ warning: MathWarning) -> Int? {
+        switch warning {
+        case .suspiciousCell: 0
+        case .doubt: 1
+        case .scaleMismatch: 2
+        case .dashAsZero: 3
+        case .parenthesized: 4
+        case .approximate: 5
+        case .assumedConvention: 6
+        case .tie: 7
+        case .rounded: nil
+        }
+    }
+
+    /// `suspiciousCell` says the same words for every cell, so it is one line however many cells it names.
+    public static func checks(_ warnings: [MathWarning], limit: Int) -> [MathWarning] {
+        var seenSuspicious = false
+        let ranked = warnings.enumerated().compactMap { offset, warning -> (Int, Int, MathWarning)? in
+            guard let rank = checkRank(warning) else { return nil }
+            if case .suspiciousCell = warning {
+                if seenSuspicious { return nil }
+                seenSuspicious = true
+            }
+            return (rank, offset, warning)
+        }
+        return ranked.sorted { ($0.0, $0.1) < ($1.0, $1.1) }.prefix(max(limit, 0)).map(\.2)
+    }
+
+    static func rows(_ computation: Computation, sheet: CellSheet) -> [ExactCellRow] {
+        let cells = computation.read.compactMap { sheet[$0] }
+        return readingOrder(cells).map { cell in
+            ExactCellRow(
+                id: cell.id, role: computation.roles[cell.id] ?? .added, text: cell.text,
+                label: label(of: cell, in: sheet), uncertain: uncertain(cell, computation.warnings))
+        }
+    }
+
+    /// Top to bottom, then left to right: two boxes whose middles are within half the smaller height share a line.
+    static func readingOrder(_ cells: [Cell]) -> [Cell] {
+        var lines: [[Cell]] = []
+        for cell in cells.sorted(by: { $0.box.midY < $1.box.midY }) {
+            if let last = lines.last?.last,
+                abs(last.box.midY - cell.box.midY) <= min(last.box.height, cell.box.height) / 2
+            {
+                lines[lines.count - 1].append(cell)
+            } else {
+                lines.append([cell])
+            }
+        }
+        return lines.flatMap { $0.sorted { $0.box.minX < $1.box.minX } }
+    }
+
+    /// The row's cells that hold no number, left to right; empty for a line outside every table.
+    static func label(of cell: Cell, in sheet: CellSheet) -> String {
+        guard let table = cell.table, let row = cell.row else { return "" }
+        let words = sheet.cells.filter { mate in
+            guard mate.id != cell.id, mate.table == table, mate.row == row else { return false }
+            if case .amount = mate.reading { return false }
+            return !mate.text.trimmingCharacters(in: .whitespaces).isEmpty
+        }
+        let joined = words.sorted { ($0.column ?? 0, $0.box.minX) < ($1.column ?? 0, $1.box.minX) }
+            .map { $0.text.split(whereSeparator: \.isNewline).joined(separator: " ") }
+            .joined(separator: " · ")
+        guard joined.count > labelLimit else { return joined }
+        return joined.prefix(labelLimit - 1) + "…"
+    }
+
+    static func uncertain(_ cell: Cell, _ warnings: [MathWarning]) -> Bool {
+        cell.suspicious
+            || warnings.contains {
+                switch $0 {
+                case .suspiciousCell(let id), .doubt(let id), .scaleMismatch(let id): id == cell.id
+                default: false
+                }
+            }
+    }
+
+    static func box(_ normalized: CGRect, in frame: CGRect) -> CGRect {
+        CGRect(
+            x: frame.minX + normalized.minX * frame.width, y: frame.minY + normalized.minY * frame.height,
+            width: normalized.width * frame.width, height: normalized.height * frame.height
+        ).insetBy(dx: -cellPadding, dy: -cellPadding)
+    }
+
+    /// The live turn's sheet and the turn whose frame it was read from: the live turn's own frame, or in a follow-up
+    /// that planned over an earlier sheet, the latest turn that framed it.
+    static func framedSheet(_ utterance: UtteranceContext) -> (CellSheet, UtteranceID, RegionSummary)? {
+        guard case .read(let sheet) = utterance.math?.reading else { return nil }
+        if let region = utterance.region { return (sheet, utterance.id, region) }
+        if let parked = utterance.parked?.context, let region = parked.region,
+            case .read(let parkedSheet) = parked.math?.reading, parkedSheet == sheet
+        {
+            return (sheet, parked.id, region)
+        }
+        guard let turn = utterance.thread?.turns.last(where: { $0.region != nil && $0.sheet == sheet }),
+            let region = turn.region
+        else { return nil }
+        return (sheet, turn.id, region)
     }
 }
