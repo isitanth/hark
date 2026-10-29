@@ -148,3 +148,53 @@ nonisolated private struct Hatch: Shape {
         return path
     }
 }
+
+/// `-HarkDebugPreview overlay-lens`: c01's invoices drawn in code, with its tints. Sample pixels, no capture.
+enum RegionLensSample {
+    static let rows = 12
+    static let rowHeight: CGFloat = 40
+    static let header: CGFloat = 60
+    /// c01: the credit notes subtract, January's refunded invoice is left out, one cell may be misread.
+    static let subtracted: Set<Int> = [2, 5, 9]
+    static let excluded = 12
+    static let uncertain = 5
+
+    static func highlights(frame: CGRect, displayID: UInt32) -> CellHighlights {
+        let cells = (1...rows).filter { $0 != excluded }.map { row in
+            let box = CGRect(
+                x: frame.minX + frame.width * 0.45, y: frame.minY + header + CGFloat(row - 1) * rowHeight + 8,
+                width: frame.width * 0.2, height: rowHeight - 16
+            ).insetBy(dx: -AskPresentation.cellPadding, dy: -AskPresentation.cellPadding)
+            return HighlightedCell(
+                id: CellID(row * 4 + 3), box: box, role: subtracted.contains(row) ? .subtracted : .added,
+                uncertain: row == uncertain)
+        }
+        return CellHighlights(frameID: UtteranceID(1), displayID: displayID, frame: frame, cells: cells)
+    }
+
+    /// White rows, grey rules and dark bars where the text would be, at the display's scale.
+    static func image(size: CGSize, scale: CGFloat) -> CGImage? {
+        let width = Int(size.width * scale)
+        let height = Int(size.height * scale)
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+            let context = CGContext(
+                data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return nil }
+        context.scaleBy(x: scale, y: scale)
+        context.setFillColor(CGColor(gray: 1, alpha: 1))
+        context.fill(CGRect(origin: .zero, size: size))
+        for row in 0...rows {
+            let y = size.height - header - CGFloat(row) * rowHeight
+            context.setFillColor(CGColor(gray: 0.85, alpha: 1))
+            context.fill(CGRect(x: 16, y: y, width: size.width - 32, height: 1))
+            guard row < rows else { continue }
+            context.setFillColor(CGColor(gray: 0.3, alpha: 1))
+            context.fill(CGRect(x: 24, y: y - 26, width: size.width * 0.18, height: 10))
+            context.fill(CGRect(x: size.width * 0.25, y: y - 26, width: size.width * 0.15, height: 10))
+            context.fill(CGRect(x: size.width * 0.47, y: y - 26, width: size.width * 0.12, height: 10))
+            context.fill(CGRect(x: size.width * 0.72, y: y - 26, width: size.width * 0.1, height: 10))
+        }
+        return context.makeImage()
+    }
+}

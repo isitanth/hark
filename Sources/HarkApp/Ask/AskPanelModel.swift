@@ -84,6 +84,8 @@ final class AskPanelModel {
     private(set) var failureHighlights: CellHighlights?
     /// The lens shows the cells on screen: the button reads "Hide Cells".
     private(set) var lensShown = false
+    /// `-HarkDebugPreview ask-exact-open`: the exact answer opens with its cells unfolded.
+    private(set) var opensRows = false
     /// Set by `RegionFraming`: the overlay that draws the lens.
     @ObservationIgnored var lensOverlay: RegionOverlayController? {
         didSet {
@@ -600,7 +602,11 @@ extension AskPanelModel {
     func showPreview(_ names: Set<String>) {
         let french = Locale.preferredLanguages.first?.hasPrefix("fr") == true
         let assistant = names.contains { $0.hasPrefix("assistant") }
-        if showRegionPreview(names, french: french) || showThreadPreview(names, french: french) { return }
+        if showRegionPreview(names, french: french) || showThreadPreview(names, french: french)
+            || showExactPreview(names, french: french)
+        {
+            return
+        }
         let pinnedState: AskPanelState? =
             if names.contains("ask-listening") || names.contains("assistant-listening") {
                 .listening
@@ -722,6 +728,102 @@ extension AskPanelModel {
         state = listening ? .listening : .reviewing
         panel.open(at: rememberedTopLeft)
         return true
+    }
+}
+
+extension AskPanelModel {
+    /// The exact math pins (M13), on c01's invoices: `ask-reading`, `ask-planning` (the understood line half
+    /// streamed), `ask-exact`, `ask-exact-open` (the cells unfolded), `ask-mathfailed` (a cell with no number) and
+    /// `ask-long` (a framed answer taller than the cap, its result on the last line).
+    fileprivate func showExactPreview(_ names: Set<String>, french: Bool) -> Bool {
+        let pinnedState: AskPanelState
+        if names.contains("ask-reading") {
+            pinnedState = .reading
+        } else if names.contains("ask-planning") {
+            pinnedState = .planning
+        } else if names.contains("ask-exact") || names.contains("ask-exact-open") || names.contains("ask-long") {
+            pinnedState = .reviewing
+        } else if names.contains("ask-mathfailed") {
+            pinnedState = .mathFailed(.math(.noNumber, cell: CellID(23)))
+        } else {
+            return false
+        }
+        pinned = true
+        let sample = ExactPreviewSample(french: french)
+        quote = ""
+        apply = .insert
+        allowsReplace = false
+        sentFrame = true
+        instruction = sample.instruction
+        previewLive = UtteranceID(1)
+        regionThumbnails[UtteranceID(1)] = RegionPreviewSample.thumbnail()
+        regionPixelSize = CGSize(width: 1400, height: 1200)
+        visionVerdict = true
+        if pinnedState == .planning {
+            planUnderstood = String(sample.understood.prefix(sample.understood.count / 2))
+        }
+        if pinnedState == .mathFailed(.math(.noNumber, cell: CellID(23))) {
+            failureCellText = "n/a"
+        }
+        if pinnedState == .reviewing {
+            intent = sample.understood
+            if names.contains("ask-long") {
+                streamed = sample.longAnswer
+                answer = sample.longAnswer
+            } else {
+                exact = sample.exact
+                opensRows = names.contains("ask-exact-open")
+                streamed = sample.exact.result
+                answer = sample.exact.result
+            }
+        }
+        if server.isEmpty { server = "127.0.0.1:8002" }
+        state = pinnedState
+        panel.open(at: rememberedTopLeft)
+        return true
+    }
+}
+
+/// The exact math previews' sample, c01: sample text, not catalog strings. The working is in the document's format,
+/// the result in the preview's.
+private struct ExactPreviewSample {
+    let instruction: String
+    let understood: String
+    let exact: ExactPresentation
+    let longAnswer: String
+
+    init(french: Bool) {
+        instruction =
+            french ? "Combien j’ai vraiment payé cette année ?" : "How much did I really pay this year?"
+        understood =
+            french
+            ? "Tu veux le net payé en 2026 : factures moins avoirs, la facture remboursée exclue."
+            : "You want the net paid in 2026: invoices minus credit notes, the refunded one left out."
+        let amounts = [
+            ("Sep 22, 2026", "Invoice", "€145.00"), ("Sep 8, 2026", "Credit note", "−€62.50"),
+            ("Aug 19, 2026", "Invoice", "€176.50"), ("Jul 28, 2026", "Invoice", "€99.00"),
+            ("Jun 30, 2026", "Credit note", "−€112.74"), ("Jun 12, 2026", "Invoice", "€158.36"),
+            ("May 15, 2026", "Invoice", "€64.90"), ("Apr 9, 2026", "Invoice", "€212.40"),
+            ("Mar 18, 2026", "Credit note", "−€95.00"), ("Feb 24, 2026", "Invoice", "€87.50"),
+            ("Jan 27, 2026", "Invoice", "€129.00"),
+        ]
+        let rows = amounts.enumerated().map { index, row in
+            ExactCellRow(
+                id: CellID(index * 4 + 7), role: row.2.hasPrefix("−") ? .subtracted : .added, text: row.2,
+                label: row.0 + " · " + row.1 + " · Paid", uncertain: index == 4)
+        }
+        var working = rows.first?.text ?? ""
+        for row in rows.dropFirst() {
+            working += row.role == .subtracted ? " − " + row.text.dropFirst() : " + " + row.text
+        }
+        exact = ExactPresentation(
+            understood: understood, understoodCheck: nil, result: french ? "802,42\u{00A0}€" : "€802.42", exact: nil,
+            working: working + " =", cellsUsed: 11, added: 8, subtracted: 3, rows: rows,
+            checks: [.suspiciousCell(CellID(23))], named: [:])
+        let lines = rows.map { "- " + $0.label + " : " + $0.text }
+        longAnswer =
+            (french ? "Détail des lignes payées :\n" : "The paid lines:\n") + lines.joined(separator: "\n")
+            + "\n\n" + working + " =\n\n" + (french ? "802,42\u{00A0}€" : "€802.42")
     }
 }
 

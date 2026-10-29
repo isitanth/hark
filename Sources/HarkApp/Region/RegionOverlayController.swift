@@ -175,6 +175,15 @@ final class RegionOverlayController {
         hideLens()
     }
 
+    /// `-HarkDebugPreview overlay-lens`: c01's tints over a sample table on the main display, for screenshots.
+    func showLensPreview() {
+        guard let panel = panels.first else { return }
+        let size = panel.displayFrame.size
+        let frame = CGRect(x: (size.width - 700) / 2, y: (size.height - 600) / 2, width: 700, height: 600).integral
+        guard let image = RegionLensSample.image(size: frame.size, scale: panel.scale) else { return }
+        showLens(RegionLensSample.highlights(frame: frame, displayID: panel.displayID), image: image, animated: true)
+    }
+
     /// Esc while the mouse is down: the drag frames nothing and the ask goes on. False when no drag is under way.
     func cancelDrag() -> Bool {
         guard let drag else { return false }

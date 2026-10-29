@@ -39,6 +39,9 @@ struct AskExactAnswer: View {
         .frame(height: min(max(height, 44), cap))
         .padding(6)
         .askFill(.background.opacity(reduceTransparency ? 1 : 0.6), minimum: AskGlass.innerRadius)
+        .onAppear {
+            showsRows = model.opensRows
+        }
     }
 
     private var resultLine: some View {
