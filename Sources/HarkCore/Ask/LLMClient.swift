@@ -457,8 +457,8 @@ public actor LLMClient {
     }
 
     /// The words a server uses when it refuses a JSON schema: oMLX's and OpenAI's field names, llama.cpp's grammar,
-    /// Claude's `output_config`.
-    static let formatRefusedPhrases = ["response_format", "json_schema", "grammar", "output_config"]
+    /// Claude's `output_config.format` (not its `output_config.effort`, which an answer sends too).
+    static let formatRefusedPhrases = ["response_format", "json_schema", "grammar", "output_config.format"]
 
     /// The refusal of a request that carried a format: a 400 or a 422 whose message names the format. Nil for anything
     /// else, which keeps the mapping of a request without one.

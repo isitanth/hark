@@ -362,4 +362,15 @@ let messagesItemCases: [MessagesItemCase] = [
         ).value
         #expect(events.failure == .formatRefused(model: model))
     }
+
+    /// A refused effort on a plan request is the server's refusal, with its words: the format was not at fault.
+    @Test func aRefusedEffortOnAPlanStaysTheServers() async {
+        let message = "output_config.effort: this model does not support effort"
+        let error = #"{"type":"error","error":{"type":"invalid_request_error","message":"\#(message)"}}"#
+        let transport = FakeLLMTransport([.status(400, Data(error.utf8))])
+        let events = await H.collect(
+            client(transport).complete(H.messages, model: model, profile: claude, format: Self.format)
+        ).value
+        #expect(events.failure == .server(status: 400, message: message))
+    }
 }
