@@ -26,7 +26,7 @@ forbid "URLSession is only allowed in URLSessionDownloader.swift and Ask/LLMClie
 forbid "only Sources/HarkCore/Math/VisionRegionReader.swift may import Vision" \
     "$(grep -rnE '^[[:space:]]*(@[A-Za-z_]+[[:space:]]+)*import[[:space:]]+Vision([[:space:]]|$)' Sources Tests | grep -v '^Sources/HarkCore/Math/VisionRegionReader\.swift:' || true)"
 forbid "the exact-math engine computes in Decimal only" \
-    "$(grep -rnE 'NSExpression|JSContext|import[[:space:]]+JavaScriptCore|sqlite3_' Sources || true; grep -rnE 'Decimal\(string:|(^|[^[:alnum:]_])(Double|Float)([^[:alnum:]_]|$)' Sources/HarkCore/Math | grep -vE '^Sources/HarkCore/Math/(VisionRegionReader|SheetBuilder)\.swift:' || true)"
+    "$(grep -rnE 'NSExpression|JSContext|import[[:space:]]+JavaScriptCore|sqlite3_' Sources || true; grep -rnE 'Decimal\(string:|(^|[^[:alnum:]_])(Double|Float(16|32|64|80)?)([^[:alnum:]_]|$)|\.(double|float)Value([^[:alnum:]_]|$)' Sources/HarkCore/Math | grep -vE '^Sources/HarkCore/Math/(VisionRegionReader|SheetBuilder)\.swift:' || true)"
 forbid "the number parser reads the document's own separators" \
     "$(grep -n 'Locale(identifier:' Sources/HarkCore/Math/DisplayedNumber.swift 2>/dev/null || true)"
 # An API key lives in the Keychain only. Sources/ holds the default commands.yaml too. A Bearer token or an sk- key
