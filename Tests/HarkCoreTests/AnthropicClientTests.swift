@@ -350,9 +350,12 @@ let messagesItemCases: [MessagesItemCase] = [
         #expect(body["output_config"] as? [String: String] == ["effort": "low"])
     }
 
-    @Test func aRefusedFormatOnClaudeIsFormatRefused() async {
-        let error =
-            #"{"type":"error","error":{"type":"invalid_request_error","message":"output_config.format.json_schema: unsupported"}}"#
+    @Test(arguments: [
+        "output_config.format.json_schema: unsupported",
+        "output_config.format.schema: the keyword 'minimum' is not supported",
+    ])
+    func aRefusedFormatOnClaudeIsFormatRefused(message: String) async {
+        let error = #"{"type":"error","error":{"type":"invalid_request_error","message":"\#(message)"}}"#
         let transport = FakeLLMTransport([.status(400, Data(error.utf8))])
         let events = await H.collect(
             client(transport).complete(H.messages, model: model, profile: claude, format: Self.format)

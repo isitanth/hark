@@ -88,7 +88,8 @@ struct AskEngineTests {
                 if case .text = event { firstWord.continuation.yield() }
             }
         }
-        while transport.requests.count < 2 { try await Task.sleep(for: .milliseconds(2)) }
+        // The request is recorded before its body opens: a push in between would be lost.
+        while !transport.bodyOpen { try await Task.sleep(for: .milliseconds(2)) }
         transport.push(H.contentLine("Lyon"))
         var iterator = firstWord.stream.makeAsyncIterator()
         await iterator.next()
@@ -328,7 +329,7 @@ struct AskEngineThreadTests {
                 if case .text = event { firstWord.continuation.yield() }
             }
         }
-        while transport.requests.isEmpty { try await Task.sleep(for: .milliseconds(2)) }
+        while !transport.bodyOpen { try await Task.sleep(for: .milliseconds(2)) }
         transport.push(H.contentLine("Lyon"))
         var iterator = firstWord.stream.makeAsyncIterator()
         await iterator.next()
