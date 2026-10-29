@@ -550,6 +550,10 @@ extension SheetBuilder {
             of: numbered.map(\.text),
             base: DisplayedNumber.convention(
                 of: numbered.map { ColumnText(text: $0.text, table: $0.table, column: $0.column) }))
+        // The region decides an ambiguous mark only when its unambiguous numbers voted; otherwise its currency, then
+        // the Mac's separator do (b2 §3.4 steps 4 to 6).
+        let voted = DisplayedNumber.decimalVote(numbered.map(\.text)) != nil
+        let currency = region.currencySymbol.flatMap { Currency.named($0) }
         let columns = columnFacts(numbered)
         var notes: [CellID: ReadNote] = [:]
         var cells: [Cell] = []
@@ -558,8 +562,8 @@ extension SheetBuilder {
             if let note = entry.note { notes[id] = note }
             let facts = entry.table.flatMap { t in entry.column.flatMap { columns[ColumnKey(table: t, column: $0)] } }
             let context = ReadingContext(
-                columnDecimal: facts?.decimal, region: region, inTable: entry.table != nil,
-                columnHoldsAmounts: entry.numericColumn, columnSigned: facts?.signed ?? false,
+                columnDecimal: facts?.decimal, region: voted ? region : nil, inTable: entry.table != nil,
+                columnHoldsAmounts: entry.numericColumn, columnSigned: facts?.signed ?? false, currency: currency,
                 macDecimal: options.macDecimal)
             cells.append(
                 Cell(
@@ -583,7 +587,7 @@ extension SheetBuilder {
     }
 
     struct ColumnFacts {
-        /// The decimal separator its numbers with decimals agree on.
+        /// The decimal separator most of its unambiguous numbers use (b2 §3.4 step 3): `1,234` alone does not vote.
         var decimal: Character?
         var signed = false
     }
@@ -591,7 +595,7 @@ extension SheetBuilder {
     private static let signs: Set<Character> = ["+", "-", "−", "–"]
 
     static func columnFacts(_ entries: [Numbered]) -> [ColumnKey: ColumnFacts] {
-        var separators: [ColumnKey: Set<Character>] = [:]
+        var texts: [ColumnKey: [String]] = [:]
         var facts: [ColumnKey: ColumnFacts] = [:]
         for entry in entries {
             guard let table = entry.table, let column = entry.column else { continue }
@@ -599,24 +603,12 @@ extension SheetBuilder {
             var fact = facts[key] ?? ColumnFacts()
             if let first = trimmed(entry.text).first, signs.contains(first) { fact.signed = true }
             facts[key] = fact
-            if ReaderVocabulary.isClean(entry.text), let separator = decimalSeparator(entry.text) {
-                separators[key, default: []].insert(separator)
-            }
+            texts[key, default: []].append(entry.text)
         }
-        for (key, found) in separators where found.count == 1 {
-            facts[key]?.decimal = found.first
+        for (key, column) in texts {
+            facts[key]?.decimal = DisplayedNumber.decimalVote(column)
         }
         return facts
-    }
-
-    /// The `.` or `,` before a clean number's decimals.
-    static func decimalSeparator(_ text: String) -> Character? {
-        let range = NSRange(text.startIndex..., in: text)
-        guard ReaderVocabulary.decimals(text) > 0,
-            let match = ReaderVocabulary.decimalsTail.firstMatch(in: text, range: range),
-            let whole = Range(match.range, in: text)
-        else { return nil }
-        return text[whole].first
     }
 
     /// A sign attached to its number: an en dash with a space after it is a range or a bullet, not a minus.
