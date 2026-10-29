@@ -107,10 +107,13 @@ final class ScriptedPlanner: AskPlanning {
     }
 
     let scripts: [(pieces: [String], ending: LLMEvent?)]
+    /// Between pieces, and before the ending: zero yields everything at once.
+    let pace: Duration
     private let state = OSAllocatedUnfairLock(initialState: State())
 
-    init(_ scripts: [(pieces: [String], ending: LLMEvent?)]) {
+    init(_ scripts: [(pieces: [String], ending: LLMEvent?)], pace: Duration = .zero) {
         self.scripts = scripts
+        self.pace = pace
     }
 
     var requests: [Request] { state.withLock { $0.requests } }
@@ -128,9 +131,23 @@ final class ScriptedPlanner: AskPlanning {
             return $0.requests.count - 1
         }
         let script = scripts[min(index, scripts.count - 1)]
+        let pace = pace
         return AsyncStream { continuation in
             continuation.onTermination = { [state] reason in
                 if case .cancelled = reason { state.withLock { $0.closedByConsumer += 1 } }
+            }
+            if pace > .zero {
+                Task {
+                    for piece in script.pieces {
+                        try? await Task.sleep(for: pace)
+                        continuation.yield(.text(piece))
+                    }
+                    try? await Task.sleep(for: pace)
+                    guard let ending = script.ending else { return }
+                    continuation.yield(ending)
+                    continuation.finish()
+                }
+                return
             }
             for piece in script.pieces { continuation.yield(.text(piece)) }
             if let ending = script.ending {
@@ -176,4 +193,11 @@ final class ScriptedReader: RegionReading {
     }
 
     func prewarm() async {}
+}
+
+/// Insert's check: the caller is intact and nothing focused takes text.
+struct NoTextFieldChecker: SelectionChecking {
+    func check(_ selection: SelectionSnapshot) async -> SelectionCheck {
+        SelectionCheck(verdict: .intact, focus: FocusSnapshot(app: selection.caller), plan: nil)
+    }
 }
