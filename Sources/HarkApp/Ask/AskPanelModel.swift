@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 import HarkCore
 import Observation
+import SwiftUI
 import os
 
 /// What the Ask panel shows, fed by the pipeline's snapshots and its stream of answer text. The state is
@@ -71,6 +72,27 @@ final class AskPanelModel {
     private(set) var sentFrame = false
     /// Allow… was pressed for Screen Recording: macOS reads the grant at launch, so the panel offers Reopen Hark.
     private(set) var screenRecordingRequested = false
+    /// An exact ask's understood line as its plan streams (M13): shown above "Choosing the cells…", never the JSON.
+    private(set) var planUnderstood: String?
+    /// The answer Hark computed for the live turn; nil for an answer the model wrote.
+    private(set) var exact: ExactPresentation?
+    /// The text of the cell a math failure names, as read; nil when no single cell is at fault.
+    private(set) var failureCellText: String?
+    /// The cells the exact answer read, for the lens; nil for an answer the model wrote.
+    private(set) var highlights: CellHighlights?
+    /// The one cell a math failure names, outlined red by the lens.
+    private(set) var failureHighlights: CellHighlights?
+    /// The lens shows the cells on screen: the button reads "Hide Cells".
+    private(set) var lensShown = false
+    /// Set by `RegionFraming`: the overlay that draws the lens.
+    @ObservationIgnored var lensOverlay: RegionOverlayController? {
+        didSet {
+            lensOverlay?.onLensDismissed = { [weak self] in self?.lensShown = false }
+        }
+    }
+    /// Set by `AppModel`: the frame's pixels, from the controller, each time the lens shows. Nothing here keeps them.
+    @ObservationIgnored var lensImage: ((UtteranceID) async -> CGImage?)?
+    @ObservationIgnored private var lensRequest: Task<Void, Never>?
     /// Set by `AppModel`: `GET /models` on the active profile, run when an ask opens.
     @ObservationIgnored var preflight: (() async -> LLMProbeResult?)?
     /// Set by `AppModel`: Settings › Ask, for Choose another model…
@@ -172,6 +194,12 @@ final class AskPanelModel {
             let framed = AskPresentation.framedTurns(utterance)
             regionThumbnails = regionThumbnails.filter { framed.contains($0.key) }
             regionPixelSize = utterance.region.map { CGSize(width: $0.pixelWidth, height: $0.pixelHeight) }
+            exact = AskPresentation.exact(utterance, locale: .autoupdatingCurrent)
+            highlights = exact == nil ? nil : AskPresentation.highlights(utterance)
+            let failure: MathFailure? =
+                if case .mathFailed(let failure)? = snapshot.ask?.stage { failure } else { nil }
+            failureCellText = failure.flatMap { AskPresentation.failureCellText($0, utterance: utterance) }
+            failureHighlights = failure.flatMap { AskPresentation.failureCell($0, utterance: utterance) }
         }
         refresh()
     }
@@ -231,6 +259,11 @@ final class AskPanelModel {
         streamed = ""
         answer = ""
         intent = nil
+        planUnderstood = nil
+        exact = nil
+        failureCellText = nil
+        highlights = nil
+        failureHighlights = nil
         regionPixelSize = nil
         footerHint = nil
         isFraming = false
@@ -280,6 +313,11 @@ final class AskPanelModel {
 
     func update(_ update: AskUpdate) {
         guard !pinned, update.id == id else { return }
+        // A plan streams its understood line only: its JSON never reaches the answer.
+        if let planText = update.planText {
+            planUnderstood = planText.isEmpty ? nil : planText
+            return
+        }
         reply = update.text
         let complete = state == .reviewing
         if isImageAsk {
@@ -362,6 +400,10 @@ final class AskPanelModel {
         guard next != state else { return }
         let wasOpen = state != .closed
         state = next
+        followLens()
+        if next == .reviewing, let exact {
+            AccessibilityNotification.Announcement(exact.result).post()
+        }
         if next == .closed, wasOpen {
             close()
         } else if !wasOpen {
@@ -370,6 +412,55 @@ final class AskPanelModel {
             // A follow-up's capture: the panel takes the keys again, as at the open.
             panel.focus()
         }
+    }
+
+    // MARK: - The lens (M13)
+
+    /// Whether "Show Cells" can work: nil without cells to show, false when their display is gone.
+    var lensAvailable: Bool? {
+        guard let highlights else { return nil }
+        return lensOverlay?.hasDisplay(highlights.displayID) ?? false
+    }
+
+    /// "Show Cells" or "Hide Cells".
+    func toggleLens() {
+        if lensShown {
+            hideLens()
+        } else if let highlights {
+            showLens(highlights, animated: false)
+        }
+    }
+
+    /// On entering review with an exact answer, its cells; in a math failure, its red cell; elsewhere, none. A
+    /// follow-up's capture takes the lens down, and its own exact answer shows its own cells.
+    private func followLens() {
+        switch state {
+        case .reviewing where highlights != nil:
+            if let highlights { showLens(highlights, animated: true) }
+        case .mathFailed where failureHighlights != nil:
+            if let failureHighlights { showLens(failureHighlights, animated: true) }
+        default:
+            hideLens()
+        }
+    }
+
+    private func showLens(_ highlights: CellHighlights, animated: Bool) {
+        guard !pinned, let lensImage, let lensOverlay else { return }
+        let shownIn = state
+        lensRequest?.cancel()
+        lensRequest = Task { [weak self] in
+            guard let image = await lensImage(highlights.frameID), !Task.isCancelled, let self, self.state == shownIn
+            else { return }
+            lensOverlay.showLens(highlights, image: image, animated: animated)
+            self.lensShown = lensOverlay.isLensShown
+        }
+    }
+
+    private func hideLens() {
+        lensRequest?.cancel()
+        lensRequest = nil
+        lensOverlay?.hideLens()
+        lensShown = false
     }
 
     private func check(_ ask: UtteranceID) {
@@ -382,6 +473,7 @@ final class AskPanelModel {
 
     /// Hides the panel, then brings the caller back, as the panel's Paste does.
     private func close() {
+        hideLens()
         panel.dismiss()
         id = nil
         threadRoot = nil
@@ -431,7 +523,15 @@ final class AskPanelModel {
 
     func retry() {
         guard let id else { return }
+        planUnderstood = nil
         Task { [controller] in await controller.retryAsk(id) }
+    }
+
+    /// Let the model answer: the exact path gives way to today's framed ask, while the reader works or after it failed.
+    func letModelAnswer() {
+        guard let id else { return }
+        planUnderstood = nil
+        Task { [controller] in await controller.retryWithoutExactMath(id) }
     }
 
     /// The region chip's ×: the ask goes on without the frame.
@@ -462,9 +562,10 @@ final class AskPanelModel {
         relaunch?()
     }
 
+    /// An exact answer sends its result alone (decision 7).
     func copy() {
         guard let id else { return }
-        let text = answer
+        let text = exact?.result ?? answer
         Task { [controller] in await controller.copyAnswer(text, for: id) }
     }
 
@@ -472,7 +573,7 @@ final class AskPanelModel {
     /// Insert is the same path: the check expects nothing selected, and the answer goes in at the caret.
     func replace() {
         guard let id else { return }
-        let text = answer
+        let text = exact?.result ?? answer
         Task { [controller] in await controller.replaceSelection(with: text, for: id) }
     }
 

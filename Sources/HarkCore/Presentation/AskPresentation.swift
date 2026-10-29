@@ -307,8 +307,28 @@ public struct ExactPresentation: Sendable, Equatable {
     public let added: Int
     public let subtracted: Int
     public let rows: [ExactCellRow]
-    /// Two at most with the understood check, in `AskPresentation.checkOrder`. Never `rounded`.
+    /// Two at most with the understood check, in `AskPresentation.checkRank`'s order. Never `rounded`.
     public let checks: [MathWarning]
+    /// The text as read of each cell a check names, for its line.
+    public let named: [CellID: String]
+
+    public init(
+        understood: String?, understoodCheck: UnderstoodCheck?, result: String, exact: String?, working: String?,
+        cellsUsed: Int, added: Int, subtracted: Int, rows: [ExactCellRow], checks: [MathWarning],
+        named: [CellID: String]
+    ) {
+        self.understood = understood
+        self.understoodCheck = understoodCheck
+        self.result = result
+        self.exact = exact
+        self.working = working
+        self.cellsUsed = cellsUsed
+        self.added = added
+        self.subtracted = subtracted
+        self.rows = rows
+        self.checks = checks
+        self.named = named
+    }
 
     /// The signs line shows only when the result both adds and subtracts.
     public var showsSigns: Bool { added > 0 && subtracted > 0 }
@@ -360,13 +380,16 @@ extension AskPresentation {
         else { return nil }
         let roles = computation.read.map { computation.roles[$0] ?? .added }
         let check = understoodCheck(answer.figures)
+        let shown = checks(computation.warnings, limit: maxChecks - (check == nil ? 0 : 1))
         return ExactPresentation(
             understood: answer.understood, understoodCheck: check, result: answer.result, exact: answer.exact,
             working: answer.working, cellsUsed: computation.read.count,
             added: roles.filter { $0 == .added || $0 == .counted }.count,
             subtracted: roles.filter { $0 == .subtracted }.count,
-            rows: rows(computation, sheet: sheet),
-            checks: checks(computation.warnings, limit: maxChecks - (check == nil ? 0 : 1)))
+            rows: rows(computation, sheet: sheet), checks: shown,
+            named: Dictionary(
+                shown.compactMap { $0.cell.flatMap { id in sheet[id].map { (id, $0.text) } } },
+                uniquingKeysWith: { first, _ in first }))
     }
 
     /// The first figure the understood line names that no cell read holds.
@@ -480,5 +503,28 @@ extension AskPresentation {
             let region = turn.region
         else { return nil }
         return (sheet, turn.id, region)
+    }
+}
+
+extension AskPresentation {
+    /// The text of the cell a `noNumber` or `garbled` failure names, as read, for its line; nil when the cell is not
+    /// known, and the line falls back to the generic one.
+    public static func failureCellText(_ failure: MathFailure, utterance: UtteranceContext?) -> String? {
+        guard case .math(let defect, let id?) = failure, defect == .noNumber || defect == .garbled,
+            case .read(let sheet) = utterance?.math?.reading
+        else { return nil }
+        return sheet[id]?.text
+    }
+}
+
+extension MathWarning {
+    /// The cell the warning names; nil for one about the whole frame.
+    public var cell: CellID? {
+        switch self {
+        case .suspiciousCell(let id), .doubt(let id), .scaleMismatch(let id), .dashAsZero(let id),
+            .parenthesized(let id), .tie(let id):
+            id
+        case .approximate, .assumedConvention, .rounded: nil
+        }
     }
 }

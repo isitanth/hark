@@ -9,6 +9,8 @@ struct AskView: View {
     @FocusState private var editing: Bool
     /// "Thinking…" has stood alone long enough to name the server it waits for.
     @State private var namesServer = false
+    /// The frame has been read for `slowReadAfter`: the line says a first read can take up to a minute.
+    @State private var readsSlowly = false
     @State private var answerHeight: CGFloat = 0
     /// What the earlier turns of a conversation take of the 60%.
     @State private var transcriptHeight: CGFloat = 0
@@ -22,6 +24,8 @@ struct AskView: View {
     private static let transcriptShare: CGFloat = 0.4
     /// The live answer's least height beside the earlier turns.
     private static let minimumAnswerCap: CGFloat = 120
+    /// How long reading the frame stands alone before the line says why it can take long.
+    private static let slowReadAfter = Duration.seconds(5)
 
     /// A legacy scroller's width: the editor's text column is this much narrower once it scrolls with scroll bars
     /// always shown.
@@ -51,6 +55,8 @@ struct AskView: View {
             }
             if let intent = model.intent {
                 AskRestatement(text: intent)
+            } else if model.state == .planning, let understood = model.planUnderstood {
+                AskRestatement(text: understood)
             }
             content
             footerLine
@@ -71,13 +77,23 @@ struct AskView: View {
         .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: model.isFraming)
         .task(id: model.state) {
             namesServer = false
-            guard model.state == .thinking else { return }
-            try? await Task.sleep(
-                for: model.sentFrame ? AskPresentation.namesServerAfterFrame : AskPresentation.namesServerAfter)
-            namesServer = !Task.isCancelled
+            readsSlowly = false
+            switch model.state {
+            case .thinking, .planning:
+                try? await Task.sleep(
+                    for: model.sentFrame || model.state == .planning
+                        ? AskPresentation.namesServerAfterFrame : AskPresentation.namesServerAfter)
+                namesServer = !Task.isCancelled
+            case .reading:
+                try? await Task.sleep(for: Self.slowReadAfter)
+                readsSlowly = !Task.isCancelled
+            default:
+                return
+            }
         }
         .onChange(of: model.state) { _, state in
-            editing = state == .reviewing
+            // An exact answer is read-only: no editor takes the focus.
+            editing = state == .reviewing && model.exact == nil
         }
     }
 
@@ -151,7 +167,11 @@ struct AskView: View {
         case .streaming:
             answer(editable: false)
         case .reviewing:
-            answer(editable: true)
+            if let exact = model.exact {
+                AskExactAnswer(model: model, exact: exact, cap: answerCap)
+            } else {
+                answer(editable: true)
+            }
         case .listening:
             VStack(alignment: .leading, spacing: 8) {
                 status
@@ -325,11 +345,23 @@ struct AskView: View {
                 progress(L("ask.awaitingRegion"))
                 preflight
             }
-        case .thinking, .reading, .planning:
+        case .thinking:
             progress(
                 namesServer
                     ? L("ask.thinking.server \(model.server)")
                     : model.sentFrame ? L("ask.thinking.frame") : L("ask.thinking"))
+        case .reading:
+            VStack(alignment: .leading, spacing: 4) {
+                progress(L("ask.thinking.frame"))
+                if readsSlowly {
+                    Text(L("ask.exact.reading.slow"))
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        case .planning:
+            progress(namesServer ? L("ask.thinking.server \(model.server)") : L("ask.exact.choosing"))
         case .failed(let failure):
             Label {
                 Text(failure.popupText(imageAttached: hasRegion || model.sentFrame))
@@ -348,7 +380,7 @@ struct AskView: View {
             }
         case .mathFailed(let failure):
             Label {
-                Text(failure.popupText)
+                Text(failure.popupText(cellText: model.failureCellText))
                     .fixedSize(horizontal: false, vertical: true)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -527,9 +559,16 @@ struct AskView: View {
     private var goesBack: Bool {
         guard model.isFollowUp else { return false }
         switch model.state {
-        case .listening, .transcribing, .awaitingRegion, .regionFailed: return true
+        // An exact follow-up still reading its frame, or whose read failed, has sent nothing yet.
+        case .listening, .transcribing, .awaitingRegion, .regionFailed, .reading, .mathFailed(.reader): return true
         default: return false
         }
+    }
+
+    private var letModelAnswer: FooterAction {
+        FooterAction(
+            id: "letModelAnswer", title: L("ask.button.letModelAnswer"), action: model.letModelAnswer,
+            shortcut: .defaultAction)
     }
 
     private var askWithoutImage: FooterAction {
@@ -543,10 +582,16 @@ struct AskView: View {
             return FooterLayout(
                 primary: FooterAction(
                     id: "done", title: L("ask.button.done"), action: model.done, shortcut: .defaultAction))
-        case .transcribing, .awaitingRegion, .thinking, .streaming, .reading, .planning:
+        case .transcribing, .awaitingRegion, .thinking, .streaming, .planning:
             return FooterLayout()
+        case .reading:
+            return FooterLayout(primary: letModelAnswer)
         case .mathFailed:
-            return FooterLayout()
+            // No Retry: the reader and the engine are deterministic, and a plan defect had its retry already.
+            let copyInstruction = FooterAction(
+                id: "copyInstruction", title: L("ask.button.copyInstruction"), action: model.copyInstruction,
+                disabled: model.instruction == nil)
+            return FooterLayout(secondary: [copyInstruction], primary: letModelAnswer)
         case .regionFailed(.screenRecordingDenied):
             let allow =
                 model.screenRecordingRequested

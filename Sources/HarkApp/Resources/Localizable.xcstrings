@@ -7141,19 +7141,835 @@
         }
       }
     },
-    "entry.failure.mathError": {
+    "ask.exact.choosing": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask Hark · the calculation had no result"
+            "value": "Choosing the cells…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander à Hark · le calcul n’a pas eu de résultat"
+            "value": "Choix des cellules…"
+          }
+        }
+      }
+    },
+    "ask.exact.computed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Computed by Hark"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculé par Hark"
+          }
+        }
+      }
+    },
+    "ask.exact.computed.help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark did the arithmetic on the highlighted cells; the model chose which cells count."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark a fait le calcul sur les cellules surlignées ; le modèle a choisi lesquelles comptent."
+          }
+        }
+      }
+    },
+    "ask.exact.cells %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cells used: %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cellules utilisées : %lld"
+          }
+        }
+      }
+    },
+    "ask.exact.signs %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added: %1$lld · Subtracted: %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutées : %1$lld · Soustraites : %2$lld"
+          }
+        }
+      }
+    },
+    "ask.exact.show": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Cells"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Montrer les cellules"
+          }
+        }
+      }
+    },
+    "ask.exact.hide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Cells"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les cellules"
+          }
+        }
+      }
+    },
+    "ask.exact.show.a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the cells on screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Montrer les cellules à l’écran"
+          }
+        }
+      }
+    },
+    "ask.exact.hide.a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide the cells on screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les cellules à l’écran"
+          }
+        }
+      }
+    },
+    "ask.exact.show.noDisplay": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The frame’s display is no longer connected."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’écran du cadre n’est plus connecté."
+          }
+        }
+      }
+    },
+    "ask.exact.result.a11y %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Result: %@, computed by Hark"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultat : %@, calculé par Hark"
+          }
+        }
+      }
+    },
+    "ask.exact.role.added": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutée"
+          }
+        }
+      }
+    },
+    "ask.exact.role.subtracted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subtracted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soustraite"
+          }
+        }
+      }
+    },
+    "ask.exact.role.compared": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compared"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comparée"
+          }
+        }
+      }
+    },
+    "ask.exact.role.counted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Counted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comptée"
+          }
+        }
+      }
+    },
+    "ask.exact.role.rate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taux"
+          }
+        }
+      }
+    },
+    "ask.exact.role.uncertain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May be misread"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peut-être mal lue"
+          }
+        }
+      }
+    },
+    "ask.exact.fn.average": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "average"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "moyenne"
+          }
+        }
+      }
+    },
+    "ask.exact.fn.min": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lowest"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "plus petit"
+          }
+        }
+      }
+    },
+    "ask.exact.fn.max": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "highest"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "plus grand"
+          }
+        }
+      }
+    },
+    "ask.exact.fn.count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "count"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nombre"
+          }
+        }
+      }
+    },
+    "ask.exact.fn.round": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "round"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "arrondi"
+          }
+        }
+      }
+    },
+    "ask.exact.check.uncertain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark may have misread a cell marked “?”: compare it with the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark a peut-être mal lu une cellule marquée « ? » : comparez-la avec l’écran."
+          }
+        }
+      }
+    },
+    "ask.exact.check.summaryNumber %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The model’s summary mentions %@, which is not among the cells used."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le résumé du modèle mentionne %@, qui ne fait pas partie des cellules utilisées."
+          }
+        }
+      }
+    },
+    "ask.button.letModelAnswer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let the model answer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laisser répondre le modèle"
+          }
+        }
+      }
+    },
+    "ask.exact.check.spoken %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is not on the screen: it came from your words."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ n’est pas à l’écran : ce chiffre vient de vos paroles."
+          }
+        }
+      }
+    },
+    "ask.exact.check.doubt %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark read “%@” with a stray character: compare it with the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark a lu « %@ » avec un caractère en trop : comparez-le avec l’écran."
+          }
+        }
+      }
+    },
+    "ask.exact.check.scale %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” has fewer decimals than its column: compare it with the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » a moins de décimales que sa colonne : comparez-le avec l’écran."
+          }
+        }
+      }
+    },
+    "ask.exact.check.dash %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark counted “%@” as zero."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark a compté « %@ » comme zéro."
+          }
+        }
+      }
+    },
+    "ask.exact.check.parenthesized %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark read “%@” in parentheses as a positive figure."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark a lu « %@ », entre parenthèses, comme un chiffre positif."
+          }
+        }
+      }
+    },
+    "ask.exact.check.approximate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some figures are rounded on the screen (k, M): the result is approximate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certains chiffres sont arrondis à l’écran (k, M) : le résultat est approché."
+          }
+        }
+      }
+    },
+    "ask.exact.check.convention": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The frame does not show its decimal separator: Hark used this Mac’s."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le cadre ne montre pas son séparateur décimal : Hark a pris celui de ce Mac."
+          }
+        }
+      }
+    },
+    "ask.exact.check.tie %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two rows tie: Hark shows the first, “%@”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux lignes sont à égalité : Hark montre la première, « %@ »."
+          }
+        }
+      }
+    },
+    "ask.exact.exact %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exact value: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valeur exacte : %@"
+          }
+        }
+      }
+    },
+    "ask.exact.reading.slow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first read after a long pause can take up to a minute."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La première lecture après une longue pause peut prendre jusqu’à une minute."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.reader": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not read the figures in the frame."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu lire les chiffres du cadre."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.timeout": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the frame took more than a minute: Hark stopped it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La lecture du cadre a pris plus d’une minute : Hark l’a arrêtée."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not check this calculation: the model’s plan was not valid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu vérifier ce calcul : le plan du modèle n’était pas valide."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.truncated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not check this calculation: the model’s plan was cut off."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu vérifier ce calcul : le plan du modèle a été coupé."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.constant": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not check this calculation: it uses a number that is neither in the frame nor in your words."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu vérifier ce calcul : il utilise un nombre qui n’est ni dans le cadre ni dans vos paroles."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.unit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not check this calculation: it mixes units that do not go together."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu vérifier ce calcul : il mélange des unités incompatibles."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.degenerate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not check this calculation: it sets a cell against itself, so the table may have been misread."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu vérifier ce calcul : il oppose une cellule à elle-même, le tableau a peut-être été mal lu."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.noNumber %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not read a number in a cell the calculation needs: “%@”. It is outlined in red on the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu lire de nombre dans une cellule dont le calcul a besoin : « %@ ». Elle est entourée en rouge à l’écran."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.noNumber.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A cell the calculation needs reads as empty. It is outlined in red on the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une cellule dont le calcul a besoin semble vide. Elle est entourée en rouge à l’écran."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.garbled %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark read “%@” in a cell the calculation needs, which is not a clean number. It is outlined in red on the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark a lu « %@ » dans une cellule dont le calcul a besoin, et ce n’est pas un nombre net. Elle est entourée en rouge à l’écran."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.unreadCell": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not read a number in a cell the calculation needs."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu lire de nombre dans une cellule dont le calcul a besoin."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.zero": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not compute this: the calculation divides by zero."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu faire ce calcul : il divise par zéro."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.overflow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not compute this: the numbers grow too large."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu faire ce calcul : les nombres deviennent trop grands."
+          }
+        }
+      }
+    },
+    "entry.failure.readerFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask Hark · the frame’s figures could not be read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à Hark · les chiffres du cadre n’ont pas pu être lus"
           }
         }
       }
@@ -7175,19 +7991,19 @@
         }
       }
     },
-    "entry.failure.readerFailed": {
+    "entry.failure.mathError": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask Hark · the frame’s figures could not be read"
+            "value": "Ask Hark · the calculation had no result"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander à Hark · les chiffres du cadre n’ont pas pu être lus"
+            "value": "Demander à Hark · le calcul n’a pas eu de résultat"
           }
         }
       }

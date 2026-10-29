@@ -274,6 +274,7 @@ private func thread(_ root: UtteranceID, _ turns: [AskTurn]) -> AskThread {
         let presented = try #require(AskPresentation.exact(exactContext(sheet, solved), locale: us))
         #expect(presented.understoodCheck != nil)
         #expect(presented.checks == [.doubt(CellID(1))])
+        #expect(presented.named == [CellID(1): "145,00 €"])
     }
 
     @Test(arguments: [
@@ -392,5 +393,21 @@ private func thread(_ root: UtteranceID, _ turns: [AskTurn]) -> AskThread {
         let solved = try computation(sheet, "C1")
         #expect(AskPresentation.apply(exactContext(sheet, solved)) == .copyOnly)
         #expect(AskPresentation.apply(exactContext(sheet, solved, intent: F.assist)) == .insert)
+    }
+}
+
+@Suite struct FailureCellTextTests {
+    @Test(arguments: [
+        (MathFailure.math(.noNumber, cell: CellID(2)), "n/a" as String?),
+        (.math(.garbled, cell: CellID(2)), "n/a"),
+        (.math(.noNumber, cell: nil), nil),
+        (.math(.garbled, cell: CellID(9)), nil),
+        (.math(.divisionByZero, cell: CellID(2)), nil),
+        (.plan(.json), nil),
+        (.reader(.vision), nil),
+    ])
+    func theLineNamesTheCellAsRead(_ failure: MathFailure, _ expected: String?) {
+        let sheet = grid([["€10.00", "n/a"]])
+        #expect(AskPresentation.failureCellText(failure, utterance: exactContext(sheet, nil)) == expected)
     }
 }

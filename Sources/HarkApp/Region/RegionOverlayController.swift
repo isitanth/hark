@@ -22,6 +22,15 @@ final class RegionOverlayController {
     private var drag: (panel: RegionOverlayPanel, start: CGPoint)?
     /// The overlays were disarmed during the drag: they go once it ends.
     private var hideAfterDrag = false
+    /// The lens went, for any reason but `showLens` itself: the panel's button turns back to "Show Cells".
+    var onLensDismissed: (() -> Void)?
+    /// The panel showing the lens, and what takes the lens down while it shows.
+    private var lensPanel: RegionOverlayPanel?
+    private var lensHighlights: CellHighlights?
+    private var lensMonitor: Any?
+    private var lensObservers: [any NSObjectProtocol] = []
+    /// The app in front when the lens showed: the caller, during review. Its own activation keeps the lens.
+    private var lensCaller: pid_t?
 
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "region")
 
@@ -40,6 +49,8 @@ final class RegionOverlayController {
 
     /// In front of every display, the dot at the pointer. `blocked`: framing cannot work, and the dot says so.
     func show(blocked: Bool) {
+        // ⌃⌥ armed: framing takes priority over the lens.
+        hideLens()
         self.blocked = blocked
         hideAfterDrag = false
         let pointer = NSEvent.mouseLocation
@@ -81,6 +92,87 @@ final class RegionOverlayController {
         panel.state.pointer = CGPoint(x: rect.maxX, y: rect.maxY)
         panel.orderFrontRegardless()
         isShown = true
+    }
+
+    // MARK: - The lens (M13)
+
+    var isLensShown: Bool { lensPanel != nil }
+
+    /// Whether a display with this ID is connected: "Show Cells" is disabled when not.
+    func hasDisplay(_ displayID: UInt32) -> Bool {
+        panels.contains { $0.displayID == displayID }
+    }
+
+    /// The cells over their frame, on the frame's display only, under the Ask panel and click-through. Nothing while
+    /// framing is armed.
+    func showLens(_ highlights: CellHighlights, image: CGImage, animated: Bool) {
+        guard !isShown, let panel = panels.first(where: { $0.displayID == highlights.displayID }) else { return }
+        removeLens()
+        panel.setLens(true)
+        panel.state.lens = RegionLens(highlights: highlights, image: image, animated: animated)
+        panel.orderFrontRegardless()
+        lensPanel = panel
+        lensHighlights = highlights
+        lensCaller = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        lensMonitor = NSEvent.addGlobalMonitorForEvents(
+            matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
+        ) { [weak self] _ in
+            self?.pointerActed(at: NSEvent.mouseLocation)
+        }
+        let workspace = NSWorkspace.shared.notificationCenter
+        lensObservers = [
+            workspace.addObserver(
+                forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+            ) { [weak self] note in
+                let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+                let pid = app?.processIdentifier
+                MainActor.assumeIsolated { self?.activated(pid) }
+            },
+            workspace.addObserver(
+                forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.hideLens() }
+            },
+        ]
+        Self.logger.info(
+            "lens on display \(highlights.displayID, privacy: .public), \(highlights.cells.count, privacy: .public) cells"
+        )
+    }
+
+    /// The lens goes and its image with it; the panel hears of it.
+    func hideLens() {
+        guard lensPanel != nil else { return }
+        removeLens()
+        onLensDismissed?()
+    }
+
+    private func removeLens() {
+        if let lensMonitor { NSEvent.removeMonitor(lensMonitor) }
+        lensMonitor = nil
+        for observer in lensObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+        lensObservers = []
+        if let panel = lensPanel {
+            panel.state.lens = nil
+            panel.orderOut(nil)
+            panel.setLens(false)
+        }
+        lensPanel = nil
+        lensHighlights = nil
+        lensCaller = nil
+    }
+
+    /// A click or a scroll on the frame: what lies under it is about to change.
+    private func pointerActed(at point: CGPoint) {
+        guard let panel = lensPanel, let highlights = lensHighlights,
+            highlights.contains(cocoaPoint: point, displayFrame: panel.displayFrame)
+        else { return }
+        hideLens()
+    }
+
+    /// Another app came forward: neither Hark nor the caller.
+    private func activated(_ pid: pid_t?) {
+        guard lensPanel != nil, pid != ProcessInfo.processInfo.processIdentifier, pid != lensCaller else { return }
+        hideLens()
     }
 
     /// Esc while the mouse is down: the drag frames nothing and the ask goes on. False when no drag is under way.
@@ -147,6 +239,8 @@ final class RegionOverlayController {
             self.drag = nil
             onAbandoned?()
         }
+        // The displays changed: the lens stays hidden until "Show Cells".
+        hideLens()
         for panel in panels { panel.orderOut(nil) }
         panels = NSScreen.screens.map { RegionOverlayPanel(display: $0, owner: self) }
         if wasShown { show(blocked: blocked) }
@@ -201,6 +295,19 @@ private final class RegionOverlayPanel: NSPanel {
 
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
+
+    /// The lens's arrangement: under the Ask panel, on this Space only, click-through. Off, framing's exactly.
+    func setLens(_ on: Bool) {
+        if on {
+            level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue - 1)
+            collectionBehavior = [.fullScreenAuxiliary, .ignoresCycle]
+            ignoresMouseEvents = true
+        } else {
+            level = .screenSaver
+            collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+            ignoresMouseEvents = false
+        }
+    }
 
     /// A Cocoa global point in this overlay's own points, from its top-left corner, as the view draws.
     func local(_ global: CGPoint) -> CGPoint {

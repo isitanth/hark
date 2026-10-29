@@ -74,9 +74,37 @@ extension RegionFailure {
 }
 
 extension MathFailure {
-    /// The Ask panel: why the exact path stopped (M13).
-    var popupText: LocalizedStringResource {
-        L("ask.failure.streamError")
+    /// The Ask panel: why the exact path stopped (M13). `cellText` is the failing cell's text as read, nil when the
+    /// cell is not known.
+    func popupText(cellText: String?) -> LocalizedStringResource {
+        switch self {
+        case .reader(.vision): L("ask.exact.failure.reader")
+        case .reader(.timeout): L("ask.exact.failure.timeout")
+        case .plan(.truncated): L("ask.exact.failure.truncated")
+        case .plan(.unspokenConstant): L("ask.exact.failure.constant")
+        case .plan(.unit): L("ask.exact.failure.unit")
+        case .plan(.degenerate): L("ask.exact.failure.degenerate")
+        case .plan(.json), .plan(.syntax), .plan(.unknownFunction), .plan(.unknownCell), .plan(.noFormula):
+            L("ask.exact.failure.plan")
+        case .math(.noNumber, _):
+            cellLine(cellText, empty: L("ask.exact.failure.noNumber.empty")) { text in
+                L("ask.exact.failure.noNumber \(text)")
+            }
+        case .math(.garbled, _):
+            cellLine(cellText, empty: L("ask.exact.failure.unreadCell")) { text in
+                L("ask.exact.failure.garbled \(text)")
+            }
+        case .math(.divisionByZero, _): L("ask.exact.failure.zero")
+        case .math(.overflow, _): L("ask.exact.failure.overflow")
+        }
+    }
+
+    private func cellLine(
+        _ text: String?, empty: LocalizedStringResource, named: (String) -> LocalizedStringResource
+    ) -> LocalizedStringResource {
+        guard let text else { return L("ask.exact.failure.unreadCell") }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? empty : named(trimmed)
     }
 }
 
