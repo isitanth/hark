@@ -465,7 +465,7 @@ public actor PipelineController {
         case .plan(let id, let instruction, let sheet, let selection, let thread, let correction):
             generation?.cancel()
             askContinuation.yield(AskUpdate(id: id, text: ""))
-            let (image, earlier) = planFrames(id, sheet: sheet, thread: thread)
+            let (image, earlier) = planFrames(id, thread: thread)
             let events = env.planner.plan(
                 instruction: instruction, sheet: sheet, selection: selection?.text, image: image, thread: thread,
                 frames: earlier, correction: correction)
@@ -529,9 +529,9 @@ public actor PipelineController {
         reading = nil
     }
 
-    /// The plan's images: the turn's own frame, or for a follow-up with none the frame its sheet was read from; and
-    /// every earlier framed turn's, by turn, as for `generate`.
-    private func planFrames(_ id: UtteranceID, sheet: CellSheet, thread: AskThread?) -> (
+    /// The plan's images: the turn's own frame, nil for a follow-up with none; and every earlier framed turn's, by
+    /// turn, as for `generate`.
+    private func planFrames(_ id: UtteranceID, thread: AskThread?) -> (
         ImagePart?, [UtteranceID: ImagePart]
     ) {
         var earlier: [UtteranceID: ImagePart] = [:]
