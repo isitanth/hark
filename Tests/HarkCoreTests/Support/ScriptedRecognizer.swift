@@ -113,3 +113,67 @@ final class ScriptedCrops: Sendable {
             && abs(a.size.width - b.size.width) < 1e-9 && abs(a.size.height - b.size.height) < 1e-9
     }
 }
+
+/// A `TextRecognizing` that answers from a script and records what it was asked: no Vision.
+final class ScriptedRecognizer: TextRecognizing {
+    struct Call: Equatable {
+        var kind: String
+        var width: Int
+        var height: Int
+    }
+
+    private struct State {
+        var calls: [Call] = []
+        var events: [String] = []
+    }
+
+    private let script: RawDocument
+    private let failDocument: Bool
+    private let failLines: Bool
+    private let cancelAfterDocument: Bool
+    private let documentPause: Duration
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
+    init(
+        _ script: RawDocument = RawDocument(), failDocument: Bool = false, failLines: Bool = false,
+        cancelAfterDocument: Bool = false, documentPause: Duration = .zero
+    ) {
+        self.script = script
+        self.failDocument = failDocument
+        self.failLines = failLines
+        self.cancelAfterDocument = cancelAfterDocument
+        self.documentPause = documentPause
+    }
+
+    struct Failure: Error {}
+
+    var calls: [Call] { state.withLock { $0.calls } }
+    var events: [String] { state.withLock { $0.events } }
+
+    func document(_ image: CGImage) async throws -> RawDocument {
+        state.withLock {
+            $0.calls.append(Call(kind: "document", width: image.width, height: image.height))
+            $0.events.append("start")
+        }
+        if documentPause > .zero { try? await Task.sleep(for: documentPause) }
+        state.withLock { $0.events.append("end") }
+        if failDocument { throw Failure() }
+        if cancelAfterDocument { withUnsafeCurrentTask { $0?.cancel() } }
+        return script
+    }
+
+    func lines(_ image: CGImage, level: RecognitionLevel) async throws -> [RawLine] {
+        state.withLock { $0.calls.append(Call(kind: level.rawValue, width: image.width, height: image.height)) }
+        if failLines { throw Failure() }
+        return []
+    }
+}
+
+/// A blank RGBA image of that size, in memory.
+func blankImage(width: Int, height: Int) throws -> CGImage {
+    let context = try #require(
+        CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    return try #require(context.makeImage())
+}
