@@ -43,6 +43,8 @@ final class RegionFraming {
         overlay.onFramed = { [weak self] geometry, display in self?.framed(geometry, display: display) }
         overlay.onAbandoned = { [weak self] in self?.abandoned() }
         panel.dropDrag = { [weak self] in self?.overlay.cancelDrag() ?? false }
+        // The lens is the overlay's display mode (M13): the panel shows and hides it.
+        panel.lensOverlay = overlay
     }
 
     /// `-HarkDebugPreview overlay`.

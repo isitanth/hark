@@ -270,6 +270,8 @@ final class AppModel {
         askPanel = AskPanelModel(
             controller: controller, workspace: workspace, pasteboard: pasteboard, defaults: defaults)
         framing = RegionFraming(controller: controller, panel: askPanel, reader: reader)
+        // The lens draws from the controller's raster: the closure holds the controller, never a raster.
+        askPanel.lensImage = { [controller] id in await controller.raster(for: id)?.image }
         pinnedIcon = defaults.string(forKey: "HarkDebugIconState").flatMap(MenuBarIconState.init(rawValue:))
         // The volume first, so a quit past the deadline still gives it back; then the pipeline, so the utterance in
         // flight writes its line; then the engines, so nothing loads again.
@@ -751,6 +753,7 @@ final class AppModel {
         askPanel.configure(config.config.effectiveLLM)
         askPanel.showPreview(debugPreview)
         if debugPreview.contains("overlay") { framing.showPreview() }
+        if debugPreview.contains("overlay-lens") { askPanel.lensOverlay?.showLensPreview() }
     }
 
     /// The cross for a second after an utterance that came to nothing, the animations, and the end of a latch.
