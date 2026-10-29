@@ -84,15 +84,4 @@ public enum MathUnit: Hashable, Sendable {
         case .number: self = .number
         }
     }
-
-    /// How a retry note names it: words, never Hark's notation.
-    var words: String {
-        switch self {
-        case .money(let currency): "an amount in \(currency.code)"
-        case .percent: "a percent"
-        case .count: "a count"
-        case .hours: "hours"
-        case .number: "a plain number"
-        }
-    }
 }
