@@ -407,6 +407,33 @@ struct ExactRun {
         #expect(run.context?.llmMs == nil && run.context?.llmModel == nil)
     }
 
+    /// A second drag abandoned over a frame captured before it: that frame stays, and is read again, so the words that
+    /// compute still take the exact path.
+    @Test func anAbandonedDragReadsTheFrameItLeftAgain() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        #expect(try run.on(.regionCaptured(F.id, F.region)) == ["readRegion"])
+        #expect(try run.on(.regionStarted(F.id)) == ["cancelReading"])
+        #expect(run.math?.reading == .idle)
+        #expect(try run.on(.regionAbandoned(F.id)) == ["readRegion"])
+        #expect(run.math?.reading == .pending && run.context?.region == F.region)
+        try run.on(.triggerUp(at: F.pressedAt.addingTimeInterval(2)))
+        try run.on(.captured(F.id, F.speech))
+        try run.on(.transcribed(F.id, Exact.compute, ms: 400))
+        #expect(run.stage == .reading)
+        #expect(try run.on(.regionRead(F.id, Exact.sheet)) == ["plan"])
+        #expect(run.stage == .planning)
+    }
+
+    /// An abandoned first drag has no frame to read: nothing starts.
+    @Test func anAbandonedDragWithNoFrameReadsNothing() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        try run.on(.regionStarted(F.id))
+        #expect(try run.on(.regionAbandoned(F.id)) == [])
+        #expect(run.math?.reading == .idle)
+    }
+
     @Test func aFreeAsksRetryStaysFree() throws {
         var run = ExactRun()
         try run.ask(Exact.free, read: .success(Exact.sheet))
@@ -420,6 +447,8 @@ struct ExactRun {
         try run.on(.generationFailed(F.id, .noVision(model: "m", reason: .noVision), Exact.summary()))
         #expect(try run.on(.askRetryWithoutRegion(F.id)) == ["generate"])
         #expect(run.math?.routed == false)
+        // The frame went, and its cells with it: no later follow-up plans over them.
+        #expect(run.math?.reading == .idle)
         try run.on(.generationFailed(F.id, .noAnswer, Exact.summary()))
         #expect(try run.on(.askRetry(F.id)) == ["generate"])
     }

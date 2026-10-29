@@ -542,11 +542,11 @@ public actor PipelineController {
                 Self.logger.fault("no region image for turn \(turn.id) of utterance \(id)")
             }
         }
+        // A follow-up with no frame of its own plans over an earlier turn's sheet: that frame goes once, with its
+        // turn in the history, as `generate` sends it.
         if let own = frames[id] { return (own, earlier) }
-        let framed = thread?.turns.filter { $0.region != nil } ?? []
-        let source = framed.last { $0.sheet == sheet } ?? framed.last
-        if source == nil { Self.logger.fault("no region image for the plan of utterance \(id)") }
-        return (source.flatMap { frames[$0.id] }, earlier)
+        if earlier.isEmpty { Self.logger.fault("no region image for the plan of utterance \(id)") }
+        return (nil, earlier)
     }
 }
 

@@ -274,6 +274,8 @@ public struct PipelineReducer: Sendable {
             context.llmMs = nil
             context.region = nil
             context.regionFailure = nil
+            // The frame is gone, and the cells read from it with it: a later follow-up never plans over them.
+            context.math?.reading = .idle
             context.math?.routed = false
             context.math?.computation = nil
             let request = send(&context, transcript)
@@ -628,7 +630,8 @@ public struct PipelineReducer: Sendable {
     }
 
     /// A region event, and for an exact ask the read it starts or stops: a captured frame is read at once, while the
-    /// user speaks; a new drag or the chip's × drops a read under way.
+    /// user speaks; a new drag or the chip's × drops a read under way, and a drag abandoned over a frame captured before
+    /// it reads that frame again.
     private func framing(_ context: UtteranceContext, _ event: PipelineEvent)
         -> (UtteranceContext, [PipelineEffect])?
     {
@@ -642,6 +645,9 @@ public struct PipelineReducer: Sendable {
         case .regionStarted, .regionRemoved:
             context.math?.reading = .idle
             return (context, stop)
+        case .regionAbandoned where context.region != nil && math.reading == .idle:
+            context.math?.reading = .pending
+            return (context, [.readRegion(context.id)])
         default:
             return (context, [])
         }

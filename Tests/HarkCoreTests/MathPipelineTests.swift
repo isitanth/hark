@@ -349,7 +349,9 @@ struct MathPipelineTests {
         await rig.controller.finishCapture(follow)
         let reviewing = try #require(await Self.next(&snapshots, where: Self.stage(.reviewing)))
         #expect(reviewing.utterance?.id == follow)
-        #expect(rig.planner.requests.count == 2 && rig.planner.requests[1].image == Self.png)
+        // Turn 1's frame goes once, with turn 1 in the history: the follow-up framed nothing of its own.
+        #expect(rig.planner.requests.count == 2 && rig.planner.requests[1].image == nil)
+        #expect(rig.planner.requests[1].frames[id] == Self.png)
         #expect(rig.planner.requests[1].thread?.turns.first?.formula == "SUM(C1,C2)")
         await rig.controller.copyAnswer("6021", for: follow)
         _ = await Self.next(&snapshots, where: Self.idle)
