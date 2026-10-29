@@ -95,8 +95,9 @@ public enum PlanDefect: Error, Sendable, Equatable {
     case unspokenConstant(String)
     /// An empty formula: the model says it is not a calculation.
     case noFormula
-    /// The units contradict each other, or the declared one.
-    case unit
+    /// The units contradict each other, or the declared one. The note is the frozen engine's (`harness.py`, M13.0
+    /// change 1): it names units in words or in the engine's codes, never a cell's text.
+    case unit(String)
     /// `X − X`, `X ÷ X`, a cell repeated in COUNT.
     case degenerate
 
@@ -130,8 +131,8 @@ public enum PlanDefect: Error, Sendable, Equatable {
         case .syntax: "write decimals with a point and use only the listed functions"
         case .unknownFunction: "use only SUM, AVG, MIN, MAX, COUNT, ROUND, ABS, ARGMIN, ARGMAX"
         case .unknownCell: "refer only to IDs from the item list"
-        case .unspokenConstant: "a number the user did not say is in the formula: refer to its item instead"
-        case .unit: "the unit does not match the cells (multiply by 100 for a percent)"
+        case .unspokenConstant(let literal): "\(literal) is not a number the user said: refer to its item"
+        case .unit(let note): note
         case .degenerate: "the formula cancels itself out"
         case .truncated, .noFormula: ""
         }

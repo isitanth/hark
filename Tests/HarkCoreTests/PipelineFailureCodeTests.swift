@@ -55,7 +55,7 @@ import Testing
             (.planInvalid(.unknownCell), "plan_invalid:unknown_cell"),
             (.planInvalid(.unspokenConstant("0.2")), "plan_invalid:unspoken_constant"),
             (.planInvalid(.noFormula), "plan_invalid:no_formula"),
-            (.planInvalid(.unit), "plan_invalid:unit"),
+            (.planInvalid(.unit("multiply by 100 for a percent")), "plan_invalid:unit"),
             (.planInvalid(.degenerate), "plan_invalid:degenerate"),
         ]
         + MathDefect.allCases.map { (.mathError($0), "math_error:\($0.rawValue)") }

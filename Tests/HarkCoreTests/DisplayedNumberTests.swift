@@ -149,6 +149,8 @@ private let table = ReadingContext(inTable: true, columnHoldsAmounts: true)
             ("1,236 kg", ReadingContext(region: NumberConvention(decimalSeparator: ",")), "1.236", .region),
             ("1,859 €/L", ReadingContext(region: NumberConvention(decimalSeparator: ",")), "1.859", .region),
             ("1,859 €/L", ReadingContext(), "1.859", .currency), ("$3.459/gal", ReadingContext(), "3.459", .currency),
+            ("1,859 € / L", ReadingContext(), "1.859", .currency), ("1,859 € /L", ReadingContext(), "1.859", .currency),
+            ("$3.459 / gal", ReadingContext(), "3.459", .currency),
             ("1.234", ReadingContext(currency: .eur), "1234", .currency),
             ("1,234", ReadingContext(macDecimal: ","), "1.234", .macLocale),
             ("1,234", ReadingContext(macDecimal: "."), "1234", .macLocale),

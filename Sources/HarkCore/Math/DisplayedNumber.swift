@@ -450,11 +450,16 @@ extension DisplayedNumber {
                 consumed = true
             }
         }
-        if result.currencyMark != nil || token.currencyBefore != nil, position + 1 < count,
-            characters[position] == "/", characters[position + 1].isLetter
-        {
-            result.perUnit = true
-            position += 1 + letters(characters, from: position + 1).count
+        // A price per unit, `€/L` or `€ / L`.
+        if result.currencyMark != nil || token.currencyBefore != nil {
+            var slash = position
+            while slash < count, spaceLike.contains(characters[slash]) { slash += 1 }
+            var unit = slash + 1
+            while unit < count, spaceLike.contains(characters[unit]) { unit += 1 }
+            if slash < count, characters[slash] == "/", unit < count, characters[unit].isLetter {
+                result.perUnit = true
+                position = unit + letters(characters, from: unit).count
+            }
         }
         if token.parenthesis {
             var cursor = position

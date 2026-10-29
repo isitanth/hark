@@ -55,8 +55,8 @@ private func decode(_ reply: String, finish: String? = "stop") -> Result<Calcula
     }
 
     static let defects: [PlanDefect] = [
-        .json, .truncated, .syntax, .unknownFunction, .unknownCell, .unspokenConstant("2418.62"), .noFormula, .unit,
-        .degenerate,
+        .json, .truncated, .syntax, .unknownFunction, .unknownCell, .unspokenConstant("2418.62"), .noFormula,
+        .unit("the result is an amount in CHF, which is not in the unit list: write none"), .degenerate,
     ]
 
     @Test(arguments: defects)
@@ -69,7 +69,9 @@ private func decode(_ reply: String, finish: String? = "stop") -> Result<Calcula
 
     @Test func theNotesNameARuleNeverACell() {
         #expect(PlanDefect.json.correction == "reply with one JSON object with understood, formula and unit only")
-        #expect(PlanDefect.unit.correction == "the unit does not match the cells (multiply by 100 for a percent)")
+        #expect(PlanDefect.unit("multiply by 100 for a percent").correction == "multiply by 100 for a percent")
+        #expect(
+            PlanDefect.unspokenConstant("0.2").correction == "0.2 is not a number the user said: refer to its item")
         #expect(PlanDefect.degenerate.correction == "the formula cancels itself out")
     }
 

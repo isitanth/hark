@@ -29,6 +29,12 @@ private func failure(_ formula: String, _ texts: [String], unit: String = "none"
 
 private let numbers = ["10", "20", "30", "-5", "2.345", "-2.345", "2.5", "0", "Label", "1,915.3ł"]
 
+/// A unit defect, whatever its note.
+private func isUnit(_ failure: MathFailure?) -> Bool {
+    guard case .plan(.unit) = failure else { return false }
+    return true
+}
+
 @Suite struct MathEngineTests {
     @Test(arguments: [
         ("SUM(C1, C2, C3)", "60"), ("AVG(C1, C2, C3)", "20"), ("AVERAGE(C1, C2)", "15"), ("MIN(C1, C4)", "-5"),
@@ -119,7 +125,24 @@ private let numbers = ["10", "20", "30", "-5", "2.345", "-2.345", "2.5", "0", "L
         ("MIN(C1, C2)", ["10 €", "5 £"]), ("ARGMAX(C1 @ C3, C2 @ C3)", ["10 €", "5 %", "x"]),
     ])
     func unitsAreRefused(_ formula: String, _ texts: [String]) {
-        #expect(failure(formula, texts) == .plan(.unit))
+        #expect(isUnit(failure(formula, texts)))
+    }
+
+    /// The retry's note is the frozen engine's (M13.0 change 1): its codes in the algebra, words for the declared unit.
+    @Test(
+        arguments: [
+            ("C1 + C2", ["10 €", "5 %"], "none", "M:EUR and P cannot be added or compared"),
+            ("C1 * C2", ["10 €", "5 %"], "none", "M:EUR times P is refused; write the rate as an item with %"),
+            ("C1 * C2", ["2h", "3h"], "none", "H times H is refused"),
+            ("C2 / C1", ["10 €", "5"], "none", "n divided by M:EUR is refused"),
+            ("C1%", ["10 €"], "none", "M:EUR cannot take %"),
+            ("C1", ["10 CHF"], "EUR", "the result is an amount in CHF, which is not in the unit list: write none"),
+            ("C1", ["10 €"], "USD", "the result is an amount in EUR, not USD"),
+            ("C1", ["10 %"], "count", "the result is a percent, not count"),
+            ("COUNT(C1)", ["x"], "hours", "the result is a count, not hours"),
+        ] as [(String, [String], String, String)])
+    func aUnitDefectNamesItsUnits(_ formula: String, _ texts: [String], _ unit: String, _ note: String) {
+        #expect(failure(formula, texts, unit: unit) == .plan(.unit(note)))
     }
 
     // MARK: Declared against computed, b2 §4.4
@@ -142,15 +165,18 @@ private let numbers = ["10", "20", "30", "-5", "2.345", "-2.345", "2.5", "0", "L
         let result = solve(formula, texts, unit: unit)
         if accepted {
             #expect((try? result.get()) != nil)
+        } else if case .failure(let failure) = result {
+            #expect(isUnit(failure))
         } else {
-            #expect(result == .failure(.plan(.unit)))
+            Issue.record("\(formula) declared \(unit) was accepted")
         }
     }
 
     @Test func aPercentOfLikeUnitsNeedsItsHundred() {
         let texts = ["120 €", "100 €"]
-        #expect(failure("(C1 - C2) / C2", texts, unit: "percent", instruction: "growth?") == .plan(.unit))
-        #expect(failure("ROUND((C1 - C2) / C2, 2)", texts, unit: "percent", instruction: "growth") == .plan(.unit))
+        let hundred = MathFailure.plan(.unit("multiply by 100 for a percent"))
+        #expect(failure("(C1 - C2) / C2", texts, unit: "percent", instruction: "growth?") == hundred)
+        #expect(failure("ROUND((C1 - C2) / C2, 2)", texts, unit: "percent", instruction: "growth") == hundred)
         #expect((try? solve("(C1 - C2) / C2 * 100", texts, unit: "percent").get().value) == 20)
     }
 
@@ -217,16 +243,25 @@ private let numbers = ["10", "20", "30", "-5", "2.345", "-2.345", "2.5", "0", "L
         #expect(rounded.warnings.contains(.rounded(exact: rounded.value)))
     }
 
-    @Test func aFailureDescribesItselfByCodeOnly() {
+    /// A division's residue is not a rounding: the mark compares with the value snapped as `ExactAnswer.exact` does.
+    @Test func aResidueIsNoRounding() throws {
+        let computation = try solve("C1 / 3 * 3", ["100,00 €"], instruction: "divide by 3 then times 3").get()
+        #expect(!computation.warnings.contains { if case .rounded = $0 { true } else { false } })
+    }
+
+    /// The log writes a failure's code alone: no cell text, and not the number a model wrote, which the panel's
+    /// `unspokenConstant` keeps.
+    @Test func aFailureLogsItsCodeOnly() {
         let marker = "SECRET-7731"
         let failures: [MathFailure] = [
             failure("C1 + C2", [marker, "1"]), failure("C1 * 7731", ["1"], instruction: marker),
         ].compactMap { $0 }
         #expect(failures.count == 2)
         for item in failures {
-            #expect(!String(describing: item).contains("SECRET"))
-            #expect(!String(describing: item.pipelineFailure).contains("SECRET"))
+            #expect(!item.pipelineFailure.code.contains("SECRET"))
+            #expect(!item.pipelineFailure.code.contains("7731"))
         }
+        #expect(!String(describing: failures[0]).contains("SECRET"))
         for defect in MathDefect.allCases { #expect(!String(describing: defect).contains("SECRET")) }
     }
 }

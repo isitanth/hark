@@ -126,7 +126,9 @@ public enum MathEngine {
         let policy = RoundingPolicy.standard
         let unit = RoundingPolicy.displayUnit(result.unit, declared: plan.unit, value: result.value)
         let shown = policy.round(result.value, unit: unit, read: read, sheet: sheet)
-        if shown != result.value { warnings.append(.rounded(exact: result.value)) }
+        // Against the value snapped as `ExactAnswer.exact` is, so a division residue is no rounding.
+        let snapped = RoundingPolicy.round(result.value, scale: RoundingPolicy.snapScale, rule: .halfUp)
+        if shown != snapped { warnings.append(.rounded(exact: snapped)) }
         return .success(
             Computation(
                 plan: plan, formula: formula, value: result.value, unit: result.unit, read: read,
@@ -257,13 +259,14 @@ struct Evaluator {
     }
 }
 
-/// b2 §4.3, as `harness._unify`, `_mul`, `_div` and `_pct` froze it. Everything not listed is `plan_invalid:unit`.
+/// b2 §4.3, as `harness._unify`, `_mul`, `_div` and `_pct` froze it. Everything not listed is `plan_invalid:unit`,
+/// with the frozen engine's note.
 enum UnitAlgebra {
     static func unify(_ a: MathUnit, _ b: MathUnit) throws(MathFailure) -> MathUnit {
         if a == b { return a }
         if a == .number { return b }
         if b == .number { return a }
-        throw .plan(.unit)
+        throw .plan(.unit("\(a.code) and \(b.code) cannot be added or compared"))
     }
 
     static func multiply(_ a: MathUnit, _ b: MathUnit) throws(MathFailure) -> MathUnit {
@@ -275,7 +278,9 @@ enum UnitAlgebra {
         case (.money, .count), (.hours, .count): return a
         case (.hours, .money): return b
         case (.money, .hours): return a
-        default: throw .plan(.unit)
+        default:
+            let rate = a == .percent || b == .percent ? "; write the rate as an item with %" : ""
+            throw .plan(.unit("\(a.code) times \(b.code) is refused" + rate))
         }
     }
 
@@ -285,12 +290,12 @@ enum UnitAlgebra {
         switch (a, b) {
         case (.money, .count), (.money, .hours): return a
         case (.number, .count): return .number
-        default: throw .plan(.unit)
+        default: throw .plan(.unit("\(a.code) divided by \(b.code) is refused"))
         }
     }
 
     static func rate(_ a: MathUnit) throws(MathFailure) -> MathUnit {
-        guard a == .percent || a == .number else { throw .plan(.unit) }
+        guard a == .percent || a == .number else { throw .plan(.unit("\(a.code) cannot take %")) }
         return .number
     }
 }
@@ -322,7 +327,10 @@ extension MathEngine {
         if let currency {
             if unit == .money(currency) { return }
             if unit == .number, regionCurrency(sheet).map({ $0 == currency }) ?? true { return }
-            throw .plan(.unit)
+            if case .money(let other) = unit, !["EUR", "USD", "GBP"].contains(other.code) {
+                throw .plan(.unit("the result is \(unit.words), which is not in the unit list: write none"))
+            }
+            throw .plan(.unit("the result is \(unit.words), not \(declared.rawValue)"))
         }
         switch (declared, unit) {
         case (.none, _), (.percent, .percent), (.count, .count), (.count, .number), (.hours, .hours),
@@ -333,9 +341,9 @@ extension MathEngine {
             var left = Evaluator(sheet: sheet)
             var right = Evaluator(sheet: sheet)
             guard let a = try? left.evaluate(top).unit, let b = try? right.evaluate(bottom).unit else { return }
-            if a == b, a != .number { throw .plan(.unit) }
+            if a == b, a != .number { throw .plan(.unit("multiply by 100 for a percent")) }
         default:
-            throw .plan(.unit)
+            throw .plan(.unit("the result is \(unit.words), not \(declared.rawValue)"))
         }
     }
 
@@ -466,6 +474,30 @@ struct CellRoles {
             }
             walk(arms[chosen].value, coefficient: coefficient, linear: linear)
             assign(arms[chosen].label, coefficient * sign(values[chosen]) > 0 ? .added : .subtracted)
+        }
+    }
+}
+
+extension MathUnit {
+    /// The frozen engine's code for a unit, as its algebra notes name it (`harness.cell_unit`).
+    var code: String {
+        switch self {
+        case .money(let currency): "M:" + currency.code
+        case .percent: "P"
+        case .count: "k"
+        case .hours: "H"
+        case .number: "n"
+        }
+    }
+
+    /// A unit in words, as the frozen engine's declared-unit notes name it (`harness.unit_words`).
+    var words: String {
+        switch self {
+        case .money(let currency): "an amount in " + currency.code
+        case .percent: "a percent"
+        case .count: "a count"
+        case .hours: "hours"
+        case .number: "a plain number"
         }
     }
 }
