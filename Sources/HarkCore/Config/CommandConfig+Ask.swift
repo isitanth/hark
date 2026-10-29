@@ -32,8 +32,13 @@ extension CommandConfig {
         return next
     }
 
-    /// This config with `exact_math` set (M13), and `llm:` written out when the file had none.
+    /// This config with `exact_math` set (M13), and `llm:` written out when the file had none. Never nil: the optional
+    /// matches its siblings, which Settings calls the same way.
     public func settingExactMath(_ on: Bool) -> CommandConfig? {
-        nil
+        var llm = effectiveLLM
+        llm.exactMath = on
+        var next = self
+        next.llm = llm
+        return next
     }
 }

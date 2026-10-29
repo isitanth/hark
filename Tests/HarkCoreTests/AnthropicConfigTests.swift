@@ -147,6 +147,34 @@ let anthropicProblemCases: [LLMProblemCase] = [
         #expect(next.llm?.profiles["claude"] == .claude)
     }
 
+    @Test func exactMathInAFileWithNoLLMWritesTheStandardOneToo() throws {
+        let next = try #require(CommandConfig().settingExactMath(true))
+        var expected = LLMConfig.standard
+        expected.exactMath = true
+        #expect(next.llm == expected)
+        #expect(next.yaml().hasSuffix("  max_selection_chars: 12000\n  exact_math: on\n"))
+        #expect(try CommandConfig.parse(Data(next.yaml().utf8)) == next)
+    }
+
+    @Test func exactMathKeepsClaudesProfileAsItIs() throws {
+        var mine = ProviderProfile.claude
+        mine.effort = .high
+        let config = CommandConfig(llm: LLMConfig(provider: "claude", profiles: ["local": .local, "claude": mine]))
+        let next = try #require(config.settingExactMath(true))
+        #expect(next.llm?.provider == "claude")
+        #expect(next.llm?.profiles == config.llm?.profiles)
+        #expect(next.llm?.activeProfile?.effort == .high)
+        #expect(next.llm?.exactMath == true)
+    }
+
+    @Test func exactMathOffAfterOnGivesTheFirstConfigBack() throws {
+        let config = CommandConfig(llm: LLMConfig(provider: "claude", profiles: ["local": .local, "claude": .claude]))
+        let on = try #require(config.settingExactMath(true))
+        let off = try #require(on.settingExactMath(false))
+        #expect(off == config)
+        #expect(off.yaml() == config.yaml())
+    }
+
     @Test func anUnknownNameIsNotPicked() {
         #expect(CommandConfig().settingProvider("work") == nil)
     }
