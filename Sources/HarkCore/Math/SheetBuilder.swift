@@ -519,6 +519,8 @@ extension SheetBuilder {
         var uncertain: Bool
         var note: ReadNote?
         var numericColumn: Bool
+        /// A real table column: in the text-rows table (R7) `column` is the item's place in its line.
+        var geometric = true
     }
 
     static func number(
@@ -532,7 +534,8 @@ extension SheetBuilder {
                     numbered.append(
                         Numbered(
                             text: text, box: item.box, table: t, row: item.row, column: item.column,
-                            uncertain: item.uncertain, note: note(item), numericColumn: item.wantDecimals != nil))
+                            uncertain: item.uncertain, note: note(item), numericColumn: item.wantDecimals != nil,
+                            geometric: !table.textRows))
                 }
             }
         }
@@ -598,7 +601,7 @@ extension SheetBuilder {
         var texts: [ColumnKey: [String]] = [:]
         var facts: [ColumnKey: ColumnFacts] = [:]
         for entry in entries {
-            guard let table = entry.table, let column = entry.column else { continue }
+            guard entry.geometric, let table = entry.table, let column = entry.column else { continue }
             let key = ColumnKey(table: table, column: column)
             var fact = facts[key] ?? ColumnFacts()
             if let first = trimmed(entry.text).first, signs.contains(first) { fact.signed = true }

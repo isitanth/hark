@@ -210,12 +210,18 @@ public enum DisplayedNumber {
             currencySpacing: majority(currencySpacings)?.first, percentSpacing: majority(percentSpacings)?.first)
     }
 
-    /// The decimal separator most unambiguous numbers in these texts use: a column's verdict (step 3).
+    /// The decimal separator most unambiguous numbers in these texts use: a column's verdict (step 3), or the region's
+    /// (step 4). `1,234,567` votes too: its `,` groups, so the decimal is the point.
     public static func decimalVote(_ texts: [String]) -> Character? {
         var decimals: [Character: Int] = [:]
         for text in texts {
             for token in tokens(in: normalize(text)) {
-                if let decimal = shape(token.number).decimal { decimals[decimal, default: 0] += 1 }
+                let verdict = shape(token.number)
+                if let decimal = verdict.decimal {
+                    decimals[decimal, default: 0] += 1
+                } else if let grouping = verdict.grouping, grouping == "," || grouping == "." {
+                    decimals[grouping == "," ? "." : ",", default: 0] += 1
+                }
             }
         }
         return majority(decimals)

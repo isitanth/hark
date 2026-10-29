@@ -103,6 +103,34 @@ import Testing
         #expect(first.notes.contains(.assumedConvention))
     }
 
+    /// Numbers whose grouping settles itself vote too: beside `1,234,567`, `18,450` is 18450 on any Mac.
+    @Test func aSettledGroupingVotesForThePoint() async throws {
+        let document = RawDocument(lines: [
+            RawLine(text: "1,234,567", box: CGRect(x: 0.1, y: 0.1, width: 0.2, height: 0.05)),
+            RawLine(text: "2,345,678", box: CGRect(x: 0.1, y: 0.4, width: 0.2, height: 0.05)),
+            RawLine(text: "18,450", box: CGRect(x: 0.1, y: 0.7, width: 0.2, height: 0.05)),
+        ])
+        var options = ReaderOptions.frozen
+        options.macDecimal = ","
+        let sheet = await SheetBuilder.build(document, options: options, crop: Self.blank).sheet
+        #expect(try #require(amount(sheet.cells.first { $0.text == "18,450" })).value == 18450)
+    }
+
+    /// In a receipt's lines (the text-rows table) a place in the line is no column: a minus in one line does not make
+    /// the bracketed number at the same place in another line negative.
+    @Test func aReceiptLinesPlaceIsNoColumn() async throws {
+        let document = RawDocument(lines: [
+            RawLine(text: "Remise", box: CGRect(x: 0.05, y: 0.1, width: 0.2, height: 0.04)),
+            RawLine(text: "-1,00", box: CGRect(x: 0.6, y: 0.1, width: 0.1, height: 0.04)),
+            RawLine(text: "Pommes", box: CGRect(x: 0.05, y: 0.3, width: 0.2, height: 0.04)),
+            RawLine(text: "(3)", box: CGRect(x: 0.6, y: 0.3, width: 0.1, height: 0.04)),
+        ])
+        let sheet = await SheetBuilder.build(document, options: .frozen, crop: Self.blank).sheet
+        let bracketed = try #require(sheet.cells.first { $0.text == "(3)" })
+        #expect(bracketed.table != nil && bracketed.column == 1)
+        #expect(try #require(amount(bracketed)).value == 3)
+    }
+
     /// A region that writes euros reads an ambiguous lone amount with the euro's decimal comma (step 5), not with the
     /// default a region with no vote would carry.
     @Test func aRegionsCurrencyDecidesAnAmbiguousPrice() async throws {
