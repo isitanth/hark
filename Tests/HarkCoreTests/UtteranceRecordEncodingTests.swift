@@ -339,3 +339,88 @@ let llmKeysCases: [LLMKeysCase] = [
         #expect(record.actionType == .ask)
     }
 }
+
+/// Exact math on the line (M13): the `+cells` contexts, and the reason an ask left the exact path (decision 20).
+@Suite struct ExactMathRecordTests {
+    private static func context(
+        sent: String? = "region", fallback: PipelineFailure? = nil, cut: Bool = false
+    ) -> UtteranceContext {
+        var context = F.askContext(llmModel: "gemma", llmMs: 1_200)
+        context.capture = cut ? F.maxed : F.speech
+        context.sentContext = sent
+        context.math = ExactMathContext(fallback: fallback)
+        return context
+    }
+
+    private static func fields(_ record: UtteranceRecord) throws -> [String: Any] {
+        let line = record.jsonLine(timeZone: F.paris)
+        return try #require(try JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any])
+    }
+
+    @Test(arguments: [
+        "region+cells", "selection+region+cells", "region+cells+history", "selection+region+cells+history",
+    ])
+    func theCellsContextsAreWritten(_ sent: String) throws {
+        let record = UtteranceRecord(
+            context: Self.context(sent: sent), transcript: F.instruction, outcome: .textClipboard(.chosen))
+        let fields = try Self.fields(record)
+        #expect(fields["context"] as? String == sent)
+        #expect(fields.count == 14 && UtteranceRecord.keys.count == 14)
+        #expect(fields["action_type"] as? String == "ask")
+    }
+
+    static let fallbacks: [PipelineFailure] = [
+        .readerFailed(.vision), .readerFailed(.timeout), .planInvalid(.unit("x")), .planInvalid(.unknownCell),
+        .planInvalid(.unspokenConstant("3.5")), .mathError(.garbled), .mathError(.divisionByZero),
+    ]
+
+    @Test(arguments: fallbacks)
+    func theFallbackIsWrittenOnALineWithNoReasonOfItsOwn(_ fallback: PipelineFailure) throws {
+        for outcome in [PipelineOutcome.textClipboard(.chosen), .textInserted] {
+            let record = UtteranceRecord(
+                context: Self.context(fallback: fallback), transcript: F.instruction, outcome: outcome)
+            #expect(record.error == fallback.code)
+            #expect(try Self.fields(record)["error"] as? String == fallback.code)
+        }
+    }
+
+    @Test func theFallbacksCodesCarryNoContent() {
+        #expect(PipelineFailure.planInvalid(.unspokenConstant("3.5")).code == "plan_invalid:unspoken_constant")
+        #expect(PipelineFailure.planInvalid(.unit("money and percent")).code == "plan_invalid:unit")
+    }
+
+    @Test(arguments: [
+        (ClipboardReason.noTextField, "no_text_field"), (.secureField, "secure_field"),
+        (.fallback(.pasteNotConsumed), "paste_not_consumed"), (.fallback(.selectionChanged), "selection_changed"),
+    ])
+    func aClipboardReasonWinsOverTheFallback(_ reason: ClipboardReason, _ code: String) {
+        let record = UtteranceRecord(
+            context: Self.context(fallback: .planInvalid(.unit("x"))), transcript: F.instruction,
+            outcome: .textClipboard(reason))
+        #expect(record.error == code)
+    }
+
+    @Test func theCutWinsOverTheFallback() {
+        let record = UtteranceRecord(
+            context: Self.context(fallback: .readerFailed(.vision), cut: true), transcript: F.instruction,
+            outcome: .textInserted)
+        #expect(record.error == "max_duration")
+    }
+
+    @Test(arguments: [
+        (PipelineOutcome.discarded(.cancelled), "cancelled"), (.discarded(.followedUp), "followed_up"),
+        (.failed(.llmTimeout), "llm_timeout"),
+    ])
+    func aDiscardOrAFailureKeepsItsOwnCode(_ outcome: PipelineOutcome, _ code: String) {
+        let record = UtteranceRecord(
+            context: Self.context(fallback: .mathError(.garbled)), transcript: F.instruction, outcome: outcome)
+        #expect(record.error == code)
+    }
+
+    @Test func noFallbackWritesNull() throws {
+        for outcome in [PipelineOutcome.textClipboard(.chosen), .textInserted] {
+            let record = UtteranceRecord(context: Self.context(), transcript: F.instruction, outcome: outcome)
+            #expect(try Self.fields(record)["error"] is NSNull)
+        }
+    }
+}
