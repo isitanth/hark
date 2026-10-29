@@ -8,12 +8,6 @@ private typealias F = Fixture
 /// What wave 1 relies on while the M13 contract's stubs stand. Each builder deletes the rows its bodies no longer
 /// satisfy, in the commit that lands them.
 @Suite struct ContractStubTests {
-    /// S1 replaces the stub with the word check.
-    @Test func theWordCheckSendsNothingToTheExactPath() {
-        #expect(!MathIntent.isComputation("How much did I really pay this year?"))
-        #expect(!MathIntent.isComputation("Combien j'ai payé en tout ?"))
-    }
-
     @Test func theNullReaderFailsWithVision() async throws {
         let bitmap = try #require(
             CGContext(
