@@ -180,6 +180,14 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
         #expect((try? solve("(C1 - C2) / C2 * 100", texts, unit: "percent").get().value) == 20)
     }
 
+    /// A hundred already in the numerator makes the ratio a percent: refusing it would send the model a note that
+    /// asks for a second hundred.
+    @Test(arguments: ["100 * (C1 - C2) / C2", "(C1 - C2) * 100 / C2", "ROUND(100 * (C1 - C2) / C2, 2)"])
+    func aHundredInTheNumeratorIsAPercent(_ formula: String) throws {
+        let texts = ["120 €", "100 €"]
+        #expect(try solve(formula, texts, unit: "percent", instruction: "growth in percent").get().value == 20)
+    }
+
     // MARK: Constants, b2 §6
 
     @Test(arguments: [

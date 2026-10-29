@@ -152,6 +152,16 @@ extension Formula {
     }
 
     /// Without the outer ROUND, ABS and minus signs: where the percent scale check looks.
+    /// A factor of 100 in a product, numerators included: the × 100 that makes a ratio a percent.
+    var multipliesByHundred: Bool {
+        switch stripped {
+        case .constant(let value): value == 100
+        case .binary(.multiply, let left, let right): left.multipliesByHundred || right.multipliesByHundred
+        case .binary(.divide, let numerator, _): numerator.multipliesByHundred
+        default: false
+        }
+    }
+
     var stripped: Formula {
         switch self {
         case .round(let inner, _), .negate(let inner): inner.stripped
@@ -341,7 +351,10 @@ extension MathEngine {
             var left = Evaluator(sheet: sheet)
             var right = Evaluator(sheet: sheet)
             guard let a = try? left.evaluate(top).unit, let b = try? right.evaluate(bottom).unit else { return }
-            if a == b, a != .number { throw .plan(.unit("multiply by 100 for a percent")) }
+            // `100 * C1 / C2` holds its hundred in the numerator: it is a percent already.
+            if a == b, a != .number, !top.multipliesByHundred {
+                throw .plan(.unit("multiply by 100 for a percent"))
+            }
         default:
             throw .plan(.unit("the result is \(unit.words), not \(declared.rawValue)"))
         }
