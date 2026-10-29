@@ -58,6 +58,45 @@ private func readBack(_ data: Data) throws -> ReadBack {
         #expect(target.width == w && target.height == h)
     }
 
+    /// An exact ask captures the frame's own pixels (M13); any other capture asks for the capped size, as before.
+    @Test(arguments: [
+        (3136, 2000, 1_568, true, 3136, 2000),
+        (3136, 2000, 1_568, false, 1568, 1000),
+        (1200, 800, 1_568, true, 1200, 800),
+        (1200, 800, 1_568, false, 1200, 800),
+        (1, 1, 1_568, true, 1, 1),
+        (1, 1, 1_568, false, 1, 1),
+        (2000, 2000, 1_568, true, 2000, 2000),
+        (2000, 2000, 1_568, false, 1568, 1568),
+    ])
+    func theCaptureSizeIsNativeOnlyForAnExactAsk(
+        _ width: Int, _ height: Int, _ cap: Int, _ native: Bool, _ w: Int, _ h: Int
+    ) {
+        let size = RegionImageEncoder.captureSize(width: width, height: height, cap: cap, native: native)
+        #expect(size.width == w && size.height == h)
+    }
+
+    /// A native capture reaches the encoder whole: ImageIO now does the cap ScreenCaptureKit did, for each dialect. Its
+    /// long edge is the cap; ImageIO truncates the short edge where `targetSize` rounds (2576×1642 here, measured
+    /// 2026-10-29), so the summary takes the encoded image's own size, as it always has.
+    @Test(arguments: [RegionImageEncoder.localCap, RegionImageEncoder.anthropicCap])
+    func aNativeImageIsCappedByTheEncoder(_ cap: Int) throws {
+        let source = try #require(image(width: 3136, height: 2000))
+        let encoded = try #require(RegionImageEncoder.encode(source, cap: cap))
+        let target = RegionImageEncoder.targetSize(width: 3136, height: 2000, cap: cap)
+        let back = try readBack(encoded.image.data)
+        #expect(back.width == cap && encoded.pixelWidth == cap)
+        #expect(abs(back.height - target.height) <= 1)
+        #expect(encoded.pixelHeight == back.height)
+    }
+
+    @Test func aNativeImageUnderTheCapIsNotResized() throws {
+        let source = try #require(image(width: 1500, height: 900))
+        let encoded = try #require(RegionImageEncoder.encode(source, cap: RegionImageEncoder.localCap))
+        let back = try readBack(encoded.image.data)
+        #expect(back.width == 1500 && back.height == 900)
+    }
+
     @Test func theCapFollowsTheDialect() {
         #expect(RegionImageEncoder.cap(for: .anthropic) == 2_576)
         #expect(RegionImageEncoder.cap(for: .openAI) == 1_568)

@@ -15,8 +15,10 @@ public enum RegionReaders {
         return false
     }
 
-    public static func make() -> any RegionReading {
-        if #available(macOS 26, *) { return VisionRegionReader() }
+    /// `macDecimal` is the Mac's decimal separator, the number parser's last resort: the app reads it, HarkCore reads
+    /// no locale of its own.
+    public static func make(macDecimal: Character = ".") -> any RegionReading {
+        if #available(macOS 26, *) { return VisionRegionReader(macDecimal: macDecimal) }
         return NullRegionReader()
     }
 }
@@ -38,8 +40,10 @@ public actor VisionRegionReader: RegionReading {
     private var busy = false
     private var waiters: [CheckedContinuation<Void, Never>] = []
 
-    public init() {
-        self.init(recognizer: VisionTextRecognizer())
+    public init(macDecimal: Character = ".") {
+        var options = ReaderOptions.frozen
+        options.macDecimal = macDecimal
+        self.init(recognizer: VisionTextRecognizer(), options: options)
     }
 
     init(

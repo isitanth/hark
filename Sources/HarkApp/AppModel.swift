@@ -253,18 +253,23 @@ final class AppModel {
         let vision = VisionCapability()
         let ask = AskModel(vision: vision)
         self.ask = ask
+        // One engine answers and plans (M13). The reader loads nothing until framing arms an exact ask: macOS 26 and
+        // later get Vision, earlier ones a reader that never reads.
+        let askEngine = AskEngine(client: ask.client, settings: askSettings, vision: vision)
+        let reader = RegionReaders.make(macDecimal: Locale.autoupdatingCurrent.decimalSeparator?.first ?? ".")
         let environment = PipelineEnvironment(
             workspace: workspace, pasteboard: pasteboard, focus: focusProbe, audio: audio, engine: engine,
             resolver: UtteranceResolver(settings: resolution, selection: selectionReader), inserter: inserter,
             actions: actions,
-            asker: AskEngine(client: ask.client, settings: askSettings, vision: vision),
+            asker: askEngine,
             selection: CallerSelectionChecker(
                 workspace: workspace, focus: focusProbe, accessibility: accessibility, copier: inserter,
-                settings: resolution))
+                settings: resolution),
+            planner: askEngine, reader: reader)
         controller = PipelineController(environment: environment, log: UtteranceLog(directory: paths.logs))
         askPanel = AskPanelModel(
             controller: controller, workspace: workspace, pasteboard: pasteboard, defaults: defaults)
-        framing = RegionFraming(controller: controller, panel: askPanel)
+        framing = RegionFraming(controller: controller, panel: askPanel, reader: reader)
         pinnedIcon = defaults.string(forKey: "HarkDebugIconState").flatMap(MenuBarIconState.init(rawValue:))
         // The volume first, so a quit past the deadline still gives it back; then the pipeline, so the utterance in
         // flight writes its line; then the engines, so nothing loads again.
@@ -293,7 +298,7 @@ final class AppModel {
                 self?.hudModel.show(result)
             }
         }
-        Task { [weak self, configStore, resolution, askSettings] in
+        Task { [weak self, configStore, resolution, askSettings, controller] in
             await configStore.start()
             for await snapshot in configStore.snapshots {
                 let previous = self?.config.config.effectiveLLM.activeProfile
@@ -301,6 +306,10 @@ final class AppModel {
                 askSettings.update(snapshot.config.effectiveLLM)
                 self?.ask.vision.update(snapshot.config.effectiveLLM)
                 self?.framing.api = snapshot.config.effectiveLLM.activeProfile?.api ?? .openAI
+                // Exact math applies from the next press; below macOS 26 no ask is ever stamped (decision 11).
+                await controller.setExactMath(
+                    snapshot.config.effectiveLLM.exactMath && RegionReaders.available,
+                    locale: .autoupdatingCurrent)
                 if let profile = snapshot.config.effectiveLLM.activeProfile, profile != previous {
                     await self?.ask.profileChanged(profile)
                 }

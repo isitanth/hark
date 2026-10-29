@@ -12,6 +12,8 @@ final class RegionFraming {
 
     private let controller: PipelineController
     private let panel: AskPanelModel
+    /// The exact path's reader (M13), warmed when ⌃⌥ arms an exact ask's framing, never at launch.
+    private let reader: any RegionReading
     private let overlay = RegionOverlayController()
     private let modifiers = ModifierMonitor()
     /// The ask whose capture is live, while it is.
@@ -23,15 +25,19 @@ final class RegionFraming {
     /// The live turn of a conversation that holds as many frames as it may (M12): ⌃⌥ still arms, so the panel can say
     /// why, and a drag captures nothing.
     private var framesFull = false
+    /// The ask in flight when it is exact: stamped at its press (M13), so a toggle mid-ask changes nothing, and a drag
+    /// that ends after the capture still keeps its native raster.
+    private var exact: UtteranceID?
     /// The controller's region calls, one after the other: two Tasks may reach an actor in either order, and a quick
     /// click must not see its `regionAbandoned` land before its `regionStarted` (M11 review R4).
     private var sending: Task<Void, Never>?
 
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "region")
 
-    init(controller: PipelineController, panel: AskPanelModel) {
+    init(controller: PipelineController, panel: AskPanelModel, reader: any RegionReading) {
         self.controller = controller
         self.panel = panel
+        self.reader = reader
         modifiers.onChange = { [weak self] armed in self?.arm(armed) }
         overlay.onDragStarted = { [weak self] in self?.dragStarted() }
         overlay.onFramed = { [weak self] geometry, display in self?.framed(geometry, display: display) }
@@ -48,6 +54,7 @@ final class RegionFraming {
         current = snapshot.phase != .idle && snapshot.utterance?.intent.isAsk == true ? snapshot.utterance?.id : nil
         let live = snapshot.phase == .capturing && snapshot.utterance?.intent.isAsk == true
         framesFull = live && snapshot.utterance?.acceptsFrame == false
+        exact = snapshot.utterance?.math != nil ? current : nil
         let id = live ? snapshot.utterance?.id : nil
         guard id != capturing else { return }
         capturing = id
@@ -74,7 +81,13 @@ final class RegionFraming {
         if denied { panel.setFramingBlocked(.noScreenRecording) }
         overlay.show(blocked: denied || panel.visionVerdict == false)
         ScreenRegionCapturer.prefetch()
-        Self.logger.info("framing armed\(denied ? ", no Screen Recording" : "", privacy: .public)")
+        guard !denied, panel.visionVerdict != false, capturing != nil, capturing == exact else {
+            Self.logger.info("framing armed\(denied ? ", no Screen Recording" : "", privacy: .public)")
+            return
+        }
+        let reader = reader
+        Task.detached(priority: .utility) { await reader.prewarm() }
+        Self.logger.info("framing armed, the reader warms")
     }
 
     private func dragStarted() {
@@ -94,8 +107,9 @@ final class RegionFraming {
         // The ask ended during the drag (cancelled, failed): nothing to capture for.
         guard id == current else { return }
         let cap = RegionImageEncoder.cap(for: api)
+        let native = id == exact
         Task { [weak self, panel] in
-            let result = await ScreenRegionCapturer.capture(geometry, display: display, cap: cap)
+            let result = await ScreenRegionCapturer.capture(geometry, display: display, cap: cap, native: native)
             switch result {
             case .success(let region):
                 let summary = RegionSummary(
@@ -104,7 +118,9 @@ final class RegionFraming {
                     displayID: display)
                 panel.showRegion(thumbnail: region.thumbnail, for: id)
                 let image = region.encoded.image
-                self?.send { await $0.attachRegion(image, summary: summary, for: id) }
+                // The raster lives in this Task until the controller holds it: nothing app-side keeps a reference.
+                let raster = region.raster.map { RegionRaster(image: $0) }
+                self?.send { await $0.attachRegion(image, summary: summary, for: id, raster: raster) }
             case .failure(let failure):
                 if failure == .screenRecordingDenied { panel.setFramingBlocked(.noScreenRecording) }
                 self?.send { await $0.regionFailed(failure, for: id) }

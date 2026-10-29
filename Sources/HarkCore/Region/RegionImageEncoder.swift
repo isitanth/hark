@@ -42,6 +42,12 @@ public enum RegionImageEncoder {
         return (max(1, Int((Double(width) * scale).rounded())), max(1, Int((Double(height) * scale).rounded())))
     }
 
+    /// What a capture asks ScreenCaptureKit for: the frame's own pixels when an exact ask keeps the native raster (M13:
+    /// the encoder then caps the model's copy), else the capped size, as before.
+    public static func captureSize(width: Int, height: Int, cap: Int, native: Bool) -> (width: Int, height: Int) {
+        native ? (width, height) : targetSize(width: width, height: height, cap: cap)
+    }
+
     /// Nil when ImageIO cannot encode it: the capture's failure, `region_failed`.
     public static func encode(_ image: CGImage, cap: Int) -> EncodedRegion? {
         guard let srgb = inSRGB(image) else { return nil }

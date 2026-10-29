@@ -4,10 +4,12 @@ import HarkCore
 import ScreenCaptureKit
 import os
 
-/// A framed region, captured and encoded in memory: what goes with the request, and the panel's thumbnail.
+/// A framed region, captured and encoded in memory: what goes with the request, and the panel's thumbnail. An exact
+/// ask also keeps the native image itself, for the reader and the cell highlights (M13); nil otherwise.
 struct CapturedRegion: @unchecked Sendable {
     let encoded: EncodedRegion
     let thumbnail: CGImage?
+    let raster: CGImage?
 }
 
 /// The capture of a framed region, in memory only: ScreenCaptureKit takes the display-local rect with every Hark window
@@ -31,9 +33,11 @@ enum ScreenRegionCapturer {
         }
     }
 
-    /// Off the main actor: the encode and the thumbnail take a few milliseconds of CPU.
+    /// Off the main actor: the encode and the thumbnail take a few milliseconds of CPU. `native`: an exact ask (M13)
+    /// captures the display's own pixels, and the encoder caps the model's copy; otherwise ScreenCaptureKit captures
+    /// at the cap, as before.
     nonisolated static func capture(
-        _ geometry: CaptureGeometry, display: CGDirectDisplayID, cap: Int
+        _ geometry: CaptureGeometry, display: CGDirectDisplayID, cap: Int, native: Bool = false
     ) async -> Result<CapturedRegion, RegionFailure> {
         guard ScreenRecordingPermission.isGranted else { return .failure(.screenRecordingDenied) }
         let clock = ContinuousClock()
@@ -52,8 +56,8 @@ enum ScreenRegionCapturer {
         }
         let hark = content.applications.filter { $0.processID == pid }
         let filter = SCContentFilter(display: screen, excludingApplications: hark, exceptingWindows: [])
-        let size = RegionImageEncoder.targetSize(
-            width: Int(geometry.pixelSize.width), height: Int(geometry.pixelSize.height), cap: cap)
+        let size = RegionImageEncoder.captureSize(
+            width: Int(geometry.pixelSize.width), height: Int(geometry.pixelSize.height), cap: cap, native: native)
         let configuration = SCStreamConfiguration()
         configuration.sourceRect = geometry.sourceRect
         configuration.width = size.width
@@ -74,10 +78,12 @@ enum ScreenRegionCapturer {
             return .failure(.captureFailed)
         }
         let ms = (clock.now - started).components
+        let raster = native ? ", raster \(image.width)×\(image.height) px" : ""
         logger.info(
-            "captured \(encoded.pixelWidth, privacy: .public)×\(encoded.pixelHeight, privacy: .public) px, \(encoded.image.data.count, privacy: .public) bytes in \(ms.seconds * 1000 + ms.attoseconds / 1_000_000_000_000_000, privacy: .public) ms"
+            "captured \(encoded.pixelWidth, privacy: .public)×\(encoded.pixelHeight, privacy: .public) px, \(encoded.image.data.count, privacy: .public) bytes in \(ms.seconds * 1000 + ms.attoseconds / 1_000_000_000_000_000, privacy: .public) ms\(raster, privacy: .public)"
         )
-        return .success(CapturedRegion(encoded: encoded, thumbnail: thumbnail(of: image)))
+        return .success(
+            CapturedRegion(encoded: encoded, thumbnail: thumbnail(of: image), raster: native ? image : nil))
     }
 
     /// A small copy for the panel's chip, in memory, drawn rather than encoded.
