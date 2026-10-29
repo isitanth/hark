@@ -35,6 +35,8 @@ final class FakeLLMTransport: LLMTransport {
     var requests: [URLRequest] { state.withLock { $0.requests } }
     /// The consumer stopped reading a pushed body before the test ended it.
     var bodyCancelled: Bool { state.withLock { $0.bodyCancelled } }
+    /// A pushed body is open: `push(_:)` now reaches the consumer.
+    var bodyOpen: Bool { state.withLock { $0.body != nil } }
 
     func push(_ piece: String) {
         push(Data(piece.utf8))

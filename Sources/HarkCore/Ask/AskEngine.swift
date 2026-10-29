@@ -39,6 +39,32 @@ public struct AskEngine: AskGenerating {
         instruction: String, selection: String?, image: ImagePart?, thread: AskThread?,
         frames: [UtteranceID: ImagePart]
     ) -> AsyncStream<LLMEvent> {
+        request(thread: thread, image: image, format: nil) { llm in
+            if let thread {
+                return AskPrompt.thread(
+                    thread, current: (instruction, image), images: frames, maxSelectionChars: llm.maxSelectionChars
+                )?.messages
+            }
+            if let image {
+                return AskPrompt(
+                    instruction: instruction, selection: selection, image: image,
+                    maxSelectionChars: llm.maxSelectionChars
+                ).messages
+            }
+            return
+                (selection.map {
+                    AskPrompt(instruction: instruction, selection: $0, maxSelectionChars: llm.maxSelectionChars)
+                } ?? AskPrompt(request: instruction)).messages
+        }
+    }
+
+    /// What an answer and a plan share: the active profile, the follow-up's pin and its switch check, the `.auto`
+    /// probe on turn 1, the blind-model gate, what the stream teaches about vision, and the pin on turn 1's summary.
+    /// `messages` builds the request once the model is known; nil is a framed turn whose image is missing.
+    func request(
+        thread: AskThread?, image: ImagePart?, format: ResponseSchema?,
+        messages build: @escaping @Sendable (LLMConfig) -> [ChatMessage]?
+    ) -> AsyncStream<LLMEvent> {
         let llm = settings.current
         let client = client
         let vision = vision
@@ -52,22 +78,12 @@ public struct AskEngine: AskGenerating {
                     return
                 }
                 let model: String
-                let prompt: AskPrompt
                 if let thread {
                     guard thread.pin.matches(profile) else {
                         continuation.yield(.failed(.profileChanged, LLMCallSummary()))
                         return
                     }
                     model = thread.pin.requestedModel
-                    guard
-                        let built = AskPrompt.thread(
-                            thread, current: (instruction, image), images: frames,
-                            maxSelectionChars: llm.maxSelectionChars)
-                    else {
-                        continuation.yield(.failed(.frameMissing, LLMCallSummary()))
-                        return
-                    }
-                    prompt = built
                 } else {
                     switch profile.model {
                     case .named(let id):
@@ -83,20 +99,13 @@ public struct AskEngine: AskGenerating {
                             return
                         }
                     }
-                    if let image {
-                        prompt = AskPrompt(
-                            instruction: instruction, selection: selection, image: image,
-                            maxSelectionChars: llm.maxSelectionChars)
-                    } else {
-                        prompt =
-                            selection.map {
-                                AskPrompt(
-                                    instruction: instruction, selection: $0, maxSelectionChars: llm.maxSelectionChars)
-                            } ?? AskPrompt(request: instruction)
-                    }
+                }
+                guard let messages = build(llm) else {
+                    continuation.yield(.failed(.frameMissing, LLMCallSummary()))
+                    return
                 }
                 // A frame in any turn makes this an image request, for the gate and for what it teaches.
-                let hasImage = image != nil || prompt.messages.contains(where: \.hasImage)
+                let hasImage = image != nil || messages.contains(where: \.hasImage)
                 // Known blind: nothing is sent, and the panel says which model cannot see.
                 if hasImage && vision.verdict(profile: profile, model: model) == false {
                     continuation.yield(.failed(.noVision(model: model, reason: .knownBeforeSending), LLMCallSummary()))
@@ -105,7 +114,7 @@ public struct AskEngine: AskGenerating {
                 // Turn 1 tells the reducer where it went, so a follow-up can pin it.
                 let pin = thread == nil ? ProfilePin(profile: profile, requestedModel: model) : nil
                 var learned = false
-                for await event in client.complete(prompt.messages, model: model, profile: profile) {
+                for await event in client.complete(messages, model: model, profile: profile, format: format) {
                     if hasImage && !learned {
                         switch event {
                         case .text:
