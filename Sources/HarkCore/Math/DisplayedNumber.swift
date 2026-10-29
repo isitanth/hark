@@ -278,7 +278,7 @@ extension DisplayedNumber {
     }
 
     nonisolated(unsafe) static let numberPattern =
-        #/(?<sign>[\-−–‒﹣－+])?\s*(?<pre>CA\$|C\$|AU\$|A\$|US\$|[€$£¥]|EUR|USD|GBP|CHF)?\s*(?<paren>\()?\s*(?<inner>[€$£¥]|CHF)?\s*(?<num>\d{1,3}(?:[ \u{00A0}\u{202F}\u{2009}\u{2007}\u{2008}\u{200A}.,'’]\d{3})+(?:[.,]\d+)?(?!\d)|\d+(?:[.,]\d+)?)/#
+        #/(?<sign>[\-−–‒﹣－+])?\s*(?<pre>CA\$|C\$|AU\$|A\$|US\$|[€$£¥]|EUR|USD|GBP|CHF)?\s*(?<late>[\-−–‒﹣－+])?\s*(?<paren>\()?\s*(?<inner>[€$£¥]|CHF)?\s*(?<num>\d{1,3}(?:[ \u{00A0}\u{202F}\u{2009}\u{2007}\u{2008}\u{200A}.,'’]\d{3})+(?:[.,]\d+)?(?!\d)|\d+(?:[.,]\d+)?)/#
 
     nonisolated(unsafe) static let notAmountPattern =
         #/\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}(?:/\d{2,4})?|\d{1,2}\.\d{1,2}\.\d{2,4}|\d{1,2}:\d{2}(?::\d{2})?(?:\s?[AaPp][Mm])?|\d{1,2}\s?[–-]\s?\d{1,2}\s?[ap]m|\b\d{1,2}\s+(?:jan|feb|f[ée]v|mar|apr|avr|may|mai|jun|juin|jul|juil|aug|ao[ûu]|sep|oct|nov|dec|d[ée]c)[a-zéû]*\.?|\b(?:jan|feb|f[ée]v|mar|apr|avr|may|mai|jun|juin|jul|juil|aug|ao[ûu]|sep|oct|nov|dec|d[ée]c)[a-zéû]*\.?\s+\d{1,2}\b|\b[A-Za-z0-9]+(?:[-–][A-Za-z0-9]+)+\b|\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){2,7}(?:\s?[A-Z0-9]{1,4})?\b|\b\d{4}(?:\s\d{4}){2,}\b|\b\d+[×x]\d+\b/#
@@ -330,7 +330,7 @@ extension DisplayedNumber {
             let pre = match.output.pre ?? match.output.inner
             var token = Token(
                 start: start, spanEnd: spanEnd, numberStart: numberStart, numberEnd: numberEnd, number: number,
-                sign: match.output.sign?.first, currencyBefore: pre.map(String.init),
+                sign: (match.output.sign ?? match.output.late)?.first, currencyBefore: pre.map(String.init),
                 parenthesis: match.output.paren != nil, suffix: Suffix(end: numberEnd))
             token.suffix = suffix(of: token, in: Array(text))
             found.append(token)

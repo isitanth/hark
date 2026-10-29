@@ -43,6 +43,15 @@ private let table = ReadingContext(inTable: true, columnHoldsAmounts: true)
         #expect(try #require(amount(text)).value == Decimal(string: value))
     }
 
+    /// A minus between the sign and the digits (b2 §3.1's `€-12`) keeps the currency: `€-1,234` is the euro's 1234
+    /// (step 2), whatever the region votes.
+    @Test(arguments: ["€-1,234", "€ -1,234", "EUR -1,234"])
+    func aMinusAfterTheCurrencyKeepsIt(_ text: String) throws {
+        let read = try #require(amount(text, ReadingContext(region: NumberConvention(decimalSeparator: ","))))
+        #expect(read.value == -1234)
+        #expect(read.unit == .money(.eur))
+    }
+
     @Test func aTrailingMinusIsNegativeInATableCellOnly() throws {
         #expect(try #require(amount("48.90-", ReadingContext(inTable: true))).value == Decimal(string: "-48.90"))
         #expect(try #require(amount("48.90-")).value == Decimal(string: "48.90"))
