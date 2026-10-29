@@ -457,12 +457,13 @@ extension AskPresentation {
         return lines.flatMap { $0.sorted { $0.box.minX < $1.box.minX } }
     }
 
-    /// The row's cells that hold no number, left to right; empty for a line outside every table.
+    /// The row's cells that hold words, left to right; empty for a line outside every table. A garbled number is no
+    /// word, so it never names the row.
     static func label(of cell: Cell, in sheet: CellSheet) -> String {
         guard let table = cell.table, let row = cell.row else { return "" }
         let words = sheet.cells.filter { mate in
             guard mate.id != cell.id, mate.table == table, mate.row == row else { return false }
-            if case .amount = mate.reading { return false }
+            guard case .text = mate.reading else { return false }
             return !mate.text.trimmingCharacters(in: .whitespaces).isEmpty
         }
         let joined = words.sorted { ($0.column ?? 0, $0.box.minX) < ($1.column ?? 0, $1.box.minX) }

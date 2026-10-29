@@ -127,6 +127,8 @@ final class AskPanelModel {
     @ObservationIgnored private var snapshot = PipelineSnapshot(phase: .idle)
     /// The live turn of the ask on show, and the app it came from.
     @ObservationIgnored private var id: UtteranceID?
+    /// The exact answer VoiceOver last heard: a turn brought back by Esc is not announced again.
+    @ObservationIgnored private var announced: UtteranceID?
     @ObservationIgnored private var caller: AppIdentity?
     /// `-HarkDebugPreview ask…`: a fixed state that snapshots do not move.
     @ObservationIgnored private var pinned = false
@@ -403,7 +405,8 @@ final class AskPanelModel {
         let wasOpen = state != .closed
         state = next
         followLens()
-        if next == .reviewing, let exact {
+        if next == .reviewing, let exact, announced != id {
+            announced = id
             AccessibilityNotification.Announcement(exact.result).post()
         }
         if next == .closed, wasOpen {
@@ -478,6 +481,7 @@ final class AskPanelModel {
         hideLens()
         panel.dismiss()
         id = nil
+        announced = nil
         threadRoot = nil
         turns = []
         regionThumbnails = [:]

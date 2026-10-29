@@ -179,6 +179,15 @@ private func thread(_ root: UtteranceID, _ turns: [AskTurn]) -> AskThread {
         #expect(rows[1].label.hasPrefix("A very long description of a team"))
     }
 
+    /// A misread number beside the cell is no word: the row is named by its words only.
+    @Test func aGarbledMateIsNoLabel() throws {
+        let sheet = grid([["Lunch", "£21,32łł", "€12.00"]])
+        let solved = try computation(sheet, "C3")
+        let rows = try #require(AskPresentation.exact(exactContext(sheet, solved), locale: us)).rows
+        #expect(sheet[CellID(2)]?.reading == .garbled)
+        #expect(rows.map(\.label) == ["Lunch"])
+    }
+
     @Test func aFreeLineHasNoLabel() throws {
         let sheet = boxed(MathFixtures.sheet(texts: ["Total €12.00", "€3.00"]))
         let solved = try computation(sheet, "C1 + C2")
