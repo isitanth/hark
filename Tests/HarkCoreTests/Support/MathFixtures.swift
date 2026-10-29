@@ -102,19 +102,28 @@ enum MathFixtures {
                 return currency.code
             })
         let regionCurrency = currencies.count == 1 ? currencies.first.flatMap(Currency.code) : nil
+        var columnContexts: [String: (decimal: Character?, amounts: Bool, signed: Bool)] = [:]
+        for (key, mates) in columns {
+            let readings = mates.map { DisplayedNumber.read($0.text, context: ReadingContext(region: convention)) }
+            let amounts = readings.contains {
+                if case .amount = $0 { return true }
+                return false
+            }
+            // A signed column: amounts with a sign or parentheses beside amounts without.
+            let numbered = mates.filter { $0.text.contains { $0.isNumber } }
+            let marked = numbered.filter { $0.text.contains { "-−–(".contains($0) } }
+            columnContexts[key] = (
+                DisplayedNumber.decimalVote(mates.map(\.text)), amounts,
+                !marked.isEmpty && marked.count < numbered.count
+            )
+        }
         let cells = items.enumerated().map { offset, item -> Cell in
             var context = ReadingContext(
                 region: convention, inTable: item.table != nil, currency: regionCurrency, macDecimal: macDecimal)
-            if let table = item.table, let column = item.column, let mates = columns["\(table).\(column)"] {
-                context.columnDecimal = DisplayedNumber.decimalVote(mates.map(\.text))
-                let readings = mates.map { DisplayedNumber.read($0.text, context: ReadingContext(region: convention)) }
-                context.columnHoldsAmounts = readings.contains {
-                    if case .amount = $0 { return true }
-                    return false
-                }
-                context.columnSigned = mates.contains { mate in
-                    mate.text.contains { "-−–".contains($0) } && mate.text.contains { $0.isNumber }
-                }
+            if let table = item.table, let column = item.column, let found = columnContexts["\(table).\(column)"] {
+                context.columnDecimal = found.decimal
+                context.columnHoldsAmounts = found.amounts
+                context.columnSigned = found.signed
             }
             return Cell(
                 id: CellID(offset + 1), text: item.text, reading: DisplayedNumber.read(item.text, context: context),

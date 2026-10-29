@@ -26,10 +26,58 @@ public struct CalculationPlan: Sendable, Equatable {
     }
 
     /// The schema the server is asked to enforce, named `plan` as measured.
-    public static let schema = ResponseSchema(name: "plan", json: "{}")
+    /// `docs/acceptance/M13-data/bench/plan-schema.json`, byte for byte: `harness.PLAN_SCHEMA` as measured.
+    public static let schema = ResponseSchema(
+        name: "plan",
+        json: """
+            {
+              "type": "object",
+              "properties": {
+                "understood": {
+                  "type": "string"
+                },
+                "formula": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "EUR",
+                    "USD",
+                    "GBP",
+                    "percent",
+                    "count",
+                    "hours",
+                    "none"
+                  ]
+                }
+              },
+              "required": [
+                "understood",
+                "formula",
+                "unit"
+              ],
+              "additionalProperties": false
+            }
+            """)
 
+    /// The plan, or why not. A cut reply is `truncated` before anything else; one surrounding code fence is removed;
+    /// prose around the object, a missing or extra field, a wrong type or a unit outside the enum is `json`.
     public static func decode(_ reply: String, finishReason: String?) -> Result<CalculationPlan, PlanDefect> {
-        .failure(.json)
+        if finishReason == "length" { return .failure(.truncated) }
+        var text = reply.trimmingCharacters(in: .whitespacesAndNewlines)
+        if text.hasPrefix("```"), text.hasSuffix("```"), text.count >= 6 {
+            var inner = text.dropFirst(3).dropLast(3)
+            if inner.hasPrefix("json") { inner = inner.dropFirst(4) }
+            text = inner.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        guard let data = text.data(using: .utf8),
+            let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+            Set(object.keys) == ["understood", "formula", "unit"],
+            let understood = object["understood"] as? String, let formula = object["formula"] as? String,
+            let unitText = object["unit"] as? String, let unit = ResultUnit(rawValue: unitText)
+        else { return .failure(.json) }
+        return .success(CalculationPlan(understood: understood, formula: formula, unit: unit))
     }
 }
 
@@ -77,7 +125,16 @@ public enum PlanDefect: Error, Sendable, Equatable {
 
     /// The note the retry sends back to the model: an ID, a constant or a rule, never a cell's text.
     public var correction: String {
-        ""
+        switch self {
+        case .json: "reply with one JSON object with understood, formula and unit only"
+        case .syntax: "write decimals with a point and use only the listed functions"
+        case .unknownFunction: "use only SUM, AVG, MIN, MAX, COUNT, ROUND, ABS, ARGMIN, ARGMAX"
+        case .unknownCell: "refer only to IDs from the item list"
+        case .unspokenConstant: "a number the user did not say is in the formula: refer to its item instead"
+        case .unit: "the unit does not match the cells (multiply by 100 for a percent)"
+        case .degenerate: "the formula cancels itself out"
+        case .truncated, .noFormula: ""
+        }
     }
 }
 

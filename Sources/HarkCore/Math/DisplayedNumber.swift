@@ -581,11 +581,15 @@ extension DisplayedNumber {
             }
         }
         if suffix.glued {
-            let expected = (named ?? context.currency).map { currency -> Bool in
-                let usual: Character = context.region?.decimalSeparator ?? (currency == .eur ? "," : ".")
-                return fraction.count == currency.minorUnits && shape.ambiguous == nil && shape.decimal == usual
+            // Complete for the currency (its minor units, behind its usual mark) or, with none, for the region.
+            let complete: Bool
+            if let currency = named ?? context.currency {
+                let usual: Character = currency == .eur ? "," : "."
+                complete = fraction.count == currency.minorUnits && shape.decimal == usual
+            } else {
+                complete =
+                    fraction.count == 2 && shape.decimal != nil && shape.decimal == context.region?.decimalSeparator
             }
-            let complete = expected ?? false
             guard complete, suffix.hours == nil else { return (.garbled, step) }
             notes.insert(.doubt)
         }
