@@ -351,8 +351,10 @@ extension MathEngine {
             var left = Evaluator(sheet: sheet)
             var right = Evaluator(sheet: sheet)
             guard let a = try? left.evaluate(top).unit, let b = try? right.evaluate(bottom).unit else { return }
-            // `100 * C1 / C2` holds its hundred in the numerator: it is a percent already.
-            if a == b, a != .number, !top.multipliesByHundred {
+            // `100 * C1 / C2` holds its hundred in the numerator: it is a percent already, unless the denominator holds
+            // one too (`100 * C1 / (100 * C2)`), which cancels it.
+            let hundred = top.multipliesByHundred && !bottom.multipliesByHundred
+            if a == b, a != .number, !hundred {
                 throw .plan(.unit("multiply by 100 for a percent"))
             }
         default:

@@ -182,6 +182,14 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
 
     /// A hundred already in the numerator makes the ratio a percent: refusing it would send the model a note that
     /// asks for a second hundred.
+    /// A hundred on both sides cancels: the ratio is still a fraction, and the check asks for its hundred.
+    @Test func aHundredOnBothSidesIsNoPercent() {
+        let texts = ["120 €", "100 €"]
+        #expect(
+            failure("100 * C1 / (100 * C2)", texts, unit: "percent", instruction: "ratio in percent")
+                == .plan(.unit("multiply by 100 for a percent")))
+    }
+
     @Test(arguments: ["100 * (C1 - C2) / C2", "(C1 - C2) * 100 / C2", "ROUND(100 * (C1 - C2) / C2, 2)"])
     func aHundredInTheNumeratorIsAPercent(_ formula: String) throws {
         let texts = ["120 €", "100 €"]
