@@ -176,6 +176,7 @@ struct AskSettingsView: View {
                 } label: {
                     Text(L("settings.ask.readsImages"))
                 }
+                exactMathRow
                 Text(L("settings.ask.region.help"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -283,6 +284,33 @@ struct AskSettingsView: View {
         guard !busy, !address.isEmpty, address != savedAddress else { return }
         run {
             if let problem = await model.saveServerAddress(address) { status = .address(problem) }
+        }
+    }
+
+    /// The toggle and its line. Before macOS 26 the reader is not there, so the toggle stays as the file says, disabled.
+    @ViewBuilder private var exactMathRow: some View {
+        let supported: Bool = {
+            if #available(macOS 26, *) { return true }
+            return false
+        }()
+        Toggle(isOn: exactMath) {
+            Text(L("settings.ask.exact"))
+        }
+        .disabled(busy || !supported)
+        Text(supported ? L("settings.ask.exact.detail") : L("settings.ask.exact.needsMacOS26"))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var exactMath: Binding<Bool> {
+        Binding(get: { model.config.config.effectiveLLM.exactMath }, set: saveExactMath)
+    }
+
+    private func saveExactMath(_ on: Bool) {
+        guard !busy, on != model.config.config.effectiveLLM.exactMath else { return }
+        run {
+            if let problem = await model.saveExactMath(on) { status = .address(problem) }
         }
     }
 

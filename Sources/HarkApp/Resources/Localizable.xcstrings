@@ -5407,6 +5407,57 @@
         }
       }
     },
+    "settings.ask.exact": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compute figures exactly when a frame holds a table"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculer exactement les chiffres quand un cadre contient un tableau"
+          }
+        }
+      }
+    },
+    "settings.ask.exact.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark reads the frame on this Mac, the model chooses the cells, and Hark does the arithmetic."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark lit le cadre sur ce Mac, le modèle choisit les cellules, et Hark fait le calcul."
+          }
+        }
+      }
+    },
+    "settings.ask.exact.needsMacOS26": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exact calculations on a frame need macOS 26 or later; here the model computes on its own."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les calculs exacts sur un cadre demandent macOS 26 ou une version ultérieure ; ici, le modèle calcule seul."
+          }
+        }
+      }
+    },
     "settings.ask.server": {
       "extractionState": "manual",
       "localizations": {
