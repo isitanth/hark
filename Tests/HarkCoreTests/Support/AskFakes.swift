@@ -86,3 +86,94 @@ final class SequencedTranscriptionEngine: TranscriptionEngine {
 
     func cancel() async {}
 }
+
+/// A planner scripted for the controller, the mirror of `ScriptedAsker`: each request takes the next of `scripts` (the
+/// last one again past the end), its pieces then its ending, or nothing more until the consumer lets go when the ending
+/// is nil. It records each request with its correction and images.
+final class ScriptedPlanner: AskPlanning {
+    struct Request: Sendable {
+        let instruction: String
+        let sheet: CellSheet
+        let selection: String?
+        let image: ImagePart?
+        let thread: AskThread?
+        let frames: [UtteranceID: ImagePart]
+        let correction: PlanCorrection?
+    }
+
+    private struct State {
+        var requests: [Request] = []
+        var closedByConsumer = 0
+    }
+
+    let scripts: [(pieces: [String], ending: LLMEvent?)]
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
+    init(_ scripts: [(pieces: [String], ending: LLMEvent?)]) {
+        self.scripts = scripts
+    }
+
+    var requests: [Request] { state.withLock { $0.requests } }
+    var closedByConsumer: Int { state.withLock { $0.closedByConsumer } }
+
+    func plan(
+        instruction: String, sheet: CellSheet, selection: String?, image: ImagePart?, thread: AskThread?,
+        frames: [UtteranceID: ImagePart], correction: PlanCorrection?
+    ) -> AsyncStream<LLMEvent> {
+        let index = state.withLock {
+            $0.requests.append(
+                Request(
+                    instruction: instruction, sheet: sheet, selection: selection, image: image, thread: thread,
+                    frames: frames, correction: correction))
+            return $0.requests.count - 1
+        }
+        let script = scripts[min(index, scripts.count - 1)]
+        return AsyncStream { continuation in
+            continuation.onTermination = { [state] reason in
+                if case .cancelled = reason { state.withLock { $0.closedByConsumer += 1 } }
+            }
+            for piece in script.pieces { continuation.yield(.text(piece)) }
+            if let ending = script.ending {
+                continuation.yield(ending)
+                continuation.finish()
+            }
+        }
+    }
+}
+
+/// A reader scripted for the controller: `result` after `delay`, or never when `result` is nil. It counts the reads and
+/// the reads cancelled before they answered.
+final class ScriptedReader: RegionReading {
+    private struct State {
+        var reads = 0
+        var cancels = 0
+    }
+
+    let result: Result<CellSheet, ReaderFailure>?
+    let delay: Duration
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
+    init(_ result: Result<CellSheet, ReaderFailure>?, delay: Duration = .zero) {
+        self.result = result
+        self.delay = delay
+    }
+
+    var reads: Int { state.withLock { $0.reads } }
+    var cancels: Int { state.withLock { $0.cancels } }
+
+    func read(_ raster: RegionRaster) async -> Result<CellSheet, ReaderFailure> {
+        state.withLock { $0.reads += 1 }
+        do {
+            if let result {
+                try await Task.sleep(for: delay)
+                return result
+            }
+            while true { try await Task.sleep(for: .seconds(3600)) }
+        } catch {
+            state.withLock { $0.cancels += 1 }
+            return .failure(.vision)
+        }
+    }
+
+    func prewarm() async {}
+}

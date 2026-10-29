@@ -66,10 +66,20 @@ public actor PipelineController {
     private var frames: [UtteranceID: ImagePart] = [:]
     /// The ask's stream being read. Cancelling it closes the request.
     private var generation: Task<Void, Never>?
+    /// The frames' native rasters (M13), by turn: each lives exactly as long as its frame in `frames`.
+    private var rasters: [UtteranceID: RegionRaster] = [:]
+    /// The read under way, raced against `readerTimeout`, and the utterance it reads for.
+    private var reading: (id: UtteranceID, token: UInt64, tasks: [Task<Void, Never>])?
+    private var readCount: UInt64 = 0
+    private let readerTimeout: Duration
 
     private static let logger = Logger(subsystem: HarkLog.subsystem, category: "pipeline")
 
-    public init(environment: PipelineEnvironment, log: UtteranceLog, reducer: PipelineReducer = PipelineReducer()) {
+    public init(
+        environment: PipelineEnvironment, log: UtteranceLog, reducer: PipelineReducer = PipelineReducer(),
+        readerTimeout: Duration = .seconds(60)
+    ) {
+        self.readerTimeout = readerTimeout
         (snapshots, continuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingNewest(32))
         // Each update holds the whole text, so only the newest matters.
         (askUpdates, askContinuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingNewest(1))
@@ -161,7 +171,9 @@ public actor PipelineController {
     }
 
     /// Let the model answer: today's framed ask, after a failure of the exact path or while the reader works.
-    public func retryWithoutExactMath(_ id: UtteranceID) {}
+    public func retryWithoutExactMath(_ id: UtteranceID) {
+        send(.askWithoutExactMath(id))
+    }
 
     /// The framed region's image, for `id` only: the app's one door for pixels. They stay in a private store, never in
     /// the state or a snapshot, and are freed on every path to idle. `raster` is the frame at the display's own
@@ -171,10 +183,15 @@ public actor PipelineController {
     ) {
         guard state.context?.id == id else { return }
         let previous = frames[id]
+        let previousRaster = rasters[id]
         frames[id] = image
+        rasters[id] = raster
         // Rejected (a dictation, the request already left, the conversation's frame cap): the previous frame, if any,
         // stays as it was.
-        if !send(.regionCaptured(id, summary)) { frames[id] = previous }
+        if !send(.regionCaptured(id, summary)) {
+            frames[id] = previous
+            rasters[id] = previousRaster
+        }
         releaseUnnamedFrames()
     }
 
@@ -207,11 +224,11 @@ public actor PipelineController {
     public var heldFrames: Int { frames.count }
 
     /// Whether a frame's native raster is held (M13): for the tests that check every path frees it.
-    public var holdsRaster: Bool { false }
+    public var holdsRaster: Bool { !rasters.isEmpty }
 
     /// The native raster of `id`'s frame, while the frame lives: what the cell highlights draw from.
     public func raster(for id: UtteranceID) async -> RegionRaster? {
-        nil
+        rasters[id]
     }
 
     /// The answer in review, if any: the Ask key then starts a follow-up instead of a busy press.
@@ -259,6 +276,7 @@ public actor PipelineController {
                 perform(effect)
             }
             releaseUnnamedFrames()
+            stopOrphanRead()
             continuation.yield(
                 PipelineSnapshot(phase: state.phase, utterance: state.context, lastRecord: lastRecord, ask: state.ask))
             return true
@@ -269,8 +287,16 @@ public actor PipelineController {
     /// parked, or an answered turn of the thread. Idle names none; the chip's ×, an ask without the image and a
     /// follow-up that came to nothing free their own.
     private func releaseUnnamedFrames() {
-        guard !frames.isEmpty else { return }
-        frames = frames.filter { Self.framedTurns(state).contains($0.key) }
+        guard !frames.isEmpty || !rasters.isEmpty else { return }
+        let named = Self.framedTurns(state)
+        frames = frames.filter { named.contains($0.key) }
+        rasters = rasters.filter { named.contains($0.key) && frames[$0.key] != nil }
+    }
+
+    /// A read lives only while the state waits for it: a blank transcript, a free ask or idle stop it.
+    private func stopOrphanRead() {
+        guard let reading, state.context?.id != reading.id || state.context?.math?.reading != .pending else { return }
+        stopReading()
     }
 
     private static func framedTurns(_ state: PipelineState) -> Set<UtteranceID> {
@@ -430,10 +456,97 @@ public actor PipelineController {
                 send(.selectionChecked(id, await env.selection.check(selection)))
             }
 
-        // Exact math's effects (M13) end the utterance until the controller runs them.
-        case .readRegion(let id), .cancelReading(let id), .plan(let id, _, _, _, _, _), .publishAnswer(let id, _):
-            Task { send(.failed(id, .readerFailed(.vision))) }
+        case .readRegion(let id):
+            read(id)
+
+        case .cancelReading:
+            stopReading()
+
+        case .plan(let id, let instruction, let sheet, let selection, let thread, let correction):
+            generation?.cancel()
+            askContinuation.yield(AskUpdate(id: id, text: ""))
+            let (image, earlier) = planFrames(id, sheet: sheet, thread: thread)
+            let events = env.planner.plan(
+                instruction: instruction, sheet: sheet, selection: selection?.text, image: image, thread: thread,
+                frames: earlier, correction: correction)
+            // The panel sees the understood line as it streams, never the JSON.
+            generation = Task {
+                var text = ""
+                for await event in events {
+                    switch event {
+                    case .text(let piece):
+                        text += piece
+                        askContinuation.yield(
+                            AskUpdate(id: id, text: "", planText: PlanStream.understood(partial: text)))
+                    case .finished(let summary):
+                        send(.planned(id, summary, reply: text))
+                    case .failed(let failure, let summary):
+                        send(.generationFailed(id, failure, summary))
+                    }
+                }
+            }
+
+        case .publishAnswer(let id, let reply):
+            askContinuation.yield(AskUpdate(id: id, text: reply))
         }
+    }
+
+    /// Reads `id`'s raster, raced against the timeout: the first to finish reports and cancels the other. A read that
+    /// was cancelled, or lost the race, reports nothing.
+    private func read(_ id: UtteranceID) {
+        stopReading()
+        guard let raster = rasters[id] else {
+            Self.logger.fault("no raster for utterance \(id)")
+            Task { send(.regionReadFailed(id, .vision)) }
+            return
+        }
+        readCount += 1
+        let token = readCount
+        let reader = environment.reader
+        let timeout = readerTimeout
+        let read = Task {
+            let result = await reader.read(raster)
+            finishRead(token, result)
+        }
+        let timer = Task {
+            guard (try? await Task.sleep(for: timeout)) != nil else { return }
+            finishRead(token, .failure(.timeout))
+        }
+        reading = (id, token, [read, timer])
+    }
+
+    private func finishRead(_ token: UInt64, _ result: Result<CellSheet, ReaderFailure>) {
+        guard let current = reading, current.token == token else { return }
+        stopReading()
+        switch result {
+        case .success(let sheet): send(.regionRead(current.id, sheet))
+        case .failure(let failure): send(.regionReadFailed(current.id, failure))
+        }
+    }
+
+    private func stopReading() {
+        for task in reading?.tasks ?? [] { task.cancel() }
+        reading = nil
+    }
+
+    /// The plan's images: the turn's own frame, or for a follow-up with none the frame its sheet was read from; and
+    /// every earlier framed turn's, by turn, as for `generate`.
+    private func planFrames(_ id: UtteranceID, sheet: CellSheet, thread: AskThread?) -> (
+        ImagePart?, [UtteranceID: ImagePart]
+    ) {
+        var earlier: [UtteranceID: ImagePart] = [:]
+        for turn in thread?.turns ?? [] where turn.region != nil {
+            if let frame = frames[turn.id] {
+                earlier[turn.id] = frame
+            } else {
+                Self.logger.fault("no region image for turn \(turn.id) of utterance \(id)")
+            }
+        }
+        if let own = frames[id] { return (own, earlier) }
+        let framed = thread?.turns.filter { $0.region != nil } ?? []
+        let source = framed.last { $0.sheet == sheet } ?? framed.last
+        if source == nil { Self.logger.fault("no region image for the plan of utterance \(id)") }
+        return (source.flatMap { frames[$0.id] }, earlier)
     }
 }
 

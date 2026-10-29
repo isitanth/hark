@@ -61,16 +61,19 @@ public struct UtteranceRecord: Sendable, Equatable {
         // line whose text went through: `command` and `text_inserted` carry it. A clipboard reason, a discard or a
         // failure is the bigger fact and keeps the field; `duration_ms` at the limit still tells.
         let cut = context.capture?.reachedMaxDuration == true ? DiscardReason.maxDuration.rawValue : nil
+        // An ask whose exact path gave way to the model's answer says why, on a line that has no reason of its own: a
+        // clipboard reason, the cut, a discard or a failure each win over it.
+        let fallback = context.math?.fallback?.code
         switch outcome {
         case .command:
             exitCode = 0
             error = cut
         case .textInserted:
             exitCode = nil
-            error = cut
+            error = cut ?? fallback
         case .textClipboard(let reason):
             exitCode = nil
-            error = reason.code
+            error = reason.code ?? fallback
         case .discarded(let reason):
             exitCode = nil
             error = reason.rawValue

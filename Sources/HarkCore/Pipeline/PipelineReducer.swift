@@ -34,6 +34,10 @@ public struct PipelineReducer: Sendable {
     /// keeps tests deterministic: nothing in HarkCore reads the Mac's locale.
     public var resultLocale = Locale(identifier: "en_US_POSIX")
     public var rounding = RoundingPolicy.standard
+    /// The engine the `.planned` row calls. Only tests set it.
+    public var solve: @Sendable (String, String?, CellSheet, String) -> Result<Computation, MathFailure> = {
+        MathEngine.solve(reply: $0, finishReason: $1, sheet: $2, instruction: $3)
+    }
 
     public init(policy: CapturePolicy = .standard) {
         self.policy = policy
@@ -46,6 +50,7 @@ public struct PipelineReducer: Sendable {
             // The assistant is probed like a dictation: the Ask key leaves the caller in front, and whether a text
             // field has the focus decides whether Insert is offered.
             if case .ask(let selection) = intent { context.focus = FocusSnapshot(app: selection.caller) }
+            if exactMath && intent.isAsk { context.math = ExactMathContext() }
             guard case .idle = state else {
                 return .success(Transition(state: state, effects: [log(context, nil, .discarded(.busy))]))
             }
@@ -113,8 +118,7 @@ public struct PipelineReducer: Sendable {
                 if let failure = context.regionFailure {
                     return move(.asking(context, instruction, .regionFailed(failure)))
                 }
-                let request = send(&context, instruction)
-                return move(.asking(context, instruction, .generating), request)
+                return route(context, instruction)
             }
             // Where the text goes, and whether it is a secret the log and the clipboard must not show, both come from
             // the focus. The probe always answers, within its AX timeouts, so a slow one is waited for.
@@ -211,13 +215,31 @@ public struct PipelineReducer: Sendable {
         case (.capturing(let context), .regionStarted), (.capturing(let context), .regionCaptured),
             (.capturing(let context), .regionFailed), (.capturing(let context), .regionRemoved),
             (.capturing(let context), .regionAbandoned):
-            guard let context = region(context, event) else { return reject(state, event) }
-            return move(.capturing(context))
+            guard let (context, reads) = framing(context, event) else { return reject(state, event) }
+            return move(.capturing(context), reads)
 
         case (.transcribing(let context), .regionStarted), (.transcribing(let context), .regionCaptured),
             (.transcribing(let context), .regionFailed), (.transcribing(let context), .regionRemoved),
             (.transcribing(let context), .regionAbandoned):
-            guard let context = region(context, event) else { return reject(state, event) }
+            guard let (context, reads) = framing(context, event) else { return reject(state, event) }
+            return move(.transcribing(context), reads)
+
+        // The read runs while the user speaks: its result waits in the context for the words. A read superseded by a
+        // re-drag or the chip's × is no longer pending, and its result is dropped.
+        case (.capturing(var context), .regionRead(_, let sheet)) where context.math?.reading == .pending:
+            context.math?.reading = .read(sheet)
+            return move(.capturing(context))
+
+        case (.capturing(var context), .regionReadFailed(_, let failure)) where context.math?.reading == .pending:
+            context.math?.reading = .failed(failure)
+            return move(.capturing(context))
+
+        case (.transcribing(var context), .regionRead(_, let sheet)) where context.math?.reading == .pending:
+            context.math?.reading = .read(sheet)
+            return move(.transcribing(context))
+
+        case (.transcribing(var context), .regionReadFailed(_, let failure)) where context.math?.reading == .pending:
+            context.math?.reading = .failed(failure)
             return move(.transcribing(context))
 
         // The instruction is heard and waited for the frame: its capture sends the request, its failure stops it.
@@ -226,18 +248,22 @@ public struct PipelineReducer: Sendable {
             (.asking(let context, let transcript, .awaitingRegion), .regionFailed),
             (.asking(let context, let transcript, .awaitingRegion), .regionRemoved),
             (.asking(let context, let transcript, .awaitingRegion), .regionAbandoned):
-            guard var context = region(context, event) else { return reject(state, event) }
-            if context.regionPending { return move(.asking(context, transcript, .awaitingRegion)) }
+            guard let (context, reads) = framing(context, event) else { return reject(state, event) }
+            if context.regionPending { return move(.asking(context, transcript, .awaitingRegion), reads) }
             if let failure = context.regionFailure {
-                return move(.asking(context, transcript, .regionFailed(failure)))
+                return move(.asking(context, transcript, .regionFailed(failure)), reads)
             }
-            let request = send(&context, transcript)
-            return move(.asking(context, transcript, .generating), request)
+            return route(context, transcript, reads: reads)
 
         // The failed call's numbers go: the line reports the call that ended the ask. The frame stays.
         case (.asking(var context, let transcript, .failed), .askRetry):
             context.llmModel = nil
             context.llmMs = nil
+            // A plan the server failed is planned again, never answered freely.
+            if context.math?.routed == true, case .read(let sheet) = context.math?.reading {
+                let request = sendPlan(&context, transcript, sheet)
+                return move(.asking(context, transcript, .planning), request)
+            }
             let request = send(&context, transcript)
             return move(.asking(context, transcript, .generating), request)
 
@@ -248,8 +274,70 @@ public struct PipelineReducer: Sendable {
             context.llmMs = nil
             context.region = nil
             context.regionFailure = nil
+            context.math?.routed = false
+            context.math?.computation = nil
             let request = send(&context, transcript)
             return move(.asking(context, transcript, .generating), request)
+
+        // The reader answers while the instruction waits for it (M13).
+        case (.asking(var context, let transcript, .reading), .regionRead(_, let sheet))
+        where context.math?.reading == .pending:
+            context.math?.reading = .read(sheet)
+            guard sheet.hasAmount else { return free(context, transcript) }
+            let request = sendPlan(&context, transcript, sheet)
+            return move(.asking(context, transcript, .planning), request)
+
+        case (.asking(var context, let transcript, .reading), .regionReadFailed(_, let failure))
+        where context.math?.reading == .pending:
+            context.math?.reading = .failed(failure)
+            return move(.asking(context, transcript, .mathFailed(.reader(failure))))
+
+        // Let the model answer while the reader works: the user chose it, so nothing failed and `fallback` stays nil.
+        case (.asking(var context, let transcript, .reading), .askWithoutExactMath):
+            context.math?.reading = .idle
+            context.math?.routed = false
+            let request = send(&context, transcript)
+            return move(.asking(context, transcript, .generating), [.cancelReading(id)] + request)
+
+        // Let the model answer after the exact path failed: today's framed ask, its line reporting the free call and
+        // the failure it replaced. From a reader failure no request has left yet, so the parked turn is superseded here.
+        case (.asking(var context, let transcript, .mathFailed(let failure)), .askWithoutExactMath):
+            context.llmModel = nil
+            context.llmMs = nil
+            context.math?.routed = false
+            context.math?.computation = nil
+            context.math?.fallback = failure.pipelineFailure
+            let request = send(&context, transcript)
+            return move(.asking(context, transcript, .generating), request)
+
+        // The plan's stream ended: the engine decides. The line carries the plan calls' numbers, summed over a retry.
+        case (.asking(var context, let transcript, .planning), .planned(_, let summary, let reply)):
+            guard var math = context.math, case .read(let sheet) = math.reading else { return reject(state, event) }
+            context.llmMs = Self.sum(context.llmMs, summary.ms)
+            context.llmModel = summary.model ?? context.llmModel
+            let instruction = context.request ?? transcript.raw
+            switch solve(reply, summary.finishReason, sheet, instruction) {
+            case .success(let computation):
+                math.computation = computation
+                context.math = math
+                let composed = ExactAnswer(computation, sheet: sheet, policy: rounding, fallback: resultLocale).reply
+                context.reply = composed
+                context.pin = summary.pin ?? context.pin
+                return move(.asking(context, transcript, .reviewing), [.publishAnswer(id, composed)])
+            case .failure(.plan(let defect)) where defect.isRetryable && math.attempts == 1:
+                math.attempts = 2
+                context.math = math
+                let correction = PlanCorrection(reply: reply, note: defect.correction)
+                let request = plan(&context, transcript, sheet, correction: correction)
+                return move(.asking(context, transcript, .planning), [request])
+            case .failure(let failure):
+                return move(.asking(context, transcript, .mathFailed(failure)))
+            }
+
+        case (.asking(var context, let transcript, .planning), .generationFailed(_, let failure, let summary)):
+            context.llmModel = summary.model ?? context.llmModel
+            context.llmMs = Self.sum(context.llmMs, summary.ms)
+            return move(.asking(context, transcript, .failed(failure)))
 
         // The user chose the clipboard: `chosen`, so the line's error is null.
         case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):
@@ -319,7 +407,22 @@ public struct PipelineReducer: Sendable {
             let cleanup: [PipelineEffect] = stage == .awaitingAnswer ? [.dismissConfirmation(id)] : []
             return finish(context, transcript, .discarded(.cancelled), cleanup: cleanup)
 
-        case (.asking(let context, let transcript, .generating), .cancel):
+        // Before the request leaves, Esc in a follow-up returns to the answer it started from.
+        case (.asking(let context, let transcript, .reading), .cancel):
+            if let parked = context.parked {
+                return returnToParked(
+                    context, parked, transcript, .discarded(.cancelled), cleanup: [.cancelReading(id)])
+            }
+            return finish(context, transcript, .discarded(.cancelled), cleanup: [.cancelReading(id)])
+
+        case (.asking(let context, let transcript, .mathFailed(let failure)), .cancel):
+            if let parked = context.parked {
+                return returnToParked(context, parked, transcript, .discarded(.cancelled))
+            }
+            return finish(context, transcript, .failed(failure.pipelineFailure))
+
+        case (.asking(let context, let transcript, .generating), .cancel),
+            (.asking(let context, let transcript, .planning), .cancel):
             return finish(context, transcript, .discarded(.cancelled), cleanup: [.cancelGeneration(id)])
 
         // The panel's Cancel, or quitting: the conversation ends on this answer.
@@ -373,6 +476,7 @@ public struct PipelineReducer: Sendable {
         next.focus = context.focus
         next.thread = thread
         next.parked = .turn(context, transcript)
+        if exactMath { next.math = ExactMathContext() }
         return move(.capturing(next), [.startCapture(new)])
     }
 
@@ -402,17 +506,108 @@ public struct PipelineReducer: Sendable {
     /// The request leaving. A follow-up's parked turn is superseded here, once: its line says `followed_up` and it
     /// joins the thread, so the request carries it as history. Until then Esc can still return to it.
     private func send(_ context: inout UtteranceContext, _ transcript: Transcript) -> [PipelineEffect] {
-        var effects: [PipelineEffect] = []
-        if let parked = context.parked, let thread = context.thread {
-            let turn = parked.context
-            effects.append(log(turn, parked.transcript, .discarded(.followedUp)))
-            context.thread = thread.appending(
-                AskTurn(
-                    id: turn.id, instruction: turn.request ?? parked.transcript.raw, reply: turn.reply ?? "",
-                    region: turn.region))
-            context.parked = nil
+        supersede(&context) + [generate(&context, transcript)]
+    }
+
+    /// The exact twin of `send`: the parked turn superseded, then the plan over `sheet`, first attempt.
+    private func sendPlan(_ context: inout UtteranceContext, _ transcript: Transcript, _ sheet: CellSheet)
+        -> [PipelineEffect]
+    {
+        context.math?.routed = true
+        context.math?.attempts = 1
+        context.math?.reading = .read(sheet)
+        return supersede(&context) + [plan(&context, transcript, sheet, correction: nil)]
+    }
+
+    /// The parked turn joins the thread with its `followed_up` line. An exact turn keeps its sheet and formula, and its
+    /// reply is the one Hark composed; a free turn's stay nil.
+    private func supersede(_ context: inout UtteranceContext) -> [PipelineEffect] {
+        guard let parked = context.parked, let thread = context.thread else { return [] }
+        let turn = parked.context
+        var sheet: CellSheet?
+        var formula: String?
+        if let math = turn.math, let computation = math.computation, case .read(let read) = math.reading {
+            sheet = read
+            formula = computation.plan.formula
         }
-        return effects + [generate(&context, transcript)]
+        context.thread = thread.appending(
+            AskTurn(
+                id: turn.id, instruction: turn.request ?? parked.transcript.raw, reply: turn.reply ?? "",
+                region: turn.region, sheet: sheet, formula: formula))
+        context.parked = nil
+        return [log(turn, parked.transcript, .discarded(.followedUp))]
+    }
+
+    /// Where an exact ask goes once its words are known (M13). Routed: a frame, or in a follow-up with none of its own
+    /// the conversation's latest sheet, and words that ask for a calculation. Anything else is today's ask, byte for
+    /// byte. `reads` are the effects of a frame captured at this very event: the read starts only when it is needed.
+    private func route(_ context: UtteranceContext, _ transcript: Transcript, reads: [PipelineEffect] = [])
+        -> Result<Transition, Rejection>
+    {
+        var context = context
+        guard let math = context.math else { return free(context, transcript) }
+        let instruction = context.request ?? transcript.raw
+        let earlier = context.region == nil ? Self.latestSheet(context) : nil
+        guard context.region != nil || earlier != nil, MathIntent.isComputation(instruction) else {
+            return free(context, transcript)
+        }
+        if let earlier {
+            guard earlier.hasAmount else { return free(context, transcript) }
+            let request = sendPlan(&context, transcript, earlier)
+            return move(.asking(context, transcript, .planning), request)
+        }
+        switch math.reading {
+        case .read(let sheet) where sheet.hasAmount:
+            let request = sendPlan(&context, transcript, sheet)
+            return move(.asking(context, transcript, .planning), request)
+        case .pending:
+            context.math?.routed = true
+            return move(.asking(context, transcript, .reading), reads)
+        case .failed(let failure):
+            context.math?.routed = true
+            return move(.asking(context, transcript, .mathFailed(.reader(failure))))
+        case .read, .idle:
+            return free(context, transcript)
+        }
+    }
+
+    /// Today's ask. A read still running is no longer waited for: the controller cancels it.
+    private func free(_ context: UtteranceContext, _ transcript: Transcript) -> Result<Transition, Rejection> {
+        var context = context
+        if context.math?.reading == .pending { context.math?.reading = .idle }
+        context.math?.routed = false
+        let request = send(&context, transcript)
+        return move(.asking(context, transcript, .generating), request)
+    }
+
+    /// A follow-up with no frame of its own computes over the conversation's latest sheet: the parked turn's, which
+    /// joins the thread only when superseded, else the thread's last.
+    private static func latestSheet(_ context: UtteranceContext) -> CellSheet? {
+        if case .read(let sheet) = context.parked?.context.math?.reading { return sheet }
+        return context.thread?.turns.last { $0.sheet != nil }?.sheet
+    }
+
+    /// The plan request. Its context kinds are written in a fixed order: selection, region, cells, history.
+    private func plan(
+        _ context: inout UtteranceContext, _ transcript: Transcript, _ sheet: CellSheet, correction: PlanCorrection?
+    ) -> PipelineEffect {
+        let selection = context.intent.selection.flatMap { $0.isBlank ? nil : $0 }
+        let thread = context.thread
+        let kinds: [String?] = [
+            selection != nil || thread?.selection != nil ? "selection" : nil,
+            context.region != nil || thread?.framed == true ? "region" : nil,
+            "cells",
+            thread != nil ? "history" : nil,
+        ]
+        context.sentContext = kinds.compactMap(\.self).joined(separator: "+")
+        return .plan(
+            context.id, instruction: context.request ?? transcript.raw, sheet: sheet,
+            selection: context.intent.selection, thread: thread, correction: correction)
+    }
+
+    private static func sum(_ a: Int?, _ b: Int?) -> Int? {
+        guard a != nil || b != nil else { return nil }
+        return (a ?? 0) + (b ?? 0)
     }
 
     /// The request: what followed a spoken prefix, or the transcript; the image when a frame was captured. The context
@@ -430,6 +625,26 @@ public struct PipelineReducer: Sendable {
         return .generate(
             context.id, instruction: context.request ?? transcript.raw, selection: context.intent.selection,
             hasRegion: context.region != nil, thread: thread)
+    }
+
+    /// A region event, and for an exact ask the read it starts or stops: a captured frame is read at once, while the
+    /// user speaks; a new drag or the chip's × drops a read under way.
+    private func framing(_ context: UtteranceContext, _ event: PipelineEvent)
+        -> (UtteranceContext, [PipelineEffect])?
+    {
+        guard var context = region(context, event) else { return nil }
+        guard let math = context.math else { return (context, []) }
+        let stop: [PipelineEffect] = math.reading == .pending ? [.cancelReading(context.id)] : []
+        switch event {
+        case .regionCaptured:
+            context.math?.reading = .pending
+            return (context, stop + [.readRegion(context.id)])
+        case .regionStarted, .regionRemoved:
+            context.math?.reading = .idle
+            return (context, stop)
+        default:
+            return (context, [])
+        }
     }
 
     /// A region event applied to an ask's context; nil for a dictation, which frames nothing.
