@@ -79,7 +79,14 @@ struct ConfigWatcherTests {
         let inside = String(cString: resolved)
         for _ in 0..<20 {
             await live.store.start()
-            #expect(Self.descriptors(under: inside) == 2)
+            // A stop's descriptors close in its sources' cancel handlers, which a loaded machine runs late: a leak
+            // stays above 2, a late close comes down to it.
+            var held = Self.descriptors(under: inside)
+            for _ in 0..<100 where held != 2 {
+                try await Task.sleep(for: .milliseconds(10))
+                held = Self.descriptors(under: inside)
+            }
+            #expect(held == 2)
             await live.store.stop()
         }
         var left = Self.descriptors(under: inside)
