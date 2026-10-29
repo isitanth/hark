@@ -61,7 +61,7 @@ enum CommandConfigEmitter {
     }
 
     /// Every field of every profile its dialect reads, profiles sorted by name, so that what the file says is what an
-    /// ask does.
+    /// ask does. `exact_math` only when it is on.
     private static func llm(_ llm: LLMConfig) -> [String] {
         var lines = ["llm:", "  provider: \(quoted(llm.provider))", "  profiles:"]
         for name in llm.profiles.keys.sorted() {
@@ -88,7 +88,10 @@ enum CommandConfigEmitter {
                 if let effort = profile.effort { lines.append("      effort: \(effort.rawValue)") }
             }
         }
-        return lines + ["  max_selection_chars: \(llm.maxSelectionChars)"]
+        lines.append("  max_selection_chars: \(llm.maxSelectionChars)")
+        // Off writes nothing, so a file stays byte for byte what it was before M13 while the setting is off.
+        if llm.exactMath { lines.append("  exact_math: on") }
+        return lines
     }
 
     /// `{"enable_thinking": false}`, keys sorted, or `{}`.

@@ -323,6 +323,7 @@ private let everyKind = ProviderProfile(
 let llmRoundTripCases: [LLMRoundTripCase] = [
     .init(name: "no llm", config: CommandConfig(commands: [CommandEntry(id: "open_finder", app: "Finder")])),
     .init(name: "the standard llm", config: CommandConfig(llm: .standard)),
+    .init(name: "the standard llm with exact math", config: CommandConfig(llm: exact(.standard))),
     .init(name: "the bundled default", config: ConfigFixtures.commands),
     .init(
         name: "several profiles, every value kind",
@@ -335,6 +336,12 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
                     "a_loop": ProviderProfile(
                         name: "a_loop", baseURL: URL(string: "http://[::1]:9000/v1")!, temperature: 0, maxTokens: 1),
                 ], maxSelectionChars: 100_000))),
+    .init(
+        name: "several profiles with exact math",
+        config: CommandConfig(
+            llm: LLMConfig(
+                provider: "claude", profiles: ["local": .local, "claude": .claude, "work-2": everyKind],
+                exactMath: true))),
 ]
 
 @Suite struct CommandConfigLLMTests {
@@ -439,6 +446,12 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
 
             """
         #expect(CommandConfig(llm: .standard).yaml() == expected)
+    }
+
+    @Test func emitsExactMathOnlyWhenOn() {
+        let on = CommandConfig(llm: exact(.standard)).yaml().components(separatedBy: "\n")
+        #expect(Array(on.suffix(3)) == ["  max_selection_chars: 12000", "  exact_math: on", ""])
+        #expect(!CommandConfig(llm: .standard).yaml().contains("exact_math"))
     }
 
     @Test func editingTheCommandsKeepsTheLLMBlock() throws {
