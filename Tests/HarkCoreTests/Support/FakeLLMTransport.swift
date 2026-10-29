@@ -15,6 +15,8 @@ final class FakeLLMTransport: LLMTransport {
         case status(Int, Data)
         /// A status whose body the test pushes piece by piece with `push(_:)`, then ends with `endBody()`.
         case pushed(status: Int)
+        /// A status, its whole body and the head's `Warning` header (M13).
+        case headed(status: Int, Data, warning: String?)
     }
 
     private struct State {
@@ -66,6 +68,12 @@ final class FakeLLMTransport: LLMTransport {
                 continuation.finish()
             }
             return LLMHTTPResponse(status: status, body: stream)
+        case .headed(let status, let body, let warning):
+            let stream = AsyncThrowingStream<Data, any Error> { continuation in
+                if !body.isEmpty { continuation.yield(body) }
+                continuation.finish()
+            }
+            return LLMHTTPResponse(status: status, body: stream, warning: warning)
         case .pushed(let status):
             let (stream, continuation) = AsyncThrowingStream<Data, any Error>.makeStream()
             continuation.onTermination = { [state] termination in

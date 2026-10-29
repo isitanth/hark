@@ -324,3 +324,159 @@ let baseURLCases: [BaseURLCase] = [.init(base: "http://127.0.0.1:8002/v1"), .ini
         #expect(body["temperature"] as? Double == (zero ? 0 : ProviderProfile.defaultTemperature))
     }
 }
+
+/// A plan request's `format` (M13): OpenAI's `response_format`, what the head's `Warning` says, and a refused schema.
+@Suite struct LLMClientFormatTests {
+    static let schemaJSON = #"{"type":"object","required":["formula"],"properties":{"formula":{"type":"string"}}}"#
+    static let format = ResponseSchema(name: "plan", json: schemaJSON)
+    static let image = ImagePart(data: Data([1, 2, 3]))
+    static let imageMessages = [
+        ChatMessage(role: .system, content: "Lis."),
+        ChatMessage(role: .user, parts: [.text("Total ?"), .image(image)]),
+    ]
+
+    /// The requests and events of one call, answered `answer`.
+    private func call(
+        _ messages: [ChatMessage] = H.messages, profile: ProviderProfile = H.profile, format: ResponseSchema?,
+        answer: FakeLLMTransport.Answer = .status(500, Data())
+    ) async -> ([URLRequest], [LLMEvent]) {
+        let transport = FakeLLMTransport([answer])
+        let events = await H.collect(
+            H.client(transport).complete(messages, model: LLMFixtures.model, profile: profile, format: format)
+        ).value
+        return (transport.requests, events)
+    }
+
+    private func body(
+        _ messages: [ChatMessage] = H.messages, profile: ProviderProfile = H.profile, format: ResponseSchema?
+    )
+        async throws -> [String: Any]
+    {
+        let request = try #require(await call(messages, profile: profile, format: format).0.first)
+        let data = try #require(request.httpBody)
+        return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    private func bodyText(_ messages: [ChatMessage], profile: ProviderProfile = H.profile, format: ResponseSchema?)
+        async throws -> String
+    {
+        let request = try #require(await call(messages, profile: profile, format: format).0.first)
+        let data = try #require(request.httpBody)
+        return String(decoding: data, as: UTF8.self)
+    }
+
+    private func sorted(_ object: Any) throws -> String {
+        String(decoding: try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]), as: UTF8.self)
+    }
+
+    @Test func aFormatIsAStrictJSONSchemaResponseFormat() async throws {
+        let body = try await body(format: Self.format)
+        let format = try #require(body["response_format"])
+        #expect(
+            try sorted(format)
+                == #"{"json_schema":{"name":"plan","schema":{"properties":{"formula":{"type":"string"}},"required":["formula"],"type":"object"},"strict":true},"type":"json_schema"}"#
+        )
+        #expect(
+            Set(body.keys)
+                == ["model", "messages", "stream", "max_tokens", "temperature", "enable_thinking", "response_format"])
+        #expect(body["max_tokens"] as? Int == ProviderProfile.defaultMaxTokens)
+        #expect(body["stream"] as? Bool == true)
+    }
+
+    @Test func thePlanSchemaIsNamedPlan() async throws {
+        let body = try await body(format: CalculationPlan.schema)
+        let format = try #require(body["response_format"] as? [String: Any])
+        let schema = try #require(format["json_schema"] as? [String: Any])
+        #expect(schema["name"] as? String == "plan")
+        #expect(schema["strict"] as? Bool == true)
+    }
+
+    static let todayText =
+        #"{"enable_thinking":false,"max_tokens":1024,"messages":[{"content":"Résume le texte.","role":"system"},{"content":"Lyon et Nantes ont migré.","role":"user"}],"model":"mtplx-bonsai-2-27b-optimized-speed","stream":true,"temperature":0.29999999999999999}"#
+    static let todayImage =
+        #"{"enable_thinking":false,"max_tokens":1024,"messages":[{"content":"Lis.","role":"system"},{"content":[{"image_url":{"url":"data:image\/png;base64,AQID"},"type":"image_url"},{"text":"Total ?","type":"text"}],"role":"user"}],"model":"mtplx-bonsai-2-27b-optimized-speed","stream":true,"temperature":0}"#
+
+    @Test func noFormatIsTodaysBytes() async throws {
+        let text = try await bodyText(H.messages, format: nil)
+        #expect(text == Self.todayText)
+        let image = try await bodyText(Self.imageMessages, format: nil)
+        #expect(image == Self.todayImage)
+        var profile = H.profile
+        profile.extra = ["enable_thinking": .bool(false), "top_k": .int(20)]
+        let extra = try await bodyText(H.messages, profile: profile, format: nil)
+        #expect(
+            extra
+                == Self.todayText.replacingOccurrences(
+                    of: #""temperature":0.29999999999999999}"#, with: #""temperature":0.29999999999999999,"top_k":20}"#)
+        )
+    }
+
+    @Test func extraCannotReachTheFormat() async throws {
+        var profile = H.profile
+        profile.extra = ["response_format": .string("json_object")]
+        let without = try await body(profile: profile, format: nil)
+        #expect(without["response_format"] == nil)
+        let with = try await body(profile: profile, format: Self.format)
+        let format = try #require(with["response_format"] as? [String: Any])
+        #expect(format["type"] as? String == "json_schema")
+    }
+
+    @Test func anImageAndAFormatSampleNothing() async throws {
+        let body = try await body(Self.imageMessages, format: Self.format)
+        #expect(body["temperature"] as? Int == 0)
+        #expect(body["response_format"] != nil)
+    }
+
+    @Test(arguments: ["", "{", "not json", #"{"a":}"#])
+    func aSchemaThatDoesNotParseSendsNothing(_ json: String) async {
+        let (requests, events) = await call(format: ResponseSchema(name: "plan", json: json))
+        #expect(requests.isEmpty)
+        #expect(events.failure == .server(status: nil, message: nil))
+    }
+
+    static let reply = Data((H.contentLine("{}") + "data: [DONE]\n\n").utf8)
+
+    @Test(arguments: [("199 oMLX \"schema not enforced\"", true), (nil, true), ("199 x", false)] as [(String?, Bool)])
+    func theWarningReachesTheSummaryOfAFormatRequest(_ warning: String?, _ formatted: Bool) async {
+        let (_, events) = await call(
+            format: formatted ? Self.format : nil, answer: .headed(status: 200, Self.reply, warning: warning))
+        #expect(events.texts == ["{}"])
+        #expect(events.summary?.formatWarning == (formatted ? warning : nil))
+    }
+
+    static let refusals: [(Int, String)] = [
+        (400, #"{"error":{"message":"response_format is not supported by this model"}}"#),
+        (400, #"{"error":{"message":"Invalid json_schema: strict mode"}}"#),
+        (400, #"{"error":{"message":"failed to compile grammar"}}"#),
+        (422, #"{"error":{"message":"Unprocessable: response_format"}}"#),
+    ]
+
+    @Test(arguments: refusals)
+    func aRefusedFormatIsFormatRefused(_ status: Int, _ body: String) async {
+        let (_, events) = await call(format: Self.format, answer: .status(status, Data(body.utf8)))
+        #expect(events.failure == .formatRefused(model: LLMFixtures.model))
+        #expect(events.failure?.pipelineFailure.code == "plan_invalid:json")
+    }
+
+    @Test(arguments: refusals)
+    func theSameWordsWithoutAFormatKeepServer(_ status: Int, _ body: String) async {
+        let (_, events) = await call(format: nil, answer: .status(status, Data(body.utf8)))
+        guard case .server(let code, _) = events.failure else {
+            Issue.record("expected .server, got \(String(describing: events.failure))")
+            return
+        }
+        #expect(code == status)
+    }
+
+    @Test func anotherStatusOrMessageWithAFormatKeepsServer() async {
+        let (_, other) = await call(format: Self.format, answer: .status(500, Data(Self.refusals[0].1.utf8)))
+        #expect(other.failure == .server(status: 500, message: "response_format is not supported by this model"))
+        let (_, plain) = await call(
+            format: Self.format, answer: .status(400, Data(#"{"error":{"message":"bad"}}"#.utf8)))
+        #expect(plain.failure == .server(status: 400, message: "bad"))
+    }
+
+    @Test func formatRefusedIsPlanInvalidJSON() {
+        #expect(LLMFailure.formatRefused(model: nil).pipelineFailure == .planInvalid(.json))
+    }
+}

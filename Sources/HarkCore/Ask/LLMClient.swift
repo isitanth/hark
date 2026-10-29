@@ -29,6 +29,7 @@ public struct URLSessionLLMTransport: LLMTransport {
             throw Self.transportError(error)
         }
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        let warning = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Warning")
         let source = ByteSource(bytes: bytes)
         let body = AsyncThrowingStream<Data, any Error> { continuation in
             let reader = Task {
@@ -53,7 +54,7 @@ public struct URLSessionLLMTransport: LLMTransport {
                 source.bytes.task.cancel()
             }
         }
-        return LLMHTTPResponse(status: status, body: body)
+        return LLMHTTPResponse(status: status, body: body, warning: warning)
     }
 
     static func transportError(_ error: any Error) -> LLMTransportError {
@@ -128,12 +129,14 @@ public actor LLMClient {
     }
 
     /// `text` pieces, then exactly one `finished` or `failed`, then the end. When the consumer stops iterating, the
-    /// request is cancelled and nothing more is sent.
+    /// request is cancelled and nothing more is sent. `format` asks the server to hold the reply to a JSON schema (M13).
     public nonisolated func complete(
-        _ messages: [ChatMessage], model: String, profile: ProviderProfile
+        _ messages: [ChatMessage], model: String, profile: ProviderProfile, format: ResponseSchema? = nil
     ) -> AsyncStream<LLMEvent> {
         AsyncStream { continuation in
-            let task = Task { await self.run(messages, model: model, profile: profile, continuation: continuation) }
+            let task = Task {
+                await self.run(messages, model: model, profile: profile, format: format, continuation: continuation)
+            }
             continuation.onTermination = { _ in task.cancel() }
         }
     }
@@ -198,10 +201,17 @@ public actor LLMClient {
         }
     }
 
-    /// Nil when the body cannot be written as JSON: a number that is not finite, which no parsed profile holds.
+    /// Nil when the body cannot be written as JSON: a number that is not finite, which no parsed profile holds, or a
+    /// `format` whose schema does not parse.
     static func chatRequest(
-        _ messages: [ChatMessage], model: String, profile: ProviderProfile, key: String?
+        _ messages: [ChatMessage], model: String, profile: ProviderProfile, key: String?,
+        format: ResponseSchema? = nil
     ) -> URLRequest? {
+        var schema: Any?
+        if let format {
+            guard let object = try? JSONSerialization.jsonObject(with: Data(format.json.utf8)) else { return nil }
+            schema = object
+        }
         let path = profile.api == .anthropic ? "messages" : "chat/completions"
         var request = URLRequest(url: profile.baseURL.appending(path: path))
         request.httpMethod = "POST"
@@ -211,10 +221,24 @@ public actor LLMClient {
         let body: [String: Any]
         switch profile.api {
         case .openAI:
-            body = openAIBody(messages, model: model, profile: profile)
+            var openAI = openAIBody(messages, model: model, profile: profile)
+            if let format, let schema {
+                openAI["response_format"] = [
+                    "type": "json_schema",
+                    "json_schema": ["name": format.name, "strict": true, "schema": schema] as [String: Any],
+                ]
+            }
+            body = openAI
         case .anthropic:
             request.setValue(anthropicFallbackBeta, forHTTPHeaderField: "anthropic-beta")
-            body = anthropicBody(messages, model: model, profile: profile)
+            var anthropic = anthropicBody(messages, model: model, profile: profile)
+            if let schema {
+                // The format joins the profile's effort, never replaces it.
+                var config = anthropic["output_config"] as? [String: Any] ?? [:]
+                config["format"] = ["type": "json_schema", "schema": schema] as [String: Any]
+                anthropic["output_config"] = config
+            }
+            body = anthropic
         }
         guard JSONSerialization.isValidJSONObject(body),
             let data = try? JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
@@ -226,7 +250,8 @@ public actor LLMClient {
     private static func openAIBody(_ messages: [ChatMessage], model: String, profile: ProviderProfile) -> [String: Any]
     {
         // `extra` first and the standard fields over it: the parser refuses a standard name in `extra`, and a profile
-        // built in code cannot turn streaming off or ask for JSON either. A server off this Mac gets the standard
+        // built in code cannot turn streaming off or ask for JSON either: only a plan request's `format` sets
+        // `response_format`, in `chatRequest`. A server off this Mac gets the standard
         // fields only: `extra` is for the local server's own switches, and a cloud API may refuse what it does not know.
         var body: [String: Any] = [:]
         for (name, value) in profile.isLoopback ? profile.extra : [:] {
@@ -327,7 +352,7 @@ public actor LLMClient {
     // MARK: - The stream
 
     private nonisolated func run(
-        _ messages: [ChatMessage], model: String, profile: ProviderProfile,
+        _ messages: [ChatMessage], model: String, profile: ProviderProfile, format: ResponseSchema?,
         continuation: AsyncStream<LLMEvent>.Continuation
     ) async {
         let key: String?
@@ -339,7 +364,8 @@ public actor LLMClient {
             continuation.finish()
             return
         }
-        guard let request = Self.chatRequest(messages, model: model, profile: profile, key: key) else {
+        guard let request = Self.chatRequest(messages, model: model, profile: profile, key: key, format: format)
+        else {
             Self.logger.error("the request for \(profile.name, privacy: .public) is not valid JSON; nothing was sent")
             continuation.yield(.failed(.server(status: nil, message: nil), LLMCallSummary(ms: nil)))
             continuation.finish()
@@ -359,7 +385,8 @@ public actor LLMClient {
         let worker = Task { [transport] in
             await Self.stream(
                 request, transport: transport, unreachable: profile.unreachable, silence: limits.silence, call: call,
-                timers: timers, image: messages.contains(where: \.hasImage) ? model : nil)
+                timers: timers, image: messages.contains(where: \.hasImage) ? model : nil,
+                format: format == nil ? nil : model)
         }
         call.attach(worker)
         await withTaskCancellationHandler {
@@ -373,7 +400,7 @@ public actor LLMClient {
 
     private static func stream(
         _ request: URLRequest, transport: any LLMTransport, unreachable: LLMFailure, silence: Duration,
-        call: StreamCall, timers: CallTimers, image model: String?
+        call: StreamCall, timers: CallTimers, image model: String?, format formatModel: String?
     ) async {
         let response: LLMHTTPResponse
         do {
@@ -384,11 +411,24 @@ public actor LLMClient {
         }
         timers.stop(.connect)
         timers.start(.silence, after: silence)
+        if formatModel != nil, let warning = response.warning {
+            // Server text, never user data: the schema was not enforced. Every plan is validated anyway.
+            let endpoint = request.url?.absoluteString ?? ""
+            logger.notice(
+                "format warning from \(endpoint, privacy: .public): \(warning, privacy: .public)")
+            call.noteFormatWarning(warning)
+        }
         if response.status == 401 { return call.fail(.keyRefused) }
         guard response.status == 200 else {
             let body = await read(response.body, limit: errorBodyLimit) { timers.start(.silence, after: silence) }
             if Task.isCancelled { return }
             let message = LLMErrorBody.message(in: body)
+            // Only a request that asked for a schema can be refused for it.
+            if let formatModel,
+                let refusal = formatRefusal(status: response.status, message: message, model: formatModel)
+            {
+                return call.fail(refusal)
+            }
             // Only a request with an image can be refused for it; the same words without one keep today's mapping.
             if let model, let refusal = LLMFailure.imageRefusal(status: response.status, message: message, model: model)
             {
@@ -414,6 +454,16 @@ public actor LLMClient {
         if Task.isCancelled { return }
         if call.receive(parser.finish()) { return }
         call.complete()
+    }
+
+    /// The words a server uses when it refuses a JSON schema: oMLX's and OpenAI's field names, llama.cpp's grammar.
+    static let formatRefusedPhrases = ["response_format", "json_schema", "grammar"]
+
+    /// The refusal of a request that carried a format: a 400 or a 422 whose message names the format. Nil for anything
+    /// else, which keeps the mapping of a request without one.
+    static func formatRefusal(status: Int, message: String?, model: String?) -> LLMFailure? {
+        guard [400, 422].contains(status), let words = message?.lowercased() else { return nil }
+        return formatRefusedPhrases.contains(where: words.contains) ? .formatRefused(model: model) : nil
     }
 
     /// At most `limit` bytes of `body`. A body cut by an error keeps what came before it.
@@ -535,6 +585,11 @@ private final class StreamCall: Sendable {
             }
         }
         return false
+    }
+
+    /// The response's `Warning` header on a format request, kept for the summary.
+    func noteFormatWarning(_ warning: String) {
+        state.withLock { $0.summary.formatWarning = warning }
     }
 
     /// The end of the body: finished with a word of content, empty without.

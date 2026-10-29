@@ -287,3 +287,76 @@ let messagesItemCases: [MessagesItemCase] = [
         #expect(request.value(forHTTPHeaderField: "Authorization")?.hasPrefix("Bearer ") == true)
     }
 }
+
+/// A plan request's `format` on Claude (M13): `output_config.format` beside the profile's effort.
+@Suite struct AnthropicFormatTests {
+    static let format = ResponseSchema(
+        name: "plan", json: #"{"type":"object","properties":{"formula":{"type":"string"}}}"#)
+
+    private func request(for profile: ProviderProfile = claude, format: ResponseSchema?) async throws -> URLRequest {
+        let transport = FakeLLMTransport([.status(500, Data())])
+        _ = await H.collect(client(transport).complete(H.messages, model: model, profile: profile, format: format))
+            .value
+        return try #require(transport.requests.first)
+    }
+
+    private func body(_ request: URLRequest) throws -> [String: Any] {
+        let data = try #require(request.httpBody)
+        return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    private func sorted(_ object: Any) throws -> String {
+        String(decoding: try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]), as: UTF8.self)
+    }
+
+    @Test func aFormatJoinsTheEffort() async throws {
+        let body = try body(try await request(format: Self.format))
+        let config = try #require(body["output_config"])
+        #expect(
+            try sorted(config)
+                == #"{"effort":"low","format":{"schema":{"properties":{"formula":{"type":"string"}},"type":"object"},"type":"json_schema"}}"#
+        )
+        #expect(
+            Set(body.keys) == ["model", "messages", "stream", "max_tokens", "fallbacks", "system", "output_config"])
+        #expect(body["temperature"] == nil)
+        #expect(body["fallbacks"] as? String == "default")
+        #expect(body["max_tokens"] as? Int == ProviderProfile.defaultAnthropicMaxTokens)
+    }
+
+    @Test func aFormatWithNoEffortIsTheFormatAlone() async throws {
+        var profile = claude
+        profile.effort = nil
+        let body = try body(try await request(for: profile, format: Self.format))
+        let config = try #require(body["output_config"])
+        #expect(
+            try sorted(config)
+                == #"{"format":{"schema":{"properties":{"formula":{"type":"string"}},"type":"object"},"type":"json_schema"}}"#
+        )
+    }
+
+    @Test func aFormatKeepsTheHeaders() async throws {
+        let request = try await request(format: Self.format)
+        #expect(request.value(forHTTPHeaderField: "anthropic-beta") == "server-side-fallback-2026-07-01")
+        #expect(request.value(forHTTPHeaderField: "anthropic-version") == "2023-06-01")
+        #expect(request.url?.absoluteString == "https://api.anthropic.com/v1/messages")
+    }
+
+    @Test func noFormatIsTodaysBody() async throws {
+        let plain = try await request(format: nil).httpBody
+        let transport = FakeLLMTransport([.status(500, Data())])
+        _ = await H.collect(client(transport).complete(H.messages, model: model, profile: claude)).value
+        #expect(plain == transport.requests.first?.httpBody)
+        let body = try body(try await request(format: nil))
+        #expect(body["output_config"] as? [String: String] == ["effort": "low"])
+    }
+
+    @Test func aRefusedFormatOnClaudeIsFormatRefused() async {
+        let error =
+            #"{"type":"error","error":{"type":"invalid_request_error","message":"output_config.format.json_schema: unsupported"}}"#
+        let transport = FakeLLMTransport([.status(400, Data(error.utf8))])
+        let events = await H.collect(
+            client(transport).complete(H.messages, model: model, profile: claude, format: Self.format)
+        ).value
+        #expect(events.failure == .formatRefused(model: model))
+    }
+}
