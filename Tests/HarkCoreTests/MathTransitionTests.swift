@@ -435,3 +435,311 @@ struct ExactRun {
 }
 
 struct Missing: Error {}
+
+/// Let the model answer, Esc and the panel's Cancel on an exact ask.
+@Suite struct MathWayOutTests {
+    @Test func theWayOutWhileReadingIsChosenAndNothingFailed() throws {
+        var run = ExactRun()
+        try run.ask()
+        #expect(try run.on(.askWithoutExactMath(F.id)) == ["cancelReading", "generate+region"])
+        #expect(run.stage == .generating)
+        #expect(run.math?.routed == false && run.math?.fallback == nil)
+        #expect(run.context?.sentContext == "region")
+        #expect(run.rejects(.regionRead(F.id, Exact.sheet)))
+    }
+
+    static let failures: [(MathFailure, @Sendable (inout ExactRun) throws -> Void)] = [
+        (.reader(.vision), { try $0.ask(read: .failure(.vision)) }),
+        (.reader(.timeout), { try $0.ask(read: .failure(.timeout)) }),
+        (
+            .plan(.unknownCell),
+            {
+                try $0.ask(read: .success(Exact.sheet))
+                try $0.on(.planned(F.id, Exact.summary(), reply: Exact.unknownCell))
+                try $0.on(.planned(F.id, Exact.summary(), reply: Exact.unknownCell))
+            }
+        ),
+        (
+            .plan(.truncated),
+            {
+                try $0.ask(read: .success(Exact.sheet))
+                try $0.on(.planned(F.id, Exact.summary(finish: "length"), reply: ""))
+            }
+        ),
+    ]
+
+    @Test(arguments: 0..<4)
+    func theWayOutAfterAFailureCarriesItsReason(_ index: Int) throws {
+        let (failure, reach) = Self.failures[index]
+        var run = ExactRun()
+        try reach(&run)
+        #expect(run.stage == .mathFailed(failure))
+        #expect(try run.on(.askWithoutExactMath(F.id)) == ["generate+region"])
+        #expect(run.stage == .generating)
+        #expect(run.math?.fallback == failure.pipelineFailure)
+        #expect(run.math?.routed == false && run.math?.computation == nil)
+        #expect(run.context?.llmModel == nil && run.context?.llmMs == nil)
+        #expect(run.context?.sentContext == "region")
+        try run.on(.generated(F.id, LLMCallSummary(model: "free", ms: 2_000), reply: "About 20."))
+        try run.on(.askCopy(F.id, "About 20."))
+        try run.on(.copied(F.id))
+        let line = try #require(run.lines.last)
+        #expect(line.error == failure.pipelineFailure.code)
+        #expect(line.llmModel == "free" && line.llmMs == 2_000 && line.context == "region")
+    }
+
+    @Test(arguments: MathDefect.allCases)
+    func theWayOutAfterAMathDefectCarriesIt(_ defect: MathDefect) throws {
+        var run = ExactRun(solve: { _, _, _, _ in .failure(.math(defect, cell: CellID(1))) })
+        try run.ask(read: .success(Exact.sheet))
+        try run.on(.planned(F.id, Exact.summary(), reply: "plan"))
+        #expect(try run.on(.askWithoutExactMath(F.id)) == ["generate+region"])
+        #expect(run.math?.fallback == .mathError(defect))
+    }
+
+    @Test func theWayOutIsRejectedEverywhereElse() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        #expect(run.rejects(.askWithoutExactMath(F.id)))
+        try run.on(.regionCaptured(F.id, F.region))
+        try run.on(.triggerUp(at: F.pressedAt))
+        #expect(run.rejects(.askWithoutExactMath(F.id)))
+        try run.on(.regionRead(F.id, Exact.sheet))
+        try run.on(.captured(F.id, F.speech))
+        try run.on(.transcribed(F.id, Exact.compute, ms: 400))
+        #expect(run.stage == .planning)
+        #expect(run.rejects(.askWithoutExactMath(F.id)))
+        try run.on(.generationFailed(F.id, .noAnswer, Exact.summary()))
+        #expect(run.rejects(.askWithoutExactMath(F.id)))
+    }
+
+    // MARK: Cancel
+
+    @Test func cancelWhileReading() throws {
+        var run = ExactRun()
+        try run.ask()
+        #expect(try run.on(.cancel) == ["cancelReading", "log:discarded:cancelled"])
+        #expect(run.state == .idle && run.lines.count == 1)
+    }
+
+    @Test func cancelWhilePlanning() throws {
+        var run = ExactRun()
+        try run.ask(read: .success(Exact.sheet))
+        #expect(try run.on(.cancel) == ["cancelGeneration", "log:discarded:cancelled"])
+        #expect(run.lines.count == 1)
+        #expect(run.lines[0].context == "region+cells")
+    }
+
+    @Test(arguments: 0..<4)
+    func cancelAfterAFailureLogsIt(_ index: Int) throws {
+        let (failure, reach) = MathWayOutTests.failures[index]
+        var run = ExactRun()
+        try reach(&run)
+        #expect(try run.on(.cancel) == ["log:failed:" + failure.pipelineFailure.code])
+        #expect(run.state == .idle && run.lines.count == 1)
+    }
+
+    @Test func cancelAfterAMathDefectLogsIt() throws {
+        var run = ExactRun(solve: { _, _, _, _ in .failure(.math(.divisionByZero, cell: CellID(2))) })
+        try run.ask(read: .success(Exact.sheet))
+        try run.on(.planned(F.id, Exact.summary(), reply: "plan"))
+        #expect(try run.on(.cancel) == ["log:failed:math_error:division_by_zero"])
+    }
+
+    @Test func cancelAnExactAnswerInReview() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        #expect(try run.on(.cancel) == ["log:discarded:cancelled"])
+        #expect(run.lines.count == 1)
+        #expect(run.lines[0].llmModel == Exact.planModel && run.lines[0].context == "region+cells")
+    }
+
+    @Test func cancelAfterTheWayOutKeepsCancelled() throws {
+        var run = ExactRun()
+        try run.ask(read: .failure(.vision))
+        try run.on(.askWithoutExactMath(F.id))
+        #expect(try run.on(.cancel) == ["cancelGeneration", "log:discarded:cancelled"])
+    }
+
+    @Test func copyAndInsertSendTheResultNotTheWorking() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        #expect(try run.on(.askCopy(F.id, "20.00")) == ["copyToClipboard"])
+        #expect(run.effects == [.copyToClipboard(F.id, "20.00", concealed: false)])
+        #expect(try run.on(.copied(F.id)) == ["log:text_clipboard"])
+        #expect(run.lines[0].actionType == .ask)
+    }
+}
+
+/// Follow-ups of an exact ask (M12 with M13).
+@Suite struct MathFollowUpTests {
+    private func plannedSheet(_ run: ExactRun) -> CellSheet? {
+        guard case .plan(_, _, let sheet, _, _, _) = run.effects.last else { return nil }
+        return sheet
+    }
+
+    @Test func aComputingFollowUpWithNoFramePlansOverTurnOnesSheet() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        let composed = try #require(run.context?.reply)
+        try run.followUp()
+        #expect(run.labels == ["log:discarded:followed_up", "plan"])
+        #expect(run.stage == .planning)
+        #expect(plannedSheet(run) == Exact.sheet)
+        #expect(!run.all.contains(.readRegion(Exact.second)))
+        #expect(run.context?.sentContext == "region+cells+history")
+        let turn = try #require(run.context?.thread?.turns.first)
+        #expect(turn.sheet == Exact.sheet && turn.formula == "SUM(C1,C2)" && turn.reply == composed)
+        #expect(turn.reply.hasPrefix(IntentSplit.marker))
+    }
+
+    @Test func aFollowUpThatFramesReadsAndPlansOverItsOwnFrame() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        try run.on(.followUpDown(Exact.second, at: F.pressedAt))
+        #expect(try run.on(.regionCaptured(Exact.second, F.region)) == ["readRegion"])
+        try run.on(.regionRead(Exact.second, Exact.otherSheet))
+        try run.on(.triggerUp(at: F.pressedAt))
+        try run.on(.captured(Exact.second, F.speech))
+        try run.on(.transcribed(Exact.second, Exact.compute, ms: 400))
+        #expect(plannedSheet(run) == Exact.otherSheet)
+        try run.on(.planned(Exact.second, Exact.summary(), reply: Exact.solved))
+        try run.followUp(id: Exact.third)
+        #expect(plannedSheet(run) == Exact.otherSheet)
+        #expect(run.context?.thread?.turns.map(\.sheet) == [Exact.sheet, Exact.otherSheet])
+    }
+
+    @Test func escInAFollowUpsReadingReturnsToTheAnswer() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        try run.followUp(framed: true)
+        #expect(run.stage == .reading)
+        #expect(try run.on(.cancel) == ["cancelReading", "log:discarded:cancelled"])
+        #expect(run.stage == .reviewing && run.context?.id == F.id)
+        #expect(run.lines.count == 1)
+    }
+
+    @Test func aFollowUpsReaderFailureThenCancelReturnsToTheAnswer() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        try run.followUp(framed: true, read: .failure(.vision))
+        #expect(run.stage == .mathFailed(.reader(.vision)))
+        #expect(try run.on(.cancel) == ["log:discarded:cancelled"])
+        #expect(run.stage == .reviewing && run.context?.id == F.id)
+    }
+
+    @Test func theWayOutAfterAFollowUpsReaderFailureSupersedesOnce() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        try run.followUp(framed: true, read: .failure(.timeout))
+        #expect(try run.on(.askWithoutExactMath(Exact.second)) == ["log:discarded:followed_up", "generate+region"])
+        #expect(run.context?.thread?.turns.count == 1)
+        #expect(run.context?.sentContext == "region+history")
+        #expect(run.math?.fallback == .readerFailed(.timeout))
+        #expect(run.lines.filter { $0.error == "followed_up" }.count == 1)
+    }
+
+    @Test func escInAFollowUpsPlanningEndsTheConversation() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        try run.followUp()
+        #expect(try run.on(.cancel) == ["cancelGeneration", "log:discarded:cancelled"])
+        #expect(run.state == .idle)
+        #expect(run.lines.map(\.error) == ["followed_up", "cancelled"])
+    }
+
+    @Test func aFreeTurnKeepsNoSheetOrFormula() throws {
+        var run = ExactRun()
+        try run.ask(Exact.free, read: .success(Exact.sheet))
+        try run.on(.generated(F.id, Exact.summary(), reply: "A summary."))
+        try run.followUp(Exact.free)
+        let turn = try #require(run.context?.thread?.turns.first)
+        #expect(turn.sheet == nil && turn.formula == nil && turn.reply == "A summary.")
+    }
+
+    @Test func aComputingFollowUpAfterAFreeFramedTurnPlansOverItsRead() throws {
+        var run = ExactRun()
+        try run.ask(Exact.free, read: .success(Exact.sheet))
+        try run.on(.generated(F.id, Exact.summary(), reply: "A summary."))
+        try run.followUp()
+        #expect(run.stage == .planning)
+        #expect(plannedSheet(run) == Exact.sheet)
+    }
+
+    @Test func aComputingFollowUpOverAFreeAnswerWithNoFrameIsTodays() throws {
+        var run = ExactRun()
+        try run.ask(Exact.free, framed: false)
+        try run.on(.generated(F.id, Exact.summary(), reply: "A summary."))
+        try run.followUp()
+        #expect(run.labels == ["log:discarded:followed_up", "generate"])
+    }
+
+    @Test func pressesDuringReadingPlanningOrAFailureAreBusy() throws {
+        var reading = ExactRun()
+        try reading.ask()
+        var planning = ExactRun()
+        try planning.ask(read: .success(Exact.sheet))
+        var failed = ExactRun()
+        try failed.ask(read: .failure(.vision))
+        for var run in [reading, planning, failed] {
+            let before = run.state
+            #expect(try run.on(.followUpDown(Exact.second, at: F.pressedAt)) == ["log:discarded:busy"])
+            #expect(run.state == before)
+        }
+    }
+
+    // MARK: sentContext
+
+    @Test func theContextKindsComeInTheirFixedOrder() throws {
+        var single = ExactRun()
+        try single.ask(read: .success(Exact.sheet))
+        #expect(single.context?.sentContext == "region+cells")
+        var selected = ExactRun()
+        try selected.ask(intent: F.ask, read: .success(Exact.sheet))
+        #expect(selected.context?.sentContext == "selection+region+cells")
+        var followed = ExactRun()
+        try followed.reviewed()
+        try followed.followUp()
+        #expect(followed.context?.sentContext == "region+cells+history")
+        var both = ExactRun()
+        try both.reviewed(intent: F.ask)
+        try both.followUp()
+        #expect(both.context?.sentContext == "selection+region+cells+history")
+    }
+}
+
+/// With `context.math == nil`, every existing row is today's, even with the setting on: only a press stamps.
+@Suite struct MathOffTests {
+    static let states: [PipelineState] = [
+        F.askCapturing, F.askTranscribing, F.generating, F.reviewing, F.awaitingRegion, F.regionAskFailed,
+        F.assistGenerating, F.assistReviewing, F.askFailed(.noAnswer),
+    ]
+
+    static let events: [PipelineEvent] = [
+        .regionStarted(F.id), .regionCaptured(F.id, F.region), .regionRemoved(F.id), .regionAbandoned(F.id),
+        .regionFailed(F.id, .captureFailed), .transcribed(F.id, Exact.compute, ms: 400), .cancel, .askRetry(F.id),
+        .askRetryWithoutRegion(F.id), .regionRead(F.id, Exact.sheet), .regionReadFailed(F.id, .vision),
+        .planned(F.id, Exact.summary(), reply: Exact.solved), .askWithoutExactMath(F.id),
+        .generated(F.id, Exact.summary(), reply: "Yes."), .captured(F.id, F.speech),
+    ]
+
+    @Test(arguments: states)
+    func theSettingChangesNoRowOfAnUnstampedAsk(_ state: PipelineState) {
+        var on = PipelineReducer()
+        on.exactMath = true
+        let off = PipelineReducer()
+        for event in Self.events {
+            #expect(on.reduce(state, event) == off.reduce(state, event))
+        }
+    }
+
+    @Test func todaysFramedAskWithTheSettingOff() throws {
+        var run = ExactRun(on: false)
+        try run.ask(read: nil)
+        #expect(run.labels == ["generate+region"])
+        #expect(run.context?.sentContext == "region")
+        var plain = ExactRun(on: false)
+        try plain.ask(framed: false)
+        #expect(plain.labels == ["generate"])
+    }
+}
