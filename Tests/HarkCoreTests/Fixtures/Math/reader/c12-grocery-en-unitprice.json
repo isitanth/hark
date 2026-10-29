@@ -1,0 +1,1074 @@
+{
+ "case": "c12-grocery-en-unitprice",
+ "document": {
+  "tables": [],
+  "lines": [
+   {
+    "text": "Harbour Market",
+    "box": [
+     0.0494,
+     0.0436,
+     0.1221,
+     0.0293
+    ]
+   },
+   {
+    "text": "a",
+    "box": [
+     0.2035,
+     0.0436,
+     0.0116,
+     0.0262
+    ]
+   },
+   {
+    "text": "rolled oats",
+    "box": [
+     0.2209,
+     0.0465,
+     0.0625,
+     0.0203
+    ]
+   },
+   {
+    "text": "Fresh",
+    "box": [
+     0.0189,
+     0.1337,
+     0.032,
+     0.0233
+    ]
+   },
+   {
+    "text": "Bakery",
+    "box": [
+     0.0693,
+     0.1327,
+     0.0402,
+     0.0265
+    ]
+   },
+   {
+    "text": "Filter by",
+    "box": [
+     0.0184,
+     0.2086,
+     0.0518,
+     0.0305
+    ]
+   },
+   {
+    "text": "Brand",
+    "box": [
+     0.0202,
+     0.2778,
+     0.0352,
+     0.0228
+    ]
+   },
+   {
+    "text": "Harbour Market",
+    "box": [
+     0.0305,
+     0.3198,
+     0.0959,
+     0.0209
+    ]
+   },
+   {
+    "text": "Dietary",
+    "box": [
+     0.0187,
+     0.3981,
+     0.0456,
+     0.0254
+    ]
+   },
+   {
+    "text": "Vegan",
+    "box": [
+     0.0274,
+     0.439,
+     0.047,
+     0.0233
+    ]
+   },
+   {
+    "text": "Wholegrain",
+    "box": [
+     0.0376,
+     0.4773,
+     0.0643,
+     0.0297
+    ]
+   },
+   {
+    "text": "Organic",
+    "box": [
+     0.0377,
+     0.52,
+     0.0451,
+     0.0268
+    ]
+   },
+   {
+    "text": "Offers",
+    "box": [
+     0.0189,
+     0.5988,
+     0.0392,
+     0.0233
+    ]
+   },
+   {
+    "text": "On offer",
+    "box": [
+     0.032,
+     0.6394,
+     0.0538,
+     0.0206
+    ]
+   },
+   {
+    "text": "Food cupboard",
+    "box": [
+     0.1279,
+     0.1333,
+     0.0872,
+     0.0208
+    ]
+   },
+   {
+    "text": "Frozen",
+    "box": [
+     0.234,
+     0.1337,
+     0.0378,
+     0.0203
+    ]
+   },
+   {
+    "text": "Drinks",
+    "box": [
+     0.2906,
+     0.1331,
+     0.0365,
+     0.0244
+    ]
+   },
+   {
+    "text": "Household",
+    "box": [
+     0.343,
+     0.1337,
+     0.0625,
+     0.0233
+    ]
+   },
+   {
+    "text": "Offers",
+    "box": [
+     0.423,
+     0.1308,
+     0.0363,
+     0.0262
+    ]
+   },
+   {
+    "text": "Groceries › Food cupboard › Cereals › Porridge & oats",
+    "box": [
+     0.1991,
+     0.2093,
+     0.2849,
+     0.0233
+    ]
+   },
+   {
+    "text": "Rolled oats 5 products",
+    "box": [
+     0.1975,
+     0.2515,
+     0.1646,
+     0.0377
+    ]
+   },
+   {
+    "text": "400g",
+    "box": [
+     0.2544,
+     0.5523,
+     0.0334,
+     0.0262
+    ]
+   },
+   {
+    "text": "Harbour Market",
+    "box": [
+     0.2093,
+     0.6424,
+     0.093,
+     0.0233
+    ]
+   },
+   {
+    "text": "Scottish Rolled Oats",
+    "box": [
+     0.2093,
+     0.674,
+     0.1177,
+     0.024
+    ]
+   },
+   {
+    "text": "400g",
+    "box": [
+     0.2093,
+     0.7064,
+     0.032,
+     0.0291
+    ]
+   },
+   {
+    "text": "(212)",
+    "box": [
+     0.2733,
+     0.7471,
+     0.0291,
+     0.0233
+    ]
+   },
+   {
+    "text": "85p",
+    "box": [
+     0.2093,
+     0.7965,
+     0.0392,
+     0.0378
+    ]
+   },
+   {
+    "text": "Add",
+    "box": [
+     0.2587,
+     0.875,
+     0.0262,
+     0.0262
+    ]
+   },
+   {
+    "text": "750g",
+    "box": [
+     0.4142,
+     0.5523,
+     0.032,
+     0.0262
+    ]
+   },
+   {
+    "text": "Harbour Market",
+    "box": [
+     0.3692,
+     0.6424,
+     0.0916,
+     0.0203
+    ]
+   },
+   {
+    "text": "Scottish Rolled Oats",
+    "box": [
+     0.3692,
+     0.674,
+     0.1177,
+     0.0208
+    ]
+   },
+   {
+    "text": "750g",
+    "box": [
+     0.3663,
+     0.7064,
+     0.032,
+     0.0262
+    ]
+   },
+   {
+    "text": "(168)",
+    "box": [
+     0.4317,
+     0.7471,
+     0.0305,
+     0.0233
+    ]
+   },
+   {
+    "text": "£1.45",
+    "box": [
+     0.3677,
+     0.7965,
+     0.0523,
+     0.0349
+    ]
+   },
+   {
+    "text": "Add",
+    "box": [
+     0.417,
+     0.8744,
+     0.0264,
+     0.0273
+    ]
+   },
+   {
+    "text": "Delivery slot",
+    "box": [
+     0.6366,
+     0.032,
+     0.0669,
+     0.0233
+    ]
+   },
+   {
+    "text": "Thu 29 Oct, 8-9am",
+    "box": [
+     0.6366,
+     0.0581,
+     0.1076,
+     0.0262
+    ]
+   },
+   {
+    "text": "Offer",
+    "box": [
+     0.6904,
+     0.3488,
+     0.0305,
+     0.0233
+    ]
+   },
+   {
+    "text": "1200g",
+    "box": [
+     0.5683,
+     0.5523,
+     0.0392,
+     0.0262
+    ]
+   },
+   {
+    "text": "1500g",
+    "box": [
+     0.7267,
+     0.5523,
+     0.0392,
+     0.0262
+    ]
+   },
+   {
+    "text": "Harbour Market",
+    "box": [
+     0.5276,
+     0.6424,
+     0.0916,
+     0.0203
+    ]
+   },
+   {
+    "text": "Scottish Rolled Oats",
+    "box": [
+     0.5276,
+     0.674,
+     0.1163,
+     0.0208
+    ]
+   },
+   {
+    "text": "1200g",
+    "box": [
+     0.5247,
+     0.7064,
+     0.0392,
+     0.0291
+    ]
+   },
+   {
+    "text": "(94)",
+    "box": [
+     0.5901,
+     0.7471,
+     0.0262,
+     0.0233
+    ]
+   },
+   {
+    "text": "£2.19",
+    "box": [
+     0.5259,
+     0.7939,
+     0.053,
+     0.0415
+    ]
+   },
+   {
+    "text": "Add",
+    "box": [
+     0.5756,
+     0.875,
+     0.0262,
+     0.0262
+    ]
+   },
+   {
+    "text": "Harbour Market",
+    "box": [
+     0.686,
+     0.6424,
+     0.0916,
+     0.0203
+    ]
+   },
+   {
+    "text": "Scottish Rolled Oats",
+    "box": [
+     0.686,
+     0.674,
+     0.1177,
+     0.0208
+    ]
+   },
+   {
+    "text": "1500g",
+    "box": [
+     0.6831,
+     0.7064,
+     0.0392,
+     0.0291
+    ]
+   },
+   {
+    "text": "(57)",
+    "box": [
+     0.7515,
+     0.7471,
+     0.0203,
+     0.0233
+    ]
+   },
+   {
+    "text": "£2.69 Was £2.99",
+    "box": [
+     0.6846,
+     0.7965,
+     0.1177,
+     0.0379
+    ]
+   },
+   {
+    "text": "Add",
+    "box": [
+     0.734,
+     0.875,
+     0.0262,
+     0.0262
+    ]
+   },
+   {
+    "text": "7 £23.40",
+    "box": [
+     0.9026,
+     0.0436,
+     0.064,
+     0.0293
+    ]
+   },
+   {
+    "text": "Sort by: Size •",
+    "box": [
+     0.8924,
+     0.2615,
+     0.0785,
+     0.0263
+    ]
+   },
+   {
+    "text": "2500g",
+    "box": [
+     0.8852,
+     0.5523,
+     0.0407,
+     0.0262
+    ]
+   },
+   {
+    "text": "Harbour Market",
+    "box": [
+     0.8445,
+     0.6424,
+     0.0916,
+     0.0203
+    ]
+   },
+   {
+    "text": "Scottish Rolled Oats",
+    "box": [
+     0.8445,
+     0.674,
+     0.1177,
+     0.0208
+    ]
+   },
+   {
+    "text": "2500g",
+    "box": [
+     0.843,
+     0.7064,
+     0.0392,
+     0.0291
+    ]
+   },
+   {
+    "text": "(131)",
+    "box": [
+     0.907,
+     0.7471,
+     0.0291,
+     0.0233
+    ]
+   },
+   {
+    "text": "£4.55",
+    "box": [
+     0.843,
+     0.7935,
+     0.0553,
+     0.0409
+    ]
+   },
+   {
+    "text": "Add",
+    "box": [
+     0.8924,
+     0.875,
+     0.0262,
+     0.0262
+    ]
+   }
+  ]
+ },
+ "crops": [],
+ "spans": {
+  "7 £23.40": [
+   [
+    0,
+    1
+   ],
+   [
+    1,
+    8
+   ]
+  ],
+  "£2.69 Was £2.99": [
+   [
+    0,
+    5
+   ],
+   [
+    9,
+    15
+   ]
+  ]
+ },
+ "expected": {
+  "cells": [
+   {
+    "id": "C1",
+    "text": "Harbour Market",
+    "table": 0,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C2",
+    "text": "a",
+    "table": 0,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C3",
+    "text": "rolled oats",
+    "table": 0,
+    "row": 0,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C4",
+    "text": "7 £23.40",
+    "table": 0,
+    "row": 0,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C5",
+    "text": "Fresh",
+    "table": 0,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C6",
+    "text": "Bakery",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C7",
+    "text": "Food cupboard",
+    "table": 0,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C8",
+    "text": "Frozen",
+    "table": 0,
+    "row": 1,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C9",
+    "text": "Drinks",
+    "table": 0,
+    "row": 1,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C10",
+    "text": "Household",
+    "table": 0,
+    "row": 1,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C11",
+    "text": "Offers",
+    "table": 0,
+    "row": 1,
+    "column": 6,
+    "uncertain": false
+   },
+   {
+    "id": "C12",
+    "text": "Filter by",
+    "table": 0,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C13",
+    "text": "Groceries › Food cupboard › Cereals › Porridge & oats",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C14",
+    "text": "Rolled oats 5 products",
+    "table": 0,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C15",
+    "text": "Sort by: Size •",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C16",
+    "text": "400g",
+    "table": 0,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C17",
+    "text": "750g",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C18",
+    "text": "1200g",
+    "table": 0,
+    "row": 4,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C19",
+    "text": "1500g",
+    "table": 0,
+    "row": 4,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C20",
+    "text": "2500g",
+    "table": 0,
+    "row": 4,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C21",
+    "text": "On offer",
+    "table": 0,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C22",
+    "text": "Harbour Market",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C23",
+    "text": "Harbour Market",
+    "table": 0,
+    "row": 5,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C24",
+    "text": "Harbour Market",
+    "table": 0,
+    "row": 5,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C25",
+    "text": "Harbour Market",
+    "table": 0,
+    "row": 5,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C26",
+    "text": "Harbour Market",
+    "table": 0,
+    "row": 5,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C27",
+    "text": "Scottish Rolled Oats",
+    "table": 0,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C28",
+    "text": "Scottish Rolled Oats",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C29",
+    "text": "Scottish Rolled Oats",
+    "table": 0,
+    "row": 6,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C30",
+    "text": "Scottish Rolled Oats",
+    "table": 0,
+    "row": 6,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C31",
+    "text": "Scottish Rolled Oats",
+    "table": 0,
+    "row": 6,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C32",
+    "text": "400g",
+    "table": 0,
+    "row": 7,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C33",
+    "text": "750g",
+    "table": 0,
+    "row": 7,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C34",
+    "text": "1200g",
+    "table": 0,
+    "row": 7,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C35",
+    "text": "1500g",
+    "table": 0,
+    "row": 7,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C36",
+    "text": "2500g",
+    "table": 0,
+    "row": 7,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C37",
+    "text": "(212)",
+    "table": 0,
+    "row": 8,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C38",
+    "text": "(168)",
+    "table": 0,
+    "row": 8,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C39",
+    "text": "(94)",
+    "table": 0,
+    "row": 8,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C40",
+    "text": "(57)",
+    "table": 0,
+    "row": 8,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C41",
+    "text": "(131)",
+    "table": 0,
+    "row": 8,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C42",
+    "text": "85p",
+    "table": 0,
+    "row": 9,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C43",
+    "text": "£1.45",
+    "table": 0,
+    "row": 9,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C44",
+    "text": "£2.19",
+    "table": 0,
+    "row": 9,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C45",
+    "text": "£2.69 Was £2.99",
+    "table": 0,
+    "row": 9,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C46",
+    "text": "£4.55",
+    "table": 0,
+    "row": 9,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C47",
+    "text": "Add",
+    "table": 0,
+    "row": 10,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C48",
+    "text": "Add",
+    "table": 0,
+    "row": 10,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C49",
+    "text": "Add",
+    "table": 0,
+    "row": 10,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C50",
+    "text": "Add",
+    "table": 0,
+    "row": 10,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C51",
+    "text": "Add",
+    "table": 0,
+    "row": 10,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C52",
+    "text": "Delivery slot",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C53",
+    "text": "Thu 29 Oct, 8-9am",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C54",
+    "text": "Brand",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C55",
+    "text": "Harbour Market",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C56",
+    "text": "Offer",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C57",
+    "text": "Dietary",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C58",
+    "text": "Vegan",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C59",
+    "text": "Wholegrain",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C60",
+    "text": "Organic",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C61",
+    "text": "Offers",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   }
+  ],
+  "listing": "Table 1:\nR1: C1 \"Harbour Market\" | C2 \"a\" | C3 \"rolled oats\" | C4 \"7 £23.40\"\nR2: C5 \"Fresh\" | C6 \"Bakery\" | C7 \"Food cupboard\" | C8 \"Frozen\" | C9 \"Drinks\" | C10 \"Household\" | C11 \"Offers\"\nR3: C12 \"Filter by\" | C13 \"Groceries › Food cupboard › Cereals › Porridge & oats\"\nR4: C14 \"Rolled oats 5 products\" | C15 \"Sort by: Size •\"\nR5: C16 \"400g\" | C17 \"750g\" | C18 \"1200g\" | C19 \"1500g\" | C20 \"2500g\"\nR6: C21 \"On offer\" | C22 \"Harbour Market\" | C23 \"Harbour Market\" | C24 \"Harbour Market\" | C25 \"Harbour Market\" | C26 \"Harbour Market\"\nR7: C27 \"Scottish Rolled Oats\" | C28 \"Scottish Rolled Oats\" | C29 \"Scottish Rolled Oats\" | C30 \"Scottish Rolled Oats\" | C31 \"Scottish Rolled Oats\"\nR8: C32 \"400g\" | C33 \"750g\" | C34 \"1200g\" | C35 \"1500g\" | C36 \"2500g\"\nR9: C37 \"(212)\" | C38 \"(168)\" | C39 \"(94)\" | C40 \"(57)\" | C41 \"(131)\"\nR10: C42 \"85p\" | C43 \"£1.45\" | C44 \"£2.19\" | C45 \"£2.69 Was £2.99\" | C46 \"£4.55\"\nR11: C47 \"Add\" | C48 \"Add\" | C49 \"Add\" | C50 \"Add\" | C51 \"Add\"\nOther text:\nC52 \"Delivery slot\"\nC53 \"Thu 29 Oct, 8-9am\"\nC54 \"Brand\"\nC55 \"Harbour Market\"\nC56 \"Offer\"\nC57 \"Dietary\"\nC58 \"Vegan\"\nC59 \"Wholegrain\"\nC60 \"Organic\"\nC61 \"Offers\"",
+  "splitListing": "Table 1:\nR1: C1 \"Harbour Market\" | C2 \"a\" | C3 \"rolled oats\" | C4 \"7\" | C5 \"£23.40\"\nR2: C6 \"Fresh\" | C7 \"Bakery\" | C8 \"Food cupboard\" | C9 \"Frozen\" | C10 \"Drinks\" | C11 \"Household\" | C12 \"Offers\"\nR3: C13 \"Filter by\" | C14 \"Groceries › Food cupboard › Cereals › Porridge & oats\"\nR4: C15 \"Rolled oats 5 products\" | C16 \"Sort by: Size •\"\nR5: C17 \"400g\" | C18 \"750g\" | C19 \"1200g\" | C20 \"1500g\" | C21 \"2500g\"\nR6: C22 \"On offer\" | C23 \"Harbour Market\" | C24 \"Harbour Market\" | C25 \"Harbour Market\" | C26 \"Harbour Market\" | C27 \"Harbour Market\"\nR7: C28 \"Scottish Rolled Oats\" | C29 \"Scottish Rolled Oats\" | C30 \"Scottish Rolled Oats\" | C31 \"Scottish Rolled Oats\" | C32 \"Scottish Rolled Oats\"\nR8: C33 \"400g\" | C34 \"750g\" | C35 \"1200g\" | C36 \"1500g\" | C37 \"2500g\"\nR9: C38 \"(212)\" | C39 \"(168)\" | C40 \"(94)\" | C41 \"(57)\" | C42 \"(131)\"\nR10: C43 \"85p\" | C44 \"£1.45\" | C45 \"£2.19\" | C46 \"£2.69\" | C47 \"Was £2.99\" | C48 \"£4.55\"\nR11: C49 \"Add\" | C50 \"Add\" | C51 \"Add\" | C52 \"Add\" | C53 \"Add\"\nOther text:\nC54 \"Delivery slot\"\nC55 \"Thu 29 Oct, 8-9am\"\nC56 \"Brand\"\nC57 \"Harbour Market\"\nC58 \"Offer\"\nC59 \"Dietary\"\nC60 \"Vegan\"\nC61 \"Wholegrain\"\nC62 \"Organic\"\nC63 \"Offers\""
+ }
+}

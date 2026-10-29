@@ -1,0 +1,2268 @@
+{
+ "case": "c06-saas-dark-seats",
+ "document": {
+  "tables": [
+   {
+    "box": [
+     0.2375,
+     0.3714,
+     0.7292,
+     0.55
+    ],
+    "cells": [
+     {
+      "r": 0,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Team",
+      "box": [
+       0.2375,
+       0.3714,
+       0.175,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Team",
+        "box": [
+         0.2485,
+         0.395,
+         0.0334,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Plan",
+      "box": [
+       0.4125,
+       0.3714,
+       0.1677,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Plan",
+        "box": [
+         0.4622,
+         0.395,
+         0.0276,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Seats",
+      "box": [
+       0.5802,
+       0.3714,
+       0.1021,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Seats",
+        "box": [
+         0.606,
+         0.3943,
+         0.0337,
+         0.0213
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Price / seat / month",
+      "box": [
+       0.6823,
+       0.3714,
+       0.1458,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Price / seat / month",
+        "box": [
+         0.6991,
+         0.3948,
+         0.1105,
+         0.0229
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Status",
+      "box": [
+       0.8281,
+       0.3714,
+       0.1385,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Status",
+        "box": [
+         0.8546,
+         0.3945,
+         0.0394,
+         0.021
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Engineering",
+      "box": [
+       0.2375,
+       0.4319,
+       0.175,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Engineering",
+        "box": [
+         0.2805,
+         0.4522,
+         0.0742,
+         0.0256
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Pro",
+      "box": [
+       0.4125,
+       0.4319,
+       0.1677,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Pro",
+        "box": [
+         0.468,
+         0.455,
+         0.0247,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "28",
+      "box": [
+       0.5802,
+       0.4319,
+       0.1021,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "28",
+        "box": [
+         0.6206,
+         0.4525,
+         0.0189,
+         0.0225
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$19.50",
+      "box": [
+       0.6823,
+       0.4319,
+       0.1458,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "$19.50",
+        "box": [
+         0.7645,
+         0.4523,
+         0.0451,
+         0.0254
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Active",
+      "box": [
+       0.8281,
+       0.4319,
+       0.1385,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "• Active",
+        "box": [
+         0.8532,
+         0.455,
+         0.0538,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Product Design",
+      "box": [
+       0.2375,
+       0.4924,
+       0.175,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "Product Design",
+        "box": [
+         0.2805,
+         0.5146,
+         0.0959,
+         0.0254
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Pro",
+      "box": [
+       0.4125,
+       0.4924,
+       0.1677,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "Pro",
+        "box": [
+         0.4695,
+         0.5175,
+         0.0233,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "9",
+      "box": [
+       0.5802,
+       0.4924,
+       0.1021,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "9",
+        "box": [
+         0.6294,
+         0.515,
+         0.0102,
+         0.0225
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$19.50",
+      "box": [
+       0.6823,
+       0.4924,
+       0.1458,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "$19.50",
+        "box": [
+         0.7644,
+         0.5145,
+         0.0452,
+         0.0259
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Active",
+      "box": [
+       0.8281,
+       0.4924,
+       0.1385,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "• Active",
+        "box": [
+         0.8532,
+         0.5175,
+         0.0538,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Customer Support",
+      "box": [
+       0.2375,
+       0.5584,
+       0.175,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Customer Support",
+        "box": [
+         0.2805,
+         0.5771,
+         0.1148,
+         0.0254
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Starter",
+      "box": [
+       0.4125,
+       0.5584,
+       0.1677,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Starter",
+        "box": [
+         0.4708,
+         0.5793,
+         0.0438,
+         0.0213
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "14",
+      "box": [
+       0.5802,
+       0.5584,
+       0.1021,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "14",
+        "box": [
+         0.6221,
+         0.5775,
+         0.0174,
+         0.0225
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$9.00",
+      "box": [
+       0.6823,
+       0.5584,
+       0.1458,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "$9.00",
+        "box": [
+         0.7718,
+         0.5774,
+         0.0378,
+         0.0226
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Active",
+      "box": [
+       0.8281,
+       0.5584,
+       0.1385,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "• Active",
+        "box": [
+         0.8547,
+         0.58,
+         0.0509,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Sales EMEA",
+      "box": [
+       0.2375,
+       0.6189,
+       0.175,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Sales EMEA",
+        "box": [
+         0.2805,
+         0.6398,
+         0.0727,
+         0.0229
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Pro",
+      "box": [
+       0.4125,
+       0.6189,
+       0.1677,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Pro",
+        "box": [
+         0.4695,
+         0.6425,
+         0.0233,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "11",
+      "box": [
+       0.5802,
+       0.6189,
+       0.1021,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "11",
+        "box": [
+         0.6221,
+         0.64,
+         0.016,
+         0.0225
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$19.50",
+      "box": [
+       0.6823,
+       0.6189,
+       0.1458,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "$19.50",
+        "box": [
+         0.7645,
+         0.6398,
+         0.0451,
+         0.0254
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Cancelled",
+      "box": [
+       0.8281,
+       0.6189,
+       0.1385,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "• Cancelled",
+        "box": [
+         0.8547,
+         0.6425,
+         0.0727,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Data Platform",
+      "box": [
+       0.2375,
+       0.6794,
+       0.175,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Data Platform",
+        "box": [
+         0.2791,
+         0.7021,
+         0.0872,
+         0.0229
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Enterprise",
+      "box": [
+       0.4125,
+       0.6794,
+       0.1677,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Enterprise",
+        "box": [
+         0.4709,
+         0.7043,
+         0.0612,
+         0.0213
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "6",
+      "box": [
+       0.5802,
+       0.6794,
+       0.1021,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "6",
+        "box": [
+         0.6294,
+         0.7,
+         0.0102,
+         0.025
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$38.75",
+      "box": [
+       0.6823,
+       0.6794,
+       0.1458,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "$38.75",
+        "box": [
+         0.7645,
+         0.7022,
+         0.0452,
+         0.0231
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Active",
+      "box": [
+       0.8281,
+       0.6794,
+       0.1385,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "• Active",
+        "box": [
+         0.8532,
+         0.705,
+         0.0523,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Marketing",
+      "box": [
+       0.2375,
+       0.7399,
+       0.175,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "Marketing",
+        "box": [
+         0.2802,
+         0.7633,
+         0.0632,
+         0.0249
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Starter",
+      "box": [
+       0.4125,
+       0.7399,
+       0.1677,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "Starter",
+        "box": [
+         0.4707,
+         0.7659,
+         0.0441,
+         0.0232
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "8",
+      "box": [
+       0.5802,
+       0.7399,
+       0.1021,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "8",
+        "box": [
+         0.6294,
+         0.765,
+         0.0102,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$9.00",
+      "box": [
+       0.6823,
+       0.7399,
+       0.1458,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "$9.00",
+        "box": [
+         0.7717,
+         0.7645,
+         0.038,
+         0.0236
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Cancelled",
+      "box": [
+       0.8281,
+       0.7399,
+       0.1385,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "• Cancelled",
+        "box": [
+         0.8546,
+         0.7647,
+         0.0727,
+         0.0231
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Finance & Ops",
+      "box": [
+       0.2375,
+       0.8059,
+       0.175,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Finance & Ops",
+        "box": [
+         0.2805,
+         0.8271,
+         0.0901,
+         0.0254
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Starter",
+      "box": [
+       0.4125,
+       0.8059,
+       0.1677,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "Starter",
+        "box": [
+         0.4709,
+         0.83,
+         0.0422,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "5",
+      "box": [
+       0.5802,
+       0.8059,
+       0.1021,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "5",
+        "box": [
+         0.6308,
+         0.8275,
+         0.0087,
+         0.02
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$9.00",
+      "box": [
+       0.6823,
+       0.8059,
+       0.1458,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "$9.00",
+        "box": [
+         0.7718,
+         0.8274,
+         0.0378,
+         0.0227
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Active",
+      "box": [
+       0.8281,
+       0.8059,
+       0.1385,
+       0.0605
+      ],
+      "lines": [
+       {
+        "text": "• Active",
+        "box": [
+         0.8546,
+         0.8271,
+         0.0524,
+         0.0233
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Security",
+      "box": [
+       0.2375,
+       0.8664,
+       0.175,
+       0.055
+      ],
+      "lines": [
+       {
+        "text": "Security",
+        "box": [
+         0.2805,
+         0.89,
+         0.0523,
+         0.025
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Enterprise",
+      "box": [
+       0.4125,
+       0.8664,
+       0.1677,
+       0.055
+      ],
+      "lines": [
+       {
+        "text": "Enterprise",
+        "box": [
+         0.4709,
+         0.8898,
+         0.0611,
+         0.023
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.5802,
+       0.8664,
+       0.1021,
+       0.055
+      ],
+      "lines": []
+     },
+     {
+      "r": 8,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "$38.75",
+      "box": [
+       0.6823,
+       0.8664,
+       0.1458,
+       0.055
+      ],
+      "lines": [
+       {
+        "text": "$38.75",
+        "box": [
+         0.7645,
+         0.8875,
+         0.0451,
+         0.025
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Active",
+      "box": [
+       0.8281,
+       0.8664,
+       0.1385,
+       0.055
+      ],
+      "lines": [
+       {
+        "text": "• Active",
+        "box": [
+         0.8532,
+         0.8899,
+         0.0538,
+         0.0227
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "lines": [
+   {
+    "text": "H",
+    "box": [
+     0.0262,
+     0.055,
+     0.0131,
+     0.0225
+    ]
+   },
+   {
+    "text": "Halden Labs",
+    "box": [
+     0.0552,
+     0.0425,
+     0.0828,
+     0.0225
+    ]
+   },
+   {
+    "text": "Workspace settings",
+    "box": [
+     0.0565,
+     0.0688,
+     0.1065,
+     0.0243
+    ]
+   },
+   {
+    "text": "Billing & seats",
+    "box": [
+     0.2331,
+     0.048,
+     0.1379,
+     0.0469
+    ]
+   },
+   {
+    "text": "Billed monthly in USD • renews Nov 1, 2026",
+    "box": [
+     0.234,
+     0.1021,
+     0.2573,
+     0.0304
+    ]
+   },
+   {
+    "text": "ORGANIZATION",
+    "box": [
+     0.0203,
+     0.15,
+     0.0872,
+     0.02
+    ]
+   },
+   {
+    "text": "Overview",
+    "box": [
+     0.0203,
+     0.1973,
+     0.0582,
+     0.0229
+    ]
+   },
+   {
+    "text": "Members",
+    "box": [
+     0.0203,
+     0.25,
+     0.0581,
+     0.0225
+    ]
+   },
+   {
+    "text": "Teams",
+    "box": [
+     0.0203,
+     0.3025,
+     0.0407,
+     0.0225
+    ]
+   },
+   {
+    "text": "Billing & seats",
+    "box": [
+     0.0203,
+     0.355,
+     0.0901,
+     0.0252
+    ]
+   },
+   {
+    "text": "ADMIN",
+    "box": [
+     0.0203,
+     0.4196,
+     0.0394,
+     0.0208
+    ]
+   },
+   {
+    "text": "Security",
+    "box": [
+     0.0203,
+     0.4675,
+     0.0509,
+     0.025
+    ]
+   },
+   {
+    "text": "Audit log",
+    "box": [
+     0.0202,
+     0.5197,
+     0.0542,
+     0.0244
+    ]
+   },
+   {
+    "text": "API tokens",
+    "box": [
+     0.0203,
+     0.5725,
+     0.0654,
+     0.0225
+    ]
+   },
+   {
+    "text": "Active seats",
+    "box": [
+     0.25,
+     0.185,
+     0.0669,
+     0.0175
+    ]
+   },
+   {
+    "text": "65",
+    "box": [
+     0.25,
+     0.22,
+     0.0233,
+     0.03
+    ]
+   },
+   {
+    "text": "Billing cycle",
+    "box": [
+     0.4971,
+     0.185,
+     0.0669,
+     0.0225
+    ]
+   },
+   {
+    "text": "Monthly",
+    "box": [
+     0.4985,
+     0.22,
+     0.0698,
+     0.0325
+    ]
+   },
+   {
+    "text": "Seats by team",
+    "box": [
+     0.234,
+     0.325,
+     0.0988,
+     0.025
+    ]
+   },
+   {
+    "text": "Team",
+    "box": [
+     0.2485,
+     0.395,
+     0.0334,
+     0.02
+    ]
+   },
+   {
+    "text": "Plan",
+    "box": [
+     0.4622,
+     0.395,
+     0.0276,
+     0.02
+    ]
+   },
+   {
+    "text": "Seats",
+    "box": [
+     0.606,
+     0.3943,
+     0.0337,
+     0.0213
+    ]
+   },
+   {
+    "text": "Price / seat / month",
+    "box": [
+     0.6991,
+     0.3948,
+     0.1105,
+     0.0229
+    ]
+   },
+   {
+    "text": "Status",
+    "box": [
+     0.8546,
+     0.3945,
+     0.0394,
+     0.021
+    ]
+   },
+   {
+    "text": "Engineering",
+    "box": [
+     0.2805,
+     0.4522,
+     0.0742,
+     0.0256
+    ]
+   },
+   {
+    "text": "Pro",
+    "box": [
+     0.468,
+     0.455,
+     0.0247,
+     0.02
+    ]
+   },
+   {
+    "text": "28",
+    "box": [
+     0.6206,
+     0.4525,
+     0.0189,
+     0.0225
+    ]
+   },
+   {
+    "text": "$19.50",
+    "box": [
+     0.7645,
+     0.4523,
+     0.0451,
+     0.0254
+    ]
+   },
+   {
+    "text": "• Active",
+    "box": [
+     0.8532,
+     0.455,
+     0.0538,
+     0.02
+    ]
+   },
+   {
+    "text": "Product Design",
+    "box": [
+     0.2805,
+     0.5146,
+     0.0959,
+     0.0254
+    ]
+   },
+   {
+    "text": "Pro",
+    "box": [
+     0.4695,
+     0.5175,
+     0.0233,
+     0.02
+    ]
+   },
+   {
+    "text": "9",
+    "box": [
+     0.6294,
+     0.515,
+     0.0102,
+     0.0225
+    ]
+   },
+   {
+    "text": "$19.50",
+    "box": [
+     0.7644,
+     0.5145,
+     0.0452,
+     0.0259
+    ]
+   },
+   {
+    "text": "• Active",
+    "box": [
+     0.8532,
+     0.5175,
+     0.0538,
+     0.02
+    ]
+   },
+   {
+    "text": "Customer Support",
+    "box": [
+     0.2805,
+     0.5771,
+     0.1148,
+     0.0254
+    ]
+   },
+   {
+    "text": "Starter",
+    "box": [
+     0.4708,
+     0.5793,
+     0.0438,
+     0.0213
+    ]
+   },
+   {
+    "text": "14",
+    "box": [
+     0.6221,
+     0.5775,
+     0.0174,
+     0.0225
+    ]
+   },
+   {
+    "text": "$9.00",
+    "box": [
+     0.7718,
+     0.5774,
+     0.0378,
+     0.0226
+    ]
+   },
+   {
+    "text": "• Active",
+    "box": [
+     0.8547,
+     0.58,
+     0.0509,
+     0.02
+    ]
+   },
+   {
+    "text": "Sales EMEA",
+    "box": [
+     0.2805,
+     0.6398,
+     0.0727,
+     0.0229
+    ]
+   },
+   {
+    "text": "Pro",
+    "box": [
+     0.4695,
+     0.6425,
+     0.0233,
+     0.02
+    ]
+   },
+   {
+    "text": "11",
+    "box": [
+     0.6221,
+     0.64,
+     0.016,
+     0.0225
+    ]
+   },
+   {
+    "text": "$19.50",
+    "box": [
+     0.7645,
+     0.6398,
+     0.0451,
+     0.0254
+    ]
+   },
+   {
+    "text": "• Cancelled",
+    "box": [
+     0.8547,
+     0.6425,
+     0.0727,
+     0.02
+    ]
+   },
+   {
+    "text": "Data Platform",
+    "box": [
+     0.2791,
+     0.7021,
+     0.0872,
+     0.0229
+    ]
+   },
+   {
+    "text": "Enterprise",
+    "box": [
+     0.4709,
+     0.7043,
+     0.0612,
+     0.0213
+    ]
+   },
+   {
+    "text": "6",
+    "box": [
+     0.6294,
+     0.7,
+     0.0102,
+     0.025
+    ]
+   },
+   {
+    "text": "$38.75",
+    "box": [
+     0.7645,
+     0.7022,
+     0.0452,
+     0.0231
+    ]
+   },
+   {
+    "text": "• Active",
+    "box": [
+     0.8532,
+     0.705,
+     0.0523,
+     0.02
+    ]
+   },
+   {
+    "text": "Marketing",
+    "box": [
+     0.2802,
+     0.7633,
+     0.0632,
+     0.0249
+    ]
+   },
+   {
+    "text": "Starter",
+    "box": [
+     0.4707,
+     0.7659,
+     0.0441,
+     0.0232
+    ]
+   },
+   {
+    "text": "8",
+    "box": [
+     0.6294,
+     0.765,
+     0.0102,
+     0.02
+    ]
+   },
+   {
+    "text": "$9.00",
+    "box": [
+     0.7717,
+     0.7645,
+     0.038,
+     0.0236
+    ]
+   },
+   {
+    "text": "• Cancelled",
+    "box": [
+     0.8546,
+     0.7647,
+     0.0727,
+     0.0231
+    ]
+   },
+   {
+    "text": "Finance & Ops",
+    "box": [
+     0.2805,
+     0.8271,
+     0.0901,
+     0.0254
+    ]
+   },
+   {
+    "text": "Starter",
+    "box": [
+     0.4709,
+     0.83,
+     0.0422,
+     0.02
+    ]
+   },
+   {
+    "text": "5",
+    "box": [
+     0.6308,
+     0.8275,
+     0.0087,
+     0.02
+    ]
+   },
+   {
+    "text": "$9.00",
+    "box": [
+     0.7718,
+     0.8274,
+     0.0378,
+     0.0227
+    ]
+   },
+   {
+    "text": "• Active",
+    "box": [
+     0.8546,
+     0.8271,
+     0.0524,
+     0.0233
+    ]
+   },
+   {
+    "text": "Security",
+    "box": [
+     0.2805,
+     0.89,
+     0.0523,
+     0.025
+    ]
+   },
+   {
+    "text": "Enterprise",
+    "box": [
+     0.4709,
+     0.8898,
+     0.0611,
+     0.023
+    ]
+   },
+   {
+    "text": "$38.75",
+    "box": [
+     0.7645,
+     0.8875,
+     0.0451,
+     0.025
+    ]
+   },
+   {
+    "text": "• Active",
+    "box": [
+     0.8532,
+     0.8899,
+     0.0538,
+     0.0227
+    ]
+   },
+   {
+    "text": "Next renewal",
+    "box": [
+     0.7456,
+     0.185,
+     0.0741,
+     0.0202
+    ]
+   },
+   {
+    "text": "Nov 1, 2026",
+    "box": [
+     0.747,
+     0.2171,
+     0.1048,
+     0.0433
+    ]
+   },
+   {
+    "text": "+ Add team",
+    "box": [
+     0.8895,
+     0.325,
+     0.0698,
+     0.0177
+    ]
+   }
+  ]
+ },
+ "crops": [
+  {
+   "box": [
+    0.5802,
+    0.8899,
+    0.1021,
+    0.02290000000000003
+   ],
+   "rung": 0,
+   "text": ""
+  },
+  {
+   "box": [
+    0.5802,
+    0.8899,
+    0.1021,
+    0.02290000000000003
+   ],
+   "rung": 1,
+   "text": ""
+  },
+  {
+   "box": [
+    0.5802,
+    0.8899,
+    0.1021,
+    0.02290000000000003
+   ],
+   "rung": 2,
+   "text": ""
+  },
+  {
+   "box": [
+    0.5802,
+    0.8899,
+    0.1021,
+    0.02290000000000003
+   ],
+   "rung": 3,
+   "text": "3"
+  }
+ ],
+ "spans": {},
+ "expected": {
+  "cells": [
+   {
+    "id": "C1",
+    "text": "Team",
+    "table": 0,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C2",
+    "text": "Plan",
+    "table": 0,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C3",
+    "text": "Seats",
+    "table": 0,
+    "row": 0,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C4",
+    "text": "Price / seat / month",
+    "table": 0,
+    "row": 0,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C5",
+    "text": "Status",
+    "table": 0,
+    "row": 0,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C6",
+    "text": "Engineering",
+    "table": 0,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C7",
+    "text": "Pro",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C8",
+    "text": "28",
+    "table": 0,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C9",
+    "text": "$19.50",
+    "table": 0,
+    "row": 1,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C10",
+    "text": "• Active",
+    "table": 0,
+    "row": 1,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C11",
+    "text": "Product Design",
+    "table": 0,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C12",
+    "text": "Pro",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C13",
+    "text": "9",
+    "table": 0,
+    "row": 2,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C14",
+    "text": "$19.50",
+    "table": 0,
+    "row": 2,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C15",
+    "text": "• Active",
+    "table": 0,
+    "row": 2,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C16",
+    "text": "Customer Support",
+    "table": 0,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C17",
+    "text": "Starter",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C18",
+    "text": "14",
+    "table": 0,
+    "row": 3,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C19",
+    "text": "$9.00",
+    "table": 0,
+    "row": 3,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C20",
+    "text": "• Active",
+    "table": 0,
+    "row": 3,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C21",
+    "text": "Sales EMEA",
+    "table": 0,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C22",
+    "text": "Pro",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C23",
+    "text": "11",
+    "table": 0,
+    "row": 4,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C24",
+    "text": "$19.50",
+    "table": 0,
+    "row": 4,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C25",
+    "text": "• Cancelled",
+    "table": 0,
+    "row": 4,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C26",
+    "text": "Data Platform",
+    "table": 0,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C27",
+    "text": "Enterprise",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C28",
+    "text": "6",
+    "table": 0,
+    "row": 5,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C29",
+    "text": "$38.75",
+    "table": 0,
+    "row": 5,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C30",
+    "text": "• Active",
+    "table": 0,
+    "row": 5,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C31",
+    "text": "Marketing",
+    "table": 0,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C32",
+    "text": "Starter",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C33",
+    "text": "8",
+    "table": 0,
+    "row": 6,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C34",
+    "text": "$9.00",
+    "table": 0,
+    "row": 6,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C35",
+    "text": "• Cancelled",
+    "table": 0,
+    "row": 6,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C36",
+    "text": "Finance & Ops",
+    "table": 0,
+    "row": 7,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C37",
+    "text": "Starter",
+    "table": 0,
+    "row": 7,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C38",
+    "text": "5",
+    "table": 0,
+    "row": 7,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C39",
+    "text": "$9.00",
+    "table": 0,
+    "row": 7,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C40",
+    "text": "• Active",
+    "table": 0,
+    "row": 7,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C41",
+    "text": "Security",
+    "table": 0,
+    "row": 8,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C42",
+    "text": "Enterprise",
+    "table": 0,
+    "row": 8,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C43",
+    "text": "3",
+    "table": 0,
+    "row": 8,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C44",
+    "text": "$38.75",
+    "table": 0,
+    "row": 8,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C45",
+    "text": "• Active",
+    "table": 0,
+    "row": 8,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C46",
+    "text": "H",
+    "table": 1,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C47",
+    "text": "Billing & seats",
+    "table": 1,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C48",
+    "text": "Active seats",
+    "table": 1,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C49",
+    "text": "Billing cycle",
+    "table": 1,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C50",
+    "text": "Next renewal",
+    "table": 1,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C51",
+    "text": "65",
+    "table": 1,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C52",
+    "text": "Monthly",
+    "table": 1,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C53",
+    "text": "Nov 1, 2026",
+    "table": 1,
+    "row": 2,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C54",
+    "text": "Seats by team",
+    "table": 1,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C55",
+    "text": "+ Add team",
+    "table": 1,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C56",
+    "text": "Halden Labs",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C57",
+    "text": "Workspace settings",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C58",
+    "text": "Billed monthly in USD • renews Nov 1, 2026",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C59",
+    "text": "ORGANIZATION",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C60",
+    "text": "Overview",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C61",
+    "text": "Members",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C62",
+    "text": "Teams",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C63",
+    "text": "Billing & seats",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C64",
+    "text": "ADMIN",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C65",
+    "text": "Security",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C66",
+    "text": "Audit log",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C67",
+    "text": "API tokens",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   }
+  ],
+  "listing": "Table 1:\nR1: C1 \"Team\" | C2 \"Plan\" | C3 \"Seats\" | C4 \"Price / seat / month\" | C5 \"Status\"\nR2: C6 \"Engineering\" | C7 \"Pro\" | C8 \"28\" | C9 \"$19.50\" | C10 \"• Active\"\nR3: C11 \"Product Design\" | C12 \"Pro\" | C13 \"9\" | C14 \"$19.50\" | C15 \"• Active\"\nR4: C16 \"Customer Support\" | C17 \"Starter\" | C18 \"14\" | C19 \"$9.00\" | C20 \"• Active\"\nR5: C21 \"Sales EMEA\" | C22 \"Pro\" | C23 \"11\" | C24 \"$19.50\" | C25 \"• Cancelled\"\nR6: C26 \"Data Platform\" | C27 \"Enterprise\" | C28 \"6\" | C29 \"$38.75\" | C30 \"• Active\"\nR7: C31 \"Marketing\" | C32 \"Starter\" | C33 \"8\" | C34 \"$9.00\" | C35 \"• Cancelled\"\nR8: C36 \"Finance & Ops\" | C37 \"Starter\" | C38 \"5\" | C39 \"$9.00\" | C40 \"• Active\"\nR9: C41 \"Security\" | C42 \"Enterprise\" | C43 \"3\" | C44 \"$38.75\" | C45 \"• Active\"\nTable 2:\nR1: C46 \"H\" | C47 \"Billing & seats\"\nR2: C48 \"Active seats\" | C49 \"Billing cycle\" | C50 \"Next renewal\"\nR3: C51 \"65\" | C52 \"Monthly\" | C53 \"Nov 1, 2026\"\nR4: C54 \"Seats by team\" | C55 \"+ Add team\"\nOther text:\nC56 \"Halden Labs\"\nC57 \"Workspace settings\"\nC58 \"Billed monthly in USD • renews Nov 1, 2026\"\nC59 \"ORGANIZATION\"\nC60 \"Overview\"\nC61 \"Members\"\nC62 \"Teams\"\nC63 \"Billing & seats\"\nC64 \"ADMIN\"\nC65 \"Security\"\nC66 \"Audit log\"\nC67 \"API tokens\"",
+  "splitListing": "Table 1:\nR1: C1 \"Team\" | C2 \"Plan\" | C3 \"Seats\" | C4 \"Price / seat / month\" | C5 \"Status\"\nR2: C6 \"Engineering\" | C7 \"Pro\" | C8 \"28\" | C9 \"$19.50\" | C10 \"• Active\"\nR3: C11 \"Product Design\" | C12 \"Pro\" | C13 \"9\" | C14 \"$19.50\" | C15 \"• Active\"\nR4: C16 \"Customer Support\" | C17 \"Starter\" | C18 \"14\" | C19 \"$9.00\" | C20 \"• Active\"\nR5: C21 \"Sales EMEA\" | C22 \"Pro\" | C23 \"11\" | C24 \"$19.50\" | C25 \"• Cancelled\"\nR6: C26 \"Data Platform\" | C27 \"Enterprise\" | C28 \"6\" | C29 \"$38.75\" | C30 \"• Active\"\nR7: C31 \"Marketing\" | C32 \"Starter\" | C33 \"8\" | C34 \"$9.00\" | C35 \"• Cancelled\"\nR8: C36 \"Finance & Ops\" | C37 \"Starter\" | C38 \"5\" | C39 \"$9.00\" | C40 \"• Active\"\nR9: C41 \"Security\" | C42 \"Enterprise\" | C43 \"3\" | C44 \"$38.75\" | C45 \"• Active\"\nTable 2:\nR1: C46 \"H\" | C47 \"Billing & seats\"\nR2: C48 \"Active seats\" | C49 \"Billing cycle\" | C50 \"Next renewal\"\nR3: C51 \"65\" | C52 \"Monthly\" | C53 \"Nov 1, 2026\"\nR4: C54 \"Seats by team\" | C55 \"+ Add team\"\nOther text:\nC56 \"Halden Labs\"\nC57 \"Workspace settings\"\nC58 \"Billed monthly in USD • renews Nov 1, 2026\"\nC59 \"ORGANIZATION\"\nC60 \"Overview\"\nC61 \"Members\"\nC62 \"Teams\"\nC63 \"Billing & seats\"\nC64 \"ADMIN\"\nC65 \"Security\"\nC66 \"Audit log\"\nC67 \"API tokens\""
+ }
+}

@@ -1,0 +1,2242 @@
+{
+ "case": "c11-utility-fr-percent",
+ "document": {
+  "tables": [
+   {
+    "box": [
+     0.2333,
+     0.5896,
+     0.7292,
+     0.3295
+    ],
+    "cells": [
+     {
+      "r": 0,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mois",
+      "box": [
+       0.2333,
+       0.5896,
+       0.1458,
+       0.056
+      ],
+      "lines": [
+       {
+        "text": "Mois",
+        "box": [
+         0.2489,
+         0.6125,
+         0.036,
+         0.0229
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Période",
+      "box": [
+       0.3792,
+       0.5896,
+       0.1677,
+       0.056
+      ],
+      "lines": [
+       {
+        "text": "Période",
+        "box": [
+         0.4048,
+         0.6187,
+         0.048,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Consommation",
+      "box": [
+       0.5469,
+       0.5896,
+       0.1312,
+       0.056
+      ],
+      "lines": [
+       {
+        "text": "Consommation",
+        "box": [
+         0.5622,
+         0.6187,
+         0.09,
+         0.0146
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Montant TTC",
+      "box": [
+       0.6781,
+       0.5896,
+       0.1021,
+       0.056
+      ],
+      "lines": [
+       {
+        "text": "Montant TTC",
+        "box": [
+         0.6927,
+         0.6187,
+         0.0765,
+         0.0146
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Statut",
+      "box": [
+       0.7802,
+       0.5896,
+       0.0875,
+       0.056
+      ],
+      "lines": [
+       {
+        "text": "Statut",
+        "box": [
+         0.7885,
+         0.6184,
+         0.0391,
+         0.0174
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 5,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Facture",
+      "box": [
+       0.8677,
+       0.5896,
+       0.0948,
+       0.056
+      ],
+      "lines": [
+       {
+        "text": "Facture",
+        "box": [
+         0.8943,
+         0.616,
+         0.0463,
+         0.0213
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Octobre 2026",
+      "box": [
+       0.2333,
+       0.6456,
+       0.1458,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Octobre 2026",
+        "box": [
+         0.2504,
+         0.6583,
+         0.0915,
+         0.0229
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "01/10 - 31/10",
+      "box": [
+       0.3792,
+       0.6456,
+       0.1677,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "01/10 - 31/10",
+        "box": [
+         0.4048,
+         0.6625,
+         0.081,
+         0.0187
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "412 kWh",
+      "box": [
+       0.5469,
+       0.6456,
+       0.1312,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "412 kWh",
+        "box": [
+         0.5937,
+         0.6604,
+         0.057,
+         0.0187
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "96,85 €",
+      "box": [
+       0.6781,
+       0.6456,
+       0.1021,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "96,85 €",
+        "box": [
+         0.7181,
+         0.6604,
+         0.051,
+         0.025
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "A payer",
+      "box": [
+       0.7802,
+       0.6456,
+       0.0875,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "A payer",
+        "box": [
+         0.7969,
+         0.6614,
+         0.0459,
+         0.0196
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 5,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "PDF",
+      "box": [
+       0.8677,
+       0.6456,
+       0.0948,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "PDF",
+        "box": [
+         0.904,
+         0.6625,
+         0.0255,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Septembre 2026",
+      "box": [
+       0.2333,
+       0.6917,
+       0.1458,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Septembre 2026",
+        "box": [
+         0.2504,
+         0.7021,
+         0.1124,
+         0.025
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "01/09 - 30/09",
+      "box": [
+       0.3792,
+       0.6917,
+       0.1677,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "01/09 - 30/09",
+        "box": [
+         0.4047,
+         0.7058,
+         0.0871,
+         0.0216
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "318 kWh",
+      "box": [
+       0.5469,
+       0.6917,
+       0.1312,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "318 kWh",
+        "box": [
+         0.5952,
+         0.706,
+         0.0556,
+         0.0192
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "74,18 €",
+      "box": [
+       0.6781,
+       0.6917,
+       0.1021,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "74,18 €",
+        "box": [
+         0.7181,
+         0.7062,
+         0.051,
+         0.0229
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Payée",
+      "box": [
+       0.7802,
+       0.6917,
+       0.0875,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Payée",
+        "box": [
+         0.7961,
+         0.7062,
+         0.036,
+         0.0187
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 5,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "PDF",
+      "box": [
+       0.8677,
+       0.6917,
+       0.0948,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "PDF",
+        "box": [
+         0.901,
+         0.7083,
+         0.0285,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Août 2026",
+      "box": [
+       0.2333,
+       0.7379,
+       0.1458,
+       0.0428
+      ],
+      "lines": [
+       {
+        "text": "Août 2026",
+        "box": [
+         0.2518,
+         0.7455,
+         0.0691,
+         0.0257
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "01/08 - 31/08",
+      "box": [
+       0.3792,
+       0.7379,
+       0.1677,
+       0.0428
+      ],
+      "lines": [
+       {
+        "text": "01/08 - 31/08",
+        "box": [
+         0.4048,
+         0.7521,
+         0.0855,
+         0.0187
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "264 kWh",
+      "box": [
+       0.5469,
+       0.7379,
+       0.1312,
+       0.0428
+      ],
+      "lines": [
+       {
+        "text": "264 kWh",
+        "box": [
+         0.5952,
+         0.7521,
+         0.057,
+         0.0188
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "63,40 €",
+      "box": [
+       0.6781,
+       0.7379,
+       0.1021,
+       0.0428
+      ],
+      "lines": [
+       {
+        "text": "63,40 €",
+        "box": [
+         0.7181,
+         0.7521,
+         0.051,
+         0.0229
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Payée",
+      "box": [
+       0.7802,
+       0.7379,
+       0.0875,
+       0.0428
+      ],
+      "lines": [
+       {
+        "text": "Payée",
+        "box": [
+         0.7959,
+         0.7513,
+         0.0364,
+         0.0202
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 5,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "PDF",
+      "box": [
+       0.8677,
+       0.7379,
+       0.0948,
+       0.0428
+      ],
+      "lines": [
+       {
+        "text": "PDF",
+        "box": [
+         0.9025,
+         0.7521,
+         0.027,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Juillet 2026",
+      "box": [
+       0.2333,
+       0.7807,
+       0.1458,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Juillet 2026",
+        "box": [
+         0.2503,
+         0.7934,
+         0.0781,
+         0.0256
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "01/07 - 31/07",
+      "box": [
+       0.3792,
+       0.7807,
+       0.1677,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "01/07 - 31/07",
+        "box": [
+         0.4048,
+         0.7956,
+         0.084,
+         0.0214
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "251 kWh",
+      "box": [
+       0.5469,
+       0.7807,
+       0.1312,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "251 kWh",
+        "box": [
+         0.5952,
+         0.7958,
+         0.057,
+         0.0188
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "61,07 €",
+      "box": [
+       0.6781,
+       0.7807,
+       0.1021,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "61,07 €",
+        "box": [
+         0.7179,
+         0.795,
+         0.0529,
+         0.0267
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Payée",
+      "box": [
+       0.7802,
+       0.7807,
+       0.0875,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Payée",
+        "box": [
+         0.7961,
+         0.7979,
+         0.036,
+         0.0188
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 5,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "PDF",
+      "box": [
+       0.8677,
+       0.7807,
+       0.0948,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "PDF",
+        "box": [
+         0.9025,
+         0.7979,
+         0.027,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Juin 2026",
+      "box": [
+       0.2333,
+       0.8268,
+       0.1458,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Juin 2026",
+        "box": [
+         0.2502,
+         0.8368,
+         0.0677,
+         0.0264
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "01/06 - 30/06",
+      "box": [
+       0.3792,
+       0.8268,
+       0.1677,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "01/06 - 30/06",
+        "box": [
+         0.4048,
+         0.8417,
+         0.0885,
+         0.0208
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "279 kWh",
+      "box": [
+       0.5469,
+       0.8268,
+       0.1312,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "279 kWh",
+        "box": [
+         0.5937,
+         0.8414,
+         0.0586,
+         0.0193
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "66,93 €",
+      "box": [
+       0.6781,
+       0.8268,
+       0.1021,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "66,93 €",
+        "box": [
+         0.7181,
+         0.8415,
+         0.0511,
+         0.0254
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Payée",
+      "box": [
+       0.7802,
+       0.8268,
+       0.0875,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Payée",
+        "box": [
+         0.7961,
+         0.8416,
+         0.036,
+         0.021
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 5,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "PDF",
+      "box": [
+       0.8677,
+       0.8268,
+       0.0948,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "PDF",
+        "box": [
+         0.9055,
+         0.8437,
+         0.024,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mai 2026",
+      "box": [
+       0.2333,
+       0.8729,
+       0.1458,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Mai 2026",
+        "box": [
+         0.2519,
+         0.8832,
+         0.063,
+         0.0231
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "01/05 - 31/05",
+      "box": [
+       0.3792,
+       0.8729,
+       0.1677,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "01/05 - 31/05",
+        "box": [
+         0.4048,
+         0.8875,
+         0.0855,
+         0.0187
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "342 kWh",
+      "box": [
+       0.5469,
+       0.8729,
+       0.1312,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "342 kWh",
+        "box": [
+         0.5937,
+         0.8872,
+         0.0571,
+         0.0193
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "79,56 €",
+      "box": [
+       0.6781,
+       0.8729,
+       0.1021,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "79,56 €",
+        "box": [
+         0.718,
+         0.887,
+         0.0527,
+         0.0239
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Payée",
+      "box": [
+       0.7802,
+       0.8729,
+       0.0875,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "Payée",
+        "box": [
+         0.7959,
+         0.8868,
+         0.0364,
+         0.0202
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 5,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "PDF",
+      "box": [
+       0.8677,
+       0.8729,
+       0.0948,
+       0.0461
+      ],
+      "lines": [
+       {
+        "text": "PDF",
+        "box": [
+         0.904,
+         0.8875,
+         0.0255,
+         0.0146
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "lines": [
+   {
+    "text": "Énergies du Val Clair",
+    "box": [
+     0.0628,
+     0.0165,
+     0.1532,
+     0.027
+    ]
+   },
+   {
+    "text": "Espace client",
+    "box": [
+     0.0644,
+     0.0456,
+     0.0735,
+     0.0172
+    ]
+   },
+   {
+    "text": "Accueil",
+    "box": [
+     0.0195,
+     0.1167,
+     0.048,
+     0.0187
+    ]
+   },
+   {
+    "text": "Ma consommation",
+    "box": [
+     0.0225,
+     0.1687,
+     0.1124,
+     0.0167
+    ]
+   },
+   {
+    "text": "Mes factures",
+    "box": [
+     0.021,
+     0.2208,
+     0.084,
+     0.0188
+    ]
+   },
+   {
+    "text": "Mon contrat",
+    "box": [
+     0.0225,
+     0.275,
+     0.075,
+     0.0146
+    ]
+   },
+   {
+    "text": "Mes paiements",
+    "box": [
+     0.021,
+     0.3271,
+     0.0945,
+     0.0188
+    ]
+   },
+   {
+    "text": "Aide et contact",
+    "box": [
+     0.021,
+     0.3792,
+     0.096,
+     0.0167
+    ]
+   },
+   {
+    "text": "Mes factures",
+    "box": [
+     0.2264,
+     0.1146,
+     0.1304,
+     0.025
+    ]
+   },
+   {
+    "text": "Électricité • Offre Base 6 kVA • Facturation mensuelle sur relevé",
+    "box": [
+     0.2263,
+     0.152,
+     0.3824,
+     0.0208
+    ]
+   },
+   {
+    "text": "Prochain prélèvement",
+    "box": [
+     0.2414,
+     0.2167,
+     0.1244,
+     0.0167
+    ]
+   },
+   {
+    "text": "96,85 €",
+    "box": [
+     0.2399,
+     0.2458,
+     0.075,
+     0.0313
+    ]
+   },
+   {
+    "text": "le 16/11/2026",
+    "box": [
+     0.2384,
+     0.2812,
+     0.075,
+     0.0167
+    ]
+   },
+   {
+    "text": "Consommation 2026",
+    "box": [
+     0.4948,
+     0.2167,
+     0.1184,
+     0.0146
+    ]
+   },
+   {
+    "text": "4096 kWh",
+    "box": [
+     0.4933,
+     0.2458,
+     0.099,
+     0.0229
+    ]
+   },
+   {
+    "text": "de janvier à octobre",
+    "box": [
+     0.4948,
+     0.2812,
+     0.1094,
+     0.0167
+    ]
+   },
+   {
+    "text": "Montant de mes factures",
+    "box": [
+     0.2414,
+     0.3583,
+     0.1739,
+     0.0208
+    ]
+   },
+   {
+    "text": "mai",
+    "box": [
+     0.3373,
+     0.5667,
+     0.024,
+     0.0188
+    ]
+   },
+   {
+    "text": "juin",
+    "box": [
+     0.4378,
+     0.5687,
+     0.0225,
+     0.0188
+    ]
+   },
+   {
+    "text": "juil.",
+    "box": [
+     0.5367,
+     0.5687,
+     0.0225,
+     0.0167
+    ]
+   },
+   {
+    "text": "août",
+    "box": [
+     0.6372,
+     0.5667,
+     0.027,
+     0.0188
+    ]
+   },
+   {
+    "text": "Bonjour, Camille Roussel",
+    "box": [
+     0.7796,
+     0.0312,
+     0.1589,
+     0.0208
+    ]
+   },
+   {
+    "text": "CR",
+    "box": [
+     0.9505,
+     0.0312,
+     0.0195,
+     0.0167
+    ]
+   },
+   {
+    "text": "Moyenne mensuelle",
+    "box": [
+     0.7481,
+     0.2167,
+     0.1124,
+     0.0187
+    ]
+   },
+   {
+    "text": "73,67 €",
+    "box": [
+     0.7466,
+     0.2458,
+     0.075,
+     0.0313
+    ]
+   },
+   {
+    "text": "sur les 6 derniers mois",
+    "box": [
+     0.7466,
+     0.2812,
+     0.1259,
+     0.0146
+    ]
+   },
+   {
+    "text": "6 derniers mois",
+    "box": [
+     0.8696,
+     0.3604,
+     0.0885,
+     0.0146
+    ]
+   },
+   {
+    "text": "sept.",
+    "box": [
+     0.7346,
+     0.5687,
+     0.03,
+     0.0167
+    ]
+   },
+   {
+    "text": "oct.",
+    "box": [
+     0.8396,
+     0.5687,
+     0.021,
+     0.0146
+    ]
+   },
+   {
+    "text": "Mois",
+    "box": [
+     0.2489,
+     0.6125,
+     0.036,
+     0.0229
+    ]
+   },
+   {
+    "text": "Période",
+    "box": [
+     0.4048,
+     0.6187,
+     0.048,
+     0.0167
+    ]
+   },
+   {
+    "text": "Consommation",
+    "box": [
+     0.5622,
+     0.6187,
+     0.09,
+     0.0146
+    ]
+   },
+   {
+    "text": "Montant TTC",
+    "box": [
+     0.6927,
+     0.6187,
+     0.0765,
+     0.0146
+    ]
+   },
+   {
+    "text": "Statut",
+    "box": [
+     0.7885,
+     0.6184,
+     0.0391,
+     0.0174
+    ]
+   },
+   {
+    "text": "Facture",
+    "box": [
+     0.8943,
+     0.616,
+     0.0463,
+     0.0213
+    ]
+   },
+   {
+    "text": "Octobre 2026",
+    "box": [
+     0.2504,
+     0.6583,
+     0.0915,
+     0.0229
+    ]
+   },
+   {
+    "text": "01/10 - 31/10",
+    "box": [
+     0.4048,
+     0.6625,
+     0.081,
+     0.0187
+    ]
+   },
+   {
+    "text": "412 kWh",
+    "box": [
+     0.5937,
+     0.6604,
+     0.057,
+     0.0187
+    ]
+   },
+   {
+    "text": "96,85 €",
+    "box": [
+     0.7181,
+     0.6604,
+     0.051,
+     0.025
+    ]
+   },
+   {
+    "text": "A payer",
+    "box": [
+     0.7969,
+     0.6614,
+     0.0459,
+     0.0196
+    ]
+   },
+   {
+    "text": "PDF",
+    "box": [
+     0.904,
+     0.6625,
+     0.0255,
+     0.0167
+    ]
+   },
+   {
+    "text": "Septembre 2026",
+    "box": [
+     0.2504,
+     0.7021,
+     0.1124,
+     0.025
+    ]
+   },
+   {
+    "text": "01/09 - 30/09",
+    "box": [
+     0.4047,
+     0.7058,
+     0.0871,
+     0.0216
+    ]
+   },
+   {
+    "text": "318 kWh",
+    "box": [
+     0.5952,
+     0.706,
+     0.0556,
+     0.0192
+    ]
+   },
+   {
+    "text": "74,18 €",
+    "box": [
+     0.7181,
+     0.7062,
+     0.051,
+     0.0229
+    ]
+   },
+   {
+    "text": "Payée",
+    "box": [
+     0.7961,
+     0.7062,
+     0.036,
+     0.0187
+    ]
+   },
+   {
+    "text": "PDF",
+    "box": [
+     0.901,
+     0.7083,
+     0.0285,
+     0.0167
+    ]
+   },
+   {
+    "text": "Août 2026",
+    "box": [
+     0.2518,
+     0.7455,
+     0.0691,
+     0.0257
+    ]
+   },
+   {
+    "text": "01/08 - 31/08",
+    "box": [
+     0.4048,
+     0.7521,
+     0.0855,
+     0.0187
+    ]
+   },
+   {
+    "text": "264 kWh",
+    "box": [
+     0.5952,
+     0.7521,
+     0.057,
+     0.0188
+    ]
+   },
+   {
+    "text": "63,40 €",
+    "box": [
+     0.7181,
+     0.7521,
+     0.051,
+     0.0229
+    ]
+   },
+   {
+    "text": "Payée",
+    "box": [
+     0.7959,
+     0.7513,
+     0.0364,
+     0.0202
+    ]
+   },
+   {
+    "text": "PDF",
+    "box": [
+     0.9025,
+     0.7521,
+     0.027,
+     0.0167
+    ]
+   },
+   {
+    "text": "Juillet 2026",
+    "box": [
+     0.2503,
+     0.7934,
+     0.0781,
+     0.0256
+    ]
+   },
+   {
+    "text": "01/07 - 31/07",
+    "box": [
+     0.4048,
+     0.7956,
+     0.084,
+     0.0214
+    ]
+   },
+   {
+    "text": "251 kWh",
+    "box": [
+     0.5952,
+     0.7958,
+     0.057,
+     0.0188
+    ]
+   },
+   {
+    "text": "61,07 €",
+    "box": [
+     0.7179,
+     0.795,
+     0.0529,
+     0.0267
+    ]
+   },
+   {
+    "text": "Payée",
+    "box": [
+     0.7961,
+     0.7979,
+     0.036,
+     0.0188
+    ]
+   },
+   {
+    "text": "PDF",
+    "box": [
+     0.9025,
+     0.7979,
+     0.027,
+     0.0167
+    ]
+   },
+   {
+    "text": "Juin 2026",
+    "box": [
+     0.2502,
+     0.8368,
+     0.0677,
+     0.0264
+    ]
+   },
+   {
+    "text": "01/06 - 30/06",
+    "box": [
+     0.4048,
+     0.8417,
+     0.0885,
+     0.0208
+    ]
+   },
+   {
+    "text": "279 kWh",
+    "box": [
+     0.5937,
+     0.8414,
+     0.0586,
+     0.0193
+    ]
+   },
+   {
+    "text": "66,93 €",
+    "box": [
+     0.7181,
+     0.8415,
+     0.0511,
+     0.0254
+    ]
+   },
+   {
+    "text": "Payée",
+    "box": [
+     0.7961,
+     0.8416,
+     0.036,
+     0.021
+    ]
+   },
+   {
+    "text": "PDF",
+    "box": [
+     0.9055,
+     0.8437,
+     0.024,
+     0.0125
+    ]
+   },
+   {
+    "text": "Mai 2026",
+    "box": [
+     0.2519,
+     0.8832,
+     0.063,
+     0.0231
+    ]
+   },
+   {
+    "text": "01/05 - 31/05",
+    "box": [
+     0.4048,
+     0.8875,
+     0.0855,
+     0.0187
+    ]
+   },
+   {
+    "text": "342 kWh",
+    "box": [
+     0.5937,
+     0.8872,
+     0.0571,
+     0.0193
+    ]
+   },
+   {
+    "text": "79,56 €",
+    "box": [
+     0.718,
+     0.887,
+     0.0527,
+     0.0239
+    ]
+   },
+   {
+    "text": "Payée",
+    "box": [
+     0.7959,
+     0.8868,
+     0.0364,
+     0.0202
+    ]
+   },
+   {
+    "text": "PDF",
+    "box": [
+     0.904,
+     0.8875,
+     0.0255,
+     0.0146
+    ]
+   }
+  ]
+ },
+ "crops": [],
+ "spans": {},
+ "expected": {
+  "cells": [
+   {
+    "id": "C1",
+    "text": "Mois",
+    "table": 0,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C2",
+    "text": "Période",
+    "table": 0,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C3",
+    "text": "Consommation",
+    "table": 0,
+    "row": 0,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C4",
+    "text": "Montant TTC",
+    "table": 0,
+    "row": 0,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C5",
+    "text": "Statut",
+    "table": 0,
+    "row": 0,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C6",
+    "text": "Facture",
+    "table": 0,
+    "row": 0,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C7",
+    "text": "Octobre 2026",
+    "table": 0,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C8",
+    "text": "01/10 - 31/10",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C9",
+    "text": "412 kWh",
+    "table": 0,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C10",
+    "text": "96,85 €",
+    "table": 0,
+    "row": 1,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C11",
+    "text": "A payer",
+    "table": 0,
+    "row": 1,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C12",
+    "text": "PDF",
+    "table": 0,
+    "row": 1,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C13",
+    "text": "Septembre 2026",
+    "table": 0,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C14",
+    "text": "01/09 - 30/09",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C15",
+    "text": "318 kWh",
+    "table": 0,
+    "row": 2,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C16",
+    "text": "74,18 €",
+    "table": 0,
+    "row": 2,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C17",
+    "text": "Payée",
+    "table": 0,
+    "row": 2,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C18",
+    "text": "PDF",
+    "table": 0,
+    "row": 2,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C19",
+    "text": "Août 2026",
+    "table": 0,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C20",
+    "text": "01/08 - 31/08",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C21",
+    "text": "264 kWh",
+    "table": 0,
+    "row": 3,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C22",
+    "text": "63,40 €",
+    "table": 0,
+    "row": 3,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C23",
+    "text": "Payée",
+    "table": 0,
+    "row": 3,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C24",
+    "text": "PDF",
+    "table": 0,
+    "row": 3,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C25",
+    "text": "Juillet 2026",
+    "table": 0,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C26",
+    "text": "01/07 - 31/07",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C27",
+    "text": "251 kWh",
+    "table": 0,
+    "row": 4,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C28",
+    "text": "61,07 €",
+    "table": 0,
+    "row": 4,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C29",
+    "text": "Payée",
+    "table": 0,
+    "row": 4,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C30",
+    "text": "PDF",
+    "table": 0,
+    "row": 4,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C31",
+    "text": "Juin 2026",
+    "table": 0,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C32",
+    "text": "01/06 - 30/06",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C33",
+    "text": "279 kWh",
+    "table": 0,
+    "row": 5,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C34",
+    "text": "66,93 €",
+    "table": 0,
+    "row": 5,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C35",
+    "text": "Payée",
+    "table": 0,
+    "row": 5,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C36",
+    "text": "PDF",
+    "table": 0,
+    "row": 5,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C37",
+    "text": "Mai 2026",
+    "table": 0,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C38",
+    "text": "01/05 - 31/05",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C39",
+    "text": "342 kWh",
+    "table": 0,
+    "row": 6,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C40",
+    "text": "79,56 €",
+    "table": 0,
+    "row": 6,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C41",
+    "text": "Payée",
+    "table": 0,
+    "row": 6,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C42",
+    "text": "PDF",
+    "table": 0,
+    "row": 6,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C43",
+    "text": "Bonjour, Camille Roussel",
+    "table": 1,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C44",
+    "text": "CR",
+    "table": 1,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C45",
+    "text": "Accueil",
+    "table": 1,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C46",
+    "text": "Mes factures",
+    "table": 1,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C47",
+    "text": "Mes factures",
+    "table": 1,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C48",
+    "text": "Prochain prélèvement",
+    "table": 1,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C49",
+    "text": "Consommation 2026",
+    "table": 1,
+    "row": 2,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C50",
+    "text": "Moyenne mensuelle",
+    "table": 1,
+    "row": 2,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C51",
+    "text": "96,85 €",
+    "table": 1,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C52",
+    "text": "4096 kWh",
+    "table": 1,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C53",
+    "text": "73,67 €",
+    "table": 1,
+    "row": 3,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C54",
+    "text": "le 16/11/2026",
+    "table": 1,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C55",
+    "text": "de janvier à octobre",
+    "table": 1,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C56",
+    "text": "sur les 6 derniers mois",
+    "table": 1,
+    "row": 4,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C57",
+    "text": "Montant de mes factures",
+    "table": 1,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C58",
+    "text": "6 derniers mois",
+    "table": 1,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C59",
+    "text": "mai",
+    "table": 1,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C60",
+    "text": "juin",
+    "table": 1,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C61",
+    "text": "juil.",
+    "table": 1,
+    "row": 6,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C62",
+    "text": "août",
+    "table": 1,
+    "row": 6,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C63",
+    "text": "sept.",
+    "table": 1,
+    "row": 6,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C64",
+    "text": "oct.",
+    "table": 1,
+    "row": 6,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C65",
+    "text": "Énergies du Val Clair",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C66",
+    "text": "Espace client",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C67",
+    "text": "Électricité • Offre Base 6 kVA • Facturation mensuelle sur relevé",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C68",
+    "text": "Ma consommation",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C69",
+    "text": "Mon contrat",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C70",
+    "text": "Mes paiements",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C71",
+    "text": "Aide et contact",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   }
+  ],
+  "listing": "Table 1:\nR1: C1 \"Mois\" | C2 \"Période\" | C3 \"Consommation\" | C4 \"Montant TTC\" | C5 \"Statut\" | C6 \"Facture\"\nR2: C7 \"Octobre 2026\" | C8 \"01/10 - 31/10\" | C9 \"412 kWh\" | C10 \"96,85 €\" | C11 \"A payer\" | C12 \"PDF\"\nR3: C13 \"Septembre 2026\" | C14 \"01/09 - 30/09\" | C15 \"318 kWh\" | C16 \"74,18 €\" | C17 \"Payée\" | C18 \"PDF\"\nR4: C19 \"Août 2026\" | C20 \"01/08 - 31/08\" | C21 \"264 kWh\" | C22 \"63,40 €\" | C23 \"Payée\" | C24 \"PDF\"\nR5: C25 \"Juillet 2026\" | C26 \"01/07 - 31/07\" | C27 \"251 kWh\" | C28 \"61,07 €\" | C29 \"Payée\" | C30 \"PDF\"\nR6: C31 \"Juin 2026\" | C32 \"01/06 - 30/06\" | C33 \"279 kWh\" | C34 \"66,93 €\" | C35 \"Payée\" | C36 \"PDF\"\nR7: C37 \"Mai 2026\" | C38 \"01/05 - 31/05\" | C39 \"342 kWh\" | C40 \"79,56 €\" | C41 \"Payée\" | C42 \"PDF\"\nTable 2:\nR1: C43 \"Bonjour, Camille Roussel\" | C44 \"CR\"\nR2: C45 \"Accueil\" | C46 \"Mes factures\"\nR3: C47 \"Mes factures\" | C48 \"Prochain prélèvement\" | C49 \"Consommation 2026\" | C50 \"Moyenne mensuelle\"\nR4: C51 \"96,85 €\" | C52 \"4096 kWh\" | C53 \"73,67 €\"\nR5: C54 \"le 16/11/2026\" | C55 \"de janvier à octobre\" | C56 \"sur les 6 derniers mois\"\nR6: C57 \"Montant de mes factures\" | C58 \"6 derniers mois\"\nR7: C59 \"mai\" | C60 \"juin\" | C61 \"juil.\" | C62 \"août\" | C63 \"sept.\" | C64 \"oct.\"\nOther text:\nC65 \"Énergies du Val Clair\"\nC66 \"Espace client\"\nC67 \"Électricité • Offre Base 6 kVA • Facturation mensuelle sur relevé\"\nC68 \"Ma consommation\"\nC69 \"Mon contrat\"\nC70 \"Mes paiements\"\nC71 \"Aide et contact\"",
+  "splitListing": "Table 1:\nR1: C1 \"Mois\" | C2 \"Période\" | C3 \"Consommation\" | C4 \"Montant TTC\" | C5 \"Statut\" | C6 \"Facture\"\nR2: C7 \"Octobre 2026\" | C8 \"01/10 - 31/10\" | C9 \"412 kWh\" | C10 \"96,85 €\" | C11 \"A payer\" | C12 \"PDF\"\nR3: C13 \"Septembre 2026\" | C14 \"01/09 - 30/09\" | C15 \"318 kWh\" | C16 \"74,18 €\" | C17 \"Payée\" | C18 \"PDF\"\nR4: C19 \"Août 2026\" | C20 \"01/08 - 31/08\" | C21 \"264 kWh\" | C22 \"63,40 €\" | C23 \"Payée\" | C24 \"PDF\"\nR5: C25 \"Juillet 2026\" | C26 \"01/07 - 31/07\" | C27 \"251 kWh\" | C28 \"61,07 €\" | C29 \"Payée\" | C30 \"PDF\"\nR6: C31 \"Juin 2026\" | C32 \"01/06 - 30/06\" | C33 \"279 kWh\" | C34 \"66,93 €\" | C35 \"Payée\" | C36 \"PDF\"\nR7: C37 \"Mai 2026\" | C38 \"01/05 - 31/05\" | C39 \"342 kWh\" | C40 \"79,56 €\" | C41 \"Payée\" | C42 \"PDF\"\nTable 2:\nR1: C43 \"Bonjour, Camille Roussel\" | C44 \"CR\"\nR2: C45 \"Accueil\" | C46 \"Mes factures\"\nR3: C47 \"Mes factures\" | C48 \"Prochain prélèvement\" | C49 \"Consommation 2026\" | C50 \"Moyenne mensuelle\"\nR4: C51 \"96,85 €\" | C52 \"4096 kWh\" | C53 \"73,67 €\"\nR5: C54 \"le 16/11/2026\" | C55 \"de janvier à octobre\" | C56 \"sur les 6 derniers mois\"\nR6: C57 \"Montant de mes factures\" | C58 \"6 derniers mois\"\nR7: C59 \"mai\" | C60 \"juin\" | C61 \"juil.\" | C62 \"août\" | C63 \"sept.\" | C64 \"oct.\"\nOther text:\nC65 \"Énergies du Val Clair\"\nC66 \"Espace client\"\nC67 \"Électricité • Offre Base 6 kVA • Facturation mensuelle sur relevé\"\nC68 \"Ma consommation\"\nC69 \"Mon contrat\"\nC70 \"Mes paiements\"\nC71 \"Aide et contact\""
+ }
+}

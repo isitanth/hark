@@ -1,0 +1,2731 @@
+{
+ "case": "c01-invoices-en-net",
+ "document": {
+  "tables": [
+   {
+    "box": [
+     0.2167,
+     0.4293,
+     0.75,
+     0.5217
+    ],
+    "cells": [
+     {
+      "r": 0,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Date",
+      "box": [
+       0.2167,
+       0.4293,
+       0.1425,
+       0.047
+      ],
+      "lines": [
+       {
+        "text": "Date",
+        "box": [
+         0.2249,
+         0.4521,
+         0.0271,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Type",
+      "box": [
+       0.3592,
+       0.4293,
+       0.2475,
+       0.047
+      ],
+      "lines": [
+       {
+        "text": "Type",
+        "box": [
+         0.429,
+         0.4521,
+         0.0287,
+         0.0146
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Amount",
+      "box": [
+       0.6067,
+       0.4293,
+       0.18,
+       0.047
+      ],
+      "lines": [
+       {
+        "text": "Amount",
+        "box": [
+         0.7368,
+         0.4517,
+         0.0448,
+         0.0133
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Status",
+      "box": [
+       0.7867,
+       0.4293,
+       0.18,
+       0.047
+      ],
+      "lines": [
+       {
+        "text": "Status",
+        "box": [
+         0.7989,
+         0.4515,
+         0.0385,
+         0.0158
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Sep 22, 2026",
+      "box": [
+       0.2167,
+       0.4763,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Sep 22, 2026",
+        "box": [
+         0.2232,
+         0.4891,
+         0.0815,
+         0.0218
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Invoice",
+      "box": [
+       0.3592,
+       0.4763,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "• Invoice",
+        "box": [
+         0.4274,
+         0.4875,
+         0.0622,
+         0.0188
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€145.00",
+      "box": [
+       0.6067,
+       0.4763,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€145.00",
+        "box": [
+         0.7257,
+         0.4895,
+         0.0543,
+         0.0189
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.4763,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.4896,
+         0.0287,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Sep 8, 2026",
+      "box": [
+       0.2167,
+       0.518,
+       0.1425,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Sep 8, 2026",
+        "box": [
+         0.2249,
+         0.529,
+         0.0734,
+         0.0232
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Credit note",
+      "box": [
+       0.3592,
+       0.518,
+       0.2475,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Credit note",
+        "box": [
+         0.4498,
+         0.5312,
+         0.0638,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "-€62.50",
+      "box": [
+       0.6067,
+       0.518,
+       0.18,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "-€62.50",
+        "box": [
+         0.7256,
+         0.5289,
+         0.0527,
+         0.0213
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.518,
+       0.18,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.8086,
+         0.5312,
+         0.0255,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Aug 19, 2026",
+      "box": [
+       0.2167,
+       0.5546,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Aug 19, 2026",
+        "box": [
+         0.2248,
+         0.5683,
+         0.0799,
+         0.0237
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Invoice",
+      "box": [
+       0.3592,
+       0.5546,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Invoice",
+        "box": [
+         0.4481,
+         0.5707,
+         0.0415,
+         0.0149
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€176.50",
+      "box": [
+       0.6067,
+       0.5546,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€176.50",
+        "box": [
+         0.7256,
+         0.5706,
+         0.0527,
+         0.0171
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.5546,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.5708,
+         0.0271,
+         0.0146
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Jul 28, 2026",
+      "box": [
+       0.2167,
+       0.5963,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Jul 28, 2026",
+        "box": [
+         0.2232,
+         0.6099,
+         0.0767,
+         0.024
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Invoice",
+      "box": [
+       0.3592,
+       0.5963,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Invoice",
+        "box": [
+         0.4449,
+         0.6103,
+         0.0447,
+         0.0149
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€99.00",
+      "box": [
+       0.6067,
+       0.5963,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€99.00",
+        "box": [
+         0.7336,
+         0.6103,
+         0.0447,
+         0.0189
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.5963,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.6104,
+         0.0271,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Jun 30, 2026",
+      "box": [
+       0.2167,
+       0.638,
+       0.1425,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Jun 30, 2026",
+        "box": [
+         0.2232,
+         0.6495,
+         0.0799,
+         0.0239
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Credit note",
+      "box": [
+       0.3592,
+       0.638,
+       0.2475,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Credit note",
+        "box": [
+         0.4482,
+         0.6521,
+         0.0654,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "-€112.74",
+      "box": [
+       0.6067,
+       0.638,
+       0.18,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "-€112.74",
+        "box": [
+         0.7193,
+         0.6497,
+         0.0607,
+         0.0172
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.638,
+       0.18,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.6521,
+         0.0271,
+         0.0146
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Jun 12, 2026",
+      "box": [
+       0.2167,
+       0.6746,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Jun 12, 2026",
+        "box": [
+         0.2232,
+         0.6914,
+         0.0798,
+         0.0213
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Invoice",
+      "box": [
+       0.3592,
+       0.6746,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "• Invoice",
+        "box": [
+         0.432,
+         0.6903,
+         0.0578,
+         0.0153
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€158.36",
+      "box": [
+       0.6067,
+       0.6746,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€158.36",
+        "box": [
+         0.7254,
+         0.6898,
+         0.0532,
+         0.0186
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.6746,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.6917,
+         0.0271,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "May 15, 2026",
+      "box": [
+       0.2167,
+       0.7163,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "May 15, 2026",
+        "box": [
+         0.2248,
+         0.731,
+         0.0814,
+         0.0234
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Invoice",
+      "box": [
+       0.3592,
+       0.7163,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Invoice",
+        "box": [
+         0.4465,
+         0.731,
+         0.0431,
+         0.015
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€64.90",
+      "box": [
+       0.6067,
+       0.7163,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€64.90",
+        "box": [
+         0.7336,
+         0.7311,
+         0.0447,
+         0.017
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.7163,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.7312,
+         0.0271,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Apr 9, 2026",
+      "box": [
+       0.2167,
+       0.758,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Apr 9, 2026",
+        "box": [
+         0.2249,
+         0.7707,
+         0.0702,
+         0.0232
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Invoice",
+      "box": [
+       0.3592,
+       0.758,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Invoice",
+        "box": [
+         0.4466,
+         0.7729,
+         0.0431,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€212.40",
+      "box": [
+       0.6067,
+       0.758,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€212.40",
+        "box": [
+         0.7257,
+         0.7707,
+         0.0527,
+         0.019
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.758,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.8086,
+         0.7729,
+         0.0255,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mar 18, 2026",
+      "box": [
+       0.2167,
+       0.7998,
+       0.1425,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Mar 18, 2026",
+        "box": [
+         0.2247,
+         0.8094,
+         0.0801,
+         0.0249
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Credit note",
+      "box": [
+       0.3592,
+       0.7998,
+       0.2475,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Credit note",
+        "box": [
+         0.4481,
+         0.8121,
+         0.0655,
+         0.0154
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "-€95.00",
+      "box": [
+       0.6067,
+       0.7998,
+       0.18,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "-€95.00",
+        "box": [
+         0.7257,
+         0.8124,
+         0.0543,
+         0.019
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.7998,
+       0.18,
+       0.0365
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.8125,
+         0.0271,
+         0.0167
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Feb 24, 2026",
+      "box": [
+       0.2167,
+       0.8363,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Feb 24, 2026",
+        "box": [
+         0.2232,
+         0.8518,
+         0.0814,
+         0.0214
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Invoice",
+      "box": [
+       0.3592,
+       0.8363,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "• Invoice",
+        "box": [
+         0.4321,
+         0.8515,
+         0.0576,
+         0.0158
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€87.50",
+      "box": [
+       0.6067,
+       0.8363,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€87.50",
+        "box": [
+         0.7336,
+         0.8519,
+         0.0447,
+         0.0191
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.8363,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.807,
+         0.8542,
+         0.0271,
+         0.0146
+        ]
+       }
+      ]
+     },
+     {
+      "r": 11,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Jan 27, 2026",
+      "box": [
+       0.2167,
+       0.878,
+       0.1425,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Jan 27, 2026",
+        "box": [
+         0.2232,
+         0.8911,
+         0.0799,
+         0.024
+        ]
+       }
+      ]
+     },
+     {
+      "r": 11,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Invoice",
+      "box": [
+       0.3592,
+       0.878,
+       0.2475,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Invoice",
+        "box": [
+         0.4481,
+         0.8934,
+         0.0416,
+         0.0133
+        ]
+       }
+      ]
+     },
+     {
+      "r": 11,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€129.00",
+      "box": [
+       0.6067,
+       0.878,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "€129.00",
+        "box": [
+         0.7256,
+         0.8913,
+         0.0528,
+         0.0196
+        ]
+       }
+      ]
+     },
+     {
+      "r": 11,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Paid",
+      "box": [
+       0.7867,
+       0.878,
+       0.18,
+       0.0417
+      ],
+      "lines": [
+       {
+        "text": "Paid",
+        "box": [
+         0.8086,
+         0.8937,
+         0.0255,
+         0.0125
+        ]
+       }
+      ]
+     },
+     {
+      "r": 12,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Jan 6, 2026",
+      "box": [
+       0.2167,
+       0.9198,
+       0.1425,
+       0.0313
+      ],
+      "lines": [
+       {
+        "text": "Jan 6, 2026",
+        "box": [
+         0.2232,
+         0.9309,
+         0.0719,
+         0.0236
+        ]
+       }
+      ]
+     },
+     {
+      "r": 12,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "• Invoice",
+      "box": [
+       0.3592,
+       0.9198,
+       0.2475,
+       0.0313
+      ],
+      "lines": [
+       {
+        "text": "• Invoice",
+        "box": [
+         0.4322,
+         0.9329,
+         0.0575,
+         0.0154
+        ]
+       }
+      ]
+     },
+     {
+      "r": 12,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "€108.90",
+      "box": [
+       0.6067,
+       0.9198,
+       0.18,
+       0.0313
+      ],
+      "lines": [
+       {
+        "text": "€108.90",
+        "box": [
+         0.7256,
+         0.9328,
+         0.0528,
+         0.0198
+        ]
+       }
+      ]
+     },
+     {
+      "r": 12,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Refunded",
+      "box": [
+       0.7867,
+       0.9198,
+       0.18,
+       0.0313
+      ],
+      "lines": [
+       {
+        "text": "Refunded",
+        "box": [
+         0.8086,
+         0.933,
+         0.0543,
+         0.0152
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "lines": [
+   {
+    "text": "へ",
+    "box": [
+     0.0431,
+     0.0667,
+     0.0096,
+     0.0125
+    ]
+   },
+   {
+    "text": "Billing",
+    "box": [
+     0.108,
+     0.0212,
+     0.0346,
+     0.0168
+    ]
+   },
+   {
+    "text": "• corvalo.app/settings/billing",
+    "box": [
+     0.1115,
+     0.0645,
+     0.1725,
+     0.0196
+    ]
+   },
+   {
+    "text": "Dashboard",
+    "box": [
+     0.1308,
+     0.125,
+     0.0638,
+     0.0125
+    ]
+   },
+   {
+    "text": "Projects",
+    "box": [
+     0.2121,
+     0.1248,
+     0.0511,
+     0.0149
+    ]
+   },
+   {
+    "text": "Roadmap - Q4 planning",
+    "box": [
+     0.319,
+     0.0229,
+     0.126,
+     0.0146
+    ]
+   },
+   {
+    "text": "Corvalo",
+    "box": [
+     0.0525,
+     0.1221,
+     0.0529,
+     0.0183
+    ]
+   },
+   {
+    "text": "WORKSPACE",
+    "box": [
+     0.0207,
+     0.1937,
+     0.0702,
+     0.0125
+    ]
+   },
+   {
+    "text": "General",
+    "box": [
+     0.0206,
+     0.2307,
+     0.0465,
+     0.0158
+    ]
+   },
+   {
+    "text": "Members",
+    "box": [
+     0.0207,
+     0.2685,
+     0.0543,
+     0.015
+    ]
+   },
+   {
+    "text": "Billing",
+    "box": [
+     0.0181,
+     0.3051,
+     0.0419,
+     0.0232
+    ]
+   },
+   {
+    "text": "Integrations",
+    "box": [
+     0.019,
+     0.346,
+     0.0719,
+     0.0164
+    ]
+   },
+   {
+    "text": "Security",
+    "box": [
+     0.0207,
+     0.3854,
+     0.0494,
+     0.0146
+    ]
+   },
+   {
+    "text": "ACCOUNT",
+    "box": [
+     0.0207,
+     0.4354,
+     0.0558,
+     0.0125
+    ]
+   },
+   {
+    "text": "Profile",
+    "box": [
+     0.0207,
+     0.4729,
+     0.0383,
+     0.0146
+    ]
+   },
+   {
+    "text": "Notifications",
+    "box": [
+     0.0191,
+     0.5104,
+     0.075,
+     0.0167
+    ]
+   },
+   {
+    "text": "Team",
+    "box": [
+     0.2823,
+     0.125,
+     0.0319,
+     0.0146
+    ]
+   },
+   {
+    "text": "Settings",
+    "box": [
+     0.3317,
+     0.1229,
+     0.0526,
+     0.0188
+    ]
+   },
+   {
+    "text": "Billing",
+    "box": [
+     0.212,
+     0.1929,
+     0.0608,
+     0.0359
+    ]
+   },
+   {
+    "text": "Manage your plan, payment method and invoices.",
+    "box": [
+     0.2121,
+     0.2375,
+     0.2855,
+     0.0188
+    ]
+   },
+   {
+    "text": "plan",
+    "box": [
+     0.2252,
+     0.29,
+     0.0278,
+     0.0192
+    ]
+   },
+   {
+    "text": "Studio • billed monthly",
+    "box": [
+     0.2279,
+     0.3153,
+     0.1342,
+     0.0181
+    ]
+   },
+   {
+    "text": "Change plan",
+    "box": [
+     0.2281,
+     0.3396,
+     0.067,
+     0.0146
+    ]
+   },
+   {
+    "text": "Invoices 2026 Showing 12 documents",
+    "box": [
+     0.2104,
+     0.4006,
+     0.2331,
+     0.0214
+    ]
+   },
+   {
+    "text": "Payment method",
+    "box": [
+     0.4833,
+     0.2917,
+     0.0893,
+     0.0146
+    ]
+   },
+   {
+    "text": "Card ending 4417",
+    "box": [
+     0.4848,
+     0.3167,
+     0.1053,
+     0.0167
+    ]
+   },
+   {
+    "text": "Expires 08/28",
+    "box": [
+     0.4831,
+     0.3376,
+     0.0769,
+     0.0181
+    ]
+   },
+   {
+    "text": "•••",
+    "box": [
+     0.9697,
+     0.0667,
+     0.0175,
+     0.0104
+    ]
+   },
+   {
+    "text": "NF",
+    "box": [
+     0.9569,
+     0.125,
+     0.0144,
+     0.0104
+    ]
+   },
+   {
+    "text": "Billing contact",
+    "box": [
+     0.7382,
+     0.2921,
+     0.0785,
+     0.0192
+    ]
+   },
+   {
+    "text": "Nadia Ferreira",
+    "box": [
+     0.7398,
+     0.3143,
+     0.0865,
+     0.0208
+    ]
+   },
+   {
+    "text": "Edit contact",
+    "box": [
+     0.7384,
+     0.3375,
+     0.0702,
+     0.0167
+    ]
+   },
+   {
+    "text": "Download all",
+    "box": [
+     0.8884,
+     0.4042,
+     0.075,
+     0.0167
+    ]
+   },
+   {
+    "text": "Date",
+    "box": [
+     0.2249,
+     0.4521,
+     0.0271,
+     0.0125
+    ]
+   },
+   {
+    "text": "Type",
+    "box": [
+     0.429,
+     0.4521,
+     0.0287,
+     0.0146
+    ]
+   },
+   {
+    "text": "Amount",
+    "box": [
+     0.7368,
+     0.4517,
+     0.0448,
+     0.0133
+    ]
+   },
+   {
+    "text": "Status",
+    "box": [
+     0.7989,
+     0.4515,
+     0.0385,
+     0.0158
+    ]
+   },
+   {
+    "text": "Sep 22, 2026",
+    "box": [
+     0.2232,
+     0.4891,
+     0.0815,
+     0.0218
+    ]
+   },
+   {
+    "text": "• Invoice",
+    "box": [
+     0.4274,
+     0.4875,
+     0.0622,
+     0.0188
+    ]
+   },
+   {
+    "text": "€145.00",
+    "box": [
+     0.7257,
+     0.4895,
+     0.0543,
+     0.0189
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.4896,
+     0.0287,
+     0.0167
+    ]
+   },
+   {
+    "text": "Sep 8, 2026",
+    "box": [
+     0.2249,
+     0.529,
+     0.0734,
+     0.0232
+    ]
+   },
+   {
+    "text": "Credit note",
+    "box": [
+     0.4498,
+     0.5312,
+     0.0638,
+     0.0125
+    ]
+   },
+   {
+    "text": "-€62.50",
+    "box": [
+     0.7256,
+     0.5289,
+     0.0527,
+     0.0213
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.8086,
+     0.5312,
+     0.0255,
+     0.0125
+    ]
+   },
+   {
+    "text": "Aug 19, 2026",
+    "box": [
+     0.2248,
+     0.5683,
+     0.0799,
+     0.0237
+    ]
+   },
+   {
+    "text": "Invoice",
+    "box": [
+     0.4481,
+     0.5707,
+     0.0415,
+     0.0149
+    ]
+   },
+   {
+    "text": "€176.50",
+    "box": [
+     0.7256,
+     0.5706,
+     0.0527,
+     0.0171
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.5708,
+     0.0271,
+     0.0146
+    ]
+   },
+   {
+    "text": "Jul 28, 2026",
+    "box": [
+     0.2232,
+     0.6099,
+     0.0767,
+     0.024
+    ]
+   },
+   {
+    "text": "Invoice",
+    "box": [
+     0.4449,
+     0.6103,
+     0.0447,
+     0.0149
+    ]
+   },
+   {
+    "text": "€99.00",
+    "box": [
+     0.7336,
+     0.6103,
+     0.0447,
+     0.0189
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.6104,
+     0.0271,
+     0.0167
+    ]
+   },
+   {
+    "text": "Jun 30, 2026",
+    "box": [
+     0.2232,
+     0.6495,
+     0.0799,
+     0.0239
+    ]
+   },
+   {
+    "text": "Credit note",
+    "box": [
+     0.4482,
+     0.6521,
+     0.0654,
+     0.0125
+    ]
+   },
+   {
+    "text": "-€112.74",
+    "box": [
+     0.7193,
+     0.6497,
+     0.0607,
+     0.0172
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.6521,
+     0.0271,
+     0.0146
+    ]
+   },
+   {
+    "text": "Jun 12, 2026",
+    "box": [
+     0.2232,
+     0.6914,
+     0.0798,
+     0.0213
+    ]
+   },
+   {
+    "text": "• Invoice",
+    "box": [
+     0.432,
+     0.6903,
+     0.0578,
+     0.0153
+    ]
+   },
+   {
+    "text": "€158.36",
+    "box": [
+     0.7254,
+     0.6898,
+     0.0532,
+     0.0186
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.6917,
+     0.0271,
+     0.0167
+    ]
+   },
+   {
+    "text": "May 15, 2026",
+    "box": [
+     0.2248,
+     0.731,
+     0.0814,
+     0.0234
+    ]
+   },
+   {
+    "text": "Invoice",
+    "box": [
+     0.4465,
+     0.731,
+     0.0431,
+     0.015
+    ]
+   },
+   {
+    "text": "€64.90",
+    "box": [
+     0.7336,
+     0.7311,
+     0.0447,
+     0.017
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.7312,
+     0.0271,
+     0.0167
+    ]
+   },
+   {
+    "text": "Apr 9, 2026",
+    "box": [
+     0.2249,
+     0.7707,
+     0.0702,
+     0.0232
+    ]
+   },
+   {
+    "text": "Invoice",
+    "box": [
+     0.4466,
+     0.7729,
+     0.0431,
+     0.0125
+    ]
+   },
+   {
+    "text": "€212.40",
+    "box": [
+     0.7257,
+     0.7707,
+     0.0527,
+     0.019
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.8086,
+     0.7729,
+     0.0255,
+     0.0125
+    ]
+   },
+   {
+    "text": "Mar 18, 2026",
+    "box": [
+     0.2247,
+     0.8094,
+     0.0801,
+     0.0249
+    ]
+   },
+   {
+    "text": "Credit note",
+    "box": [
+     0.4481,
+     0.8121,
+     0.0655,
+     0.0154
+    ]
+   },
+   {
+    "text": "-€95.00",
+    "box": [
+     0.7257,
+     0.8124,
+     0.0543,
+     0.019
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.8125,
+     0.0271,
+     0.0167
+    ]
+   },
+   {
+    "text": "Feb 24, 2026",
+    "box": [
+     0.2232,
+     0.8518,
+     0.0814,
+     0.0214
+    ]
+   },
+   {
+    "text": "• Invoice",
+    "box": [
+     0.4321,
+     0.8515,
+     0.0576,
+     0.0158
+    ]
+   },
+   {
+    "text": "€87.50",
+    "box": [
+     0.7336,
+     0.8519,
+     0.0447,
+     0.0191
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.807,
+     0.8542,
+     0.0271,
+     0.0146
+    ]
+   },
+   {
+    "text": "Jan 27, 2026",
+    "box": [
+     0.2232,
+     0.8911,
+     0.0799,
+     0.024
+    ]
+   },
+   {
+    "text": "Invoice",
+    "box": [
+     0.4481,
+     0.8934,
+     0.0416,
+     0.0133
+    ]
+   },
+   {
+    "text": "€129.00",
+    "box": [
+     0.7256,
+     0.8913,
+     0.0528,
+     0.0196
+    ]
+   },
+   {
+    "text": "Paid",
+    "box": [
+     0.8086,
+     0.8937,
+     0.0255,
+     0.0125
+    ]
+   },
+   {
+    "text": "Jan 6, 2026",
+    "box": [
+     0.2232,
+     0.9309,
+     0.0719,
+     0.0236
+    ]
+   },
+   {
+    "text": "• Invoice",
+    "box": [
+     0.4322,
+     0.9329,
+     0.0575,
+     0.0154
+    ]
+   },
+   {
+    "text": "€108.90",
+    "box": [
+     0.7256,
+     0.9328,
+     0.0528,
+     0.0198
+    ]
+   },
+   {
+    "text": "Refunded",
+    "box": [
+     0.8086,
+     0.933,
+     0.0543,
+     0.0152
+    ]
+   }
+  ]
+ },
+ "crops": [],
+ "spans": {
+  "Invoices 2026 Showing 12 documents": [
+   [
+    8,
+    13
+   ],
+   [
+    21,
+    24
+   ]
+  ]
+ },
+ "expected": {
+  "cells": [
+   {
+    "id": "C1",
+    "text": "Date",
+    "table": 0,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C2",
+    "text": "Type",
+    "table": 0,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C3",
+    "text": "Amount",
+    "table": 0,
+    "row": 0,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C4",
+    "text": "Status",
+    "table": 0,
+    "row": 0,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C5",
+    "text": "Sep 22, 2026",
+    "table": 0,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C6",
+    "text": "• Invoice",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C7",
+    "text": "€145.00",
+    "table": 0,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C8",
+    "text": "Paid",
+    "table": 0,
+    "row": 1,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C9",
+    "text": "Sep 8, 2026",
+    "table": 0,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C10",
+    "text": "Credit note",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C11",
+    "text": "-€62.50",
+    "table": 0,
+    "row": 2,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C12",
+    "text": "Paid",
+    "table": 0,
+    "row": 2,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C13",
+    "text": "Aug 19, 2026",
+    "table": 0,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C14",
+    "text": "Invoice",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C15",
+    "text": "€176.50",
+    "table": 0,
+    "row": 3,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C16",
+    "text": "Paid",
+    "table": 0,
+    "row": 3,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C17",
+    "text": "Jul 28, 2026",
+    "table": 0,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C18",
+    "text": "Invoice",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C19",
+    "text": "€99.00",
+    "table": 0,
+    "row": 4,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C20",
+    "text": "Paid",
+    "table": 0,
+    "row": 4,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C21",
+    "text": "Jun 30, 2026",
+    "table": 0,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C22",
+    "text": "Credit note",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C23",
+    "text": "-€112.74",
+    "table": 0,
+    "row": 5,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C24",
+    "text": "Paid",
+    "table": 0,
+    "row": 5,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C25",
+    "text": "Jun 12, 2026",
+    "table": 0,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C26",
+    "text": "• Invoice",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C27",
+    "text": "€158.36",
+    "table": 0,
+    "row": 6,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C28",
+    "text": "Paid",
+    "table": 0,
+    "row": 6,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C29",
+    "text": "May 15, 2026",
+    "table": 0,
+    "row": 7,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C30",
+    "text": "Invoice",
+    "table": 0,
+    "row": 7,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C31",
+    "text": "€64.90",
+    "table": 0,
+    "row": 7,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C32",
+    "text": "Paid",
+    "table": 0,
+    "row": 7,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C33",
+    "text": "Apr 9, 2026",
+    "table": 0,
+    "row": 8,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C34",
+    "text": "Invoice",
+    "table": 0,
+    "row": 8,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C35",
+    "text": "€212.40",
+    "table": 0,
+    "row": 8,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C36",
+    "text": "Paid",
+    "table": 0,
+    "row": 8,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C37",
+    "text": "Mar 18, 2026",
+    "table": 0,
+    "row": 9,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C38",
+    "text": "Credit note",
+    "table": 0,
+    "row": 9,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C39",
+    "text": "-€95.00",
+    "table": 0,
+    "row": 9,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C40",
+    "text": "Paid",
+    "table": 0,
+    "row": 9,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C41",
+    "text": "Feb 24, 2026",
+    "table": 0,
+    "row": 10,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C42",
+    "text": "• Invoice",
+    "table": 0,
+    "row": 10,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C43",
+    "text": "€87.50",
+    "table": 0,
+    "row": 10,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C44",
+    "text": "Paid",
+    "table": 0,
+    "row": 10,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C45",
+    "text": "Jan 27, 2026",
+    "table": 0,
+    "row": 11,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C46",
+    "text": "Invoice",
+    "table": 0,
+    "row": 11,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C47",
+    "text": "€129.00",
+    "table": 0,
+    "row": 11,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C48",
+    "text": "Paid",
+    "table": 0,
+    "row": 11,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C49",
+    "text": "Jan 6, 2026",
+    "table": 0,
+    "row": 12,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C50",
+    "text": "• Invoice",
+    "table": 0,
+    "row": 12,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C51",
+    "text": "€108.90",
+    "table": 0,
+    "row": 12,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C52",
+    "text": "Refunded",
+    "table": 0,
+    "row": 12,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C53",
+    "text": "Billing",
+    "table": 1,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C54",
+    "text": "Roadmap - Q4 planning",
+    "table": 1,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C55",
+    "text": "へ",
+    "table": 1,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C56",
+    "text": "• corvalo.app/settings/billing",
+    "table": 1,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C57",
+    "text": "•••",
+    "table": 1,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C58",
+    "text": "Corvalo",
+    "table": 1,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C59",
+    "text": "Dashboard",
+    "table": 1,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C60",
+    "text": "Projects",
+    "table": 1,
+    "row": 2,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C61",
+    "text": "Team",
+    "table": 1,
+    "row": 2,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C62",
+    "text": "Settings",
+    "table": 1,
+    "row": 2,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C63",
+    "text": "NF",
+    "table": 1,
+    "row": 2,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C64",
+    "text": "plan",
+    "table": 1,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C65",
+    "text": "Payment method",
+    "table": 1,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C66",
+    "text": "Billing contact",
+    "table": 1,
+    "row": 3,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C67",
+    "text": "Studio • billed monthly",
+    "table": 1,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C68",
+    "text": "Card ending 4417",
+    "table": 1,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C69",
+    "text": "Nadia Ferreira",
+    "table": 1,
+    "row": 4,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C70",
+    "text": "Change plan",
+    "table": 1,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C71",
+    "text": "Expires 08/28",
+    "table": 1,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C72",
+    "text": "Edit contact",
+    "table": 1,
+    "row": 5,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C73",
+    "text": "Invoices 2026 Showing 12 documents",
+    "table": 1,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C74",
+    "text": "Download all",
+    "table": 1,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C75",
+    "text": "WORKSPACE",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C76",
+    "text": "Billing",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C77",
+    "text": "General",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C78",
+    "text": "Manage your plan, payment method and invoices.",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C79",
+    "text": "Members",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C80",
+    "text": "Billing",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C81",
+    "text": "Integrations",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C82",
+    "text": "Security",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C83",
+    "text": "ACCOUNT",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C84",
+    "text": "Profile",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C85",
+    "text": "Notifications",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   }
+  ],
+  "listing": "Table 1:\nR1: C1 \"Date\" | C2 \"Type\" | C3 \"Amount\" | C4 \"Status\"\nR2: C5 \"Sep 22, 2026\" | C6 \"• Invoice\" | C7 \"€145.00\" | C8 \"Paid\"\nR3: C9 \"Sep 8, 2026\" | C10 \"Credit note\" | C11 \"-€62.50\" | C12 \"Paid\"\nR4: C13 \"Aug 19, 2026\" | C14 \"Invoice\" | C15 \"€176.50\" | C16 \"Paid\"\nR5: C17 \"Jul 28, 2026\" | C18 \"Invoice\" | C19 \"€99.00\" | C20 \"Paid\"\nR6: C21 \"Jun 30, 2026\" | C22 \"Credit note\" | C23 \"-€112.74\" | C24 \"Paid\"\nR7: C25 \"Jun 12, 2026\" | C26 \"• Invoice\" | C27 \"€158.36\" | C28 \"Paid\"\nR8: C29 \"May 15, 2026\" | C30 \"Invoice\" | C31 \"€64.90\" | C32 \"Paid\"\nR9: C33 \"Apr 9, 2026\" | C34 \"Invoice\" | C35 \"€212.40\" | C36 \"Paid\"\nR10: C37 \"Mar 18, 2026\" | C38 \"Credit note\" | C39 \"-€95.00\" | C40 \"Paid\"\nR11: C41 \"Feb 24, 2026\" | C42 \"• Invoice\" | C43 \"€87.50\" | C44 \"Paid\"\nR12: C45 \"Jan 27, 2026\" | C46 \"Invoice\" | C47 \"€129.00\" | C48 \"Paid\"\nR13: C49 \"Jan 6, 2026\" | C50 \"• Invoice\" | C51 \"€108.90\" | C52 \"Refunded\"\nTable 2:\nR1: C53 \"Billing\" | C54 \"Roadmap - Q4 planning\"\nR2: C55 \"へ\" | C56 \"• corvalo.app/settings/billing\" | C57 \"•••\"\nR3: C58 \"Corvalo\" | C59 \"Dashboard\" | C60 \"Projects\" | C61 \"Team\" | C62 \"Settings\" | C63 \"NF\"\nR4: C64 \"plan\" | C65 \"Payment method\" | C66 \"Billing contact\"\nR5: C67 \"Studio • billed monthly\" | C68 \"Card ending 4417\" | C69 \"Nadia Ferreira\"\nR6: C70 \"Change plan\" | C71 \"Expires 08/28\" | C72 \"Edit contact\"\nR7: C73 \"Invoices 2026 Showing 12 documents\" | C74 \"Download all\"\nOther text:\nC75 \"WORKSPACE\"\nC76 \"Billing\"\nC77 \"General\"\nC78 \"Manage your plan, payment method and invoices.\"\nC79 \"Members\"\nC80 \"Billing\"\nC81 \"Integrations\"\nC82 \"Security\"\nC83 \"ACCOUNT\"\nC84 \"Profile\"\nC85 \"Notifications\"",
+  "splitListing": "Table 1:\nR1: C1 \"Date\" | C2 \"Type\" | C3 \"Amount\" | C4 \"Status\"\nR2: C5 \"Sep 22, 2026\" | C6 \"• Invoice\" | C7 \"€145.00\" | C8 \"Paid\"\nR3: C9 \"Sep 8, 2026\" | C10 \"Credit note\" | C11 \"-€62.50\" | C12 \"Paid\"\nR4: C13 \"Aug 19, 2026\" | C14 \"Invoice\" | C15 \"€176.50\" | C16 \"Paid\"\nR5: C17 \"Jul 28, 2026\" | C18 \"Invoice\" | C19 \"€99.00\" | C20 \"Paid\"\nR6: C21 \"Jun 30, 2026\" | C22 \"Credit note\" | C23 \"-€112.74\" | C24 \"Paid\"\nR7: C25 \"Jun 12, 2026\" | C26 \"• Invoice\" | C27 \"€158.36\" | C28 \"Paid\"\nR8: C29 \"May 15, 2026\" | C30 \"Invoice\" | C31 \"€64.90\" | C32 \"Paid\"\nR9: C33 \"Apr 9, 2026\" | C34 \"Invoice\" | C35 \"€212.40\" | C36 \"Paid\"\nR10: C37 \"Mar 18, 2026\" | C38 \"Credit note\" | C39 \"-€95.00\" | C40 \"Paid\"\nR11: C41 \"Feb 24, 2026\" | C42 \"• Invoice\" | C43 \"€87.50\" | C44 \"Paid\"\nR12: C45 \"Jan 27, 2026\" | C46 \"Invoice\" | C47 \"€129.00\" | C48 \"Paid\"\nR13: C49 \"Jan 6, 2026\" | C50 \"• Invoice\" | C51 \"€108.90\" | C52 \"Refunded\"\nTable 2:\nR1: C53 \"Billing\" | C54 \"Roadmap - Q4 planning\"\nR2: C55 \"へ\" | C56 \"• corvalo.app/settings/billing\" | C57 \"•••\"\nR3: C58 \"Corvalo\" | C59 \"Dashboard\" | C60 \"Projects\" | C61 \"Team\" | C62 \"Settings\" | C63 \"NF\"\nR4: C64 \"plan\" | C65 \"Payment method\" | C66 \"Billing contact\"\nR5: C67 \"Studio • billed monthly\" | C68 \"Card ending 4417\" | C69 \"Nadia Ferreira\"\nR6: C70 \"Change plan\" | C71 \"Expires 08/28\" | C72 \"Edit contact\"\nR7: C73 \"Invoices 2026\" | C74 \"Showing 12 documents\" | C75 \"Download all\"\nOther text:\nC76 \"WORKSPACE\"\nC77 \"Billing\"\nC78 \"General\"\nC79 \"Manage your plan, payment method and invoices.\"\nC80 \"Members\"\nC81 \"Billing\"\nC82 \"Integrations\"\nC83 \"Security\"\nC84 \"ACCOUNT\"\nC85 \"Profile\"\nC86 \"Notifications\""
+ }
+}

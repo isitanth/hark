@@ -1,0 +1,1402 @@
+{
+ "case": "c20-budget-fr-variance",
+ "document": {
+  "tables": [
+   {
+    "box": [
+     0.2667,
+     0.1779,
+     0.6917,
+     0.7607
+    ],
+    "cells": [
+     {
+      "r": 0,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.1779,
+       0.0277,
+       0.0685
+      ],
+      "lines": []
+     },
+     {
+      "r": 0,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Catégorie\nBudget\nRéel",
+      "lines": [
+       {
+        "text": "Catégorie",
+        "box": [
+         0.263,
+         0.2054,
+         0.0685,
+         0.0248
+        ]
+       },
+       {
+        "text": "Budget",
+        "box": [
+         0.7717,
+         0.2011,
+         0.057,
+         0.0291
+        ]
+       },
+       {
+        "text": "Réel",
+        "box": [
+         0.9172,
+         0.2017,
+         0.0363,
+         0.0258
+        ]
+       }
+      ],
+      "box": [
+       0.263,
+       0.2011,
+       0.6905,
+       0.029100000000000015
+      ]
+     },
+     {
+      "r": 1,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.2464,
+       0.0277,
+       0.0685
+      ],
+      "lines": []
+     },
+     {
+      "r": 1,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Logement\n1 050,00 €\n1 050,00 €",
+      "lines": [
+       {
+        "text": "Logement",
+        "box": [
+         0.3095,
+         0.2675,
+         0.0743,
+         0.0229
+        ]
+       },
+       {
+        "text": "1 050,00 €",
+        "box": [
+         0.7426,
+         0.2675,
+         0.0846,
+         0.0358
+        ]
+       },
+       {
+        "text": "1 050,00 €",
+        "box": [
+         0.8663,
+         0.2682,
+         0.0843,
+         0.0322
+        ]
+       }
+      ],
+      "box": [
+       0.3095,
+       0.2675,
+       0.6411,
+       0.0358
+      ]
+     },
+     {
+      "r": 2,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.3148,
+       0.0277,
+       0.0685
+      ],
+      "lines": []
+     },
+     {
+      "r": 2,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Courses\n420,00 €\n486,35 €",
+      "lines": [
+       {
+        "text": "Courses",
+        "box": [
+         0.3096,
+         0.3432,
+         0.0611,
+         0.0218
+        ]
+       },
+       {
+        "text": "420,00 €",
+        "box": [
+         0.7572,
+         0.3453,
+         0.0699,
+         0.0348
+        ]
+       },
+       {
+        "text": "486,35 €",
+        "box": [
+         0.8793,
+         0.3473,
+         0.0713,
+         0.0328
+        ]
+       }
+      ],
+      "box": [
+       0.3096,
+       0.3432,
+       0.641,
+       0.03689999999999999
+      ]
+     },
+     {
+      "r": 3,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.3833,
+       0.0277,
+       0.0837
+      ],
+      "lines": []
+     },
+     {
+      "r": 3,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Transport\n120,00 €\n97,60 €",
+      "lines": [
+       {
+        "text": "Transport",
+        "box": [
+         0.3095,
+         0.42,
+         0.0728,
+         0.0227
+        ]
+       },
+       {
+        "text": "120,00 €",
+        "box": [
+         0.7556,
+         0.4218,
+         0.0716,
+         0.0363
+        ]
+       },
+       {
+        "text": "97,60 €",
+        "box": [
+         0.8863,
+         0.4214,
+         0.0661,
+         0.0391
+        ]
+       }
+      ],
+      "box": [
+       0.3095,
+       0.42,
+       0.6429,
+       0.040500000000000036
+      ]
+     },
+     {
+      "r": 4,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "R",
+      "box": [
+       0.2667,
+       0.467,
+       0.0277,
+       0.0761
+      ],
+      "lines": [
+       {
+        "text": "R",
+        "box": [
+         0.2674,
+         0.4936,
+         0.0262,
+         0.0386
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Restaurants\n150,00 €\n212,80 €",
+      "lines": [
+       {
+        "text": "Restaurants",
+        "box": [
+         0.3096,
+         0.4979,
+         0.0887,
+         0.0215
+        ]
+       },
+       {
+        "text": "150,00 €",
+        "box": [
+         0.7573,
+         0.5,
+         0.0712,
+         0.0344
+        ]
+       },
+       {
+        "text": "212,80 €",
+        "box": [
+         0.8776,
+         0.5003,
+         0.0733,
+         0.0345
+        ]
+       }
+      ],
+      "box": [
+       0.3096,
+       0.4979,
+       0.6413000000000001,
+       0.03689999999999993
+      ]
+     },
+     {
+      "r": 5,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.5431,
+       0.0277,
+       0.0837
+      ],
+      "lines": []
+     },
+     {
+      "r": 5,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Loisirs\n100,00€\n143,90 €",
+      "lines": [
+       {
+        "text": "Loisirs",
+        "box": [
+         0.3094,
+         0.5719,
+         0.0484,
+         0.0235
+        ]
+       },
+       {
+        "text": "100,00€",
+        "box": [
+         0.7558,
+         0.5771,
+         0.0712,
+         0.0345
+        ]
+       },
+       {
+        "text": "143,90 €",
+        "box": [
+         0.8793,
+         0.5788,
+         0.0729,
+         0.0312
+        ]
+       }
+      ],
+      "box": [
+       0.3094,
+       0.5719,
+       0.6427999999999999,
+       0.03969999999999996
+      ]
+     },
+     {
+      "r": 6,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.6267,
+       0.0277,
+       0.0685
+      ],
+      "lines": []
+     },
+     {
+      "r": 6,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Abonnements\n45,00 €\n52,97 €",
+      "lines": [
+       {
+        "text": "Abonnements",
+        "box": [
+         0.3096,
+         0.6524,
+         0.1017,
+         0.0193
+        ]
+       },
+       {
+        "text": "45,00 €",
+        "box": [
+         0.7658,
+         0.6537,
+         0.0614,
+         0.0359
+        ]
+       },
+       {
+        "text": "52,97 €",
+        "box": [
+         0.8879,
+         0.6538,
+         0.0629,
+         0.0358
+        ]
+       }
+      ],
+      "box": [
+       0.3096,
+       0.6524,
+       0.6412,
+       0.03720000000000001
+      ]
+     },
+     {
+      "r": 7,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "S",
+      "box": [
+       0.2667,
+       0.6952,
+       0.0277,
+       0.0837
+      ],
+      "lines": [
+       {
+        "text": "S",
+        "box": [
+         0.2747,
+         0.7361,
+         0.0116,
+         0.0193
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Santé\n60,00 €\n23,50 €",
+      "lines": [
+       {
+        "text": "Santé",
+        "box": [
+         0.3096,
+         0.7273,
+         0.0437,
+         0.0218
+        ]
+       },
+       {
+        "text": "60,00 €",
+        "box": [
+         0.7659,
+         0.7312,
+         0.0613,
+         0.0354
+        ]
+       },
+       {
+        "text": "23,50 €",
+        "box": [
+         0.8866,
+         0.7314,
+         0.0656,
+         0.035
+        ]
+       }
+      ],
+      "box": [
+       0.3096,
+       0.7273,
+       0.6426000000000001,
+       0.0393
+      ]
+     },
+     {
+      "r": 8,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.7789,
+       0.0277,
+       0.0761
+      ],
+      "lines": []
+     },
+     {
+      "r": 8,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Vêtements\n80,00 €\n134,25€",
+      "lines": [
+       {
+        "text": "Vêtements",
+        "box": [
+         0.3093,
+         0.8047,
+         0.079,
+         0.022
+        ]
+       },
+       {
+        "text": "80,00 €",
+        "box": [
+         0.766,
+         0.8089,
+         0.0611,
+         0.0345
+        ]
+       },
+       {
+        "text": "134,25€",
+        "box": [
+         0.8793,
+         0.8087,
+         0.0728,
+         0.0328
+        ]
+       }
+      ],
+      "box": [
+       0.3093,
+       0.8047,
+       0.6427999999999999,
+       0.03869999999999996
+      ]
+     },
+     {
+      "r": 9,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.2667,
+       0.855,
+       0.0277,
+       0.0837
+      ],
+      "lines": []
+     },
+     {
+      "r": 9,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Cadeaux\n50,00 €\n€ 0,00",
+      "lines": [
+       {
+        "text": "Cadeaux",
+        "box": [
+         0.3096,
+         0.8839,
+         0.064,
+         0.0198
+        ]
+       },
+       {
+        "text": "50,00 €",
+        "box": [
+         0.7657,
+         0.8851,
+         0.0617,
+         0.0368
+        ]
+       },
+       {
+        "text": "€ 0,00",
+        "box": [
+         0.8968,
+         0.8863,
+         0.0552,
+         0.0367
+        ]
+       }
+      ],
+      "box": [
+       0.3096,
+       0.8839,
+       0.6424000000000001,
+       0.03909999999999991
+      ]
+     }
+    ]
+   }
+  ],
+  "lines": [
+   {
+    "text": "Tirelire",
+    "box": [
+     0.0639,
+     0.0425,
+     0.0699,
+     0.0288
+    ]
+   },
+   {
+    "text": "‹ Octobre 2026 ›",
+    "box": [
+     0.8108,
+     0.0447,
+     0.1473,
+     0.0336
+    ]
+   },
+   {
+    "text": "Compte joint",
+    "box": [
+     0.5203,
+     0.124,
+     0.0858,
+     0.022
+    ]
+   },
+   {
+    "text": "Tableau de bord",
+    "box": [
+     0.0567,
+     0.1395,
+     0.1148,
+     0.022
+    ]
+   },
+   {
+    "text": "Comptes",
+    "box": [
+     0.0564,
+     0.2046,
+     0.0645,
+     0.0234
+    ]
+   },
+   {
+    "text": "Budget",
+    "box": [
+     0.0538,
+     0.2704,
+     0.0596,
+     0.0236
+    ]
+   },
+   {
+    "text": "Objectifs",
+    "box": [
+     0.0552,
+     0.3348,
+     0.0669,
+     0.0236
+    ]
+   },
+   {
+    "text": "Il Rapports",
+    "box": [
+     0.0244,
+     0.3979,
+     0.098,
+     0.029
+    ]
+   },
+   {
+    "text": "Budget d'octobre",
+    "box": [
+     0.2437,
+     0.0386,
+     0.1986,
+     0.0475
+    ]
+   },
+   {
+    "text": "9 catégories",
+    "box": [
+     0.2557,
+     0.1227,
+     0.0831,
+     0.0238
+    ]
+   },
+   {
+    "text": "5 dépassements",
+    "box": [
+     0.375,
+     0.1219,
+     0.109,
+     0.0219
+    ]
+   },
+   {
+    "text": "Catégorie",
+    "box": [
+     0.263,
+     0.2054,
+     0.0685,
+     0.0248
+    ]
+   },
+   {
+    "text": "Budget",
+    "box": [
+     0.7717,
+     0.2011,
+     0.057,
+     0.0291
+    ]
+   },
+   {
+    "text": "Réel",
+    "box": [
+     0.9172,
+     0.2017,
+     0.0363,
+     0.0258
+    ]
+   },
+   {
+    "text": "Logement",
+    "box": [
+     0.3095,
+     0.2675,
+     0.0743,
+     0.0229
+    ]
+   },
+   {
+    "text": "1 050,00 €",
+    "box": [
+     0.7426,
+     0.2675,
+     0.0846,
+     0.0358
+    ]
+   },
+   {
+    "text": "1 050,00 €",
+    "box": [
+     0.8663,
+     0.2682,
+     0.0843,
+     0.0322
+    ]
+   },
+   {
+    "text": "Courses",
+    "box": [
+     0.3096,
+     0.3432,
+     0.0611,
+     0.0218
+    ]
+   },
+   {
+    "text": "420,00 €",
+    "box": [
+     0.7572,
+     0.3453,
+     0.0699,
+     0.0348
+    ]
+   },
+   {
+    "text": "486,35 €",
+    "box": [
+     0.8793,
+     0.3473,
+     0.0713,
+     0.0328
+    ]
+   },
+   {
+    "text": "Transport",
+    "box": [
+     0.3095,
+     0.42,
+     0.0728,
+     0.0227
+    ]
+   },
+   {
+    "text": "120,00 €",
+    "box": [
+     0.7556,
+     0.4218,
+     0.0716,
+     0.0363
+    ]
+   },
+   {
+    "text": "97,60 €",
+    "box": [
+     0.8863,
+     0.4214,
+     0.0661,
+     0.0391
+    ]
+   },
+   {
+    "text": "R",
+    "box": [
+     0.2674,
+     0.4936,
+     0.0262,
+     0.0386
+    ]
+   },
+   {
+    "text": "Restaurants",
+    "box": [
+     0.3096,
+     0.4979,
+     0.0887,
+     0.0215
+    ]
+   },
+   {
+    "text": "150,00 €",
+    "box": [
+     0.7573,
+     0.5,
+     0.0712,
+     0.0344
+    ]
+   },
+   {
+    "text": "212,80 €",
+    "box": [
+     0.8776,
+     0.5003,
+     0.0733,
+     0.0345
+    ]
+   },
+   {
+    "text": "Loisirs",
+    "box": [
+     0.3094,
+     0.5719,
+     0.0484,
+     0.0235
+    ]
+   },
+   {
+    "text": "100,00€",
+    "box": [
+     0.7558,
+     0.5771,
+     0.0712,
+     0.0345
+    ]
+   },
+   {
+    "text": "143,90 €",
+    "box": [
+     0.8793,
+     0.5788,
+     0.0729,
+     0.0312
+    ]
+   },
+   {
+    "text": "Abonnements",
+    "box": [
+     0.3096,
+     0.6524,
+     0.1017,
+     0.0193
+    ]
+   },
+   {
+    "text": "45,00 €",
+    "box": [
+     0.7658,
+     0.6537,
+     0.0614,
+     0.0359
+    ]
+   },
+   {
+    "text": "52,97 €",
+    "box": [
+     0.8879,
+     0.6538,
+     0.0629,
+     0.0358
+    ]
+   },
+   {
+    "text": "S",
+    "box": [
+     0.2747,
+     0.7361,
+     0.0116,
+     0.0193
+    ]
+   },
+   {
+    "text": "Santé",
+    "box": [
+     0.3096,
+     0.7273,
+     0.0437,
+     0.0218
+    ]
+   },
+   {
+    "text": "60,00 €",
+    "box": [
+     0.7659,
+     0.7312,
+     0.0613,
+     0.0354
+    ]
+   },
+   {
+    "text": "23,50 €",
+    "box": [
+     0.8866,
+     0.7314,
+     0.0656,
+     0.035
+    ]
+   },
+   {
+    "text": "Vêtements",
+    "box": [
+     0.3093,
+     0.8047,
+     0.079,
+     0.022
+    ]
+   },
+   {
+    "text": "80,00 €",
+    "box": [
+     0.766,
+     0.8089,
+     0.0611,
+     0.0345
+    ]
+   },
+   {
+    "text": "134,25€",
+    "box": [
+     0.8793,
+     0.8087,
+     0.0728,
+     0.0328
+    ]
+   },
+   {
+    "text": "Cadeaux",
+    "box": [
+     0.3096,
+     0.8839,
+     0.064,
+     0.0198
+    ]
+   },
+   {
+    "text": "50,00 €",
+    "box": [
+     0.7657,
+     0.8851,
+     0.0617,
+     0.0368
+    ]
+   },
+   {
+    "text": "€ 0,00",
+    "box": [
+     0.8968,
+     0.8863,
+     0.0552,
+     0.0367
+    ]
+   }
+  ]
+ },
+ "crops": [],
+ "spans": {},
+ "expected": {
+  "cells": [
+   {
+    "id": "C1",
+    "text": "",
+    "table": 0,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C2",
+    "text": "Catégorie",
+    "table": 0,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C3",
+    "text": "Budget",
+    "table": 0,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C4",
+    "text": "Réel",
+    "table": 0,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C5",
+    "text": "",
+    "table": 0,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C6",
+    "text": "Logement",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C7",
+    "text": "1 050,00 €",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C8",
+    "text": "1 050,00 €",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C9",
+    "text": "",
+    "table": 0,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C10",
+    "text": "Courses",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C11",
+    "text": "420,00 €",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C12",
+    "text": "486,35 €",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C13",
+    "text": "",
+    "table": 0,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C14",
+    "text": "Transport",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C15",
+    "text": "120,00 €",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C16",
+    "text": "97,60 €",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C17",
+    "text": "R",
+    "table": 0,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C18",
+    "text": "Restaurants",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C19",
+    "text": "150,00 €",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C20",
+    "text": "212,80 €",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C21",
+    "text": "",
+    "table": 0,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C22",
+    "text": "Loisirs",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C23",
+    "text": "100,00€",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C24",
+    "text": "143,90 €",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C25",
+    "text": "",
+    "table": 0,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C26",
+    "text": "Abonnements",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C27",
+    "text": "45,00 €",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C28",
+    "text": "52,97 €",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C29",
+    "text": "S",
+    "table": 0,
+    "row": 7,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C30",
+    "text": "Santé",
+    "table": 0,
+    "row": 7,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C31",
+    "text": "60,00 €",
+    "table": 0,
+    "row": 7,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C32",
+    "text": "23,50 €",
+    "table": 0,
+    "row": 7,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C33",
+    "text": "",
+    "table": 0,
+    "row": 8,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C34",
+    "text": "Vêtements",
+    "table": 0,
+    "row": 8,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C35",
+    "text": "80,00 €",
+    "table": 0,
+    "row": 8,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C36",
+    "text": "134,25€",
+    "table": 0,
+    "row": 8,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C37",
+    "text": "",
+    "table": 0,
+    "row": 9,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C38",
+    "text": "Cadeaux",
+    "table": 0,
+    "row": 9,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C39",
+    "text": "50,00 €",
+    "table": 0,
+    "row": 9,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C40",
+    "text": "€ 0,00",
+    "table": 0,
+    "row": 9,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C41",
+    "text": "Tirelire",
+    "table": 1,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C42",
+    "text": "Budget d'octobre",
+    "table": 1,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C43",
+    "text": "‹ Octobre 2026 ›",
+    "table": 1,
+    "row": 0,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C44",
+    "text": "9 catégories",
+    "table": 1,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C45",
+    "text": "5 dépassements",
+    "table": 1,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C46",
+    "text": "Compte joint",
+    "table": 1,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C47",
+    "text": "Tableau de bord",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C48",
+    "text": "Comptes",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C49",
+    "text": "Budget",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C50",
+    "text": "Objectifs",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C51",
+    "text": "Il Rapports",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   }
+  ],
+  "listing": "Table 1:\nR1: C1 \"\" | C2 \"Catégorie\" | C3 \"Budget\" | C4 \"Réel\"\nR2: C5 \"\" | C6 \"Logement\" | C7 \"1 050,00 €\" | C8 \"1 050,00 €\"\nR3: C9 \"\" | C10 \"Courses\" | C11 \"420,00 €\" | C12 \"486,35 €\"\nR4: C13 \"\" | C14 \"Transport\" | C15 \"120,00 €\" | C16 \"97,60 €\"\nR5: C17 \"R\" | C18 \"Restaurants\" | C19 \"150,00 €\" | C20 \"212,80 €\"\nR6: C21 \"\" | C22 \"Loisirs\" | C23 \"100,00€\" | C24 \"143,90 €\"\nR7: C25 \"\" | C26 \"Abonnements\" | C27 \"45,00 €\" | C28 \"52,97 €\"\nR8: C29 \"S\" | C30 \"Santé\" | C31 \"60,00 €\" | C32 \"23,50 €\"\nR9: C33 \"\" | C34 \"Vêtements\" | C35 \"80,00 €\" | C36 \"134,25€\"\nR10: C37 \"\" | C38 \"Cadeaux\" | C39 \"50,00 €\" | C40 \"€ 0,00\"\nTable 2:\nR1: C41 \"Tirelire\" | C42 \"Budget d'octobre\" | C43 \"‹ Octobre 2026 ›\"\nR2: C44 \"9 catégories\" | C45 \"5 dépassements\" | C46 \"Compte joint\"\nOther text:\nC47 \"Tableau de bord\"\nC48 \"Comptes\"\nC49 \"Budget\"\nC50 \"Objectifs\"\nC51 \"Il Rapports\"",
+  "splitListing": "Table 1:\nR1: C1 \"\" | C2 \"Catégorie\" | C3 \"Budget\" | C4 \"Réel\"\nR2: C5 \"\" | C6 \"Logement\" | C7 \"1 050,00 €\" | C8 \"1 050,00 €\"\nR3: C9 \"\" | C10 \"Courses\" | C11 \"420,00 €\" | C12 \"486,35 €\"\nR4: C13 \"\" | C14 \"Transport\" | C15 \"120,00 €\" | C16 \"97,60 €\"\nR5: C17 \"R\" | C18 \"Restaurants\" | C19 \"150,00 €\" | C20 \"212,80 €\"\nR6: C21 \"\" | C22 \"Loisirs\" | C23 \"100,00€\" | C24 \"143,90 €\"\nR7: C25 \"\" | C26 \"Abonnements\" | C27 \"45,00 €\" | C28 \"52,97 €\"\nR8: C29 \"S\" | C30 \"Santé\" | C31 \"60,00 €\" | C32 \"23,50 €\"\nR9: C33 \"\" | C34 \"Vêtements\" | C35 \"80,00 €\" | C36 \"134,25€\"\nR10: C37 \"\" | C38 \"Cadeaux\" | C39 \"50,00 €\" | C40 \"€ 0,00\"\nTable 2:\nR1: C41 \"Tirelire\" | C42 \"Budget d'octobre\" | C43 \"‹ Octobre 2026 ›\"\nR2: C44 \"9 catégories\" | C45 \"5 dépassements\" | C46 \"Compte joint\"\nOther text:\nC47 \"Tableau de bord\"\nC48 \"Comptes\"\nC49 \"Budget\"\nC50 \"Objectifs\"\nC51 \"Il Rapports\""
+ }
+}

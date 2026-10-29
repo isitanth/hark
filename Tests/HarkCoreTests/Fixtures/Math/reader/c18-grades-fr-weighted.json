@@ -1,0 +1,2431 @@
+{
+ "case": "c18-grades-fr-weighted",
+ "document": {
+  "tables": [
+   {
+    "box": [
+     0.0292,
+     0.216,
+     0.9417,
+     0.6605
+    ],
+    "cells": [
+     {
+      "r": 0,
+      "c": 0,
+      "rs": 1,
+      "cs": 3,
+      "transcript": "Mes moyennes - Trimestre 1 Année 2026-2027",
+      "box": [
+       0.0292,
+       0.216,
+       0.6498,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Mes moyennes - Trimestre 1 Année 2026-2027",
+        "box": [
+         0.0208,
+         0.2219,
+         0.4083,
+         0.0375
+        ]
+       }
+      ]
+     },
+     {
+      "r": 0,
+      "c": 3,
+      "rs": 2,
+      "cs": 1,
+      "transcript": "Trimestre 1\nTrimestre 2\nCoefficient",
+      "lines": [
+       {
+        "text": "Trimestre 1",
+        "box": [
+         0.6933,
+         0.2258,
+         0.0756,
+         0.0194
+        ]
+       },
+       {
+        "text": "Trimestre 2",
+        "box": [
+         0.7936,
+         0.228,
+         0.0712,
+         0.0172
+        ]
+       },
+       {
+        "text": "Coefficient",
+        "box": [
+         0.7355,
+         0.301,
+         0.0712,
+         0.0196
+        ]
+       }
+      ],
+      "box": [
+       0.6933,
+       0.2258,
+       0.17149999999999999,
+       0.0948
+      ]
+     },
+     {
+      "r": 0,
+      "c": 4,
+      "rs": 2,
+      "cs": 1,
+      "transcript": "Trimestre 3\nMoy. classe",
+      "lines": [
+       {
+        "text": "Trimestre 3",
+        "box": [
+         0.8895,
+         0.228,
+         0.0712,
+         0.0172
+        ]
+       },
+       {
+        "text": "Moy. classe",
+        "box": [
+         0.8866,
+         0.3031,
+         0.0741,
+         0.0198
+        ]
+       }
+      ],
+      "box": [
+       0.8866,
+       0.228,
+       0.07410000000000005,
+       0.09489999999999996
+      ]
+     },
+     {
+      "r": 1,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Matière",
+      "box": [
+       0.0292,
+       0.2755,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Matière",
+        "box": [
+         0.0392,
+         0.3009,
+         0.0495,
+         0.0197
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Professeur",
+      "box": [
+       0.2928,
+       0.2755,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Professeur",
+        "box": [
+         0.3764,
+         0.2983,
+         0.0729,
+         0.027
+        ]
+       }
+      ]
+     },
+     {
+      "r": 1,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Note /20",
+      "box": [
+       0.5282,
+       0.2755,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Note /20",
+        "box": [
+         0.5987,
+         0.2962,
+         0.0584,
+         0.029
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Français",
+      "box": [
+       0.0292,
+       0.3349,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Français",
+        "box": [
+         0.0392,
+         0.3591,
+         0.0741,
+         0.0237
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mme Vasseur",
+      "box": [
+       0.2928,
+       0.3349,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Mme Vasseur",
+        "box": [
+         0.3765,
+         0.3548,
+         0.0945,
+         0.028
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "12,50",
+      "box": [
+       0.5282,
+       0.3349,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "12,50",
+        "box": [
+         0.6076,
+         0.3527,
+         0.0494,
+         0.0366
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "4",
+      "box": [
+       0.6789,
+       0.3349,
+       0.1977,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "4",
+        "box": [
+         0.7936,
+         0.3591,
+         0.0116,
+         0.0194
+        ]
+       }
+      ]
+     },
+     {
+      "r": 2,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "11,85",
+      "box": [
+       0.8767,
+       0.3349,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "11,85",
+        "box": [
+         0.9201,
+         0.3591,
+         0.0392,
+         0.0258
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mathématiques",
+      "box": [
+       0.0292,
+       0.3944,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Mathématiques",
+        "box": [
+         0.0436,
+         0.4194,
+         0.1177,
+         0.0215
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "M. Lefort",
+      "box": [
+       0.2928,
+       0.3944,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "M. Lefort",
+        "box": [
+         0.3735,
+         0.4148,
+         0.0684,
+         0.0263
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "15,25",
+      "box": [
+       0.5282,
+       0.3944,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "15,25",
+        "box": [
+         0.6076,
+         0.4108,
+         0.0494,
+         0.0366
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "4",
+      "box": [
+       0.6789,
+       0.3944,
+       0.1977,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "4",
+        "box": [
+         0.7936,
+         0.4194,
+         0.0116,
+         0.0194
+        ]
+       }
+      ]
+     },
+     {
+      "r": 3,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "10,92",
+      "box": [
+       0.8767,
+       0.3944,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "10,92",
+        "box": [
+         0.9199,
+         0.4189,
+         0.0395,
+         0.0245
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Histoire-géographie",
+      "box": [
+       0.0292,
+       0.4538,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Histoire-géographie",
+        "box": [
+         0.0376,
+         0.4773,
+         0.1558,
+         0.025
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mme Ondine",
+      "box": [
+       0.2928,
+       0.4538,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Mme Ondine",
+        "box": [
+         0.3779,
+         0.475,
+         0.0873,
+         0.0264
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "12,00",
+      "box": [
+       0.5282,
+       0.4538,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "12,00",
+        "box": [
+         0.6076,
+         0.4731,
+         0.0494,
+         0.0366
+        ]
+       }
+      ]
+     },
+     {
+      "r": 4,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.6789,
+       0.4538,
+       0.1977,
+       0.0594
+      ],
+      "lines": []
+     },
+     {
+      "r": 4,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "12,40",
+      "box": [
+       0.8767,
+       0.4538,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "12,40",
+        "box": [
+         0.92,
+         0.4794,
+         0.0408,
+         0.0261
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Anglais LVA",
+      "box": [
+       0.0292,
+       0.5133,
+       0.2637,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "Anglais LVA",
+        "box": [
+         0.0376,
+         0.5375,
+         0.0992,
+         0.0254
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mme Pradel",
+      "box": [
+       0.2928,
+       0.5133,
+       0.2354,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "Mme Pradel",
+        "box": [
+         0.375,
+         0.5353,
+         0.0858,
+         0.0284
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "16,50",
+      "box": [
+       0.5282,
+       0.5133,
+       0.1507,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "16,50",
+        "box": [
+         0.6075,
+         0.5331,
+         0.0496,
+         0.0349
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "З",
+      "box": [
+       0.6789,
+       0.5133,
+       0.1977,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "З",
+        "box": [
+         0.7951,
+         0.5398,
+         0.0102,
+         0.0194
+        ]
+       }
+      ]
+     },
+     {
+      "r": 5,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "13,10",
+      "box": [
+       0.8767,
+       0.5133,
+       0.0942,
+       0.066
+      ],
+      "lines": [
+       {
+        "text": "13,10",
+        "box": [
+         0.9201,
+         0.5398,
+         0.0392,
+         0.0258
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Espagnol LVB",
+      "box": [
+       0.0292,
+       0.5793,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Espagnol LVB",
+        "box": [
+         0.0436,
+         0.6,
+         0.1047,
+         0.024
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "M. Ibarra",
+      "box": [
+       0.2928,
+       0.5793,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "M. Ibarra",
+        "box": [
+         0.3765,
+         0.5957,
+         0.0625,
+         0.0262
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "11,75",
+      "box": [
+       0.5282,
+       0.5793,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "11,75",
+        "box": [
+         0.6074,
+         0.5931,
+         0.0497,
+         0.0375
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "2",
+      "box": [
+       0.6789,
+       0.5793,
+       0.1977,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "2",
+        "box": [
+         0.7936,
+         0.6,
+         0.0116,
+         0.0194
+        ]
+       }
+      ]
+     },
+     {
+      "r": 6,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "12,65",
+      "box": [
+       0.8767,
+       0.5793,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "12,65",
+        "box": [
+         0.9201,
+         0.6,
+         0.0392,
+         0.0258
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Physique-chimie",
+      "box": [
+       0.0292,
+       0.6388,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Physique-chimie",
+        "box": [
+         0.0462,
+         0.6541,
+         0.1242,
+         0.0313
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "M. Caradec",
+      "box": [
+       0.2928,
+       0.6388,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "M. Caradec",
+        "box": [
+         0.3764,
+         0.6532,
+         0.0801,
+         0.0333
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "14,00",
+      "box": [
+       0.5282,
+       0.6388,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "14,00",
+        "box": [
+         0.6076,
+         0.6538,
+         0.0494,
+         0.0344
+        ]
+       }
+      ]
+     },
+     {
+      "r": 7,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.6789,
+       0.6388,
+       0.1977,
+       0.0594
+      ],
+      "lines": []
+     },
+     {
+      "r": 7,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "11,20",
+      "box": [
+       0.8767,
+       0.6388,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "11,20",
+        "box": [
+         0.92,
+         0.66,
+         0.0393,
+         0.024
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "SVT",
+      "box": [
+       0.0292,
+       0.6982,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "SVT",
+        "box": [
+         0.048,
+         0.7204,
+         0.0363,
+         0.0194
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Mme Lagarde",
+      "box": [
+       0.2928,
+       0.6982,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Mme Lagarde",
+        "box": [
+         0.3764,
+         0.7158,
+         0.0946,
+         0.0285
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "13,00",
+      "box": [
+       0.5282,
+       0.6982,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "13,00",
+        "box": [
+         0.6076,
+         0.714,
+         0.0494,
+         0.0366
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "2",
+      "box": [
+       0.6789,
+       0.6982,
+       0.1977,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "2",
+        "box": [
+         0.7936,
+         0.7204,
+         0.0116,
+         0.0194
+        ]
+       }
+      ]
+     },
+     {
+      "r": 8,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "12,05",
+      "box": [
+       0.8767,
+       0.6982,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "12,05",
+        "box": [
+         0.9201,
+         0.7204,
+         0.0392,
+         0.0258
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "Enseignement scientifique",
+      "box": [
+       0.0292,
+       0.7577,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "Enseignement scientifique",
+        "box": [
+         0.0378,
+         0.7781,
+         0.1991,
+         0.024
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "M. Caradec",
+      "box": [
+       0.2928,
+       0.7577,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "M. Caradec",
+        "box": [
+         0.3764,
+         0.774,
+         0.08,
+         0.0306
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "12,50",
+      "box": [
+       0.5282,
+       0.7577,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "12,50",
+        "box": [
+         0.6075,
+         0.7719,
+         0.0495,
+         0.0368
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "2",
+      "box": [
+       0.6789,
+       0.7577,
+       0.1977,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "2",
+        "box": [
+         0.7936,
+         0.7806,
+         0.0116,
+         0.0194
+        ]
+       }
+      ]
+     },
+     {
+      "r": 9,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "11,70",
+      "box": [
+       0.8767,
+       0.7577,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "11,70",
+        "box": [
+         0.92,
+         0.7804,
+         0.0394,
+         0.0242
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 0,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "EPS",
+      "box": [
+       0.0292,
+       0.8171,
+       0.2637,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "EPS",
+        "box": [
+         0.0378,
+         0.8387,
+         0.0451,
+         0.0215
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 1,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "M. Royer",
+      "box": [
+       0.2928,
+       0.8171,
+       0.2354,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "M. Royer",
+        "box": [
+         0.3765,
+         0.8365,
+         0.0625,
+         0.0281
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 2,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "18,50",
+      "box": [
+       0.5282,
+       0.8171,
+       0.1507,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "18,50",
+        "box": [
+         0.6076,
+         0.8344,
+         0.0494,
+         0.0366
+        ]
+       }
+      ]
+     },
+     {
+      "r": 10,
+      "c": 3,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "",
+      "box": [
+       0.6789,
+       0.8171,
+       0.1977,
+       0.0594
+      ],
+      "lines": []
+     },
+     {
+      "r": 10,
+      "c": 4,
+      "rs": 1,
+      "cs": 1,
+      "transcript": "14,30",
+      "box": [
+       0.8767,
+       0.8171,
+       0.0942,
+       0.0594
+      ],
+      "lines": [
+       {
+        "text": "14,30",
+        "box": [
+         0.9201,
+         0.8409,
+         0.0392,
+         0.0237
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "lines": [
+   {
+    "text": "• Ecolia | Lycée des Tilleuls • Espace élève",
+    "box": [
+     0.0247,
+     0.0243,
+     0.3297,
+     0.0438
+    ]
+   },
+   {
+    "text": "Accueil",
+    "box": [
+     0.0305,
+     0.1097,
+     0.0494,
+     0.0194
+    ]
+   },
+   {
+    "text": "Cahier de textes",
+    "box": [
+     0.1105,
+     0.1094,
+     0.109,
+     0.0198
+    ]
+   },
+   {
+    "text": "Notes",
+    "box": [
+     0.25,
+     0.1097,
+     0.0436,
+     0.0194
+    ]
+   },
+   {
+    "text": "Emploi du temps",
+    "box": [
+     0.3224,
+     0.1032,
+     0.1154,
+     0.0307
+    ]
+   },
+   {
+    "text": "Vie scolaire",
+    "box": [
+     0.4664,
+     0.1023,
+     0.0802,
+     0.0298
+    ]
+   },
+   {
+    "text": "Messagerie",
+    "box": [
+     0.5696,
+     0.1041,
+     0.0846,
+     0.0289
+    ]
+   },
+   {
+    "text": "Notes › Moyennes par matière",
+    "box": [
+     0.0233,
+     0.1823,
+     0.1788,
+     0.0199
+    ]
+   },
+   {
+    "text": "Mes moyennes - Trimestre 1 Année 2026-2027",
+    "box": [
+     0.0208,
+     0.2219,
+     0.4083,
+     0.0375
+    ]
+   },
+   {
+    "text": "Trimestre 1",
+    "box": [
+     0.6933,
+     0.2258,
+     0.0756,
+     0.0194
+    ]
+   },
+   {
+    "text": "Trimestre 2",
+    "box": [
+     0.7936,
+     0.228,
+     0.0712,
+     0.0172
+    ]
+   },
+   {
+    "text": "Coefficient",
+    "box": [
+     0.7355,
+     0.301,
+     0.0712,
+     0.0196
+    ]
+   },
+   {
+    "text": "Trimestre 3",
+    "box": [
+     0.8895,
+     0.228,
+     0.0712,
+     0.0172
+    ]
+   },
+   {
+    "text": "Moy. classe",
+    "box": [
+     0.8866,
+     0.3031,
+     0.0741,
+     0.0198
+    ]
+   },
+   {
+    "text": "Matière",
+    "box": [
+     0.0392,
+     0.3009,
+     0.0495,
+     0.0197
+    ]
+   },
+   {
+    "text": "Professeur",
+    "box": [
+     0.3764,
+     0.2983,
+     0.0729,
+     0.027
+    ]
+   },
+   {
+    "text": "Note /20",
+    "box": [
+     0.5987,
+     0.2962,
+     0.0584,
+     0.029
+    ]
+   },
+   {
+    "text": "Français",
+    "box": [
+     0.0392,
+     0.3591,
+     0.0741,
+     0.0237
+    ]
+   },
+   {
+    "text": "Mme Vasseur",
+    "box": [
+     0.3765,
+     0.3548,
+     0.0945,
+     0.028
+    ]
+   },
+   {
+    "text": "12,50",
+    "box": [
+     0.6076,
+     0.3527,
+     0.0494,
+     0.0366
+    ]
+   },
+   {
+    "text": "4",
+    "box": [
+     0.7936,
+     0.3591,
+     0.0116,
+     0.0194
+    ]
+   },
+   {
+    "text": "11,85",
+    "box": [
+     0.9201,
+     0.3591,
+     0.0392,
+     0.0258
+    ]
+   },
+   {
+    "text": "Mathématiques",
+    "box": [
+     0.0436,
+     0.4194,
+     0.1177,
+     0.0215
+    ]
+   },
+   {
+    "text": "M. Lefort",
+    "box": [
+     0.3735,
+     0.4148,
+     0.0684,
+     0.0263
+    ]
+   },
+   {
+    "text": "15,25",
+    "box": [
+     0.6076,
+     0.4108,
+     0.0494,
+     0.0366
+    ]
+   },
+   {
+    "text": "4",
+    "box": [
+     0.7936,
+     0.4194,
+     0.0116,
+     0.0194
+    ]
+   },
+   {
+    "text": "10,92",
+    "box": [
+     0.9199,
+     0.4189,
+     0.0395,
+     0.0245
+    ]
+   },
+   {
+    "text": "Histoire-géographie",
+    "box": [
+     0.0376,
+     0.4773,
+     0.1558,
+     0.025
+    ]
+   },
+   {
+    "text": "Mme Ondine",
+    "box": [
+     0.3779,
+     0.475,
+     0.0873,
+     0.0264
+    ]
+   },
+   {
+    "text": "12,00",
+    "box": [
+     0.6076,
+     0.4731,
+     0.0494,
+     0.0366
+    ]
+   },
+   {
+    "text": "12,40",
+    "box": [
+     0.92,
+     0.4794,
+     0.0408,
+     0.0261
+    ]
+   },
+   {
+    "text": "Anglais LVA",
+    "box": [
+     0.0376,
+     0.5375,
+     0.0992,
+     0.0254
+    ]
+   },
+   {
+    "text": "Mme Pradel",
+    "box": [
+     0.375,
+     0.5353,
+     0.0858,
+     0.0284
+    ]
+   },
+   {
+    "text": "16,50",
+    "box": [
+     0.6075,
+     0.5331,
+     0.0496,
+     0.0349
+    ]
+   },
+   {
+    "text": "З",
+    "box": [
+     0.7951,
+     0.5398,
+     0.0102,
+     0.0194
+    ]
+   },
+   {
+    "text": "13,10",
+    "box": [
+     0.9201,
+     0.5398,
+     0.0392,
+     0.0258
+    ]
+   },
+   {
+    "text": "Espagnol LVB",
+    "box": [
+     0.0436,
+     0.6,
+     0.1047,
+     0.024
+    ]
+   },
+   {
+    "text": "M. Ibarra",
+    "box": [
+     0.3765,
+     0.5957,
+     0.0625,
+     0.0262
+    ]
+   },
+   {
+    "text": "11,75",
+    "box": [
+     0.6074,
+     0.5931,
+     0.0497,
+     0.0375
+    ]
+   },
+   {
+    "text": "2",
+    "box": [
+     0.7936,
+     0.6,
+     0.0116,
+     0.0194
+    ]
+   },
+   {
+    "text": "12,65",
+    "box": [
+     0.9201,
+     0.6,
+     0.0392,
+     0.0258
+    ]
+   },
+   {
+    "text": "Physique-chimie",
+    "box": [
+     0.0462,
+     0.6541,
+     0.1242,
+     0.0313
+    ]
+   },
+   {
+    "text": "M. Caradec",
+    "box": [
+     0.3764,
+     0.6532,
+     0.0801,
+     0.0333
+    ]
+   },
+   {
+    "text": "14,00",
+    "box": [
+     0.6076,
+     0.6538,
+     0.0494,
+     0.0344
+    ]
+   },
+   {
+    "text": "11,20",
+    "box": [
+     0.92,
+     0.66,
+     0.0393,
+     0.024
+    ]
+   },
+   {
+    "text": "SVT",
+    "box": [
+     0.048,
+     0.7204,
+     0.0363,
+     0.0194
+    ]
+   },
+   {
+    "text": "Mme Lagarde",
+    "box": [
+     0.3764,
+     0.7158,
+     0.0946,
+     0.0285
+    ]
+   },
+   {
+    "text": "13,00",
+    "box": [
+     0.6076,
+     0.714,
+     0.0494,
+     0.0366
+    ]
+   },
+   {
+    "text": "2",
+    "box": [
+     0.7936,
+     0.7204,
+     0.0116,
+     0.0194
+    ]
+   },
+   {
+    "text": "12,05",
+    "box": [
+     0.9201,
+     0.7204,
+     0.0392,
+     0.0258
+    ]
+   },
+   {
+    "text": "Enseignement scientifique",
+    "box": [
+     0.0378,
+     0.7781,
+     0.1991,
+     0.024
+    ]
+   },
+   {
+    "text": "M. Caradec",
+    "box": [
+     0.3764,
+     0.774,
+     0.08,
+     0.0306
+    ]
+   },
+   {
+    "text": "12,50",
+    "box": [
+     0.6075,
+     0.7719,
+     0.0495,
+     0.0368
+    ]
+   },
+   {
+    "text": "2",
+    "box": [
+     0.7936,
+     0.7806,
+     0.0116,
+     0.0194
+    ]
+   },
+   {
+    "text": "11,70",
+    "box": [
+     0.92,
+     0.7804,
+     0.0394,
+     0.0242
+    ]
+   },
+   {
+    "text": "EPS",
+    "box": [
+     0.0378,
+     0.8387,
+     0.0451,
+     0.0215
+    ]
+   },
+   {
+    "text": "M. Royer",
+    "box": [
+     0.3765,
+     0.8365,
+     0.0625,
+     0.0281
+    ]
+   },
+   {
+    "text": "18,50",
+    "box": [
+     0.6076,
+     0.8344,
+     0.0494,
+     0.0366
+    ]
+   },
+   {
+    "text": "14,30",
+    "box": [
+     0.9201,
+     0.8409,
+     0.0392,
+     0.0237
+    ]
+   },
+   {
+    "text": "La moyenne générale sera publiée après le conseil de classe.",
+    "box": [
+     0.0654,
+     0.9163,
+     0.3766,
+     0.0279
+    ]
+   },
+   {
+    "text": "CR",
+    "box": [
+     0.7224,
+     0.0366,
+     0.0203,
+     0.0172
+    ]
+   },
+   {
+    "text": "Camille Roussel",
+    "box": [
+     0.7587,
+     0.0258,
+     0.1017,
+     0.0194
+    ]
+   },
+   {
+    "text": "Première B",
+    "box": [
+     0.7573,
+     0.049,
+     0.0654,
+     0.0177
+    ]
+   },
+   {
+    "text": "Déconnexion",
+    "box": [
+     0.8881,
+     0.0344,
+     0.0785,
+     0.0194
+    ]
+   }
+  ]
+ },
+ "crops": [
+  {
+   "box": [
+    0.6789,
+    0.4773,
+    0.1977,
+    0.028199999999999947
+   ],
+   "rung": 0,
+   "text": ""
+  },
+  {
+   "box": [
+    0.6789,
+    0.4773,
+    0.1977,
+    0.028199999999999947
+   ],
+   "rung": 1,
+   "text": "3"
+  },
+  {
+   "box": [
+    0.6789,
+    0.6541,
+    0.1977,
+    0.032399999999999984
+   ],
+   "rung": 0,
+   "text": ""
+  },
+  {
+   "box": [
+    0.6789,
+    0.6541,
+    0.1977,
+    0.032399999999999984
+   ],
+   "rung": 1,
+   "text": ""
+  },
+  {
+   "box": [
+    0.6789,
+    0.6541,
+    0.1977,
+    0.032399999999999984
+   ],
+   "rung": 2,
+   "text": ""
+  },
+  {
+   "box": [
+    0.6789,
+    0.6541,
+    0.1977,
+    0.032399999999999984
+   ],
+   "rung": 3,
+   "text": "3"
+  },
+  {
+   "box": [
+    0.6789,
+    0.8387,
+    0.1977,
+    0.025900000000000034
+   ],
+   "rung": 0,
+   "text": "1"
+  }
+ ],
+ "spans": {},
+ "expected": {
+  "cells": [
+   {
+    "id": "C1",
+    "text": "Mes moyennes - Trimestre 1 Année 2026-2027",
+    "table": 0,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C2",
+    "text": "Trimestre 1",
+    "table": 0,
+    "row": 0,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C3",
+    "text": "Trimestre 2",
+    "table": 0,
+    "row": 0,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C4",
+    "text": "Coefficient",
+    "table": 0,
+    "row": 0,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C5",
+    "text": "Trimestre 3",
+    "table": 0,
+    "row": 0,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C6",
+    "text": "Moy. classe",
+    "table": 0,
+    "row": 0,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C7",
+    "text": "Matière",
+    "table": 0,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C8",
+    "text": "Professeur",
+    "table": 0,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C9",
+    "text": "Note /20",
+    "table": 0,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C10",
+    "text": "Français",
+    "table": 0,
+    "row": 2,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C11",
+    "text": "Mme Vasseur",
+    "table": 0,
+    "row": 2,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C12",
+    "text": "12,50",
+    "table": 0,
+    "row": 2,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C13",
+    "text": "4",
+    "table": 0,
+    "row": 2,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C14",
+    "text": "11,85",
+    "table": 0,
+    "row": 2,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C15",
+    "text": "Mathématiques",
+    "table": 0,
+    "row": 3,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C16",
+    "text": "M. Lefort",
+    "table": 0,
+    "row": 3,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C17",
+    "text": "15,25",
+    "table": 0,
+    "row": 3,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C18",
+    "text": "4",
+    "table": 0,
+    "row": 3,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C19",
+    "text": "10,92",
+    "table": 0,
+    "row": 3,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C20",
+    "text": "Histoire-géographie",
+    "table": 0,
+    "row": 4,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C21",
+    "text": "Mme Ondine",
+    "table": 0,
+    "row": 4,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C22",
+    "text": "12,00",
+    "table": 0,
+    "row": 4,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C23",
+    "text": "3",
+    "table": 0,
+    "row": 4,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C24",
+    "text": "12,40",
+    "table": 0,
+    "row": 4,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C25",
+    "text": "Anglais LVA",
+    "table": 0,
+    "row": 5,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C26",
+    "text": "Mme Pradel",
+    "table": 0,
+    "row": 5,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C27",
+    "text": "16,50",
+    "table": 0,
+    "row": 5,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C28",
+    "text": "3",
+    "table": 0,
+    "row": 5,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C29",
+    "text": "13,10",
+    "table": 0,
+    "row": 5,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C30",
+    "text": "Espagnol LVB",
+    "table": 0,
+    "row": 6,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C31",
+    "text": "M. Ibarra",
+    "table": 0,
+    "row": 6,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C32",
+    "text": "11,75",
+    "table": 0,
+    "row": 6,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C33",
+    "text": "2",
+    "table": 0,
+    "row": 6,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C34",
+    "text": "12,65",
+    "table": 0,
+    "row": 6,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C35",
+    "text": "Physique-chimie",
+    "table": 0,
+    "row": 7,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C36",
+    "text": "M. Caradec",
+    "table": 0,
+    "row": 7,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C37",
+    "text": "14,00",
+    "table": 0,
+    "row": 7,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C38",
+    "text": "3",
+    "table": 0,
+    "row": 7,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C39",
+    "text": "11,20",
+    "table": 0,
+    "row": 7,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C40",
+    "text": "SVT",
+    "table": 0,
+    "row": 8,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C41",
+    "text": "Mme Lagarde",
+    "table": 0,
+    "row": 8,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C42",
+    "text": "13,00",
+    "table": 0,
+    "row": 8,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C43",
+    "text": "2",
+    "table": 0,
+    "row": 8,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C44",
+    "text": "12,05",
+    "table": 0,
+    "row": 8,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C45",
+    "text": "Enseignement scientifique",
+    "table": 0,
+    "row": 9,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C46",
+    "text": "M. Caradec",
+    "table": 0,
+    "row": 9,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C47",
+    "text": "12,50",
+    "table": 0,
+    "row": 9,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C48",
+    "text": "2",
+    "table": 0,
+    "row": 9,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C49",
+    "text": "11,70",
+    "table": 0,
+    "row": 9,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C50",
+    "text": "EPS",
+    "table": 0,
+    "row": 10,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C51",
+    "text": "M. Royer",
+    "table": 0,
+    "row": 10,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C52",
+    "text": "18,50",
+    "table": 0,
+    "row": 10,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C53",
+    "text": "1",
+    "table": 0,
+    "row": 10,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C54",
+    "text": "14,30",
+    "table": 0,
+    "row": 10,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C55",
+    "text": "• Ecolia | Lycée des Tilleuls • Espace élève",
+    "table": 1,
+    "row": 0,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C56",
+    "text": "CR",
+    "table": 1,
+    "row": 0,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C57",
+    "text": "Déconnexion",
+    "table": 1,
+    "row": 0,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C58",
+    "text": "Accueil",
+    "table": 1,
+    "row": 1,
+    "column": 0,
+    "uncertain": false
+   },
+   {
+    "id": "C59",
+    "text": "Cahier de textes",
+    "table": 1,
+    "row": 1,
+    "column": 1,
+    "uncertain": false
+   },
+   {
+    "id": "C60",
+    "text": "Notes",
+    "table": 1,
+    "row": 1,
+    "column": 2,
+    "uncertain": false
+   },
+   {
+    "id": "C61",
+    "text": "Emploi du temps",
+    "table": 1,
+    "row": 1,
+    "column": 3,
+    "uncertain": false
+   },
+   {
+    "id": "C62",
+    "text": "Vie scolaire",
+    "table": 1,
+    "row": 1,
+    "column": 4,
+    "uncertain": false
+   },
+   {
+    "id": "C63",
+    "text": "Messagerie",
+    "table": 1,
+    "row": 1,
+    "column": 5,
+    "uncertain": false
+   },
+   {
+    "id": "C64",
+    "text": "Camille Roussel",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C65",
+    "text": "Première B",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C66",
+    "text": "Notes › Moyennes par matière",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   },
+   {
+    "id": "C67",
+    "text": "La moyenne générale sera publiée après le conseil de classe.",
+    "table": null,
+    "row": null,
+    "column": null,
+    "uncertain": false
+   }
+  ],
+  "listing": "Table 1:\nR1: C1 \"Mes moyennes - Trimestre 1 Année 2026-2027\" | C2 \"Trimestre 1\" | C3 \"Trimestre 2\" | C4 \"Coefficient\" | C5 \"Trimestre 3\" | C6 \"Moy. classe\"\nR2: C7 \"Matière\" | C8 \"Professeur\" | C9 \"Note /20\"\nR3: C10 \"Français\" | C11 \"Mme Vasseur\" | C12 \"12,50\" | C13 \"4\" | C14 \"11,85\"\nR4: C15 \"Mathématiques\" | C16 \"M. Lefort\" | C17 \"15,25\" | C18 \"4\" | C19 \"10,92\"\nR5: C20 \"Histoire-géographie\" | C21 \"Mme Ondine\" | C22 \"12,00\" | C23 \"3\" | C24 \"12,40\"\nR6: C25 \"Anglais LVA\" | C26 \"Mme Pradel\" | C27 \"16,50\" | C28 \"3\" | C29 \"13,10\"\nR7: C30 \"Espagnol LVB\" | C31 \"M. Ibarra\" | C32 \"11,75\" | C33 \"2\" | C34 \"12,65\"\nR8: C35 \"Physique-chimie\" | C36 \"M. Caradec\" | C37 \"14,00\" | C38 \"3\" | C39 \"11,20\"\nR9: C40 \"SVT\" | C41 \"Mme Lagarde\" | C42 \"13,00\" | C43 \"2\" | C44 \"12,05\"\nR10: C45 \"Enseignement scientifique\" | C46 \"M. Caradec\" | C47 \"12,50\" | C48 \"2\" | C49 \"11,70\"\nR11: C50 \"EPS\" | C51 \"M. Royer\" | C52 \"18,50\" | C53 \"1\" | C54 \"14,30\"\nTable 2:\nR1: C55 \"• Ecolia | Lycée des Tilleuls • Espace élève\" | C56 \"CR\" | C57 \"Déconnexion\"\nR2: C58 \"Accueil\" | C59 \"Cahier de textes\" | C60 \"Notes\" | C61 \"Emploi du temps\" | C62 \"Vie scolaire\" | C63 \"Messagerie\"\nOther text:\nC64 \"Camille Roussel\"\nC65 \"Première B\"\nC66 \"Notes › Moyennes par matière\"\nC67 \"La moyenne générale sera publiée après le conseil de classe.\"",
+  "splitListing": "Table 1:\nR1: C1 \"Mes moyennes - Trimestre 1 Année 2026-2027\" | C2 \"Trimestre 1\" | C3 \"Trimestre 2\" | C4 \"Coefficient\" | C5 \"Trimestre 3\" | C6 \"Moy. classe\"\nR2: C7 \"Matière\" | C8 \"Professeur\" | C9 \"Note /20\"\nR3: C10 \"Français\" | C11 \"Mme Vasseur\" | C12 \"12,50\" | C13 \"4\" | C14 \"11,85\"\nR4: C15 \"Mathématiques\" | C16 \"M. Lefort\" | C17 \"15,25\" | C18 \"4\" | C19 \"10,92\"\nR5: C20 \"Histoire-géographie\" | C21 \"Mme Ondine\" | C22 \"12,00\" | C23 \"3\" | C24 \"12,40\"\nR6: C25 \"Anglais LVA\" | C26 \"Mme Pradel\" | C27 \"16,50\" | C28 \"3\" | C29 \"13,10\"\nR7: C30 \"Espagnol LVB\" | C31 \"M. Ibarra\" | C32 \"11,75\" | C33 \"2\" | C34 \"12,65\"\nR8: C35 \"Physique-chimie\" | C36 \"M. Caradec\" | C37 \"14,00\" | C38 \"3\" | C39 \"11,20\"\nR9: C40 \"SVT\" | C41 \"Mme Lagarde\" | C42 \"13,00\" | C43 \"2\" | C44 \"12,05\"\nR10: C45 \"Enseignement scientifique\" | C46 \"M. Caradec\" | C47 \"12,50\" | C48 \"2\" | C49 \"11,70\"\nR11: C50 \"EPS\" | C51 \"M. Royer\" | C52 \"18,50\" | C53 \"1\" | C54 \"14,30\"\nTable 2:\nR1: C55 \"• Ecolia | Lycée des Tilleuls • Espace élève\" | C56 \"CR\" | C57 \"Déconnexion\"\nR2: C58 \"Accueil\" | C59 \"Cahier de textes\" | C60 \"Notes\" | C61 \"Emploi du temps\" | C62 \"Vie scolaire\" | C63 \"Messagerie\"\nOther text:\nC64 \"Camille Roussel\"\nC65 \"Première B\"\nC66 \"Notes › Moyennes par matière\"\nC67 \"La moyenne générale sera publiée après le conseil de classe.\""
+ }
+}
