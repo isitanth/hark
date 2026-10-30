@@ -127,6 +127,9 @@ private func plain(_ text: String) -> String {
             ("a percent", "(C1 - C2) / C2 * 100", ["120 To", "100 To"], "percent", "To", "20.00%"),
             ("a ratio of two cells", "C1 / C2", ["8 To", "4 To"], "none", "To", "2"),
             ("a sum over a spoken number", "SUM(C1, C2, C3, C4) / 4", storage, "none", "To", "5.5 To"),
+            ("Go into To", "SUM(C1, C2) / 1000", ["4000 Go", "2000 Go"], "none", "Go", "6"),
+            ("minutes into hours", "SUM(C1, C2) / 60", ["90 min", "30 min"], "none", "min", "2"),
+            ("a month into a year", "C1 * 12", ["4 To"], "none", "To", "48"),
             (
                 "case and accents", "SUM(C1, C2)", ["4 téraoctets", "6 Téraoctets"], "none", "Téraoctets",
                 "10 Téraoctets"
@@ -157,7 +160,7 @@ private func plain(_ text: String) -> String {
 
     @Test func theUnroundedValueKeepsTheLabelToo() throws {
         let rounded = try answer(
-            "SUM(C1, C2, C3, C4) / 7", Self.storage, instruction: "per day over a week", unitLabel: "To")
+            "SUM(C1, C2, C3, C4) / 3", Self.storage, instruction: "split three ways", unitLabel: "To")
         #expect(rounded.result.hasSuffix("\u{00A0}To"))
         #expect(rounded.exact?.hasSuffix("\u{00A0}To") == true)
     }

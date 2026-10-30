@@ -94,10 +94,10 @@ enum ResultFormat {
 
 /// The model's `unit_label` (0.1.0), kept only where the screen bears it out: a plain number, declared none or count;
 /// one or two words with no digit, 16 characters at most; written whole, whatever its case and accents, in every cell
-/// the formula read; and no product or quotient of two operands that read cells, whose unit is no longer the cells'.
-/// A COUNT counts items, not their unit: "4 To" for four rows in To would be wrong, so a count shows bare. Anything
-/// else shows the bare number too: no failure, no retry, nothing logged. A word only the user spoke is refused: "en Go"
-/// over cells in To would show a wrong unit.
+/// the formula read; and no product or quotient that changes the cells' unit (`Formula.changesUnit`). A COUNT counts
+/// items, not their unit: "4 To" for four rows in To would be wrong, so a count shows bare. Anything else shows the
+/// bare number too: no failure, no retry, nothing logged. A word only the user spoke is refused: "en Go" over cells in
+/// To would show a wrong unit.
 enum UnitLabel {
     static let maxCharacters = 16
 
@@ -105,7 +105,7 @@ enum UnitLabel {
         let label = proposed.split(whereSeparator: \.isWhitespace).joined(separator: " ")
         guard !label.isEmpty, label.count <= maxCharacters, !label.contains(where: \.isNumber),
             label.split(separator: " ").count <= 2, [ResultUnit.none, .count].contains(computation.plan.unit),
-            computation.unit == .number, !computation.formula.combinesCells,
+            computation.unit == .number, !computation.formula.changesUnit,
             !computation.read.isEmpty,
             computation.read.allSatisfy({ id in sheet[id].map { holds($0.text, word: label) } ?? false })
         else { return nil }
@@ -266,18 +266,26 @@ struct WorkingLine {
 }
 
 extension Formula {
-    /// A product or a quotient of two operands that both read cells, anywhere: `C1 / C2`, `C1 * C2%`. `SUM(…) / 4`
-    /// and `C1 * 12` keep their cells' unit.
-    var combinesCells: Bool {
+    /// A product or a quotient that changes its cells' unit, anywhere: two operands that both read cells (`C1 / C2`,
+    /// `C1 * C2%`), or one of the conversions a formula may hold unspoken, spoken or not (`SUM(…) / 1000` turns Go into
+    /// To, `C1 / 60` minutes into hours, `C1 * 12` months into years). `SUM(…) / 4` keeps its cells' unit.
+    var changesUnit: Bool {
         switch self {
         case .cell, .constant, .count: false
-        case .negate(let inner), .rate(let inner), .round(let inner, _): inner.combinesCells
+        case .negate(let inner), .rate(let inner), .round(let inner, _): inner.changesUnit
         case .binary(let operation, let left, let right):
-            ((operation == .multiply || operation == .divide) && !left.cells.isEmpty && !right.cells.isEmpty)
-                || left.combinesCells || right.combinesCells
-        case .call(_, let arguments): arguments.contains(where: \.combinesCells)
-        case .pick(_, let arms): arms.contains { $0.value.combinesCells }
+            ((operation == .multiply || operation == .divide)
+                && ((!left.cells.isEmpty && !right.cells.isEmpty) || left.isConversion || right.isConversion))
+                || left.changesUnit || right.changesUnit
+        case .call(_, let arguments): arguments.contains(where: \.changesUnit)
+        case .pick(_, let arms): arms.contains { $0.value.changesUnit }
         }
+    }
+
+    /// One of `SpokenNumbers.conversions`, which a formula may hold whatever the user said.
+    var isConversion: Bool {
+        guard case .constant(let value) = stripped else { return false }
+        return SpokenNumbers.conversions.contains(value)
     }
 
     var containsCount: Bool {
