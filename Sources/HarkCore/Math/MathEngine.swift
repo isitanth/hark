@@ -153,13 +153,16 @@ extension Formula {
 
     /// The net power of 100 a factor scales by, the × 100 that makes a ratio a percent: +1 for a hundred multiplied or
     /// in a numerator, −1 for one in a denominator. ROUND, ABS and minus signs pass it through, and so does a sum whose
-    /// two terms hold the same (`100 * C1 - 100 * C2`); a cell, a mixed sum or any other number holds none.
+    /// two terms read cells and hold the same (`100 * C1 - 100 * C2`); a cell, a mixed sum, a sum of numbers
+    /// (`100 + 100` is 200, no hundred) or any other number holds none.
     var hundreds: Int {
         switch stripped {
         case .constant(let value): value == 100 ? 1 : 0
         case .binary(.multiply, let left, let right): left.hundreds + right.hundreds
         case .binary(.divide, let numerator, let denominator): numerator.hundreds - denominator.hundreds
-        case .binary(_, let left, let right) where left.hundreds == right.hundreds: left.hundreds
+        case .binary(_, let left, let right)
+        where !left.cells.isEmpty && !right.cells.isEmpty && left.hundreds == right.hundreds:
+            left.hundreds
         default: 0
         }
     }
