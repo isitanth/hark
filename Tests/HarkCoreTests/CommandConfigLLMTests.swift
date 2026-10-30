@@ -123,23 +123,24 @@ let llmAcceptCases: [LLMAcceptCase] = [
     .init("https to any host", LLMTexts.url("https://10.0.0.2:8443/v1"), local("https://10.0.0.2:8443/v1")),
     .init("a null extra is empty", LLMTexts.with("extra:"), local("https://example.com/v1")),
     .init("a null extra field is absent", LLMTexts.with("extra: {top_k: ~}"), local("https://example.com/v1")),
-    .init("no exact_math is off", LLMTexts.url("https://example.com/v1"), local("https://example.com/v1")),
-    .init("exact_math on", LLMTexts.file(["exact_math: on"]), exact(.standard)),
-    .init("exact_math off", LLMTexts.file(["exact_math: off"]), .standard),
-    .init("a null exact_math is off", LLMTexts.file(["exact_math:"]), .standard),
+    .init("no exact_math is on", LLMTexts.url("https://example.com/v1"), local("https://example.com/v1")),
+    .init("exact_math on", LLMTexts.file(["exact_math: on"]), .standard),
+    .init("exact_math off", LLMTexts.file(["exact_math: off"]), off(.standard)),
+    .init("a null exact_math is on", LLMTexts.file(["exact_math:"]), .standard),
     .init(
-        "exact_math on beside a claude profile",
+        "exact_math off beside a claude profile",
         LLMTexts.file([
-            "provider: claude", "exact_math: on", "profiles:", "  local:", "    base_url: \"http://127.0.0.1:8000/v1\"",
-            "    extra: {enable_thinking: false}", "  claude:", "    base_url: \"https://api.anthropic.com/v1\"",
-            "    api: anthropic", "    model: \"claude-opus-5-5\"", "    effort: low",
+            "provider: claude", "exact_math: off", "profiles:", "  local:",
+            "    base_url: \"http://127.0.0.1:8000/v1\"", "    extra: {enable_thinking: false}", "  claude:",
+            "    base_url: \"https://api.anthropic.com/v1\"", "    api: anthropic", "    model: \"claude-opus-5-5\"",
+            "    effort: low",
         ]),
-        LLMConfig(provider: "claude", profiles: ["local": .local, "claude": .claude], exactMath: true)),
+        LLMConfig(provider: "claude", profiles: ["local": .local, "claude": .claude], exactMath: false)),
 ]
 
-private func exact(_ llm: LLMConfig) -> LLMConfig {
+private func off(_ llm: LLMConfig) -> LLMConfig {
     var llm = llm
-    llm.exactMath = true
+    llm.exactMath = false
     return llm
 }
 
@@ -323,7 +324,7 @@ private let everyKind = ProviderProfile(
 let llmRoundTripCases: [LLMRoundTripCase] = [
     .init(name: "no llm", config: CommandConfig(commands: [CommandEntry(id: "open_finder", app: "Finder")])),
     .init(name: "the standard llm", config: CommandConfig(llm: .standard)),
-    .init(name: "the standard llm with exact math", config: CommandConfig(llm: exact(.standard))),
+    .init(name: "the standard llm with exact math off", config: CommandConfig(llm: off(.standard))),
     .init(name: "the bundled default", config: ConfigFixtures.commands),
     .init(
         name: "several profiles, every value kind",
@@ -337,11 +338,11 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
                         name: "a_loop", baseURL: URL(string: "http://[::1]:9000/v1")!, temperature: 0, maxTokens: 1),
                 ], maxSelectionChars: 100_000))),
     .init(
-        name: "several profiles with exact math",
+        name: "several profiles with exact math off",
         config: CommandConfig(
             llm: LLMConfig(
                 provider: "claude", profiles: ["local": .local, "claude": .claude, "work-2": everyKind],
-                exactMath: true))),
+                exactMath: false))),
 ]
 
 @Suite struct CommandConfigLLMTests {
@@ -386,7 +387,18 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
         let config = try CommandConfig.parse(try Data(contentsOf: url))
         #expect(config.llm == LLMConfig.standard)
         #expect(config.effectiveLLM.activeProfile == ProviderProfile.local)
-        #expect(!config.effectiveLLM.exactMath)
+        #expect(config.effectiveLLM.exactMath)
+    }
+
+    /// The value itself, not a config built with the same default.
+    @Test func exactMathIsOnUnlessTheFileSaysOff() throws {
+        for text in [
+            LLMTexts.url("https://example.com/v1"), LLMTexts.file(["exact_math:"]), LLMTexts.file(["exact_math: on"]),
+        ] {
+            #expect(try LLMTexts.llm(text)?.exactMath == true)
+        }
+        #expect(try LLMTexts.llm(LLMTexts.file(["exact_math: off"]))?.exactMath == false)
+        #expect(CommandConfig().effectiveLLM.exactMath)
     }
 
     /// A key that reached the file is never repeated: not in the log's description, not in the UI's text.
@@ -448,10 +460,12 @@ let llmRoundTripCases: [LLMRoundTripCase] = [
         #expect(CommandConfig(llm: .standard).yaml() == expected)
     }
 
-    @Test func emitsExactMathOnlyWhenOn() {
-        let on = CommandConfig(llm: exact(.standard)).yaml().components(separatedBy: "\n")
-        #expect(Array(on.suffix(3)) == ["  max_selection_chars: 12000", "  exact_math: on", ""])
+    @Test func emitsExactMathOnlyWhenOff() throws {
+        let lines = CommandConfig(llm: off(.standard)).yaml().components(separatedBy: "\n")
+        #expect(Array(lines.suffix(3)) == ["  max_selection_chars: 12000", "  exact_math: off", ""])
         #expect(!CommandConfig(llm: .standard).yaml().contains("exact_math"))
+        // A file that says on is written back without the key, which reads the same.
+        #expect(!(try ConfigFixtures.parse(LLMTexts.file(["exact_math: on"])).yaml().contains("exact_math")))
     }
 
     @Test func editingTheCommandsKeepsTheLLMBlock() throws {

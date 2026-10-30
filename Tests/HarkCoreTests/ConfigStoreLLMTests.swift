@@ -85,27 +85,28 @@ struct ConfigStoreLLMTests {
         #expect(degraded.error?.problem == .unknownKey("routing", path: "llm", suggestion: nil))
     }
 
-    @Test func exactMathWrittenThroughTheStoreReadsBackOn() async throws {
+    @Test func exactMathOffWrittenThroughTheStoreReadsBackOff() async throws {
         let harness = try StoreHarness()
         try harness.put(LLMTexts.url("https://example.com/v1"))
         await harness.store.start()
         let first = try await harness.next()
-        #expect(first.config.effectiveLLM.exactMath == false)
-        let next = try #require(first.config.settingExactMath(true))
+        #expect(first.config.effectiveLLM.exactMath)
+        let next = try #require(first.config.settingExactMath(false))
         try await harness.store.write(next.yaml(), basedOn: first.diskRevision)
         let written = try await harness.next()
-        #expect(written.config.effectiveLLM.exactMath)
+        #expect(!written.config.effectiveLLM.exactMath)
         #expect(written.config.llm?.profiles == first.config.llm?.profiles)
+        #expect(harness.bytes().map { String(decoding: $0, as: UTF8.self) }?.hasSuffix("  exact_math: off\n") == true)
     }
 
-    @Test func anUneditedDefaultStillReadsOffAndIsStillReplaced() async throws {
+    @Test func anUneditedDefaultReadsOnAndIsStillReplaced() async throws {
         let harness = try StoreHarness()
         try harness.put(String(decoding: try ConfigFixtures.data("commands-v3-0.0.4-default.yaml"), as: UTF8.self))
         await harness.store.start()
         let first = try await harness.next()
         #expect(first.source == .file && first.error == nil)
         #expect(harness.bytes() == harness.bytes(harness.defaults))
-        #expect(!first.config.effectiveLLM.exactMath)
+        #expect(first.config.effectiveLLM.exactMath)
     }
 
     @Test func writingTheCommandsBackKeepsTheLLMBlock() async throws {

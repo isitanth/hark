@@ -11,13 +11,13 @@ public struct LLMConfig: Sendable, Equatable {
     public var profiles: [String: ProviderProfile]
     /// A selection longer than this, in characters, is cut before it is sent, and the popup says so.
     public var maxSelectionChars: Int
-    /// `exact_math: on` (M13): a framed ask whose words ask for a calculation is computed by Hark. Off, or absent, is
-    /// today's ask byte for byte, with no reader loaded.
+    /// `exact_math` (M13): a framed ask whose words ask for a calculation is computed by Hark, on macOS 26 and later.
+    /// On unless the file says `off`, which is today's ask byte for byte, with no reader loaded.
     public var exactMath: Bool
 
     public init(
         provider: String, profiles: [String: ProviderProfile],
-        maxSelectionChars: Int = LLMConfig.defaultMaxSelectionChars, exactMath: Bool = false
+        maxSelectionChars: Int = LLMConfig.defaultMaxSelectionChars, exactMath: Bool = true
     ) {
         self.provider = provider
         self.profiles = profiles
@@ -25,7 +25,8 @@ public struct LLMConfig: Sendable, Equatable {
         self.exactMath = exactMath
     }
 
-    /// The local profile alone: MTPLX on its default port. What an ask uses when commands.yaml has no `llm:`.
+    /// The local profile alone: MTPLX on its default port, exact math on. What an ask uses when commands.yaml has no
+    /// `llm:`.
     public static let standard = LLMConfig(
         provider: ProviderProfile.local.name, profiles: [ProviderProfile.local.name: .local])
 

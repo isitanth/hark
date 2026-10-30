@@ -26,7 +26,7 @@ extension CommandConfigSchema {
         var provider: (name: String, node: Node)?
         var profiles = LLMConfig.standard.profiles
         var maxSelectionChars = LLMConfig.defaultMaxSelectionChars
-        var exactMath = ExactMathSetting.off
+        var exactMath = ExactMathSetting.on
         try ConfigNodes.fields(of: node, path: "llm", allowed: llmKeys) { key, value throws(ConfigError) in
             let path = "llm.\(key)"
             switch key {
@@ -214,7 +214,7 @@ extension CommandConfigSchema {
 }
 
 /// `llm.exact_math`, read as the text it is written as: `on` is never YAML 1.1's boolean, and `true`, `yes` or `1` is
-/// an invalid choice. Absent, or null, is off.
+/// an invalid choice. Absent, or null, is on.
 enum ExactMathSetting: String, CaseIterable {
     case on, off
 }

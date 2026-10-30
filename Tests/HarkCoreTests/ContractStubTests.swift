@@ -29,9 +29,10 @@ private typealias F = Fixture
         #expect(events == [.failed(.unreachable(host: ""), LLMCallSummary())])
     }
 
-    @Test func exactMathIsOffByDefault() {
+    /// On in the config, but the reducer stamps nothing until the app says so, which it does on macOS 26 and later.
+    @Test func exactMathIsOnByDefaultAndWaitsForTheApp() {
+        #expect(LLMConfig.standard.exactMath)
         #expect(!PipelineReducer().exactMath)
-        #expect(!LLMConfig.standard.exactMath)
     }
 
     /// With exact math off nothing stamps an ask: every existing transition is today's.
