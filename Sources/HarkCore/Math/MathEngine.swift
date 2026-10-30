@@ -151,17 +151,19 @@ extension Formula {
         }
     }
 
-    /// Without the outer ROUND, ABS and minus signs: where the percent scale check looks.
-    /// A factor of 100 in a product, numerators included: the × 100 that makes a ratio a percent.
-    var multipliesByHundred: Bool {
+    /// The net power of 100 a factor scales by, the × 100 that makes a ratio a percent: +1 for a hundred multiplied or
+    /// in a numerator, −1 for one in a denominator. ROUND, ABS and minus signs pass it through; a cell, a sum or any
+    /// other number holds none.
+    var hundreds: Int {
         switch stripped {
-        case .constant(let value): value == 100
-        case .binary(.multiply, let left, let right): left.multipliesByHundred || right.multipliesByHundred
-        case .binary(.divide, let numerator, _): numerator.multipliesByHundred
-        default: false
+        case .constant(let value): value == 100 ? 1 : 0
+        case .binary(.multiply, let left, let right): left.hundreds + right.hundreds
+        case .binary(.divide, let numerator, let denominator): numerator.hundreds - denominator.hundreds
+        default: 0
         }
     }
 
+    /// Without the outer ROUND, ABS and minus signs.
     var stripped: Formula {
         switch self {
         case .round(let inner, _), .negate(let inner): inner.stripped
@@ -323,7 +325,8 @@ extension MathEngine {
         return currencies.count == 1 ? currencies.first : nil
     }
 
-    /// b2 §4.4, and the percent scale check: a percent declared over a quotient of like units with no `× 100`.
+    /// b2 §4.4, and the percent scale check: a percent declared over a plain number, when a quotient of like units in
+    /// the formula is not scaled by exactly one hundred.
     static func checkDeclared(
         _ unit: MathUnit, _ declared: ResultUnit, formula: Formula, sheet: CellSheet
     ) throws(MathFailure) {
@@ -347,14 +350,10 @@ extension MathEngine {
             (.hours, .number):
             return
         case (.percent, .number):
-            guard case .binary(.divide, let top, let bottom) = formula.stripped else { return }
-            var left = Evaluator(sheet: sheet)
-            var right = Evaluator(sheet: sheet)
-            guard let a = try? left.evaluate(top).unit, let b = try? right.evaluate(bottom).unit else { return }
-            // `100 * C1 / C2` holds its hundred in the numerator: it is a percent already, unless the denominator holds
-            // one too (`100 * C1 / (100 * C2)`), which cancels it.
-            let hundred = top.multipliesByHundred && !bottom.multipliesByHundred
-            if a == b, a != .number, !hundred {
+            // Anywhere in the formula, not only at its top: `C1 / C2 - 1` has no hundred, `100 * C1 / (100 * C2)` none
+            // net, and `100 * C1 / (C2 / 100)` two. The frozen engine refuses a top-level quotient of like units only,
+            // whatever its hundreds.
+            if PercentScales.of(formula, sheet: sheet).contains(where: { $0 != 1 }) {
                 throw .plan(.unit("multiply by 100 for a percent"))
             }
         default:
@@ -407,6 +406,49 @@ extension MathEngine {
             guard let scalar = character.unicodeScalars.first, scalar.value > 0xFF else { return false }
             return !usual.contains(character) && !DisplayedNumber.spaceLike.contains(character)
                 && !DisplayedNumber.minusSigns.contains(character)
+        }
+    }
+}
+
+/// Every quotient of like units other than plain numbers, with the net hundreds that scale it in the result: its own,
+/// and those of the products and quotients around it. A quotient in a denominator counts inverted.
+struct PercentScales {
+    let sheet: CellSheet
+    var scales: [Int] = []
+
+    static func of(_ formula: Formula, sheet: CellSheet) -> [Int] {
+        var walker = PercentScales(sheet: sheet)
+        walker.walk(formula, sign: 1, outer: 0)
+        return walker.scales
+    }
+
+    func unit(_ formula: Formula) -> MathUnit? {
+        var evaluator = Evaluator(sheet: sheet)
+        return try? evaluator.evaluate(formula).unit
+    }
+
+    mutating func walk(_ formula: Formula, sign: Int, outer: Int) {
+        switch formula {
+        case .cell, .constant, .count:
+            return
+        case .negate(let inner), .rate(let inner), .round(let inner, _):
+            walk(inner, sign: sign, outer: outer)
+        case .binary(.multiply, let left, let right):
+            walk(left, sign: sign, outer: outer + sign * right.hundreds)
+            walk(right, sign: sign, outer: outer + sign * left.hundreds)
+        case .binary(.divide, let numerator, let denominator):
+            if let unit = unit(numerator), unit != .number, unit == self.unit(denominator) {
+                scales.append(outer + sign * (numerator.hundreds - denominator.hundreds))
+            }
+            walk(numerator, sign: sign, outer: outer - sign * denominator.hundreds)
+            walk(denominator, sign: -sign, outer: outer + sign * numerator.hundreds)
+        case .binary(_, let left, let right):
+            walk(left, sign: sign, outer: outer)
+            walk(right, sign: sign, outer: outer)
+        case .call(_, let arguments):
+            for argument in arguments { walk(argument, sign: sign, outer: outer) }
+        case .pick(_, let arms):
+            for arm in arms { walk(arm.value, sign: sign, outer: outer) }
         }
     }
 }

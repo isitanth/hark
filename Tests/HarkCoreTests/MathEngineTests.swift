@@ -180,8 +180,6 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
         #expect((try? solve("(C1 - C2) / C2 * 100", texts, unit: "percent").get().value) == 20)
     }
 
-    /// A hundred already in the numerator makes the ratio a percent: refusing it would send the model a note that
-    /// asks for a second hundred.
     /// A hundred on both sides cancels: the ratio is still a fraction, and the check asks for its hundred.
     @Test func aHundredOnBothSidesIsNoPercent() {
         let texts = ["120 €", "100 €"]
@@ -190,10 +188,32 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
                 == .plan(.unit("multiply by 100 for a percent")))
     }
 
+    /// A hundred already in the numerator makes the ratio a percent: refusing it would send the model a note that
+    /// asks for a second hundred.
     @Test(arguments: ["100 * (C1 - C2) / C2", "(C1 - C2) * 100 / C2", "ROUND(100 * (C1 - C2) / C2, 2)"])
     func aHundredInTheNumeratorIsAPercent(_ formula: String) throws {
         let texts = ["120 €", "100 €"]
         #expect(try solve(formula, texts, unit: "percent", instruction: "growth in percent").get().value == 20)
+    }
+
+    /// Every quotient of like units, wherever it sits, comes out scaled by exactly one hundred: none in `C1 / C2 - 1`
+    /// (0,2 % for 20 %), two in `100 * C1 / (C2 / 100)` (12000 % for 120 %). A rate's `%` is no hundred.
+    @Test(
+        arguments: [
+            ("C1 / C2 - 1", nil), ("(C1 / C2 - 1) * 100", "20"), ("100 * C1 / C2", "120"),
+            ("(C1 - C2) / C2 * 100", "20"), ("100 * C1 / (100 * C2)", nil), ("100 * C1 / (C2 / 100)", nil),
+            ("C1 / C2 * 100", "120"), ("C3 * C4%", "20"), ("C5 / SUM(C1, C2, C5) * 100", "12"),
+            ("100 - C5 / C2 * 100", "70"), ("100 / (C2 / C6)", "50"), ("AVG(C1 / C2, C5 / C2) * 100", "75"),
+            ("ROUND((C1 / C2 - 1) * 100, 1)", "20"), ("C1 / C2 / (C5 / C2)", nil), ("C1 / C2 / (C5 / C2) * 100", "400"),
+        ] as [(String, String?)])
+    func aPercentIsScaledByExactlyOneHundred(_ formula: String, _ expected: String?) {
+        let texts = ["120 €", "100 €", "40", "50 %", "30 €", "50 €"]
+        let result = solve(formula, texts, unit: "percent", instruction: "growth in percent")
+        if let expected {
+            #expect((try? result.get().value) == Decimal(string: expected), "\(result)")
+        } else {
+            #expect(result == .failure(.plan(.unit("multiply by 100 for a percent"))), "\(result)")
+        }
     }
 
     // MARK: Constants, b2 §6
