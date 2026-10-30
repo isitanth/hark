@@ -21,9 +21,25 @@ private func decode(_ reply: String, finish: String? = "stop") -> Result<Calcula
         #"Here is the plan: {"understood": "x", "formula": "C1", "unit": "EUR"}"#,
         #"{"understood": "x", "formula": "C1", "unit": "EUR"} Done."#, "", "[]", "null",
         #"{"understood": "x", "formula": "C1", "unit": null}"#,
+        #"{"understood": "x", "formula": "C1", "unit": "none", "unit_label": "To", "kind": "sum"}"#,
+        #"{"understood": "x", "formula": "C1", "unit": "none", "unit_label": 4}"#,
+        #"{"understood": "x", "formula": "C1", "unit": "none", "unit_label": null}"#,
+        #"{"understood": "x", "formula": "C1", "unit": "none", "unit_label": ["To"]}"#,
+        #"{"understood": "x", "formula": "C1", "unit_label": "To"}"#,
     ])
     func refusesWhatTheSchemaDoesNotAllow(_ reply: String) {
         #expect(decode(reply) == .failure(.json))
+    }
+
+    /// 0.1.0's fourth field, and the three fields of the stub's replies and of those recorded before it.
+    @Test func theUnitLabelIsAStringAndMayBeMissing() throws {
+        let three = try decode(#"{"understood": "x", "formula": "SUM(C1, C2)", "unit": "none"}"#).get()
+        #expect(three.unitLabel == "")
+        let four = decode(#"{"understood": "x", "formula": "SUM(C1, C2)", "unit": "none", "unit_label": "To"}"#)
+        #expect(
+            four == .success(CalculationPlan(understood: "x", formula: "SUM(C1, C2)", unit: .none, unitLabel: "To")))
+        let empty = try decode(#"{"understood": "x", "formula": "C1", "unit": "count", "unit_label": ""}"#).get()
+        #expect(empty.unitLabel == "")
     }
 
     @Test(arguments: [
@@ -68,7 +84,9 @@ private func decode(_ reply: String, finish: String? = "stop") -> Result<Calcula
     }
 
     @Test func theNotesNameARuleNeverACell() {
-        #expect(PlanDefect.json.correction == "reply with one JSON object with understood, formula and unit only")
+        #expect(
+            PlanDefect.json.correction
+                == "reply with one JSON object with understood, formula, unit and unit_label only")
         #expect(PlanDefect.unit("multiply by 100 for a percent").correction == "multiply by 100 for a percent")
         #expect(
             PlanDefect.unspokenConstant("0.2").correction == "0.2 is not a number the user said: refer to its item")

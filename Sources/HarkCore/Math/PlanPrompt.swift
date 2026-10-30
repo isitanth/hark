@@ -4,8 +4,9 @@ import Foundation
 // of `AskPrompt`, whose strings stay byte for byte.
 
 public struct PlanPrompt: Sendable, Equatable {
-    /// The frozen plan prompt, byte for byte: `docs/acceptance/M13-data/bench/plan-prompt.txt`, whose SHA-256
-    /// `docs/acceptance/M13.md` records. Edit none of it: a change is a new measurement.
+    /// The measured plan prompt, `docs/acceptance/M13-data/bench/plan-prompt.txt`, whose SHA-256
+    /// `docs/acceptance/M13.md` records, with the `unit_label` line added last for 0.1.0, unmeasured. Edit none of the
+    /// rest: a change is a new measurement.
     public static let system = """
         You are Hark's calculation planner. The user framed a region of their screen and spoke a question about it.
         You get the image and every text item read from it, each with an ID such as C12, listed by table row.
@@ -31,6 +32,8 @@ public struct PlanPrompt: Sendable, Equatable {
           Never name the winner of an ARGMIN or ARGMAX in it, and never a result: Hark computes and names them.
         - "unit": the result's unit: EUR, USD, GBP, percent, count, hours or none. For an amount in any other
           currency (CHF, CAD, JPY...), write none: Hark shows the currency of the items.
+        - "unit_label": the word the result's unit is written with in the items the formula reads (To, Go, vCPU, kg…),
+          copied as written; empty for money, a percent, hours or a count of rows. Never a number.
         """
 
     /// The user turn's first line: longer than 23 characters and holding no user text, so MTPLX's request log, which

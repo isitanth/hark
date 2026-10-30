@@ -18,12 +18,16 @@
         "hours",
         "none"
       ]
+    },
+    "unit_label": {
+      "type": "string"
     }
   },
   "required": [
     "understood",
     "formula",
-    "unit"
+    "unit",
+    "unit_label"
   ],
   "additionalProperties": false
 }

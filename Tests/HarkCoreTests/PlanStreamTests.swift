@@ -9,9 +9,13 @@ private let anthropicReply =
     "{\n  \"understood\": \"You want the paid invoices; the refunded one is left out.\",\n  \"formula\": \"SUM(C7, C11) - ABS(C15)\",\n  \"unit\": \"USD\"\n}"
 private let openAIValue = "Vous voulez le total des factures \"payées\" à régler 💶, l'avoir déduit.\nC'est tout \\ fin."
 private let anthropicValue = "You want the paid invoices; the refunded one is left out."
+/// 0.1.0's schema: `unit_label` last, `understood` still first.
+private let labelledReply =
+    #"{"understood": "Vous voulez la somme du stockage des quatre classes.", "formula": "SUM(C4, C8, C12, C16)", "unit": "none", "unit_label": "To"}"#
+private let labelledValue = "Vous voulez la somme du stockage des quatre classes."
 
 @Suite struct PlanStreamTests {
-    @Test(arguments: [(openAIReply, openAIValue), (anthropicReply, anthropicValue)])
+    @Test(arguments: [(openAIReply, openAIValue), (anthropicReply, anthropicValue), (labelledReply, labelledValue)])
     func everyCutGivesAPrefixOfTheFinalValue(_ reply: String, _ value: String) {
         var last = ""
         var started = false

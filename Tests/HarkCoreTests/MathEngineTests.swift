@@ -2,10 +2,13 @@ import Foundation
 import HarkCore
 import Testing
 
-/// A plan reply as the model writes it.
-func planReply(_ formula: String, unit: String = "none", understood: String = "You want it.") -> String {
+/// A plan reply as the model writes it, with `unit_label` when one is given, as from 0.1.0.
+func planReply(
+    _ formula: String, unit: String = "none", understood: String = "You want it.", unitLabel: String? = nil
+) -> String {
     let escaped = formula.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
-    return #"{"understood": "\#(understood)", "formula": "\#(escaped)", "unit": "\#(unit)"}"#
+    let label = unitLabel.map { #", "unit_label": "\#($0)""# } ?? ""
+    return #"{"understood": "\#(understood)", "formula": "\#(escaped)", "unit": "\#(unit)"\#(label)}"#
 }
 
 func solve(

@@ -36,11 +36,24 @@ enum PlanSheets {
 private typealias S = PlanSheets
 
 @Suite struct PlanPromptTests {
-    @Test func theSystemIsTheFrozenPromptByteForByte() {
-        let digest = SHA256.hash(data: Data(PlanPrompt.system.utf8)).map { String(format: "%02x", $0) }.joined()
-        #expect(digest == "178eed0401e83b6ff561bc7b9da3340c6d414249238d3ff7bb91a228b3c30e8b")
-        #expect(PlanPrompt.system.count == 2163)
+    /// The frozen `plan-prompt.txt` (2163 characters, SHA-256 178eed04…) with one line added last for 0.1.0, the
+    /// `unit_label` rule; without it the prompt is the measured one byte for byte.
+    @Test func theSystemIsTheFrozenPromptAndTheUnitLabelLine() {
+        let line =
+            "\n- \"unit_label\": the word the result's unit is written with in the items the formula reads"
+            + " (To, Go, vCPU, kg…),\n  copied as written; empty for money, a percent, hours or a count of rows."
+            + " Never a number."
+        #expect(PlanPrompt.system.hasSuffix(line))
+        let measured = String(PlanPrompt.system.dropLast(line.count))
+        #expect(sha256(measured) == "178eed0401e83b6ff561bc7b9da3340c6d414249238d3ff7bb91a228b3c30e8b")
+        #expect(measured.count == 2163)
+        #expect(sha256(PlanPrompt.system) == "f5e44e5343c825c271d04137e06835cca93ad5a8c756da7a83a6490638ad2ba0")
+        #expect(PlanPrompt.system.count == 2365)
         #expect(!PlanPrompt.system.hasSuffix("\n"))
+    }
+
+    private func sha256(_ text: String) -> String {
+        SHA256.hash(data: Data(text.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 
     @Test func theLeadLinesHoldNoUserTextAndAreHarksOwn() {

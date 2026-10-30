@@ -13,20 +13,25 @@ public enum ResultUnit: String, Sendable, CaseIterable {
     case none
 }
 
-/// What the model returns under the JSON schema: the restatement it writes, a formula over cell IDs, and the unit.
+/// What the model returns under the JSON schema: the restatement it writes, a formula over cell IDs, the unit, and the
+/// word the result's unit is written with on screen.
 public struct CalculationPlan: Sendable, Equatable {
     public let understood: String
     public let formula: String
     public let unit: ResultUnit
+    /// `To`, `kg`, `vCPU` (0.1.0): the model's proposal, shown only where `UnitLabel` finds it on every cell read.
+    /// Empty when the model gives none, and in the replies recorded before it.
+    public let unitLabel: String
 
-    public init(understood: String, formula: String, unit: ResultUnit) {
+    public init(understood: String, formula: String, unit: ResultUnit, unitLabel: String = "") {
         self.understood = understood
         self.formula = formula
         self.unit = unit
+        self.unitLabel = unitLabel
     }
 
-    /// The schema the server is asked to enforce, named `plan` as measured.
-    /// `docs/acceptance/M13-data/bench/plan-schema.json`, byte for byte: `harness.PLAN_SCHEMA` as measured.
+    /// The schema the server is asked to enforce, named `plan` as measured: `harness.PLAN_SCHEMA`
+    /// (`docs/acceptance/M13-data/bench/plan-schema.json`) with `unit_label` added last for 0.1.0, unmeasured.
     public static let schema = ResponseSchema(
         name: "plan",
         json: """
@@ -50,19 +55,24 @@ public struct CalculationPlan: Sendable, Equatable {
                     "hours",
                     "none"
                   ]
+                },
+                "unit_label": {
+                  "type": "string"
                 }
               },
               "required": [
                 "understood",
                 "formula",
-                "unit"
+                "unit",
+                "unit_label"
               ],
               "additionalProperties": false
             }
             """)
 
-    /// The plan, or why not. A cut reply is `truncated` before anything else; one surrounding code fence is removed;
-    /// prose around the object, a missing or extra field, a wrong type or a unit outside the enum is `json`.
+    /// The plan, or why not. A cut reply is `truncated` before anything else; one surrounding code fence is removed. A
+    /// missing `unit_label` is empty, as in the stub's replies and those recorded before it; prose around the object,
+    /// any other missing or extra field, a wrong type or a unit outside the enum is `json`.
     public static func decode(_ reply: String, finishReason: String?) -> Result<CalculationPlan, PlanDefect> {
         if finishReason == "length" { return .failure(.truncated) }
         var text = reply.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -73,11 +83,12 @@ public struct CalculationPlan: Sendable, Equatable {
         }
         guard let data = text.data(using: .utf8),
             let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-            Set(object.keys) == ["understood", "formula", "unit"],
+            Set(object.keys).subtracting(["unit_label"]) == ["understood", "formula", "unit"],
             let understood = object["understood"] as? String, let formula = object["formula"] as? String,
-            let unitText = object["unit"] as? String, let unit = ResultUnit(rawValue: unitText)
+            let unitText = object["unit"] as? String, let unit = ResultUnit(rawValue: unitText),
+            let unitLabel = (object["unit_label"] ?? "") as? String
         else { return .failure(.json) }
-        return .success(CalculationPlan(understood: understood, formula: formula, unit: unit))
+        return .success(CalculationPlan(understood: understood, formula: formula, unit: unit, unitLabel: unitLabel))
     }
 }
 
@@ -127,7 +138,7 @@ public enum PlanDefect: Error, Sendable, Equatable {
     /// The note the retry sends back to the model: an ID, a constant or a rule, never a cell's text.
     public var correction: String {
         switch self {
-        case .json: "reply with one JSON object with understood, formula and unit only"
+        case .json: "reply with one JSON object with understood, formula, unit and unit_label only"
         case .syntax: "write decimals with a point and use only the listed functions"
         case .unknownFunction: "use only SUM, AVG, MIN, MAX, COUNT, ROUND, ABS, ARGMIN, ARGMAX"
         case .unknownCell: "refer only to IDs from the item list"

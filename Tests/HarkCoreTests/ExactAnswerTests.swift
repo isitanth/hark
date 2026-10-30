@@ -4,12 +4,12 @@ import Testing
 
 private func answer(
     _ formula: String, _ texts: [String], unit: String = "none", instruction: String = "Total?",
-    understood: String = "You want the total.", locale: String = "en_US"
+    understood: String = "You want the total.", locale: String = "en_US", unitLabel: String? = nil
 ) throws -> ExactAnswer {
     let sheet = MathFixtures.sheet(texts: texts)
     let computation = try MathEngine.solve(
-        reply: planReply(formula, unit: unit, understood: understood), finishReason: "stop", sheet: sheet,
-        instruction: instruction
+        reply: planReply(formula, unit: unit, understood: understood, unitLabel: unitLabel), finishReason: "stop",
+        sheet: sheet, instruction: instruction
     ).get()
     return ExactAnswer(computation, sheet: sheet, policy: .standard, fallback: Locale(identifier: locale))
 }
@@ -100,6 +100,64 @@ private func plain(_ text: String) -> String {
     @Test func aPercentResult() throws {
         let exact = try answer("(C1 - C2) / C2 * 100", ["120 €", "100 €"], unit: "percent", locale: "en_US")
         #expect(exact.result == "20.00%")
+    }
+
+    static let storage = ["4 To", "6 To", "4 To", "8 To"]
+
+    /// 0.1.0's guard over the model's unit word: shown only when the screen bears it out, else the bare number.
+    @Test(
+        arguments: [
+            ("in every cell read", "SUM(C1, C2, C3, C4)", storage, "none", "To", "22 To"),
+            ("absent from one cell", "SUM(C1, C2, C3, C4)", ["4 To", "6 To", "4", "8 To"], "none", "To", "22"),
+            ("a digit", "SUM(C1, C2)", ["4 To²", "6 To²"], "none", "To²", "10"),
+            (
+                "16 characters", "SUM(C1, C2)", ["4 gigaoctets/heure", "6 gigaoctets/heure"], "none",
+                "gigaoctets/heure", "10 gigaoctets/heure"
+            ),
+            (
+                "17 characters", "SUM(C1, C2)", ["4 gigaoctets/heures", "6 gigaoctets/heures"], "none",
+                "gigaoctets/heures", "10"
+            ),
+            (
+                "two words", "SUM(C1, C2)", ["4 jours ouvrés", "6 jours ouvrés"], "none", "jours ouvrés",
+                "10 jours ouvrés"
+            ),
+            ("three words", "SUM(C1, C2)", ["4 To par mois", "6 To par mois"], "none", "To par mois", "10"),
+            ("declared EUR", "SUM(C1, C2)", ["4 To", "6 To"], "EUR", "To", "€10.00"),
+            ("a percent", "(C1 - C2) / C2 * 100", ["120 To", "100 To"], "percent", "To", "20.00%"),
+            ("a ratio of two cells", "C1 / C2", ["8 To", "4 To"], "none", "To", "2"),
+            ("a sum over a spoken number", "SUM(C1, C2, C3, C4) / 4", storage, "none", "To", "5.5 To"),
+            (
+                "case and accents", "SUM(C1, C2)", ["4 téraoctets", "6 Téraoctets"], "none", "Téraoctets",
+                "10 Téraoctets"
+            ),
+            ("inside a longer word", "SUM(C1, C2)", ["4 Total", "6 Total"], "none", "To", "10"),
+            ("only in the question", "SUM(C1, C2)", ["4 To", "6 To"], "none", "Go", "10"),
+            ("a count of what each cell names", "COUNT(C1, C2)", ["VM Gold", "VM Silver"], "count", "VM", "2 VM"),
+            ("a count of rows", "COUNT(C1, C2)", ["Gold", "Silver"], "count", "VM", "2"),
+            ("spaces around it", "SUM(C1, C2)", ["4 To", "6 To"], "none", "  To ", "10 To"),
+            ("empty", "SUM(C1, C2)", ["4 To", "6 To"], "none", "", "10"),
+        ] as [(String, String, [String], String, String, String)])
+    func theUnitLabelShowsOnlyWhereTheScreenBearsItOut(
+        _ name: String, _ formula: String, _ texts: [String], _ unit: String, _ label: String, _ expected: String
+    ) throws {
+        let exact = try answer(formula, texts, unit: unit, instruction: "the average of the four", unitLabel: label)
+        #expect(plain(exact.result) == expected, "\(name)")
+    }
+
+    @Test(arguments: [("en_US", "1,234.5 To"), ("fr_FR", "1 234,5 To")])
+    func theUnitLabelFollowsTheNumberInTheUsersFormat(_ locale: String, _ expected: String) throws {
+        let exact = try answer("SUM(C1, C2)", ["1000 To", "234.5 To"], locale: locale, unitLabel: "To")
+        #expect(plain(exact.result) == expected)
+        #expect(exact.result.hasSuffix("\u{00A0}To"))
+        #expect(exact.reply.hasSuffix("\n" + exact.result))
+    }
+
+    @Test func theUnroundedValueKeepsTheLabelToo() throws {
+        let rounded = try answer(
+            "SUM(C1, C2, C3, C4) / 7", Self.storage, instruction: "per day over a week", unitLabel: "To")
+        #expect(rounded.result.hasSuffix("\u{00A0}To"))
+        #expect(rounded.exact?.hasSuffix("\u{00A0}To") == true)
     }
 
     @Test func figuresNameTheirSource() throws {

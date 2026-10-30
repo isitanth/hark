@@ -42,7 +42,8 @@ public struct ExactAnswer: Sendable, Equatable {
         let decimals = policy.decimals(for: unit, read: computation.read, sheet: sheet)
         let shown = policy.round(computation.value, unit: unit, read: computation.read, sheet: sheet)
         let snapped = RoundingPolicy.round(computation.value, scale: RoundingPolicy.snapScale, rule: .halfUp)
-        let value = ResultFormat.string(shown, unit: unit, decimals: decimals, locale: fallback)
+        let label = UnitLabel.kept(plan.unitLabel, computation: computation, sheet: sheet)
+        let value = ResultFormat.string(shown, unit: unit, decimals: decimals, locale: fallback, label: label)
         if let winner = computation.winner, let label = sheet[winner.label] {
             result = label.text.split(whereSeparator: \.isNewline).joined(separator: " ") + " — " + value
         } else {
@@ -52,7 +53,8 @@ public struct ExactAnswer: Sendable, Equatable {
             shown == snapped
             ? nil
             : ResultFormat.string(
-                snapped, unit: unit, decimals: (RoundingPolicy.snapScale, decimals?.minimum ?? 0), locale: fallback)
+                snapped, unit: unit, decimals: (RoundingPolicy.snapScale, decimals?.minimum ?? 0), locale: fallback,
+                label: label)
         working = WorkingLine(sheet: sheet).line(computation.formula)
         figures = understood.map { UnderstoodFigures.figures(in: $0, computation: computation, sheet: sheet) } ?? []
     }
@@ -64,11 +66,12 @@ public struct ExactAnswer: Sendable, Equatable {
     }
 }
 
-/// The result in the user's own format: `Decimal.FormatStyle`, for formatting only.
+/// The result in the user's own format: `Decimal.FormatStyle`, for formatting only. A unit label follows a count or a
+/// plain number after a no-break space, as "h" follows hours.
 enum ResultFormat {
-    static func string(_ value: Decimal, unit: MathUnit, decimals: (maximum: Int, minimum: Int)?, locale: Locale)
-        -> String
-    {
+    static func string(
+        _ value: Decimal, unit: MathUnit, decimals: (maximum: Int, minimum: Int)?, locale: Locale, label: String? = nil
+    ) -> String {
         let fraction = decimals.map { $0.minimum...max($0.minimum, $0.maximum) } ?? 0...RoundingPolicy.snapScale
         switch unit {
         case .money(let currency):
@@ -84,7 +87,48 @@ enum ResultFormat {
                 + "\u{00A0}h"
         case .count, .number:
             return value.formatted(Decimal.FormatStyle(locale: locale).precision(.fractionLength(fraction)))
+                + (label.map { "\u{00A0}" + $0 } ?? "")
         }
+    }
+}
+
+/// The model's `unit_label` (0.1.0), kept only where the screen bears it out: a plain number or a count, declared none
+/// or count; one or two words with no digit, 16 characters at most; written whole, whatever its case and accents, in
+/// every cell the formula read; and no product or quotient of two operands that read cells, whose unit is no longer
+/// the cells'. Anything else shows the bare number: no failure, no retry, nothing logged. A word only the user spoke
+/// is refused: "en Go" over cells in To would show a wrong unit.
+enum UnitLabel {
+    static let maxCharacters = 16
+
+    static func kept(_ proposed: String, computation: Computation, sheet: CellSheet) -> String? {
+        let label = proposed.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+        guard !label.isEmpty, label.count <= maxCharacters, !label.contains(where: \.isNumber),
+            label.split(separator: " ").count <= 2, [ResultUnit.none, .count].contains(computation.plan.unit),
+            [MathUnit.number, .count].contains(computation.unit), !computation.formula.combinesCells,
+            !computation.read.isEmpty,
+            computation.read.allSatisfy({ id in sheet[id].map { holds($0.text, word: label) } ?? false })
+        else { return nil }
+        return label
+    }
+
+    /// `word` in `text`, both folded for case and accents and their spaces made single, with no letter glued on
+    /// either side: "To" is in "4 To" and "4To", never in "Total".
+    static func holds(_ text: String, word: String) -> Bool {
+        func folded(_ string: String) -> String {
+            string.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+                .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+        }
+        let haystack = folded(text)
+        let needle = folded(word)
+        var start = haystack.startIndex
+        while let range = haystack.range(of: needle, range: start..<haystack.endIndex) {
+            let before =
+                range.lowerBound > haystack.startIndex ? haystack[haystack.index(before: range.lowerBound)] : nil
+            let after = range.upperBound < haystack.endIndex ? haystack[range.upperBound] : nil
+            if before?.isLetter != true, after?.isLetter != true { return true }
+            start = haystack.index(after: range.lowerBound)
+        }
+        return false
     }
 }
 
@@ -221,6 +265,20 @@ struct WorkingLine {
 }
 
 extension Formula {
+    /// A product or a quotient of two operands that both read cells, anywhere: `C1 / C2`, `C1 * C2%`. `SUM(…) / 4`
+    /// and `C1 * 12` keep their cells' unit.
+    var combinesCells: Bool {
+        switch self {
+        case .cell, .constant, .count: false
+        case .negate(let inner), .rate(let inner), .round(let inner, _): inner.combinesCells
+        case .binary(let operation, let left, let right):
+            ((operation == .multiply || operation == .divide) && !left.cells.isEmpty && !right.cells.isEmpty)
+                || left.combinesCells || right.combinesCells
+        case .call(_, let arguments): arguments.contains(where: \.combinesCells)
+        case .pick(_, let arms): arms.contains { $0.value.combinesCells }
+        }
+    }
+
     var containsCount: Bool {
         switch self {
         case .count: true
