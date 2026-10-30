@@ -221,6 +221,14 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
         }
     }
 
+    /// The three right percents of the 0.1.0 review, as written there: C3 a plain number inside the sum, C9 a rate.
+    @Test(arguments: [("C1 / C2 * 100", "60"), ("C3 * C9%", "20"), ("C5 / SUM(C1, C2, C3) * 100", "10")])
+    func theReviewsRightPercentsPass(_ formula: String, _ expected: String) throws {
+        let texts = ["60 €", "100 €", "40", "x", "20 €", "x", "x", "x", "50 %"]
+        let value = try solve(formula, texts, unit: "percent", instruction: "share in percent").get().value
+        #expect(value == Decimal(string: expected))
+    }
+
     // MARK: Constants, b2 §6
 
     @Test(arguments: [
