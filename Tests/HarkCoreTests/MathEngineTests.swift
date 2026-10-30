@@ -208,6 +208,8 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
             ("C1 / C2 * 100", "120"), ("C3 * C4%", "20"), ("C5 / SUM(C1, C2, C5) * 100", "12"),
             ("100 - C5 / C2 * 100", "70"), ("100 / (C2 / C6)", "50"), ("AVG(C1 / C2, C5 / C2) * 100", "75"),
             ("ROUND((C1 / C2 - 1) * 100, 1)", "20"), ("C1 / C2 / (C5 / C2)", nil), ("C1 / C2 / (C5 / C2) * 100", "400"),
+            ("(100 * C1 - 100 * C2) / C2", "20"), ("(100 * C1 - 100 * C2) / C2 * 100", nil),
+            ("(100 * C1 - C2) / C2", nil),
         ] as [(String, String?)])
     func aPercentIsScaledByExactlyOneHundred(_ formula: String, _ expected: String?) {
         let texts = ["120 €", "100 €", "40", "50 %", "30 €", "50 €"]
