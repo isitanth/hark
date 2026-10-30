@@ -133,8 +133,10 @@ private func plain(_ text: String) -> String {
             ),
             ("inside a longer word", "SUM(C1, C2)", ["4 Total", "6 Total"], "none", "To", "10"),
             ("only in the question", "SUM(C1, C2)", ["4 To", "6 To"], "none", "Go", "10"),
-            ("a count of what each cell names", "COUNT(C1, C2)", ["VM Gold", "VM Silver"], "count", "VM", "2 VM"),
+            ("a count of cells in the unit", "COUNT(C1, C2, C3, C4)", storage, "count", "To", "4"),
+            ("a count of what each cell names", "COUNT(C1, C2)", ["VM Gold", "VM Silver"], "count", "VM", "2"),
             ("a count of rows", "COUNT(C1, C2)", ["Gold", "Silver"], "count", "VM", "2"),
+            ("a sum declared a count", "SUM(C1, C2)", ["4 vCPU", "8 vCPU"], "count", "vCPU", "12 vCPU"),
             ("spaces around it", "SUM(C1, C2)", ["4 To", "6 To"], "none", "  To ", "10 To"),
             ("empty", "SUM(C1, C2)", ["4 To", "6 To"], "none", "", "10"),
         ] as [(String, String, [String], String, String, String)])

@@ -92,11 +92,12 @@ enum ResultFormat {
     }
 }
 
-/// The model's `unit_label` (0.1.0), kept only where the screen bears it out: a plain number or a count, declared none
-/// or count; one or two words with no digit, 16 characters at most; written whole, whatever its case and accents, in
-/// every cell the formula read; and no product or quotient of two operands that read cells, whose unit is no longer
-/// the cells'. Anything else shows the bare number: no failure, no retry, nothing logged. A word only the user spoke
-/// is refused: "en Go" over cells in To would show a wrong unit.
+/// The model's `unit_label` (0.1.0), kept only where the screen bears it out: a plain number, declared none or count;
+/// one or two words with no digit, 16 characters at most; written whole, whatever its case and accents, in every cell
+/// the formula read; and no product or quotient of two operands that read cells, whose unit is no longer the cells'.
+/// A COUNT counts items, not their unit: "4 To" for four rows in To would be wrong, so a count shows bare. Anything
+/// else shows the bare number too: no failure, no retry, nothing logged. A word only the user spoke is refused: "en Go"
+/// over cells in To would show a wrong unit.
 enum UnitLabel {
     static let maxCharacters = 16
 
@@ -104,7 +105,7 @@ enum UnitLabel {
         let label = proposed.split(whereSeparator: \.isWhitespace).joined(separator: " ")
         guard !label.isEmpty, label.count <= maxCharacters, !label.contains(where: \.isNumber),
             label.split(separator: " ").count <= 2, [ResultUnit.none, .count].contains(computation.plan.unit),
-            [MathUnit.number, .count].contains(computation.unit), !computation.formula.combinesCells,
+            computation.unit == .number, !computation.formula.combinesCells,
             !computation.read.isEmpty,
             computation.read.allSatisfy({ id in sheet[id].map { holds($0.text, word: label) } ?? false })
         else { return nil }
