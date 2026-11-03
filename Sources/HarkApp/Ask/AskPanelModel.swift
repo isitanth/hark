@@ -738,14 +738,17 @@ extension AskPanelModel {
 extension AskPanelModel {
     /// The exact math pins (M13), on c01's invoices: `ask-reading`, `ask-planning` (the understood line half
     /// streamed), `ask-exact`, `ask-exact-open` (the cells unfolded), `ask-mathfailed` (a cell with no number) and
-    /// `ask-long` (a framed answer taller than the cap, its result on the last line).
+    /// `ask-long` (a framed answer taller than the cap, its result on the last line). `ask-exact-unit` is a walk's three
+    /// days instead: a result with the unit word every cell bears (0.1.0).
     fileprivate func showExactPreview(_ names: Set<String>, french: Bool) -> Bool {
         let pinnedState: AskPanelState
         if names.contains("ask-reading") {
             pinnedState = .reading
         } else if names.contains("ask-planning") {
             pinnedState = .planning
-        } else if names.contains("ask-exact") || names.contains("ask-exact-open") || names.contains("ask-long") {
+        } else if names.contains("ask-exact") || names.contains("ask-exact-open") || names.contains("ask-long")
+            || names.contains("ask-exact-unit")
+        {
             pinnedState = .reviewing
         } else if names.contains("ask-mathfailed") {
             pinnedState = .mathFailed(.math(.noNumber, cell: CellID(23)))
@@ -771,7 +774,13 @@ extension AskPanelModel {
         }
         if pinnedState == .reviewing {
             intent = sample.understood
-            if names.contains("ask-long") {
+            if names.contains("ask-exact-unit") {
+                instruction = sample.unitInstruction
+                intent = sample.unitUnderstood
+                exact = sample.unitExact
+                streamed = sample.unitExact.result
+                answer = sample.unitExact.result
+            } else if names.contains("ask-long") {
                 streamed = sample.longAnswer
                 answer = sample.longAnswer
             } else {
@@ -795,6 +804,9 @@ private struct ExactPreviewSample {
     let understood: String
     let exact: ExactPresentation
     let longAnswer: String
+    let unitInstruction: String
+    let unitUnderstood: String
+    let unitExact: ExactPresentation
 
     init(french: Bool) {
         instruction =
@@ -828,6 +840,16 @@ private struct ExactPreviewSample {
         longAnswer =
             (french ? "Détail des lignes payées :\n" : "The paid lines:\n") + lines.joined(separator: "\n")
             + "\n\n" + working + " =\n\n" + (french ? "802,42\u{00A0}€" : "€802.42")
+        unitInstruction = french ? "Fais le total des kilomètres." : "Add up the kilometres."
+        unitUnderstood =
+            french ? "Tu veux la distance des trois jours de marche." : "You want the distance of the three days' walk."
+        let days = [("Day 1", "12 km"), ("Day 2", "8 km"), ("Day 3", "5 km")].enumerated().map { index, day in
+            ExactCellRow(id: CellID(index * 2 + 2), role: .added, text: day.1, label: day.0, uncertain: false)
+        }
+        unitExact = ExactPresentation(
+            understood: unitUnderstood, understoodCheck: nil, result: "25\u{00A0}km", exact: nil,
+            working: "12 + 8 + 5 =",
+            cellsUsed: 3, added: 3, subtracted: 0, rows: days, checks: [], named: [:])
     }
 }
 
