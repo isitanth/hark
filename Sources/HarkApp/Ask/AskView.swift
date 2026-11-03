@@ -66,6 +66,7 @@ struct AskView: View {
         }
         .padding(16)
         .frame(width: AskPanel.width, alignment: .leading)
+        .wholePointHeight()
         .askPanelChrome()
         // While ⌃⌥ frame part of the screen the panel steps back, so what lies under it shows.
         .opacity(model.isFraming ? 0.35 : 1)
@@ -102,8 +103,8 @@ struct AskView: View {
             Image(systemName: headerSymbol)
                 .foregroundStyle(model.state == .listening ? Color.red : Color.accentColor)
             if let instruction = model.instruction {
-                // Never squeezed: the content's height has a fraction of a point the window rounds away, and a
-                // compressible headline gave up its second line to it (French, measured).
+                // Never squeezed: the window rounded a fraction of a point off the content's height before
+                // `wholePointHeight`, and a compressible headline gave up its second line to it (French, measured).
                 Text(verbatim: instruction)
                     .font(headlineFont)
                     .lineLimit(3)
@@ -684,6 +685,27 @@ private struct FooterLayout {
     var cancel = true
     var secondary: [FooterAction] = []
     var primary: FooterAction?
+}
+
+/// The content at a whole number of points tall. The window takes a fractional height up to the next point, as Auto
+/// Layout fits it to the content, and SwiftUI's own window sizing takes it down: between the two the panel resized
+/// itself until the stack ran out (measured 2026-11-03, 331.5 pt asked, 332 and 331 given in turn).
+private struct WholePointHeight: Layout {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let size = subviews.first?.sizeThatFits(proposal) ?? .zero
+        // A height a rounding error above a whole point stays at it.
+        return CGSize(width: size.width, height: (size.height - 0.01).rounded(.up))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: bounds.origin, proposal: ProposedViewSize(bounds.size))
+    }
+}
+
+extension View {
+    fileprivate func wholePointHeight() -> some View {
+        WholePointHeight { self }
+    }
 }
 
 private struct AnswerHeightKey: PreferenceKey {
