@@ -5,10 +5,7 @@
 <h1 align="center">Hark</h1>
 
 <p align="center">
-  A menu bar app for macOS. Press a key and speak: Hark types what you said where your cursor is,<br>
-  or opens the app you named. Speech is transcribed on your Mac for privacy: it's standalone by design.
-</p>
-
+  A whisper menu bar app for macOS with AI features built for privacy turning your voice and your content on the screen into actions.
 <p align="center">
   <img src=".github/assets/panel.png" width="424" alt="Hark's menu bar panel, with the last dictation and the recent ones">
 </p>
