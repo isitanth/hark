@@ -5,6 +5,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-04
+
+Exact figures from a framed table: Hark reads the cells on your Mac, the model writes only the formula, and Hark
+computes the result itself.
+
 ### Added
 
 - Exact figures from a framed table. Frame part of the screen with ⌃⌥ and ask for a calculation (a total, an average,
@@ -204,7 +209,8 @@ The first public release.
 - Commands in `~/Library/Application Support/Hark/commands.yaml`, edited in Settings › Commands and reloaded when the
   file changes. If an edit breaks it, Hark keeps the last good version and the menu bar icon says so.
 
-[Unreleased]: https://github.com/isitanth/hark/compare/v0.0.9...HEAD
+[Unreleased]: https://github.com/isitanth/hark/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/isitanth/hark/compare/v0.0.9...v0.1.0
 [0.0.9]: https://github.com/isitanth/hark/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/isitanth/hark/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/isitanth/hark/compare/v0.0.6...v0.0.7
