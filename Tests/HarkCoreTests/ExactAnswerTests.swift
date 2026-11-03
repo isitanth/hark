@@ -126,10 +126,16 @@ private func plain(_ text: String) -> String {
             ("declared EUR", "SUM(C1, C2)", ["4 To", "6 To"], "EUR", "To", "€10.00"),
             ("a percent", "(C1 - C2) / C2 * 100", ["120 To", "100 To"], "percent", "To", "20.00%"),
             ("a ratio of two cells", "C1 / C2", ["8 To", "4 To"], "none", "To", "2"),
-            ("a sum over a spoken number", "SUM(C1, C2, C3, C4) / 4", storage, "none", "To", "5.5 To"),
+            ("an average of four", "SUM(C1, C2, C3, C4) / 4", storage, "none", "To", "5.5 To"),
+            ("AVG", "AVG(C1, C2, C3, C4)", storage, "none", "To", "5.5 To"),
+            (
+                "a monthly average", "SUM(" + (1...12).map { "C\($0)" }.joined(separator: ", ") + ") / 12",
+                Array(repeating: "2 To", count: 12), "none", "To", "2 To"
+            ),
             ("Go into To", "SUM(C1, C2) / 1000", ["4000 Go", "2000 Go"], "none", "Go", "6"),
             ("minutes into hours", "SUM(C1, C2) / 60", ["90 min", "30 min"], "none", "min", "2"),
             ("a month into a year", "C1 * 12", ["4 To"], "none", "To", "48"),
+            ("a number hidden in a sum", "C1 / (1000 + 0)", ["4000 Go"], "none", "Go", "4"),
             (
                 "case and accents", "SUM(C1, C2)", ["4 téraoctets", "6 Téraoctets"], "none", "Téraoctets",
                 "10 Téraoctets"
@@ -158,9 +164,23 @@ private func plain(_ text: String) -> String {
         #expect(exact.reply.hasSuffix("\n" + exact.result))
     }
 
+    /// A number the user speaks converts as well as it splits (decision of 2026-11-03): only an average keeps the word.
+    @Test(
+        arguments: [
+            ("SUM(C1, C2) / 1024", ["4096 Gio", "2048 Gio"], "en Tio, divise par 1024", "Gio", "6"),
+            ("C1 * 8", ["4 Go"], "en gigabits, fois 8", "Go", "32"),
+            ("SUM(C1, C2, C3, C4) / 3", ["3 To", "6 To", "3 To", "6 To"], "split three ways", "To", "6"),
+        ] as [(String, [String], String, String, String)])
+    func aSpokenFactorDropsTheLabel(
+        _ formula: String, _ texts: [String], _ instruction: String, _ label: String, _ expected: String
+    ) throws {
+        let exact = try answer(formula, texts, instruction: instruction, unitLabel: label)
+        #expect(plain(exact.result) == expected)
+    }
+
     @Test func theUnroundedValueKeepsTheLabelToo() throws {
         let rounded = try answer(
-            "SUM(C1, C2, C3, C4) / 3", Self.storage, instruction: "split three ways", unitLabel: "To")
+            "SUM(C1, C2, C3) / 3", ["4 To", "6 To", "4 To"], instruction: "the average of the three", unitLabel: "To")
         #expect(rounded.result.hasSuffix("\u{00A0}To"))
         #expect(rounded.exact?.hasSuffix("\u{00A0}To") == true)
     }

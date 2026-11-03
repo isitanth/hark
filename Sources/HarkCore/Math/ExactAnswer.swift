@@ -266,26 +266,21 @@ struct WorkingLine {
 }
 
 extension Formula {
-    /// A product or a quotient that changes its cells' unit, anywhere: two operands that both read cells (`C1 / C2`,
-    /// `C1 * C2%`), or one of the conversions a formula may hold unspoken, spoken or not (`SUM(…) / 1000` turns Go into
-    /// To, `C1 / 60` minutes into hours, `C1 * 12` months into years). `SUM(…) / 4` keeps its cells' unit.
+    /// A product or a quotient anywhere but an average, which may leave its cells' unit: two cells (`C1 / C2`), or a
+    /// number, spoken or not, that converts as well as it splits (`SUM(…) / 1000` turns Go into To, `C1 / 1024` Gio
+    /// into Tio). Only `SUM` of n terms divided by n keeps the unit, as `AVG` does: the user's decision of 2026-11-03.
     var changesUnit: Bool {
         switch self {
         case .cell, .constant, .count: false
         case .negate(let inner), .rate(let inner), .round(let inner, _): inner.changesUnit
-        case .binary(let operation, let left, let right):
-            ((operation == .multiply || operation == .divide)
-                && ((!left.cells.isEmpty && !right.cells.isEmpty) || left.isConversion || right.isConversion))
-                || left.changesUnit || right.changesUnit
+        case .binary(.divide, .call(.sum, let terms), let divisor)
+        where divisor.stripped == .constant(Decimal(terms.count)):
+            terms.contains(where: \.changesUnit)
+        case .binary(.multiply, _, _), .binary(.divide, _, _): true
+        case .binary(_, let left, let right): left.changesUnit || right.changesUnit
         case .call(_, let arguments): arguments.contains(where: \.changesUnit)
         case .pick(_, let arms): arms.contains { $0.value.changesUnit }
         }
-    }
-
-    /// One of `SpokenNumbers.conversions`, which a formula may hold whatever the user said.
-    var isConversion: Bool {
-        guard case .constant(let value) = stripped else { return false }
-        return SpokenNumbers.conversions.contains(value)
     }
 
     var containsCount: Bool {
