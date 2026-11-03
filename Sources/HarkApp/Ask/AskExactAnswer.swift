@@ -77,7 +77,11 @@ struct AskExactAnswer: View {
             .truncationMode(.tail)
             .textSelection(.enabled)
             .help(working)
+            // An element of its own, as the result is: a label set on the selectable text itself sent a read of it
+            // round between SwiftUI and AppKit until the stack ran out, as the answer came in (measured 2026-11-03).
+            .accessibilityElement(children: .ignore)
             .accessibilityLabel(Self.spoken(working))
+            .accessibilityAddTraits(.isStaticText)
     }
 
     /// The cells used, the signs when the result both adds and subtracts, and the disclosure of the rows.
