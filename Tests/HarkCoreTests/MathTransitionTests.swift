@@ -341,7 +341,7 @@ struct ExactRun {
 
     static let retryable: [PlanDefect] = [
         .json, .syntax, .unknownFunction, .unknownCell, .unspokenConstant("1.2"), .unit("money and percent"),
-        .degenerate,
+        .declaredUnit("the result is an amount in EUR, not USD"), .percentScale, .degenerate,
     ]
 
     @Test(arguments: retryable)

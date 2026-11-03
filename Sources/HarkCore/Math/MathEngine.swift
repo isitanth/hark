@@ -345,9 +345,9 @@ extension MathEngine {
             if unit == .money(currency) { return }
             if unit == .number, regionCurrency(sheet).map({ $0 == currency }) ?? true { return }
             if case .money(let other) = unit, !["EUR", "USD", "GBP"].contains(other.code) {
-                throw .plan(.unit("the result is \(unit.words), which is not in the unit list: write none"))
+                throw .plan(.declaredUnit("the result is \(unit.words), which is not in the unit list: write none"))
             }
-            throw .plan(.unit("the result is \(unit.words), not \(declared.rawValue)"))
+            throw .plan(.declaredUnit("the result is \(unit.words), not \(declared.rawValue)"))
         }
         switch (declared, unit) {
         case (.none, _), (.percent, .percent), (.count, .count), (.count, .number), (.hours, .hours),
@@ -358,10 +358,10 @@ extension MathEngine {
             // net, and `100 * C1 / (C2 / 100)` two. The frozen engine refuses a top-level quotient of like units only,
             // whatever its hundreds.
             if PercentScales.of(formula, sheet: sheet).contains(where: { $0 != 1 }) {
-                throw .plan(.unit("multiply by 100 for a percent"))
+                throw .plan(.percentScale)
             }
         default:
-            throw .plan(.unit("the result is \(unit.words), not \(declared.rawValue)"))
+            throw .plan(.declaredUnit("the result is \(unit.words), not \(declared.rawValue)"))
         }
     }
 

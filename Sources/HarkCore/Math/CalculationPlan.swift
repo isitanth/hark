@@ -106,9 +106,14 @@ public enum PlanDefect: Error, Sendable, Equatable {
     case unspokenConstant(String)
     /// An empty formula: the model says it is not a calculation.
     case noFormula
-    /// The units contradict each other, or the declared one. The note is the frozen engine's (`harness.py`, M13.0
-    /// change 1): it names units in words or in the engine's codes, never a cell's text.
+    /// The units contradict each other. The note is the frozen engine's (`harness.py`, M13.0 change 1): it names units
+    /// in words or in the engine's codes, never a cell's text.
     case unit(String)
+    /// The result's unit is not the declared one, or a currency outside the unit list: the frozen engine's note, as
+    /// `unit`'s. Apart from `unit` for the words the user reads; the log says `unit` for both.
+    case declaredUnit(String)
+    /// A percent whose formula does not carry exactly one hundred (0.1.0); the log says `unit`.
+    case percentScale
     /// `X − X`, `X ÷ X`, a cell repeated in COUNT.
     case degenerate
 
@@ -122,7 +127,7 @@ public enum PlanDefect: Error, Sendable, Equatable {
         case .unknownCell: "unknown_cell"
         case .unspokenConstant: "unspoken_constant"
         case .noFormula: "no_formula"
-        case .unit: "unit"
+        case .unit, .declaredUnit, .percentScale: "unit"
         case .degenerate: "degenerate"
         }
     }
@@ -130,7 +135,9 @@ public enum PlanDefect: Error, Sendable, Equatable {
     /// One automatic retry, with the defect named (decision 18). Not for an empty formula or a cut reply.
     public var isRetryable: Bool {
         switch self {
-        case .json, .syntax, .unknownFunction, .unknownCell, .unspokenConstant, .unit, .degenerate: true
+        case .json, .syntax, .unknownFunction, .unknownCell, .unspokenConstant, .unit, .declaredUnit, .percentScale,
+            .degenerate:
+            true
         case .truncated, .noFormula: false
         }
     }
@@ -143,7 +150,8 @@ public enum PlanDefect: Error, Sendable, Equatable {
         case .unknownFunction: "use only SUM, AVG, MIN, MAX, COUNT, ROUND, ABS, ARGMIN, ARGMAX"
         case .unknownCell: "refer only to IDs from the item list"
         case .unspokenConstant(let literal): "\(literal) is not a number the user said: refer to its item"
-        case .unit(let note): note
+        case .unit(let note), .declaredUnit(let note): note
+        case .percentScale: "multiply by 100 for a percent"
         case .degenerate: "the formula cancels itself out"
         case .truncated, .noFormula: ""
         }

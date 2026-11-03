@@ -38,6 +38,11 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
     return true
 }
 
+private func isDeclaredUnit(_ failure: MathFailure?) -> Bool {
+    guard case .plan(.declaredUnit) = failure else { return false }
+    return true
+}
+
 @Suite struct MathEngineTests {
     @Test(arguments: [
         ("SUM(C1, C2, C3)", "60"), ("AVG(C1, C2, C3)", "20"), ("AVERAGE(C1, C2)", "15"), ("MIN(C1, C4)", "-5"),
@@ -139,13 +144,21 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
             ("C1 * C2", ["2h", "3h"], "none", "H times H is refused"),
             ("C2 / C1", ["10 €", "5"], "none", "n divided by M:EUR is refused"),
             ("C1%", ["10 €"], "none", "M:EUR cannot take %"),
+        ] as [(String, [String], String, String)])
+    func aUnitDefectNamesItsUnits(_ formula: String, _ texts: [String], _ unit: String, _ note: String) {
+        #expect(failure(formula, texts, unit: unit) == .plan(.unit(note)))
+    }
+
+    /// A unit the model declared against the cells' is a defect of its own, for the words the user reads.
+    @Test(
+        arguments: [
             ("C1", ["10 CHF"], "EUR", "the result is an amount in CHF, which is not in the unit list: write none"),
             ("C1", ["10 €"], "USD", "the result is an amount in EUR, not USD"),
             ("C1", ["10 %"], "count", "the result is a percent, not count"),
             ("COUNT(C1)", ["x"], "hours", "the result is a count, not hours"),
         ] as [(String, [String], String, String)])
-    func aUnitDefectNamesItsUnits(_ formula: String, _ texts: [String], _ unit: String, _ note: String) {
-        #expect(failure(formula, texts, unit: unit) == .plan(.unit(note)))
+    func aDeclaredUnitDefectNamesBothUnits(_ formula: String, _ texts: [String], _ unit: String, _ note: String) {
+        #expect(failure(formula, texts, unit: unit) == .plan(.declaredUnit(note)))
     }
 
     // MARK: Declared against computed, b2 §4.4
@@ -169,7 +182,7 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
         if accepted {
             #expect((try? result.get()) != nil)
         } else if case .failure(let failure) = result {
-            #expect(isUnit(failure))
+            #expect(isDeclaredUnit(failure))
         } else {
             Issue.record("\(formula) declared \(unit) was accepted")
         }
@@ -177,7 +190,7 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
 
     @Test func aPercentOfLikeUnitsNeedsItsHundred() {
         let texts = ["120 €", "100 €"]
-        let hundred = MathFailure.plan(.unit("multiply by 100 for a percent"))
+        let hundred = MathFailure.plan(.percentScale)
         #expect(failure("(C1 - C2) / C2", texts, unit: "percent", instruction: "growth?") == hundred)
         #expect(failure("ROUND((C1 - C2) / C2, 2)", texts, unit: "percent", instruction: "growth") == hundred)
         #expect((try? solve("(C1 - C2) / C2 * 100", texts, unit: "percent").get().value) == 20)
@@ -188,7 +201,7 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
         let texts = ["120 €", "100 €"]
         #expect(
             failure("100 * C1 / (100 * C2)", texts, unit: "percent", instruction: "ratio in percent")
-                == .plan(.unit("multiply by 100 for a percent")))
+                == .plan(.percentScale))
     }
 
     /// A hundred already in the numerator makes the ratio a percent: refusing it would send the model a note that
@@ -217,7 +230,7 @@ private func isUnit(_ failure: MathFailure?) -> Bool {
         if let expected {
             #expect((try? result.get().value) == Decimal(string: expected), "\(result)")
         } else {
-            #expect(result == .failure(.plan(.unit("multiply by 100 for a percent"))), "\(result)")
+            #expect(result == .failure(.plan(.percentScale)), "\(result)")
         }
     }
 

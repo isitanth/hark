@@ -55,7 +55,9 @@ import Testing
             (.planInvalid(.unknownCell), "plan_invalid:unknown_cell"),
             (.planInvalid(.unspokenConstant("0.2")), "plan_invalid:unspoken_constant"),
             (.planInvalid(.noFormula), "plan_invalid:no_formula"),
-            (.planInvalid(.unit("multiply by 100 for a percent")), "plan_invalid:unit"),
+            (.planInvalid(.unit("M:EUR and P cannot be added or compared")), "plan_invalid:unit"),
+            (.planInvalid(.declaredUnit("the result is an amount in EUR, not USD")), "plan_invalid:unit"),
+            (.planInvalid(.percentScale), "plan_invalid:unit"),
             (.planInvalid(.degenerate), "plan_invalid:degenerate"),
         ]
         + MathDefect.allCases.map { (.mathError($0), "math_error:\($0.rawValue)") }

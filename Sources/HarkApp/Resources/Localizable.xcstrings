@@ -7838,6 +7838,40 @@
         }
       }
     },
+    "ask.exact.failure.declaredUnit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not check this calculation: the unit the model gave does not match the cells."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu vérifier ce calcul : l’unité donnée par le modèle ne correspond pas aux cellules."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.percentScale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark could not check this calculation: its percent is not multiplied by 100 exactly once."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark n’a pas pu vérifier ce calcul : son pourcentage n’est pas multiplié par 100 exactement une fois."
+          }
+        }
+      }
+    },
     "ask.exact.failure.degenerate": {
       "extractionState": "manual",
       "localizations": {

@@ -248,7 +248,9 @@ private typealias S = PlanSheets
 
     static let retryable: [PlanDefect] = [
         .json, .syntax, .unknownFunction, .unknownCell, .unspokenConstant("7"),
-        .unit("the result is an amount in CHF, which is not in the unit list: write none"), .degenerate,
+        .unit("M:EUR and P cannot be added or compared"),
+        .declaredUnit("the result is an amount in CHF, which is not in the unit list: write none"), .percentScale,
+        .degenerate,
     ]
 
     @Test(arguments: retryable)
