@@ -81,7 +81,7 @@ extension MathFailure {
         case .reader(.vision): L("ask.exact.failure.reader")
         case .reader(.timeout): L("ask.exact.failure.timeout")
         case .plan(.truncated): L("ask.exact.failure.truncated")
-        case .plan(.unspokenConstant): L("ask.exact.failure.constant")
+        case .plan(.unspokenConstant(let literal)): L("ask.exact.failure.constant \(literal)")
         case .plan(.unit): L("ask.exact.failure.unit")
         case .plan(.degenerate): L("ask.exact.failure.degenerate")
         case .plan(.json), .plan(.syntax), .plan(.unknownFunction), .plan(.unknownCell), .plan(.noFormula):

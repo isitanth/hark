@@ -7804,19 +7804,19 @@
         }
       }
     },
-    "ask.exact.failure.constant": {
+    "ask.exact.failure.constant %@": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark could not check this calculation: it uses a number that is neither in the frame nor in your words."
+            "value": "Hark could not check this calculation: it uses %@, a number you did not say."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark n’a pas pu vérifier ce calcul : il utilise un nombre qui n’est ni dans le cadre ni dans vos paroles."
+            "value": "Hark n’a pas pu vérifier ce calcul : il utilise %@, un nombre que vous n’avez pas dit."
           }
         }
       }
