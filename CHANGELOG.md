@@ -5,6 +5,13 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Added
+
+- Exact figures from a framed table. Frame part of the screen with ⌃⌥ and ask for a calculation (a total, an average,
+  a difference, a percentage, the largest line): Hark reads the cells on your Mac, the model only writes the formula
+  over them, and Hark computes the result itself, shows the working and lights the cells it used on screen. Copy and
+  Insert take the result alone. On macOS 26 and later; Settings › Ask has the switch.
+
 ### Changed
 
 - When you ask about a framed region and the answer needs a calculation, the model now shows the figures it uses and
@@ -12,6 +19,11 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
   before adding anything and was usually wrong: on 20 test tables, 18 results are right this way, against 1 before.
   In a conversation, an earlier turn that computed a figure folds to its result line, not to the first line of its
   working.
+
+### Fixed
+
+- The Ask panel no longer quits while its answer grows: a height that fell between two points made it resize itself
+  until it crashed, after a framed follow-up for example.
 
 ## [0.0.9] - 2026-10-24
 
