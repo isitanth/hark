@@ -19,6 +19,17 @@
   ⌃⌥Esc cancels.
 - **Voice commands.** An opening verb and an app, with nothing after it: "open Safari", "ouvre le Finder". Everything
   else you say is dictated as text.
+- **Ask Hark.** Select text in any app, press ⌃⌥A and say what you want: "make it more polite", "translate it into
+  English", or a question about it. With nothing selected, ask anything or say what to write. The answer streams into
+  a panel at the top right: edit it, then replace the selection, insert it at the caret or copy it. Right-click ›
+  Services › Ask Hark does the same, and so does a dictation that starts with "Hark, …".
+- **Show it part of your screen.** During an ask, hold ⌃⌥ and drag a frame around what you mean, a table, a chart, an
+  error message, and keep talking. The AI first says in one line what it understood, then answers. This needs a model
+  that reads images.
+- **Conversations.** While an answer shows, press ⌃⌥A again to follow up, in words or with another frame. A
+  conversation keeps up to six requests and three frames, and closing the panel ends it.
+- **Your AI server.** Hark has no language model of its own: it talks to the server you choose in Settings › Ask, an
+  OpenAI-compatible one on your Mac by default, or Claude with your own API key.
 - **Local transcription.** [whisper.cpp](https://github.com/ggml-org/whisper.cpp) on the GPU, with the Neural Engine
   for the encoder through Core ML. Three models to choose from: Small, Medium and Large v3.
 - **English and French.** The language is detected on each utterance, or fixed in Settings. Settings, menus and
@@ -105,10 +116,15 @@ matters. Clear… in the panel and Settings › Log delete the files.
 
 ## Privacy
 
-- No network access, except the model downloads you start. They come from Hugging Face at a pinned commit and are
-  checked against a SHA-256 hash.
+- Nothing leaves your Mac unless you start it, and there is no telemetry and no account. What you start:
+  - the model downloads, from Hugging Face at a pinned commit, checked against a SHA-256 hash;
+  - your asks, sent only to the AI server you chose: on your Mac by default, over HTTPS for any other host.
+- When you open the menu bar panel or Settings › Ask, Hark checks once that the AI server on your Mac answers. It
+  never checks in the background.
 - Audio stays in memory. It is never written to disk.
-- The log keeps what you dictated, on your Mac, until you clear it.
+- A frame of your screen stays in memory too: it goes into the request and is gone when the panel closes. The text
+  you select and the answers are never saved, and API keys live in the macOS Keychain.
+- The log keeps what you dictated and asked, on your Mac, until you clear it.
 
 ## Build from source
 
