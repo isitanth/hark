@@ -29,7 +29,11 @@ public struct ExactAnswer: Sendable, Equatable {
     public let understood: String?
     /// The working, built from the formula, with no words.
     public let working: String?
+    /// The figure alone: what Copy and Insert send (b4 §5.3).
     public let result: String
+    /// A top-level pick's row label, shown after the figure (b4 §5.2), never sent with it. Nil when the label cell
+    /// reads empty (a clipped word: measured 2026-11-03), so no " · " stands alone.
+    public let winner: String?
     /// The unrounded value, when rounding changed it.
     public let exact: String?
     public let figures: [UnderstoodFigure]
@@ -43,12 +47,11 @@ public struct ExactAnswer: Sendable, Equatable {
         let shown = policy.round(computation.value, unit: unit, read: computation.read, sheet: sheet)
         let snapped = RoundingPolicy.round(computation.value, scale: RoundingPolicy.snapScale, rule: .halfUp)
         let label = UnitLabel.kept(plan.unitLabel, computation: computation, sheet: sheet)
-        let value = ResultFormat.string(shown, unit: unit, decimals: decimals, locale: fallback, label: label)
-        if let winner = computation.winner, let label = sheet[winner.label] {
-            result = label.text.split(whereSeparator: \.isNewline).joined(separator: " ") + " — " + value
-        } else {
-            result = value
-        }
+        result = ResultFormat.string(shown, unit: unit, decimals: decimals, locale: fallback, label: label)
+        winner = computation.winner.flatMap { sheet[$0.label] }
+            .map { $0.text.split(whereSeparator: \.isNewline).joined(separator: " ") }
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .flatMap { $0.isEmpty ? nil : $0 }
         exact =
             shown == snapped
             ? nil
@@ -59,9 +62,14 @@ public struct ExactAnswer: Sendable, Equatable {
         figures = understood.map { UnderstoodFigures.figures(in: $0, computation: computation, sheet: sheet) } ?? []
     }
 
-    /// The reply as a turn of the conversation keeps it: the `%%` line, then the working, then the result alone.
+    /// The result as the panel and the conversation show it: a pick's row after its figure, "£1.79 · 400g".
+    public var shownResult: String {
+        winner.map { result + " · " + $0 } ?? result
+    }
+
+    /// The reply as a turn of the conversation keeps it: the `%%` line, then the working, then the result line alone.
     public var reply: String {
-        let body = [working, result].compactMap { $0 }.joined(separator: "\n")
+        let body = [working, shownResult].compactMap { $0 }.joined(separator: "\n")
         return IntentSplit.marker + " " + (understood ?? "") + "\n\n" + body
     }
 }

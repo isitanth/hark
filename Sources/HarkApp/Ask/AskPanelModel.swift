@@ -407,7 +407,7 @@ final class AskPanelModel {
         followLens()
         if next == .reviewing, let exact, announced != id {
             announced = id
-            AccessibilityNotification.Announcement(exact.result).post()
+            AccessibilityNotification.Announcement(exact.spokenResult).post()
         }
         if next == .closed, wasOpen {
             close()

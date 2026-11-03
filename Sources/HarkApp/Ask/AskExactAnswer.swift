@@ -46,14 +46,14 @@ struct AskExactAnswer: View {
 
     private var resultLine: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(verbatim: exact.result)
+            (Text(verbatim: exact.result) + winner)
                 .font(.title2.weight(.semibold))
                 .monospacedDigit()
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
                 .optionalHelp(exact.exact.map { value in Text(L("ask.exact.exact \(value)")) })
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel(Text(L("ask.exact.result.a11y \(exact.result)")))
+                .accessibilityLabel(Text(L("ask.exact.result.a11y \(exact.spokenResult)")))
                 .accessibilityValue(Text(verbatim: exact.exact ?? exact.result))
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: 8)
@@ -66,6 +66,12 @@ struct AskExactAnswer: View {
             .foregroundStyle(.secondary)
             .help(Text(L("ask.exact.computed.help")))
         }
+    }
+
+    /// A pick's row after its figure, lighter: the figure is what Copy and Insert send.
+    private var winner: Text {
+        guard let row = exact.winner else { return Text(verbatim: "") }
+        return Text(verbatim: " · " + row).fontWeight(.regular).foregroundStyle(.secondary)
     }
 
     private func workingLine(_ working: String) -> some View {

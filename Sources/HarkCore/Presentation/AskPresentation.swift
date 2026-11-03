@@ -297,8 +297,10 @@ public struct ExactCellRow: Sendable, Equatable, Identifiable {
 public struct ExactPresentation: Sendable, Equatable {
     public let understood: String?
     public let understoodCheck: UnderstoodCheck?
-    /// In the Language & Region format (decision 8).
+    /// In the Language & Region format (decision 8): the figure alone, what Copy and Insert send.
     public let result: String
+    /// A top-level pick's row label, shown after the figure.
+    public let winner: String?
     /// The unrounded value, when rounding changed it: for the help and VoiceOver.
     public let exact: String?
     /// In the document's format, as read; nil for a COUNT or past 12 terms.
@@ -313,13 +315,14 @@ public struct ExactPresentation: Sendable, Equatable {
     public let named: [CellID: String]
 
     public init(
-        understood: String?, understoodCheck: UnderstoodCheck?, result: String, exact: String?, working: String?,
-        cellsUsed: Int, added: Int, subtracted: Int, rows: [ExactCellRow], checks: [MathWarning],
+        understood: String?, understoodCheck: UnderstoodCheck?, result: String, winner: String? = nil, exact: String?,
+        working: String?, cellsUsed: Int, added: Int, subtracted: Int, rows: [ExactCellRow], checks: [MathWarning],
         named: [CellID: String]
     ) {
         self.understood = understood
         self.understoodCheck = understoodCheck
         self.result = result
+        self.winner = winner
         self.exact = exact
         self.working = working
         self.cellsUsed = cellsUsed
@@ -332,6 +335,11 @@ public struct ExactPresentation: Sendable, Equatable {
 
     /// The signs line shows only when the result both adds and subtracts.
     public var showsSigns: Bool { added > 0 && subtracted > 0 }
+
+    /// The result as VoiceOver says it: the figure, then a pick's row.
+    public var spokenResult: String {
+        winner.map { result + ", " + $0 } ?? result
+    }
 }
 
 extension AskPresentation {
@@ -382,7 +390,8 @@ extension AskPresentation {
         let check = understoodCheck(answer.figures)
         let shown = checks(computation.warnings, limit: maxChecks - (check == nil ? 0 : 1))
         return ExactPresentation(
-            understood: answer.understood, understoodCheck: check, result: answer.result, exact: answer.exact,
+            understood: answer.understood, understoodCheck: check, result: answer.result, winner: answer.winner,
+            exact: answer.exact,
             working: answer.working, cellsUsed: computation.read.count,
             added: roles.filter { $0 == .added || $0 == .counted }.count,
             subtracted: roles.filter { $0 == .subtracted }.count,

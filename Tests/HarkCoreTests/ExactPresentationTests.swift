@@ -385,7 +385,7 @@ private func thread(_ root: UtteranceID, _ turns: [AskTurn]) -> AskThread {
         #expect(AskPresentation.earlierTurns(follow).first?.foldedLine == "€802.42")
     }
 
-    @Test func aPickTurnFoldsToItsLabelAndValue() throws {
+    @Test func aPickTurnFoldsToItsValueAndLabel() throws {
         let sheet = grid([["Big", "£2.69", "1500g"], ["Small", "£1.79", "400g"]])
         let pick = try computation(sheet, "ARGMIN(C2 @ C1, C5 @ C4)", instruction: "Which is cheaper?")
         let context = exactContext(sheet, pick)
@@ -394,7 +394,7 @@ private func thread(_ root: UtteranceID, _ turns: [AskTurn]) -> AskThread {
         follow.thread = thread(
             context.id,
             [AskTurn(id: context.id, instruction: "Which?", reply: reply, region: F.region)])
-        #expect(AskPresentation.earlierTurns(follow).first?.foldedLine == "Small — £1.79")
+        #expect(AskPresentation.earlierTurns(follow).first?.foldedLine == "£1.79 · Small")
     }
 
     @Test func anExactSelectionAskCopiesAndAnExactAssistantAskInserts() throws {

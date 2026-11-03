@@ -85,9 +85,21 @@ private func plain(_ text: String) -> String {
         #expect(try answer(thirteen, texts).working == nil)
     }
 
-    @Test func aPickNamesItsRow() throws {
+    /// The figure first and alone for Copy and Insert, its row after it on the panel and in the conversation (b4 §5.2,
+    /// §5.3).
+    @Test func aPickNamesItsRowAfterItsFigure() throws {
         let exact = try answer("ARGMIN(C1 @ C2, C3 @ C4)", ["£2.69", "1500g", "£1.79", "400g"], locale: "en_GB")
-        #expect(exact.result == "400g — £1.79")
+        #expect(exact.result == "£1.79")
+        #expect(exact.winner == "400g")
+        #expect(exact.shownResult == "£1.79 · 400g")
+        #expect(exact.reply.hasSuffix("\n£1.79 · 400g"))
+    }
+
+    /// A label cell Vision read empty (a word the frame clipped) names no row: the figure stands alone, no " · ".
+    @Test func aPickWithAnEmptyLabelShowsItsFigureAlone() throws {
+        let exact = try answer("ARGMAX(C1 @ C2, C3 @ C4)", ["120 €", "Janvier", "143 €", " "], locale: "en_US")
+        #expect(exact.winner == nil)
+        #expect(plain(exact.shownResult) == "€143.00")
     }
 
     @Test func exactShowsOnlyWhenRoundingChangedTheValue() throws {
