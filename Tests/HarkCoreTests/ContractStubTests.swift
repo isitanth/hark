@@ -47,13 +47,6 @@ private typealias F = Fixture
     // M14.1's stubs. S1: the plan set, the engine over it, the stream, the result words. S3: the anchor, the change,
     // the zone search, the stillness detector. S4: the results' presentation. Each row goes with the body that lands.
 
-    @Test func thePlanSetRefusesEveryReply() {
-        #expect(
-            PlanSet.decode(
-                #"{"results":[{"understood":"a","formula":"C1","unit":"none","unit_label":""}]}"#,
-                finishReason: "stop") == .failure(.json))
-    }
-
     @Test func solveAllRefusesEveryReply() {
         let sheet = CellSheet(cells: [], convention: .plain, readMs: 0)
         let solved = MathEngine.solveAll(reply: "{}", finishReason: "stop", sheet: sheet, instruction: "x", kept: [])

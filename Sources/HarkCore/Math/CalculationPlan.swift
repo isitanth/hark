@@ -88,20 +88,30 @@ public struct CalculationPlan: Sendable, Equatable {
     /// any other missing or extra field, a wrong type or a unit outside the enum is `json`.
     public static func decode(_ reply: String, finishReason: String?) -> Result<CalculationPlan, PlanDefect> {
         if finishReason == "length" { return .failure(.truncated) }
+        guard let object = jsonObject(reply) as? [String: Any], let plan = item(object) else { return .failure(.json) }
+        return .success(plan)
+    }
+
+    /// The reply without one surrounding code fence, parsed; nil when it is not JSON.
+    static func jsonObject(_ reply: String) -> Any? {
         var text = reply.trimmingCharacters(in: .whitespacesAndNewlines)
         if text.hasPrefix("```"), text.hasSuffix("```"), text.count >= 6 {
             var inner = text.dropFirst(3).dropLast(3)
             if inner.hasPrefix("json") { inner = inner.dropFirst(4) }
             text = inner.trimmingCharacters(in: .whitespacesAndNewlines)
         }
-        guard let data = text.data(using: .utf8),
-            let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-            Set(object.keys).subtracting(["unit_label"]) == ["understood", "formula", "unit"],
+        guard let data = text.data(using: .utf8) else { return nil }
+        return try? JSONSerialization.jsonObject(with: data)
+    }
+
+    /// One plan object, strictly: the three fields and an optional `unit_label`, strings only, the unit in the enum.
+    static func item(_ object: [String: Any]) -> CalculationPlan? {
+        guard Set(object.keys).subtracting(["unit_label"]) == ["understood", "formula", "unit"],
             let understood = object["understood"] as? String, let formula = object["formula"] as? String,
             let unitText = object["unit"] as? String, let unit = ResultUnit(rawValue: unitText),
             let unitLabel = (object["unit_label"] ?? "") as? String
-        else { return .failure(.json) }
-        return .success(CalculationPlan(understood: understood, formula: formula, unit: unit, unitLabel: unitLabel))
+        else { return nil }
+        return CalculationPlan(understood: understood, formula: formula, unit: unit, unitLabel: unitLabel)
     }
 }
 

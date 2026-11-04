@@ -15,9 +15,23 @@ public struct PlanSet: Sendable, Equatable {
     }
 
     /// The set, or why not: `truncated` for a cut reply; `json` for an empty array, a fourth item, any extra key or a
-    /// wrong type, strict per item as `CalculationPlan.decode` is. The contract's stub refuses every reply.
+    /// wrong type, strict per item as `CalculationPlan.decode` is.
     public static func decode(_ reply: String, finishReason: String?) -> Result<PlanSet, PlanDefect> {
-        .failure(.json)
+        if finishReason == "length" { return .failure(.truncated) }
+        guard let object = CalculationPlan.jsonObject(reply) as? [String: Any] else { return .failure(.json) }
+        if object["results"] == nil {
+            return CalculationPlan.item(object).map { .success(PlanSet(results: [$0])) } ?? .failure(.json)
+        }
+        guard object.count == 1, let entries = object["results"] as? [Any], (1...maxResults).contains(entries.count)
+        else { return .failure(.json) }
+        var plans: [CalculationPlan] = []
+        for entry in entries {
+            guard let fields = entry as? [String: Any], let plan = CalculationPlan.item(fields) else {
+                return .failure(.json)
+            }
+            plans.append(plan)
+        }
+        return .success(PlanSet(results: plans))
     }
 }
 
