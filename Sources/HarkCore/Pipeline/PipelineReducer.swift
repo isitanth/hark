@@ -47,6 +47,9 @@ public struct PipelineReducer: Sendable {
         }
     }
 
+    /// The result numbers the words name, given how many the conversation numbered (M14). Only tests set it.
+    public var namedResults: @Sendable (String, Int) -> [Int] = { ResultWords.named(in: $0, count: $1) }
+
     public init(policy: CapturePolicy = .standard) {
         self.policy = policy
     }
@@ -293,7 +296,9 @@ public struct PipelineReducer: Sendable {
         case (.asking(var context, let transcript, .reading), .regionRead(_, let sheet))
         where context.math?.reading == .pending:
             context.math?.reading = .read(sheet)
-            guard sheet.hasAmount else { return free(context, transcript) }
+            guard sheet.hasAmount || namesResult(context, context.request ?? transcript.raw) else {
+                return free(context, transcript)
+            }
             let request = sendPlan(&context, transcript, sheet)
             return move(.asking(context, transcript, .planning), request)
 
@@ -589,16 +594,18 @@ public struct PipelineReducer: Sendable {
         guard let math = context.math else { return free(context, transcript) }
         let instruction = context.request ?? transcript.raw
         let earlier = context.region == nil ? Self.latestSheet(context) : nil
-        guard context.region != nil || earlier != nil, MathIntent.isComputation(instruction) else {
+        let named = namesResult(context, instruction)
+        guard context.region != nil || earlier != nil, named || MathIntent.isComputation(instruction) else {
             return free(context, transcript)
         }
+        // A named result is worth a plan over any sheet: the formula may read the result alone.
         if let earlier {
-            guard earlier.hasAmount else { return free(context, transcript) }
+            guard earlier.hasAmount || named else { return free(context, transcript) }
             let request = sendPlan(&context, transcript, earlier)
             return move(.asking(context, transcript, .planning), request)
         }
         switch math.reading {
-        case .read(let sheet) where sheet.hasAmount:
+        case .read(let sheet) where sheet.hasAmount || named:
             let request = sendPlan(&context, transcript, sheet)
             return move(.asking(context, transcript, .planning), request)
         case .pending:
@@ -619,6 +626,23 @@ public struct PipelineReducer: Sendable {
         context.math?.routed = false
         let request = send(&context, transcript)
         return move(.asking(context, transcript, .generating), request)
+    }
+
+    /// Whether the words name a result the conversation keeps (M14, plan §4.3): such a follow-up goes to the exact path
+    /// past the frozen word check, its block list still winning (« explique le résultat 2 » stays a free ask).
+    private func namesResult(_ context: UtteranceContext, _ instruction: String) -> Bool {
+        guard !context.keptResults.isEmpty else { return false }
+        let named = namedResults(instruction, context.nextResultNumber - 1)
+        return !named.isEmpty && !Self.blocked(instruction)
+    }
+
+    /// `MathIntent`'s block list over the words, its fillers taken out first, as `isComputation` reads them.
+    private static func blocked(_ instruction: String) -> Bool {
+        var question = MathIntent.normalize(instruction)
+        for filler in MathIntent.fillers {
+            question = question.replacingOccurrences(of: MathIntent.normalize(filler), with: " ")
+        }
+        return MathIntent.hits(question, MathIntent.blockEnglish) || MathIntent.hits(question, MathIntent.blockFrench)
     }
 
     /// A follow-up with no frame of its own computes over the conversation's latest sheet: the parked turn's, which
