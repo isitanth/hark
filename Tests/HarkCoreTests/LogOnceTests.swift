@@ -95,7 +95,31 @@ let pressSequences: [PressSequence] = [
             down(2), focus(2), up(2), captured(2), .failed(id(2), .modelMissing(.small)),
         ],
         logs: ["log:failed:model_missing:small", "log:failed:model_missing:small"]),
+    // M15: a typed ask writes one line, whatever late capture event follows the first character.
+    .init(
+        name: "a typed ask copied, the talk key's latch and a queued limit dropped",
+        events: [
+            typedDown(1), .typingStarted(id(1)), up(1), .captureLimitReached(id(1)), typed(1),
+            .generated(id(1), LLMCallSummary(model: F.bonsai, ms: 900, finishReason: "stop"), reply: "R."),
+            .askCopy(id(1), "R."), .copied(id(1)), captured(1),
+        ],
+        logs: ["log:text_clipboard"]),
+    .init(
+        name: "a typed ask cancelled, then the capture's late end and words",
+        events: [typedDown(1), .typingStarted(id(1)), .cancel, captured(1, F.short), heard(1), typed(1)],
+        logs: ["log:discarded:cancelled"]),
+    .init(
+        name: "a dictation press while typing is busy, then blank words sent",
+        events: [typedDown(1), .typingStarted(id(1)), down(2), up(2), typed(1, " ")],
+        logs: ["log:discarded:busy", "log:discarded:empty_transcript"]),
 ]
+
+private func typedDown(_ n: UInt64) -> PipelineEvent {
+    .triggerDown(id(n), at: F.pressedAt.addingTimeInterval(Double(n)), intent: F.ask)
+}
+private func typed(_ n: UInt64, _ text: String = "Résume ce texte.") -> PipelineEvent {
+    .typed(id(n), text, at: F.pressedAt.addingTimeInterval(Double(n) + 4))
+}
 
 @Suite struct LogOnceTests {
     @Test(arguments: pressSequences + askPressSequences + assistPressSequences)

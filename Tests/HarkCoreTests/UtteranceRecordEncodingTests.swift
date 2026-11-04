@@ -136,6 +136,23 @@ let outcomeCases: [OutcomeCase] = [
         )
     }
 
+    /// M15: a typed ask has no capture and no transcription; its length runs from the press to the submit.
+    @Test func goldenTypedAskLine() {
+        var context = F.context(focus: F.focus, intent: F.ask, llmModel: F.bonsai, llmMs: 3_420)
+        context.input = .typed
+        context.releasedAt = F.pressedAt.addingTimeInterval(7.25)
+        let record = UtteranceRecord(
+            context: context, transcript: Transcript(raw: "Résume ce texte.", normalized: "resume ce texte"),
+            outcome: .textClipboard(.chosen))
+        #expect(
+            record.jsonLine(timeZone: F.paris)
+                == #"{"ts":"2026-09-18T14:03:12.345+02:00","duration_ms":7250,"transcribe_ms":null,"#
+                + #""raw_text":"Résume ce texte.","normalized_text":"resume ce texte","resolution":"text_clipboard","#
+                + #""target_app":"com.apple.mail","action_type":"ask","exit_code":null,"error":null,"#
+                + #""model_tier":null,"llm_model":"mtplx-bonsai-2-27b-optimized-speed","llm_ms":3420,"context":null}"#
+        )
+    }
+
     @Test(arguments: outcomeCases)
     func exactlyFourteenKeysInOrderWithNulls(_ outcome: OutcomeCase) throws {
         let line = outcome.record.jsonLine(timeZone: F.paris)

@@ -227,3 +227,86 @@ extension TypedAskTests {
         #expect(run.labels == ["generate+region"])
     }
 }
+
+// MARK: Follow-ups, and the line
+
+extension TypedAskTests {
+    @Test func aTypedFollowUpSupersedesTheParkedTurn() throws {
+        var run = ExactRun(on: false)
+        try run.freeReviewed()
+        try run.followUpTyping()
+        #expect(run.labels == ["cancelCapture"] && run.state.phase == .capturing)
+        try run.on(.typed(Exact.second, "Plus court.", at: Typed.followUpAt))
+        #expect(run.labels == ["log:discarded:followed_up", "generate"] && run.stage == .generating)
+        #expect(run.context?.releasedAt == Typed.followUpAt)
+    }
+
+    @Test func aBlankTypedFollowUpReturnsToTheAnswer() throws {
+        var run = ExactRun(on: false)
+        try run.freeReviewed()
+        try run.followUpTyping()
+        try run.on(.typed(Exact.second, "  ", at: Typed.followUpAt))
+        #expect(run.labels == ["log:discarded:empty_transcript"])
+        #expect(run.stage == .reviewing && run.context?.id == F.id)
+    }
+
+    @Test func escAfterTypingAFollowUpReturnsToTheAnswer() throws {
+        var run = ExactRun(on: false)
+        try run.freeReviewed()
+        try run.followUpTyping()
+        try run.on(.cancel)
+        #expect(run.labels == ["cancelCapture", "log:discarded:cancelled"])
+        #expect(run.stage == .reviewing && run.context?.id == F.id)
+    }
+
+    @Test func aFailureRacingTheCancelEndsBothTurns() throws {
+        var run = ExactRun(on: false)
+        try run.freeReviewed()
+        try run.followUpTyping()
+        try run.on(.failed(Exact.second, .deviceChanged))
+        #expect(run.labels == ["cancelCapture", "log:failed:device_changed", "log:discarded:cancelled"])
+        #expect(run.state == .idle)
+    }
+
+    @Test func aTypedFollowUpWhoseWordsComputeIsPlannedOverTheEarlierSheet() throws {
+        var run = ExactRun()
+        try run.reviewed()
+        try run.followUpTyping()
+        try run.on(.typed(Exact.second, "And the total of both, doubled?", at: Typed.followUpAt))
+        #expect(run.stage == .planning && run.labels == ["log:discarded:followed_up", "plan"])
+    }
+
+    @Test func aTypedFollowUpRejectsTheLateCaptureEvents() throws {
+        var run = ExactRun(on: false)
+        try run.freeReviewed()
+        try run.followUpTyping()
+        #expect(run.rejects(.triggerUp(at: Typed.followUpAt)))
+        #expect(run.rejects(.captureLimitReached(Exact.second)))
+        #expect(run.rejects(.captured(Exact.second, F.short)))
+        #expect(run.rejects(.typingStarted(Exact.second)))
+    }
+
+    @Test func aTypedAskLineHasNoTranscriptionAndRunsFromThePressToTheSubmit() throws {
+        var run = ExactRun(on: false)
+        try run.freeReviewed()
+        try run.on(.askCopy(F.id, Typed.reply))
+        try run.on(.copied(F.id))
+        let line = try #require(run.lines.last)
+        #expect(run.lines.count == 1 && line.resolution == .textClipboard && line.error == nil)
+        #expect(line.actionType == .ask && line.rawText == Typed.words)
+        #expect(line.normalizedText == Normalizer.normalize(Typed.words))
+        #expect(line.transcribeMs == nil && line.modelTier == nil && line.llmModel == Exact.planModel)
+        #expect(line.durationMs == 3_000)
+        let json = try JSONSerialization.jsonObject(with: Data(line.jsonLine(timeZone: F.paris).utf8))
+        #expect((json as? [String: Any])?.count == UtteranceRecord.keys.count && UtteranceRecord.keys.count == 14)
+    }
+
+    @Test func aCancelledTypedAskWritesNoTranscription() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: F.ask))
+        try run.on(.typingStarted(F.id))
+        try run.on(.cancel)
+        let line = try #require(run.lines.last)
+        #expect(line.error == "cancelled" && line.rawText == nil && line.transcribeMs == nil && line.modelTier == nil)
+    }
+}
