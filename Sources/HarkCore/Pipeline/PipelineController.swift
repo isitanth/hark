@@ -480,8 +480,12 @@ public actor PipelineController {
                     switch event {
                     case .text(let piece):
                         text += piece
+                        // Each result's understood line so far; the first is the one line the panel showed in 0.1.0.
+                        let texts = PlanStream.understoods(partial: text)
                         askContinuation.yield(
-                            AskUpdate(id: id, text: "", planText: PlanStream.understood(partial: text)))
+                            AskUpdate(
+                                id: id, text: "", planText: texts.first ?? PlanStream.understood(partial: text),
+                                planTexts: texts))
                     case .finished(let summary):
                         send(.planned(id, summary, reply: text))
                     case .failed(let failure, let summary):
@@ -491,7 +495,20 @@ public actor PipelineController {
             }
 
         case .publishAnswer(let id, let reply):
+            noteFailedResults(id)
             askContinuation.yield(AskUpdate(id: id, text: reply))
+        }
+    }
+
+    /// A result that failed beside computed ones leaves no trace in a discarded line: its code goes to the unified log,
+    /// at notice level, with its number and no content.
+    private func noteFailedResults(_ id: UtteranceID) {
+        guard let math = state.context?.math else { return }
+        for (number, outcome) in zip(math.numbers, math.results) {
+            guard case .failure(let failure) = outcome else { continue }
+            Self.logger.notice(
+                "result \(number) of utterance \(id, privacy: .public) failed: \(failure.pipelineFailure.code, privacy: .public)"
+            )
         }
     }
 

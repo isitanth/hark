@@ -112,6 +112,8 @@ struct MathPipelineTests {
         #expect(updates.last == AskUpdate(id: id, text: composed))
         #expect(updates.dropLast().allSatisfy { $0.text.isEmpty && !($0.planText ?? "").contains("formula") })
         #expect(updates.contains { $0.planText == Self.understood })
+        // The array of understood lines streams beside the first (M14), which stays `planText`.
+        #expect(updates.allSatisfy { $0.planTexts.isEmpty || $0.planText == $0.planTexts.first })
         let computation = try #require(reviewing.utterance?.math?.computation)
         #expect(computation.value == Decimal(string: "6021"))
         let answer = ExactAnswer(
