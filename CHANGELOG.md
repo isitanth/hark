@@ -5,6 +5,13 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Added
+
+- Type your request instead of speaking it. When the Ask panel listens (the Ask key, Services › Ask Hark, or a
+  follow-up), start typing in its field: the microphone stops at the first character, Return sends, ⌥Return starts a
+  new line, and the Ask key sends too. A frame drawn with ⌃⌥ still goes with what you type. Accents from a dead key or
+  a held key work, and Esc closes an accent before it cancels the ask. Speaking works as before.
+
 ## [0.1.0] - 2026-11-04
 
 Exact figures from a framed table: Hark reads the cells on your Mac, the model writes only the formula, and Hark
