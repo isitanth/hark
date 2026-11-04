@@ -79,9 +79,9 @@ enum Multi {
     }
 
     @Test func theCircledDigitsGoToTwenty() {
-        #expect(PipelineReducer.circled(1) == "①")
-        #expect(PipelineReducer.circled(3) == "③")
-        #expect(PipelineReducer.circled(20) == "⑳")
+        #expect(ResultMark.circled(1) == "①")
+        #expect(ResultMark.circled(3) == "③")
+        #expect(ResultMark.circled(20) == "⑳")
     }
 
     @Test func aKeptResultIsWhatWasShown() throws {
@@ -143,24 +143,24 @@ enum Multi {
     }
 
     @Test func oneEntrySendsTodaysNote() {
-        #expect(PipelineReducer.retryNote(.success([Multi.badCell])) == PlanDefect.unknownCell.correction)
+        #expect(PlanPrompt.retryNote(.success([Multi.badCell])) == PlanDefect.unknownCell.correction)
         #expect(
-            PipelineReducer.retryNote(.success([.failure(.plan(.unknownResult))]))
+            PlanPrompt.retryNote(.success([.failure(.plan(.unknownResult))]))
                 == "refer only to result IDs from the results list")
     }
 
     @Test func aWholeReplyThatIsNotTheSchemaAsksForTheArray() {
         #expect(
-            PipelineReducer.retryNote(.failure(.plan(.json)))
+            PlanPrompt.retryNote(.failure(.plan(.json)))
                 == "reply with one JSON object with a results array of 1 to 3 entries, each with understood, formula, "
                 + "unit and unit_label only")
-        #expect(PipelineReducer.retryNote(.failure(.plan(.truncated))) == nil)
-        #expect(PipelineReducer.retryNote(.failure(.reader(.vision))) == nil)
+        #expect(PlanPrompt.retryNote(.failure(.plan(.truncated))) == nil)
+        #expect(PlanPrompt.retryNote(.failure(.reader(.vision))) == nil)
     }
 
     @Test func nothingRetryableIsNoRetry() {
-        #expect(PipelineReducer.retryNote(.success([Multi.total, Multi.zero, Multi.empty])) == nil)
-        #expect(PipelineReducer.retryNote(.success([])) == nil)
+        #expect(PlanPrompt.retryNote(.success([Multi.total, Multi.zero, Multi.empty])) == nil)
+        #expect(PlanPrompt.retryNote(.success([])) == nil)
     }
 
     @Test func aResultThatFailsAgainFailsAlone() throws {

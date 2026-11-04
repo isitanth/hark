@@ -353,7 +353,7 @@ struct ExactRun {
         #expect(run.math?.attempts == 2)
         guard case .plan(_, _, _, _, _, let correction) = run.effects.first else { throw Missing() }
         // A whole reply that is not the schema is asked again for the results array ([SETTLED] 2).
-        let note = defect == .json ? PipelineReducer.resultsJSONNote : defect.correction
+        let note = defect == .json ? PlanPrompt.jsonNote : defect.correction
         #expect(correction == PlanCorrection(reply: "first", note: note))
         #expect(try run.on(.planned(F.id, Exact.summary(), reply: "second")) == [])
         #expect(run.stage == .mathFailed(.plan(defect)))

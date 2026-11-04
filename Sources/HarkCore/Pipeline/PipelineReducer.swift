@@ -41,10 +41,8 @@ public struct PipelineReducer: Sendable {
         @Sendable (String, String?, CellSheet, String, [KeptResult]) -> Result<
             [ResultOutcome], MathFailure
         >
-    public var solve: Solve = { reply, finish, sheet, instruction, _ in
-        MathEngine.solve(reply: reply, finishReason: finish, sheet: sheet, instruction: instruction).map {
-            [.success($0)]
-        }
+    public var solve: Solve = { reply, finish, sheet, instruction, kept in
+        MathEngine.solveAll(reply: reply, finishReason: finish, sheet: sheet, instruction: instruction, kept: kept)
     }
 
     /// The result numbers the words name, given how many the conversation numbered (M14). Only tests set it.
@@ -332,7 +330,7 @@ public struct PipelineReducer: Sendable {
             context.llmModel = summary.model ?? context.llmModel
             let instruction = context.request ?? transcript.raw
             let solved = solve(reply, summary.finishReason, sheet, instruction, context.keptResults)
-            if math.attempts == 1, let note = Self.retryNote(solved) {
+            if math.attempts == 1, let note = PlanPrompt.retryNote(solved) {
                 math.attempts = 2
                 context.math = math
                 let request = plan(&context, transcript, sheet, correction: PlanCorrection(reply: reply, note: note))
@@ -342,7 +340,10 @@ public struct PipelineReducer: Sendable {
             case .success(let outcomes) where outcomes.contains(where: { (try? $0.get()) != nil }):
                 let numbers = outcomes.indices.map { context.nextResultNumber + $0 }
                 let answers = outcomes.map { outcome in
-                    outcome.map { ExactAnswer($0, sheet: sheet, policy: rounding, fallback: resultLocale) }
+                    outcome.map {
+                        ExactAnswer(
+                            $0, sheet: sheet, policy: rounding, fallback: resultLocale, kept: context.keptResults)
+                    }
                 }
                 math.results = outcomes
                 math.numbers = numbers
@@ -356,7 +357,15 @@ public struct PipelineReducer: Sendable {
                 }
                 math.computation = outcomes.lazy.compactMap { try? $0.get() }.first
                 context.math = math
-                let composed = Self.composedReply(answers, numbers: numbers)
+                // A failed result keeps its `understood` in the composed reply ([SETTLED] 2): it comes from the plan.
+                let plans = (try? PlanSet.decode(reply, finishReason: summary.finishReason).get())?.results ?? []
+                let composed = PlanPrompt.composedReply(
+                    zip(numbers, answers).enumerated().map { index, pair in
+                        let answer = try? pair.1.get()
+                        let understood =
+                            index < plans.count ? plans[index].understood : (answer?.understood ?? "")
+                        return PlanPrompt.ComposedResult(number: pair.0, understood: understood, answer: answer)
+                    })
                 context.reply = composed
                 context.pin = summary.pin ?? context.pin
                 return move(.asking(context, transcript, .reviewing), [.publishAnswer(id, composed)])
@@ -778,65 +787,7 @@ public struct PipelineReducer: Sendable {
     }
 }
 
-// M14: the retry note, the composed reply and the kept results of a plan of one to three results.
-extension PipelineReducer {
-    /// The whole reply's `json` note when the model wrote no usable results array ([SETTLED] 2).
-    public static let resultsJSONNote =
-        "reply with one JSON object with a results array of 1 to 3 entries, each with understood, formula, unit and "
-        + "unit_label only"
-    /// After the notes of a retry that names some results by position.
-    public static let keepNote = "Keep the other results as they were"
-
-    /// The retry's note, or nil when nothing in the reply is worth a second call: a whole-reply defect, a reply of one
-    /// entry with 0.1.0's note unchanged, or each retryable result by position.
-    public static func retryNote(_ solved: Result<[ResultOutcome], MathFailure>) -> String? {
-        switch solved {
-        case .failure(.plan(let defect)) where defect.isRetryable:
-            return defect == .json ? resultsJSONNote : defect.correction
-        case .failure:
-            return nil
-        case .success(let outcomes):
-            let bad = outcomes.enumerated().compactMap { index, outcome -> (Int, PlanDefect)? in
-                guard case .failure(.plan(let defect)) = outcome, defect.isRetryable else { return nil }
-                return (index, defect)
-            }
-            guard let first = bad.first else { return nil }
-            if outcomes.count == 1 { return first.1.correction }
-            return bad.map { "result \($0.0 + 1): \($0.1.correction)" }.joined(separator: "; ") + ". " + keepNote
-        }
-    }
-
-    /// ①…⑳: a result's number as the panel and the reply write it.
-    public static func circled(_ number: Int) -> String {
-        guard (1...20).contains(number), let scalar = Unicode.Scalar(0x2460 + number - 1) else { return "(\(number))" }
-        return String(Character(scalar))
-    }
-
-    /// The reply a turn keeps (plan §4.3, [SETTLED] 2). One result: 0.1.0's, byte for byte. Several: one `%%` line with
-    /// each `understood` after its number, then each result's working line and figure led by its number, "not
-    /// computed" for a failed one. The `Formula RES<n>:` lines are the prompt's, added when the turn's sheet is current.
-    public static func composedReply(_ answers: [Result<ExactAnswer, MathFailure>], numbers: [Int]) -> String {
-        if answers.count == 1, case .success(let answer) = answers[0] { return answer.reply }
-        let numbered = zip(numbers, answers)
-        let head = numbered.map { number, answer in
-            let understood = (try? answer.get())?.understood ?? ""
-            return circled(number) + " " + understood
-        }
-        var lines: [String] = []
-        for (number, answer) in numbered {
-            let mark = circled(number)
-            switch answer {
-            case .success(let answer):
-                if let working = answer.working { lines.append(mark + " " + working) }
-                lines.append(mark + " " + answer.shownResult)
-            case .failure:
-                lines.append(mark + " not computed")
-            }
-        }
-        return IntentSplit.marker + " " + head.joined(separator: " ") + "\n\n" + lines.joined(separator: "\n")
-    }
-}
-
+// M14: the kept results of a plan of one to three results. The retry note and the composed reply are `PlanPrompt`'s.
 extension KeptResult {
     /// A result as the panel showed it (plan §4.2): its exact value, its displayed unit and label, its decimals.
     init(
