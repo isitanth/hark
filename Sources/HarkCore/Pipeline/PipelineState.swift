@@ -21,6 +21,8 @@ public struct UtteranceContext: Sendable, Equatable {
     /// whole transcript; the model gets this. Nil otherwise, when the transcript is the instruction.
     public var request: String?
     public var releasedAt: Date?
+    /// Spoken or typed (M15); `.voice` at every press.
+    public var input: AskInput = .voice
     public var focus: FocusSnapshot?
     public var capture: CaptureSummary?
     public var transcribeMs: Int?

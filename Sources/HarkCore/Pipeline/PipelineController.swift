@@ -143,6 +143,18 @@ public actor PipelineController {
         triggerUp()
     }
 
+    /// The listening panel's first committed character (M15), for `id` only.
+    public func startTyping(_ id: UtteranceID) {
+        guard state.context?.id == id else { return }
+        send(.typingStarted(id))
+    }
+
+    /// A typed instruction sent from the listening panel (M15), for `id` only, stamped now.
+    public func submitTyped(_ id: UtteranceID, _ text: String) {
+        guard state.context?.id == id else { return }
+        send(.typed(id, text, at: environment.clock.now()))
+    }
+
     /// The Ask panel's Cancel or Esc, for `id` only.
     public func cancel(_ id: UtteranceID) {
         guard state.context?.id == id else { return }
@@ -256,6 +268,12 @@ public actor PipelineController {
     public var capturingIntent: CaptureIntent? {
         guard case .capturing(let context) = state else { return nil }
         return context.intent
+    }
+
+    /// Spoken or typed, while capturing (M15): the hot key bridge turns the Ask key into the panel's submit when typed.
+    public var capturingInput: AskInput? {
+        guard case .capturing(let context) = state else { return nil }
+        return context.input
     }
 
     private func handle(_ event: AudioInputEvent) {

@@ -48,6 +48,9 @@ public struct PipelineReducer: Sendable {
     /// The result numbers the words name, given how many the conversation numbered (M14). Only tests set it.
     public var namedResults: @Sendable (String, Int) -> [Int] = { ResultWords.named(in: $0, count: $1) }
 
+    /// The longest typed instruction (M15, decision 7): the field stops there; the reducer cuts as a safety net.
+    public static let maxTypedCharacters = 4_000
+
     public init(policy: CapturePolicy = .standard) {
         self.policy = policy
     }
@@ -110,24 +113,15 @@ public struct PipelineReducer: Sendable {
 
         case (.transcribing(var context), .transcribed(_, let transcript, let ms)) where context.capture != nil:
             context.transcribeMs = ms
+            // An ask known at the press branches here, not from `resolving` (the project rules): there is no command to match
+            // and no destination to choose, and the normalized text for the log is a pure function. An ask found in
+            // the words (M9's prefix, M10's routing) will branch from `resolving`.
+            if context.intent.isAsk { return askFromWords(context, transcript) }
             if transcript.isBlank {
                 if let parked = context.parked {
                     return returnToParked(context, parked, transcript, .discarded(.emptyTranscript))
                 }
                 return finish(context, transcript, .discarded(.emptyTranscript))
-            }
-            // An ask known at the press branches here, not from `resolving` (the project rules): there is no command to match
-            // and no destination to choose, and the normalized text for the log is a pure function. An ask found in
-            // the words (M9's prefix, M10's routing) will branch from `resolving`.
-            // A drag still open waits for its capture; a frame that failed ends the request before it leaves.
-            if context.intent.isAsk {
-                var instruction = transcript
-                instruction.normalized = Normalizer.normalize(transcript.raw)
-                if context.regionPending { return move(.asking(context, instruction, .awaitingRegion)) }
-                if let failure = context.regionFailure {
-                    return move(.asking(context, instruction, .regionFailed(failure)))
-                }
-                return route(context, instruction)
             }
             // Where the text goes, and whether it is a secret the log and the clipboard must not show, both come from
             // the focus. The probe always answers, within its AX timeouts, so a slow one is waited for.
@@ -784,6 +778,28 @@ public struct PipelineReducer: Sendable {
 
     private func reject(_ state: PipelineState, _ event: PipelineEvent) -> Result<Transition, Rejection> {
         .failure(Rejection(phase: state.phase, event: event))
+    }
+}
+
+// M15: the words of an ask, spoken (`.transcribed`) or typed (`.typed`), take one path from here.
+extension PipelineReducer {
+    /// The ask's branch from its words: a blank instruction is discarded, or returns a follow-up to its parked turn; a
+    /// drag still open waits for its capture; a frame that failed ends the request before it leaves; else `route`.
+    /// The caller has set `transcribeMs` (spoken) or `releasedAt` (typed).
+    func askFromWords(_ context: UtteranceContext, _ transcript: Transcript) -> Result<Transition, Rejection> {
+        if transcript.isBlank {
+            if let parked = context.parked {
+                return returnToParked(context, parked, transcript, .discarded(.emptyTranscript))
+            }
+            return finish(context, transcript, .discarded(.emptyTranscript))
+        }
+        var instruction = transcript
+        instruction.normalized = Normalizer.normalize(transcript.raw)
+        if context.regionPending { return move(.asking(context, instruction, .awaitingRegion)) }
+        if let failure = context.regionFailure {
+            return move(.asking(context, instruction, .regionFailed(failure)))
+        }
+        return route(context, instruction)
     }
 }
 

@@ -27,6 +27,11 @@ public enum PipelineEvent: Sendable, Equatable {
     case captureLimitReached(UtteranceID)
     case captured(UtteranceID, CaptureSummary)
     case transcribed(UtteranceID, Transcript, ms: Int)
+    /// The first character committed to the listening panel's field (M15): the capture is cancelled, the ask goes on
+    /// typed.
+    case typingStarted(UtteranceID)
+    /// A typed instruction sent (M15), stamped by the controller as `triggerUp` is: the release, for `duration_ms`.
+    case typed(UtteranceID, String, at: Date)
     case resolved(UtteranceID, normalized: String?, Decision)
     case confirmed(UtteranceID, Bool)
     case focusRestored(UtteranceID, Bool)
@@ -71,7 +76,7 @@ public enum PipelineEvent: Sendable, Equatable {
     public var utteranceID: UtteranceID? {
         switch self {
         case .triggerDown(let id, _, _), .focusCaptured(let id, _), .captureLimitReached(let id), .captured(let id, _),
-            .transcribed(let id, _, _),
+            .transcribed(let id, _, _), .typingStarted(let id), .typed(let id, _, _),
             .resolved(let id, _, _), .confirmed(let id, _), .focusRestored(let id, _), .actionFinished(let id, _),
             .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _, _),
             .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _), .askReplace(let id, _),
