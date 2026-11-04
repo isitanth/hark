@@ -101,4 +101,61 @@ private func defect(_ text: String) -> PlanDefect? {
         let formula = try #require(parse("ROUND(C1 * 1.18 / 4, 2) + 12"))
         #expect(formula.constants == [Decimal(string: "1.18"), 4, 12])
     }
+
+    // M14: `RES<n>`, a kept result.
+
+    @Test(arguments: ["RES1", "res1", "Res1", "rEs1"])
+    func aReferenceLexesInAnyCase(_ text: String) {
+        #expect(parse(text) == .result(1))
+    }
+
+    @Test func aReferenceKeepsItsNumber() {
+        #expect(parse("RES12 * 3") == .binary(.multiply, .result(12), n("3")))
+        #expect(parse("RES2 - RES1") == .binary(.subtract, .result(2), .result(1)))
+        #expect(parse("RES1 + SUM(C1, C2)") == .binary(.add, .result(1), .call(.sum, [c(1), c(2)])))
+        #expect(parse("C1 * RES1%") == .binary(.multiply, c(1), .rate(.result(1))))
+        #expect(parse("ROUND(RES1, 2)") == .round(.result(1), digits: 2))
+        #expect(parse("(RES1)") == .result(1))
+    }
+
+    @Test func aReferenceWithAnOverflowingNumberIsNoKeptResult() {
+        #expect(parse("RES99999999999999999999999") == .result(Int.max))
+    }
+
+    @Test(arguments: ["RESULT", "RES", "RES0", "RES01", "RES1A", "RESA1", "XRES1", "RES1C2"])
+    func aGluedOrBareResIsAName(_ text: String) {
+        #expect(defect(text) == .unknownFunction)
+    }
+
+    @Test func aReferenceAfterADigitIsNotOne() {
+        #expect(parse("2RES1") == nil)
+    }
+
+    @Test(arguments: ["COUNT(RES1, C1)", "COUNT(RES1)", "ARGMAX(C1 @ RES1, C2 @ C3)", "RES1 RES2"])
+    func aReferenceInCountOrAsALabelIsSyntax(_ text: String) {
+        #expect(defect(text) == .syntax)
+    }
+
+    @Test func aPickArmMayReadAReference() {
+        let arms = [PickArm(value: .result(1), label: CellID(1)), PickArm(value: c(2), label: CellID(3))]
+        #expect(parse("ARGMAX(RES1 @ C1, C2 @ C3)") == .pick(.argmax, arms))
+    }
+
+    @Test(arguments: ["R1", "R1 * 3", "r2"])
+    func anRStyleNameStaysAnUnknownFunction(_ text: String) {
+        #expect(defect(text) == .unknownFunction)
+    }
+
+    @Test func referencesCountAgainstTheLimitWithCells() {
+        let cells = (1...499).map { "C\($0)" }.joined(separator: " + ")
+        #expect(parse(cells + " + RES1") != nil)
+        #expect(defect(cells + " + RES1 + RES2") == .syntax)
+    }
+
+    @Test func aReferenceIsNoCellAndNoConstant() throws {
+        let formula = try #require(parse("RES2 * 12 + C1 - RES1"))
+        #expect(formula.results == [2, 1])
+        #expect(formula.cells == [CellID(1)])
+        #expect(formula.constants == [12])
+    }
 }

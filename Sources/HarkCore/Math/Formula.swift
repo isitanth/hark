@@ -37,8 +37,10 @@ public indirect enum Formula: Sendable, Equatable {
         case .failure(let defect): return .failure(defect)
         }
         let cellCount = tokens.count {
-            if case .cell = $0 { return true }
-            return false
+            switch $0 {
+            case .cell, .result: true
+            default: false
+            }
         }
         if cellCount > FormulaLimits.cells { return .failure(.syntax) }
         var parser = FormulaParser(tokens: tokens)
@@ -152,6 +154,8 @@ enum FormulaLimits {
 
 enum FormulaToken: Equatable {
     case cell(CellID)
+    /// `RES<n>` (M14): read before the letter run, so `RESULT` stays an unknown function.
+    case result(Int)
     case number(String)
     case name(String)
     case symbol(Character)
@@ -193,6 +197,11 @@ enum FormulaToken: Equatable {
                     continue
                 }
             }
+            if let (number, end) = result(characters, at: position) {
+                tokens.append(.result(number))
+                position = end
+                continue
+            }
             if isASCIIDigit(character) {
                 var end = position
                 while end < characters.count, isASCIIDigit(characters[end]) { end += 1 }
@@ -218,6 +227,23 @@ enum FormulaToken: Equatable {
             position += 1
         }
         return .success(tokens)
+    }
+
+    /// `RES<n>` at `position`, any case, no leading zero, glued to no letter or digit on either side: its number (an
+    /// overflowing one is `Int.max`, a result no conversation keeps) and where it ends.
+    static func result(_ characters: [Character], at position: Int) -> (Int, Int)? {
+        let isASCIIAlphanumeric = { (character: Character) in
+            character.isASCII && (character.isLetter || character.isNumber)
+        }
+        let isASCIIDigit = { (character: Character) in character.isASCII && character.isNumber }
+        guard position + 3 < characters.count, String(characters[position..<(position + 3)]).uppercased() == "RES",
+            isASCIIDigit(characters[position + 3]), characters[position + 3] != "0",
+            position == 0 || !isASCIIAlphanumeric(characters[position - 1])
+        else { return nil }
+        var end = position + 3
+        while end < characters.count, isASCIIDigit(characters[end]) { end += 1 }
+        if end < characters.count, isASCIIAlphanumeric(characters[end]) { return nil }
+        return (Int(String(characters[(position + 3)..<end])) ?? Int.max, end)
     }
 }
 
@@ -289,6 +315,9 @@ struct FormulaParser {
         case .cell(let id):
             position += 1
             return .cell(id)
+        case .result(let number):
+            position += 1
+            return .result(number)
         case .name(let name):
             position += 1
             guard take("(") else { return nil }
