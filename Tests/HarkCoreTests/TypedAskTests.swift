@@ -259,13 +259,14 @@ extension TypedAskTests {
         #expect(run.stage == .reviewing && run.context?.id == F.id)
     }
 
-    @Test func aFailureRacingTheCancelEndsBothTurns() throws {
+    /// Nothing records once typing started: a late audio failure is rejected, the parked answer and the words stay.
+    @Test func aLateAudioFailureAfterTypingIsRejected() throws {
         var run = ExactRun(on: false)
         try run.freeReviewed()
         try run.followUpTyping()
-        try run.on(.failed(Exact.second, .deviceChanged))
-        #expect(run.labels == ["cancelCapture", "log:failed:device_changed", "log:discarded:cancelled"])
-        #expect(run.state == .idle)
+        #expect(run.rejects(.failed(Exact.second, .deviceChanged)))
+        try run.on(.typed(Exact.second, "Plus court, s'il te plaît.", at: Typed.followUpAt))
+        #expect(run.labels.contains("log:discarded:followed_up"))
     }
 
     @Test func aTypedFollowUpWhoseWordsComputeIsPlannedOverTheEarlierSheet() throws {

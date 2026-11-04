@@ -101,6 +101,7 @@ final class AskPanel: NSPanel, NSWindowDelegate {
 
     /// Esc is Cancel wherever the focus is: a text view would take it for completion.
     override func cancelOperation(_ sender: Any?) {
+        guard !holdsMarkedText else { return }
         model.cancel()
     }
 
@@ -116,9 +117,16 @@ final class AskPanel: NSPanel, NSWindowDelegate {
             super.sendEvent(event)
             return
         }
-        // ⌃⌥ held is the frame's (M11): its keys are never text in the listening field.
-        if event.type == .keyDown, flags.contains([.control, .option]), firstResponder is NSTextView,
-            model.state == .listening
+        // Return while an accent is pending commits it in the field, before Done's default key ends the capture.
+        if event.type == .keyDown, event.keyCode == 36 || event.keyCode == 76, holdsMarkedText,
+            let responder = firstResponder
+        {
+            responder.keyDown(with: event)
+            return
+        }
+        // ⌃⌥ held is the frame's (M11): its keys are never text in the listening field; Esc still drops the drag.
+        if event.type == .keyDown, event.keyCode != 53, flags.contains([.control, .option]),
+            firstResponder is NSTextView, model.state == .listening
         {
             return
         }

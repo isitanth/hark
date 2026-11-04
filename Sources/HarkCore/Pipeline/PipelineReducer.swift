@@ -429,8 +429,10 @@ public struct PipelineReducer: Sendable {
                 .inserting(context, transcript, plan),
                 [.insert(id, text(context, transcript), plan, context.focus, clipboardFallback: true)])
 
-        // The engine may still be running (cap reached, converter error): release the microphone.
-        case (.capturing(let context), .failed(_, let failure)):
+        // The engine may still be running (cap reached, converter error): release the microphone. A typed ask (M15)
+        // has cancelled its capture: a late audio failure (a slow Bluetooth start, an interruption already queued) is
+        // no longer its, and its typed words stay.
+        case (.capturing(let context), .failed(_, let failure)) where context.input == .voice:
             return finishFollowUp(context, nil, .failed(failure), cleanup: [.cancelCapture(id)])
 
         case (.transcribing(let context), .failed(_, let failure))

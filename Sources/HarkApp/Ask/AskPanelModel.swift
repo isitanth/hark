@@ -28,6 +28,8 @@ final class AskPanelModel {
     var typed = ""
     /// The ask went on typed: its capture is cancelled and Return sends the field.
     private(set) var typing = false
+    /// The start sent to the controller, which a submit waits for.
+    @ObservationIgnored private var typingStart: Task<Void, Never>?
     /// The selection's opening words; empty for the assistant, which has none.
     private(set) var quote = ""
     /// Replace, Insert, or Copy alone, from the utterance's intent and the focus at the press.
@@ -265,6 +267,7 @@ final class AskPanelModel {
         instruction = nil
         typed = ""
         typing = false
+        typingStart = nil
         reply = ""
         reviewedReply = ""
         streamed = ""
@@ -515,9 +518,11 @@ final class AskPanelModel {
         if typed.count > PipelineReducer.maxTypedCharacters {
             typed = String(typed.prefix(PipelineReducer.maxTypedCharacters))
         }
-        guard !pinned, !typing, let id, state == .listening, !typed.isEmpty, !panel.holdsMarkedText else { return }
+        guard !pinned, !typing, let id, state == .listening, !panel.holdsMarkedText,
+            !typed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else { return }
         typing = true
-        Task { [controller] in await controller.startTyping(id) }
+        typingStart = Task { [controller] in await controller.startTyping(id) }
     }
 
     /// Return, Send or the Ask key while typing: the field's text goes. Before any typing it is Done, as in 0.1.0.
@@ -526,7 +531,12 @@ final class AskPanelModel {
         guard typing else { return done() }
         guard !typed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let text = typed
-        Task { [controller] in await controller.submitTyped(id, text) }
+        // After the start has reached the controller: two unstructured tasks are not ordered.
+        let start = typingStart
+        Task { [controller] in
+            await start?.value
+            await controller.submitTyped(id, text)
+        }
     }
 
     // MARK: - The buttons

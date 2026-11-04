@@ -48,9 +48,6 @@ let askTransitions: [LegalTransition] =
             name: "typing an ask, cancel", state: typing(), event: .cancel, phase: .idle,
             effects: ["cancelCapture", "log:discarded:cancelled"]),
         .init(
-            name: "typing an ask, a capture failure racing the cancel", state: typing(),
-            event: .failed(F.id, .deviceChanged), phase: .idle, effects: ["cancelCapture", "log:failed:device_changed"]),
-        .init(
             name: "transcribing an ask, instruction heard: generate", state: F.askTranscribing,
             event: .transcribed(F.id, F.instruction, ms: 380), phase: .asking, effects: ["generate"]),
         .init(
@@ -144,6 +141,11 @@ let illegalAskTransitions: [IllegalTransition] = [
     .init(name: "transcribing an ask, a typed character", state: F.askTranscribing, event: .typingStarted(F.id)),
     .init(name: "typing an ask, the talk key's latch", state: typing(), event: .triggerUp(at: at)),
     .init(name: "typing an ask, a queued limit", state: typing(), event: .captureLimitReached(F.id)),
+    .init(
+        name: "typing an ask, a late audio failure", state: typing(), event: .failed(F.id, .deviceChanged)),
+    .init(
+        name: "a typed follow-up, a late audio failure", state: typing(followUpTyping),
+        event: .failed(uid(2), .deviceChanged)),
     .init(name: "typing an ask, a late capture", state: typing(), event: .captured(F.id, F.speech)),
     .init(name: "typing an ask, a late transcript", state: typing(), event: .transcribed(F.id, F.instruction, ms: 3)),
     .init(name: "generating, a typed character", state: F.generating, event: .typingStarted(F.id)),
@@ -737,10 +739,6 @@ let followUpTransitions: [LegalTransition] = [
     .init(
         name: "a typed follow-up, Esc: the answer again", state: typing(followUpTyping), event: .cancel,
         phase: .asking, effects: ["cancelCapture", "log:discarded:cancelled"]),
-    .init(
-        name: "a typed follow-up, a capture failure racing the cancel: both lines", state: typing(followUpTyping),
-        event: .failed(uid(2), .deviceChanged), phase: .idle,
-        effects: ["cancelCapture", "log:failed:device_changed", "log:discarded:cancelled"]),
     .init(
         name: "a follow-up's capture fails: both lines",
         state: followUpCapturing, event: .failed(uid(2), .deviceChanged), phase: .idle,

@@ -126,7 +126,8 @@ struct AskView: View {
 
     /// The microphone while listening; on glass, sparkles once the model works on it, as today's bubble below.
     private var headerSymbol: String {
-        if model.state == .listening { return "mic.fill" }
+        // Typing (M15), the microphone is off: the keyboard says so.
+        if model.state == .listening { return model.typing ? "keyboard" : "mic.fill" }
         return AskGlass.isAvailable ? "sparkles" : "text.bubble"
     }
 
@@ -202,9 +203,17 @@ struct AskView: View {
             .focused($typingFocused)
             .onChange(of: model.typed) { model.typedChanged() }
             .onSubmit { model.submitTyped() }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
             .padding(.top, 6)
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { typingFocused = true }
+            }
+            // A follow-up pressed from another app makes the panel key after the view appears: focus again then.
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { note in
+                guard model.state == .listening, (note.object as? NSWindow) is AskPanel else { return }
+                typingFocused = true
             }
     }
 
