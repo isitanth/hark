@@ -63,7 +63,12 @@ public struct UtteranceRecord: Sendable, Equatable {
         let cut = context.capture?.reachedMaxDuration == true ? DiscardReason.maxDuration.rawValue : nil
         // An ask whose exact path gave way to the model's answer says why, on a line that has no reason of its own: a
         // clipboard reason, the cut, a discard or a failure each win over it.
-        let fallback = context.math?.fallback?.code
+        // From M14 an answer that went through with some results failed says the first one's reason, in the same place.
+        let failedResult = context.math?.results.lazy.compactMap { outcome -> String? in
+            guard case .failure(let failure) = outcome else { return nil }
+            return failure.pipelineFailure.code
+        }.first
+        let fallback = context.math?.fallback?.code ?? failedResult
         switch outcome {
         case .command:
             exitCode = 0
