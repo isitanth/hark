@@ -99,22 +99,31 @@ final class AskPanel: NSPanel, NSWindowDelegate {
         onUserMove?(NSPoint(x: frame.minX, y: frame.maxY))
     }
 
-    /// Esc is Cancel wherever the focus is: a text view would take it for completion.
+    /// Esc is Cancel wherever the focus is: a text view would take it for completion. Not the cancel sent by the Esc
+    /// that commits a pending accent (M15.4).
     override func cancelOperation(_ sender: Any?) {
-        guard !holdsMarkedText else { return }
+        guard AskEscape.cancels(markedText: holdsMarkedText, duringComposition: composingEscape) else { return }
         model.cancel()
     }
 
-    /// The first responder holds marked text (M15): a dead key's ^ or the press-and-hold popover's accent.
+    /// The first responder holds marked text (M15): a dead key's ^. The press-and-hold bubble marks nothing.
     var holdsMarkedText: Bool {
         (firstResponder as? any NSTextInputClient)?.hasMarkedText() ?? false
     }
 
+    /// Set while an Esc commits a pending accent in the field: the `cancelOperation:` it sends is the accent's.
+    private var composingEscape = false
+
+    /// The listening panel's field has the keys: its field editor is the first responder. The review editor is no
+    /// field editor.
+    private var inListeningField: Bool {
+        model.state == .listening && (firstResponder as? NSTextView)?.isFieldEditor == true
+    }
+
     override func sendEvent(_ event: NSEvent) {
         let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        // Esc while an accent is being composed cancels the composition, not the ask (measured in M15.0).
-        if event.type == .keyDown, event.keyCode == 53, holdsMarkedText {
-            super.sendEvent(event)
+        if event.type == .keyDown, event.keyCode == 53 {
+            escape(event, flags: flags)
             return
         }
         // Return while an accent is pending commits it in the field, before Done's default key ends the capture.
@@ -130,16 +139,29 @@ final class AskPanel: NSPanel, NSWindowDelegate {
         {
             return
         }
-        if event.type == .keyDown, event.keyCode == 53 {
-            // A follow-up waiting for its frame goes back to the previous answer (M12). Otherwise Esc while a frame is
-            // being dragged drops that drag and keeps the ask, ⌃⌥ held or not.
-            if model.cancelFollowUpAwaitingFrame() { return }
-            if model.dropDrag?() == true { return }
-            if event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty {
-                model.cancel()
-                return
-            }
-        }
         super.sendEvent(event)
+    }
+
+    /// Esc: a follow-up waiting for its frame, a drag, then a pending accent's, then the ask's (M15.4).
+    private func escape(_ event: NSEvent, flags: NSEvent.ModifierFlags) {
+        // A follow-up waiting for its frame goes back to the previous answer (M12). Otherwise Esc while a frame is
+        // being dragged drops that drag and keeps the ask, ⌃⌥ held or not, an accent pending or not.
+        if model.cancelFollowUpAwaitingFrame() { return }
+        if model.dropDrag?() == true { return }
+        switch AskEscape.route(markedText: holdsMarkedText, listeningField: inListeningField) {
+        case .composition:
+            // The field commits the accent, as TextEdit does, then sends cancelOperation:, which is the accent's.
+            composingEscape = true
+            super.sendEvent(event)
+            composingEscape = false
+        case .field where flags.isEmpty:
+            // The listening field first: the accent bubble takes the Esc and closes; otherwise the field sends
+            // cancelOperation:, which cancels the ask.
+            super.sendEvent(event)
+        case .panel where flags.isEmpty:
+            model.cancel()
+        case .field, .panel:
+            super.sendEvent(event)
+        }
     }
 }
