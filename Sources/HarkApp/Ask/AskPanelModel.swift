@@ -525,9 +525,10 @@ final class AskPanelModel {
         typingStart = Task { [controller] in await controller.startTyping(id) }
     }
 
-    /// Return, Send or the Ask key while typing: the field's text goes. Before any typing it is Done, as in 0.1.0.
+    /// Return, Send or the Ask key while typing: the field's text goes. Before any typing it is Done, as in 0.1.0. The
+    /// Return that commits a pending accent only commits it (M15.4): its submit comes before the typing starts.
     func submitTyped() {
-        guard let id else { return }
+        guard let id, AskComposition.submits(duringComposition: panel.composingReturn) else { return }
         guard typing else { return done() }
         guard !typed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let text = typed

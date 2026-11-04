@@ -102,7 +102,7 @@ final class AskPanel: NSPanel, NSWindowDelegate {
     /// Esc is Cancel wherever the focus is: a text view would take it for completion. Not the cancel sent by the Esc
     /// that commits a pending accent (M15.4).
     override func cancelOperation(_ sender: Any?) {
-        guard AskEscape.cancels(markedText: holdsMarkedText, duringComposition: composingEscape) else { return }
+        guard AskComposition.cancels(markedText: holdsMarkedText, duringComposition: composingEscape) else { return }
         model.cancel()
     }
 
@@ -113,6 +113,10 @@ final class AskPanel: NSPanel, NSWindowDelegate {
 
     /// Set while an Esc commits a pending accent in the field: the `cancelOperation:` it sends is the accent's.
     private var composingEscape = false
+
+    /// Set while a Return commits a pending accent in the field: the field submits during that Return, before the
+    /// committed text reaches the model (measured in M15.4), and that submit is the accent's.
+    private(set) var composingReturn = false
 
     /// The listening panel's field has the keys: its field editor is the first responder. The review editor is no
     /// field editor.
@@ -126,11 +130,14 @@ final class AskPanel: NSPanel, NSWindowDelegate {
             escape(event, flags: flags)
             return
         }
-        // Return while an accent is pending commits it in the field, before Done's default key ends the capture.
+        // Return while an accent is pending commits it in the field, before Done's default key ends the capture; the
+        // field's submit during it neither sends nor is Done.
         if event.type == .keyDown, event.keyCode == 36 || event.keyCode == 76, holdsMarkedText,
             let responder = firstResponder
         {
+            composingReturn = true
             responder.keyDown(with: event)
+            composingReturn = false
             return
         }
         // ⌃⌥ held is the frame's (M11): its keys are never text in the listening field; Esc still drops the drag.
@@ -148,7 +155,7 @@ final class AskPanel: NSPanel, NSWindowDelegate {
         // being dragged drops that drag and keeps the ask, ⌃⌥ held or not, an accent pending or not.
         if model.cancelFollowUpAwaitingFrame() { return }
         if model.dropDrag?() == true { return }
-        switch AskEscape.route(markedText: holdsMarkedText, listeningField: inListeningField) {
+        switch AskComposition.escape(markedText: holdsMarkedText, listeningField: inListeningField) {
         case .composition:
             // The field commits the accent, as TextEdit does, then sends cancelOperation:, which is the accent's.
             composingEscape = true
