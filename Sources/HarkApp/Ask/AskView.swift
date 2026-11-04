@@ -103,7 +103,7 @@ struct AskView: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Image(systemName: headerSymbol)
-                .foregroundStyle(model.state == .listening ? Color.red : Color.accentColor)
+                .foregroundStyle(model.state == .listening && !model.typing ? Color.red : Color.accentColor)
             if let instruction = model.instruction {
                 // Never squeezed: the window rounded a fraction of a point off the content's height before
                 // `wholePointHeight`, and a compressible headline gave up its second line to it (French, measured).
