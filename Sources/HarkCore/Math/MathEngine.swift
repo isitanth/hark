@@ -95,11 +95,17 @@ public enum MathEngine {
     public static func solve(
         reply: String, finishReason: String?, sheet: CellSheet, instruction: String
     ) -> Result<Computation, MathFailure> {
-        let plan: CalculationPlan
         switch CalculationPlan.decode(reply, finishReason: finishReason) {
-        case .success(let decoded): plan = decoded
-        case .failure(let defect): return .failure(.plan(defect))
+        case .success(let plan): solve(plan, sheet: sheet, instruction: instruction, kept: [])
+        case .failure(let defect): .failure(.plan(defect))
         }
+    }
+
+    /// One plan through every check, alone, with the conversation's kept results for its `RES` leaves (M14). A
+    /// reference to a result that is not kept is `unknownResult`, checked right after the cells.
+    static func solve(
+        _ plan: CalculationPlan, sheet: CellSheet, instruction: String, kept: [KeptResult]
+    ) -> Result<Computation, MathFailure> {
         let parsed: (formula: Formula, literals: [String])
         switch Formula.parseKeepingLiterals(plan.formula) {
         case .success(let tree): parsed = tree
@@ -107,17 +113,19 @@ public enum MathEngine {
         }
         let formula = parsed.formula
         if formula.cells.contains(where: { sheet[$0] == nil }) { return .failure(.plan(.unknownCell)) }
+        let keptNumbers = Set(kept.map(\.number))
+        if formula.results.contains(where: { !keptNumbers.contains($0) }) { return .failure(.plan(.unknownResult)) }
         let allowed = SpokenNumbers.allowed(in: instruction)
         for (constant, literal) in zip(formula.constants, parsed.literals)
         where !allowed.contains(where: { $0 == constant }) {
             return .failure(.plan(.unspokenConstant(literal)))
         }
         if formula.isDegenerate { return .failure(.plan(.degenerate)) }
-        var evaluator = Evaluator(sheet: sheet)
+        var evaluator = Evaluator(sheet: sheet, kept: kept)
         let result: (value: Decimal, unit: MathUnit)
         do {
             result = try evaluator.evaluate(formula)
-            try checkDeclared(result.unit, plan.unit, formula: formula, sheet: sheet)
+            try checkDeclared(result.unit, plan.unit, formula: formula, sheet: sheet, kept: kept)
         } catch {
             return .failure(error)
         }
@@ -125,14 +133,15 @@ public enum MathEngine {
         var warnings = evaluator.warnings + warnings(read: read, sheet: sheet)
         let policy = RoundingPolicy.standard
         let unit = RoundingPolicy.displayUnit(result.unit, declared: plan.unit, value: result.value)
-        let shown = policy.round(result.value, unit: unit, read: read, sheet: sheet)
+        let referenced = kept.filter { formula.results.contains($0.number) }
+        let shown = policy.round(result.value, unit: unit, read: read, sheet: sheet, referenced: referenced)
         // Against the value snapped as `ExactAnswer.exact` is, so a division residue is no rounding.
         let snapped = RoundingPolicy.round(result.value, scale: RoundingPolicy.snapScale, rule: .halfUp)
         if shown != snapped { warnings.append(.rounded(exact: snapped)) }
         return .success(
             Computation(
                 plan: plan, formula: formula, value: result.value, unit: result.unit, read: read,
-                roles: CellRoles.of(formula, sheet: sheet), winner: evaluator.winner, warnings: warnings))
+                roles: CellRoles.of(formula, sheet: sheet, kept: kept), winner: evaluator.winner, warnings: warnings))
     }
 }
 
@@ -180,12 +189,15 @@ extension Formula {
 /// Depth first, left to right, in Decimal, with b2 §4.3's unit algebra.
 struct Evaluator {
     let sheet: CellSheet
+    /// The conversation's kept results (M14), what a `RES` leaf reads.
+    let kept: [KeptResult]
     var read: [CellID] = []
     var warnings: [MathWarning] = []
     var winner: Winner?
 
-    init(sheet: CellSheet) {
+    init(sheet: CellSheet, kept: [KeptResult] = []) {
         self.sheet = sheet
+        self.kept = kept
     }
 
     mutating func evaluate(_ formula: Formula) throws(MathFailure) -> (value: Decimal, unit: MathUnit) {
@@ -204,9 +216,10 @@ struct Evaluator {
         switch formula {
         case .constant(let value):
             return (value, .number)
-        case .result:
-            // The contract's stub (M14.1): S1 evaluates a kept result; until then no result is known.
-            throw .plan(.unknownResult)
+        case .result(let number):
+            // Its exact value and its unit as shown: a percent result is a percent, a euro result euros.
+            guard let result = kept.first(where: { $0.number == number }) else { throw .plan(.unknownResult) }
+            return (result.value, result.unit)
         case .cell(let id):
             read.append(id)
             guard let cell = sheet[id] else { throw .plan(.unknownCell) }
@@ -335,7 +348,7 @@ extension MathEngine {
     /// b2 §4.4, and the percent scale check: a percent declared over a plain number, when a quotient of like units in
     /// the formula is not scaled by exactly one hundred.
     static func checkDeclared(
-        _ unit: MathUnit, _ declared: ResultUnit, formula: Formula, sheet: CellSheet
+        _ unit: MathUnit, _ declared: ResultUnit, formula: Formula, sheet: CellSheet, kept: [KeptResult] = []
     ) throws(MathFailure) {
         let currency: Currency? =
             switch declared {
@@ -360,7 +373,7 @@ extension MathEngine {
             // Anywhere in the formula, not only at its top: `C1 / C2 - 1` has no hundred, `100 * C1 / (100 * C2)` none
             // net, and `100 * C1 / (C2 / 100)` two. The frozen engine refuses a top-level quotient of like units only,
             // whatever its hundreds.
-            if PercentScales.of(formula, sheet: sheet).contains(where: { $0 != 1 }) {
+            if PercentScales.of(formula, sheet: sheet, kept: kept).contains(where: { $0 != 1 }) {
                 throw .plan(.percentScale)
             }
         default:
@@ -421,16 +434,17 @@ extension MathEngine {
 /// and those of the products and quotients around it. A quotient in a denominator counts inverted.
 struct PercentScales {
     let sheet: CellSheet
+    var kept: [KeptResult] = []
     var scales: [Int] = []
 
-    static func of(_ formula: Formula, sheet: CellSheet) -> [Int] {
-        var walker = PercentScales(sheet: sheet)
+    static func of(_ formula: Formula, sheet: CellSheet, kept: [KeptResult] = []) -> [Int] {
+        var walker = PercentScales(sheet: sheet, kept: kept)
         walker.walk(formula, sign: 1, outer: 0)
         return walker.scales
     }
 
     func unit(_ formula: Formula) -> MathUnit? {
-        var evaluator = Evaluator(sheet: sheet)
+        var evaluator = Evaluator(sheet: sheet, kept: kept)
         return try? evaluator.evaluate(formula).unit
     }
 
@@ -465,10 +479,11 @@ struct PercentScales {
 /// keeps its first role.
 struct CellRoles {
     let sheet: CellSheet
+    var kept: [KeptResult] = []
     var roles: [CellID: CellRole] = [:]
 
-    static func of(_ formula: Formula, sheet: CellSheet) -> [CellID: CellRole] {
-        var walker = CellRoles(sheet: sheet)
+    static func of(_ formula: Formula, sheet: CellSheet, kept: [KeptResult] = []) -> [CellID: CellRole] {
+        var walker = CellRoles(sheet: sheet, kept: kept)
         walker.walk(formula, coefficient: 1, linear: true)
         return walker.roles
     }
@@ -478,7 +493,7 @@ struct CellRoles {
     }
 
     func value(_ formula: Formula) -> Decimal {
-        var evaluator = Evaluator(sheet: sheet)
+        var evaluator = Evaluator(sheet: sheet, kept: kept)
         return (try? evaluator.evaluate(formula).value) ?? 0
     }
 

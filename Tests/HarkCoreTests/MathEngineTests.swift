@@ -327,3 +327,181 @@ private func isDeclaredUnit(_ failure: MathFailure?) -> Bool {
         for defect in MathDefect.allCases { #expect(!String(describing: defect).contains("SECRET")) }
     }
 }
+
+// M14: a plan of several results, and RES references to the conversation's kept results.
+
+private func kept(
+    _ number: Int, _ value: String, _ unit: MathUnit, scale: Int = 2, unitLabel: String? = nil
+) -> KeptResult {
+    let decimal = dec(value)
+    return KeptResult(
+        number: number, value: decimal, unit: unit, unitLabel: unitLabel, scale: scale, shown: value,
+        understood: "result \(number)", turn: UtteranceID(1))
+}
+
+private func setReply(_ entries: [(formula: String, unit: String)]) -> String {
+    let items = entries.map {
+        #"{"understood": "x", "formula": "\#($0.formula)", "unit": "\#($0.unit)", "unit_label": ""}"#
+    }
+    return #"{"results": [\#(items.joined(separator: ", "))]}"#
+}
+
+private func solveAll(
+    _ entries: [(formula: String, unit: String)], _ texts: [String], kept: [KeptResult] = [],
+    instruction: String = "How much in total?", finish: String? = "stop"
+) -> Result<[ResultOutcome], MathFailure> {
+    MathEngine.solveAll(
+        reply: setReply(entries), finishReason: finish, sheet: MathFixtures.sheet(texts: texts),
+        instruction: instruction, kept: kept)
+}
+
+private func one(
+    _ formula: String, unit: String, _ texts: [String] = [], kept: [KeptResult], instruction: String
+) -> Result<Computation, MathFailure> {
+    switch solveAll([(formula, unit)], texts, kept: kept, instruction: instruction) {
+    case .success(let outcomes): outcomes[0]
+    case .failure(let failure): .failure(failure)
+    }
+}
+
+/// m01's two results, m02's total and exact average: what m09 to m12 refer to.
+private let m01 = [kept(1, "89.67", .money(.eur)), kept(2, "29.34", .money(.eur))]
+private let m02Average = dec("157353.05") / 3
+private let m02 = [
+    kept(1, "157353.05", .money(.usd)),
+    KeptResult(
+        number: 2, value: m02Average, unit: .money(.usd), unitLabel: nil, scale: 2, shown: "52451.02",
+        understood: "the average", turn: UtteranceID(1)),
+]
+
+@Suite struct SolveAllTests {
+    @Test func eachResultIsSolvedAloneInTheModelsOrder() throws {
+        let outcomes = try solveAll([("SUM(C1, C2)", "EUR"), ("C3", "EUR"), ("C9", "EUR")], ["10 €", "20 €", "5 €"])
+            .get()
+        #expect(outcomes.count == 3)
+        #expect(try outcomes[0].get().value == 30)
+        #expect(try outcomes[1].get().value == 5)
+        #expect(outcomes[2] == .failure(.plan(.unknownCell)))
+    }
+
+    @Test func aWholeReplyDefectFailsTheSet() {
+        #expect(solveAll([("C1", "none")], ["1"], finish: "length") == .failure(.plan(.truncated)))
+        #expect(
+            MathEngine.solveAll(
+                reply: #"{"results": []}"#, finishReason: "stop", sheet: MathFixtures.sheet(texts: ["1"]),
+                instruction: "", kept: []) == .failure(.plan(.json)))
+    }
+
+    @Test func todaysFlatReplySolvesAsSolveDoes() throws {
+        let sheet = MathFixtures.sheet(texts: ["10 €", "20 €"])
+        let reply = planReply("SUM(C1, C2)", unit: "EUR")
+        let today = MathEngine.solve(reply: reply, finishReason: "stop", sheet: sheet, instruction: "Total?")
+        let all = MathEngine.solveAll(reply: reply, finishReason: "stop", sheet: sheet, instruction: "Total?", kept: [])
+        #expect(try all.get() == [today])
+    }
+
+    @Test func m09MultipliesResultOneByTwelve() throws {
+        let computed = try one("RES1 * 12", unit: "EUR", kept: m01, instruction: "Multiplie le résultat un par 12.")
+            .get()
+        #expect(computed.value == dec("1076.04"))
+        #expect(computed.unit == .money(.eur))
+        #expect(computed.read.isEmpty && computed.roles.isEmpty)
+    }
+
+    @Test func m10SubtractsResultOneFromResultTwo() throws {
+        let computed = try one(
+            "RES2 - RES1", unit: "EUR", kept: m01, instruction: "Le résultat deux moins le résultat un."
+        ).get()
+        #expect(computed.value == dec("-60.33"))
+        #expect(computed.unit == .money(.eur))
+    }
+
+    @Test func m11ReadsTheExactKeptAverage() throws {
+        let computed = try one("RES2 * 3", unit: "USD", kept: m02, instruction: "Multiply result two by three.").get()
+        // The exact average times three: 157353.05 once the division residue is snapped, not 52451.02 × 3.
+        #expect(RoundingPolicy.round(computed.value, scale: 20, rule: .halfUp) == dec("157353.05"))
+        #expect(!computed.warnings.contains { if case .rounded = $0 { true } else { false } })
+    }
+
+    @Test func m12AddsAResultToANewSheet() throws {
+        let computed = try one(
+            "RES1 + SUM(C1, C2, C3)", unit: "USD", ["$58,000.00", "$60,558.10", "$58,000.00"], kept: m02,
+            instruction: "Add result one to the total of this table."
+        ).get()
+        #expect(computed.value == dec("333911.15"))
+        #expect(computed.read == [CellID(1), CellID(2), CellID(3)])
+        #expect(computed.roles[CellID(1)] == .added)
+    }
+
+    @Test func anUnknownOrFailedResultIsUnknownResult() {
+        // Result 3 failed: it keeps its number, but no `KeptResult`.
+        #expect(one("RES3 * 3", unit: "USD", kept: m02, instruction: "three") == .failure(.plan(.unknownResult)))
+        #expect(one("RES1", unit: "EUR", kept: [], instruction: "x") == .failure(.plan(.unknownResult)))
+    }
+
+    @Test func theUnknownResultCheckComesRightAfterTheCells() {
+        #expect(one("RES9 + C9", unit: "EUR", ["1 €"], kept: m01, instruction: "x") == .failure(.plan(.unknownCell)))
+        #expect(one("RES9 * 7", unit: "EUR", kept: m01, instruction: "x") == .failure(.plan(.unknownResult)))
+    }
+
+    @Test func aCopiedFigureIsAnUnspokenConstant() {
+        #expect(
+            one("52451.02 * 3", unit: "USD", kept: m02, instruction: "Multiply result two by three.")
+                == .failure(.plan(.unspokenConstant("52451.02"))))
+    }
+
+    @Test func aResultInCountIsSyntax() {
+        #expect(
+            one("COUNT(RES1, C1)", unit: "count", ["1"], kept: m02, instruction: "x") == .failure(.plan(.syntax)))
+    }
+
+    @Test func aPercentResultIsAPercent() throws {
+        let quarter = [kept(1, "25", .percent)]
+        let computed = try one(
+            "C1 * RES1%", unit: "USD", ["$52,318.75"], kept: quarter, instruction: "a quarter"
+        ).get()
+        #expect(RoundingPolicy.round(computed.value, scale: 2, rule: .halfUp) == dec("13079.69"))
+        #expect(computed.roles[CellID(1)] == .added)
+        #expect(one("RES1 + C1", unit: "none", ["3"], kept: quarter, instruction: "x").isSuccess)
+        #expect(isUnitFailure(one("RES1 * C1", unit: "none", ["$3"], kept: quarter, instruction: "x")))
+    }
+
+    @Test func euroResultsKeepTheirUnit() throws {
+        #expect(try one("RES1 * 12", unit: "none", kept: m01, instruction: "12").get().unit == .money(.eur))
+        let dollars = [kept(3, "10", .money(.usd))]
+        #expect(isUnitFailure(one("RES1 - RES3", unit: "none", kept: m01 + dollars, instruction: "x")))
+        #expect(
+            one("RES1 * 12", unit: "USD", kept: m01, instruction: "12").failure.map {
+                if case .plan(.declaredUnit) = $0 { true } else { false }
+            } == true)
+    }
+
+    @Test func aReferencedResultsScaleJoinsTheCells() throws {
+        let precise = [kept(1, "1.2345", .number, scale: 4)]
+        let computed = try one("RES1 * 2", unit: "none", kept: precise, instruction: "2").get()
+        let policy = RoundingPolicy.standard
+        let empty = MathFixtures.sheet(texts: [])
+        let decimals = policy.decimals(for: .number, read: [], sheet: empty, referenced: precise)
+        #expect(decimals?.maximum == 4 && decimals?.minimum == 4)
+        #expect(computed.value == dec("2.469"))
+    }
+}
+
+private func isUnitFailure(_ result: Result<Computation, MathFailure>) -> Bool {
+    if case .failure(.plan(.unit)) = result { return true }
+    return false
+}
+
+extension Result {
+    fileprivate var isSuccess: Bool {
+        if case .success = self { return true }
+        return false
+    }
+
+    fileprivate var failure: Failure? {
+        if case .failure(let failure) = self { return failure }
+        return nil
+    }
+}
+
+private func dec(_ text: String) -> Decimal { Decimal(string: text) ?? .nan }

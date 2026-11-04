@@ -41,10 +41,14 @@ public typealias ResultOutcome = Result<Computation, MathFailure>
 extension MathEngine {
     /// Every result of the reply, each through today's checks alone, in today's order, with the conversation's kept
     /// results for its `RES` leaves; or a whole-reply defect (`json`, `truncated`) as the failure. `solve` stays the
-    /// one-result entry for the golden and parity tests. The contract's stub refuses every reply.
+    /// one-result entry for the golden and parity tests.
     public static func solveAll(
         reply: String, finishReason: String?, sheet: CellSheet, instruction: String, kept: [KeptResult]
     ) -> Result<[ResultOutcome], MathFailure> {
-        .failure(.plan(.json))
+        switch PlanSet.decode(reply, finishReason: finishReason) {
+        case .success(let set):
+            .success(set.results.map { solve($0, sheet: sheet, instruction: instruction, kept: kept) })
+        case .failure(let defect): .failure(.plan(defect))
+        }
     }
 }

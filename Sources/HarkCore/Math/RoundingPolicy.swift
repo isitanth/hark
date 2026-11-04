@@ -58,27 +58,35 @@ extension RoundingPolicy {
         }
     }
 
-    /// The decimals a value shows: rounded to `maximum`, trailing zeros trimmed down to `minimum`. Nil: exact.
-    public func decimals(for unit: MathUnit, read: [CellID], sheet: CellSheet) -> (maximum: Int, minimum: Int)? {
+    /// The decimals a value shows: rounded to `maximum`, trailing zeros trimmed down to `minimum`. Nil: exact. A plain
+    /// number takes the scales of the cells read and of the kept results the formula names (M14).
+    public func decimals(
+        for unit: MathUnit, read: [CellID], sheet: CellSheet, referenced: [KeptResult] = []
+    ) -> (maximum: Int, minimum: Int)? {
         switch unit {
         case .money(let currency): return (currency.minorUnits, currency.minorUnits)
         case .percent: return (percentDecimals, percentDecimals)
         case .hours: return (hoursDecimals, hoursDecimals)
         case .count: return nil
         case .number:
-            let scales = read.compactMap { id -> Int? in
+            let cellScales = read.compactMap { id -> Int? in
                 guard case .amount(let amount) = sheet[id]?.reading else { return nil }
                 return amount.scale
             }
+            let scales = cellScales + referenced.map(\.scale)
             let most = scales.max() ?? 0
             return (max(most, numberDecimals), most)
         }
     }
 
     /// Snapped to 20 places, then rounded once by the policy. A count stays exact.
-    public func round(_ value: Decimal, unit: MathUnit, read: [CellID], sheet: CellSheet) -> Decimal {
+    public func round(
+        _ value: Decimal, unit: MathUnit, read: [CellID], sheet: CellSheet, referenced: [KeptResult] = []
+    ) -> Decimal {
         let snapped = Self.round(value, scale: Self.snapScale, rule: .halfUp)
-        guard let decimals = decimals(for: unit, read: read, sheet: sheet) else { return snapped }
+        guard let decimals = decimals(for: unit, read: read, sheet: sheet, referenced: referenced) else {
+            return snapped
+        }
         return Self.round(snapped, scale: decimals.maximum, rule: rule)
     }
 }
