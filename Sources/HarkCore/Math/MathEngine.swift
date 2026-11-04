@@ -115,7 +115,8 @@ public enum MathEngine {
         if formula.cells.contains(where: { sheet[$0] == nil }) { return .failure(.plan(.unknownCell)) }
         let keptNumbers = Set(kept.map(\.number))
         if formula.results.contains(where: { !keptNumbers.contains($0) }) { return .failure(.plan(.unknownResult)) }
-        let allowed = SpokenNumbers.allowed(in: instruction)
+        // « résultat 2 » names a result: its 2 is no number the formula may hold (M14).
+        let allowed = SpokenNumbers.allowed(in: ResultWords.stripped(instruction))
         for (constant, literal) in zip(formula.constants, parsed.literals)
         where !allowed.contains(where: { $0 == constant }) {
             return .failure(.plan(.unspokenConstant(literal)))

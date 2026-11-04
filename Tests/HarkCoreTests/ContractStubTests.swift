@@ -51,11 +51,6 @@ private typealias F = Fixture
         #expect(PlanStream.understoods(partial: #"{"results":[{"understood":"Le total"#).isEmpty)
     }
 
-    @Test func theResultWordsNameNone() {
-        #expect(ResultWords.named(in: "le résultat deux moins le résultat un", count: 2).isEmpty)
-        #expect(ResultWords.stripped("le résultat deux") == "le résultat deux")
-    }
-
     @Test func noResultsArePresented() {
         #expect(AskPresentation.results(nil, locale: Locale(identifier: "en_US_POSIX")) == nil)
     }

@@ -54,6 +54,22 @@ public enum MathIntent {
         "plus gros defi", "plus urgent", "plus urgente",
     ]
 
+    /// M14's supplement (plan §4.2, the user's decision of 2026-11-04), beside the frozen lists and never in them: a
+    /// framed question with one of these whole words is a calculation, unless the frozen block list says otherwise.
+    public static let supplement: [String] = ["max", "min", "maximum", "minimum"]
+
+    /// The frozen check, then the supplement (M14, `wordcheck_m14.py`'s `routes`): the block list wins; else the frozen
+    /// compute lists or `supplement`; else, while the conversation holds a result, a phrase `ResultWords` reads.
+    public static func isComputation(_ instruction: String, holdsResults: Bool) -> Bool {
+        var question = normalize(instruction)
+        for filler in fillers {
+            question = question.replacingOccurrences(of: normalize(filler), with: " ")
+        }
+        if hits(question, blockEnglish) || hits(question, blockFrench) { return false }
+        if isComputation(instruction) || hits(question, supplement) { return true }
+        return holdsResults && !ResultWords.named(in: instruction, count: 1).isEmpty
+    }
+
     /// Whether the spoken instruction asks for a calculation, in English or French. False sends the framed ask down
     /// today's path. Both languages' lists apply whatever whisper's language says.
     public static func isComputation(_ instruction: String) -> Bool {

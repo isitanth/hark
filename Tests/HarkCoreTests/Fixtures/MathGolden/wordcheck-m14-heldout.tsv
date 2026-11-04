@@ -1,0 +1,43 @@
+# M14.0 C's held-out set (docs/acceptance/M14-data/bench/wordcheck-m14-heldout.tsv), copied with a fifth column:
+# what wordcheck_m14.py routes, which the Swift port must give. Where it differs from the written expectation:
+# "Max" the name and "minimum" outside a calculation (6 rows, the supplement kept by the user on 2026-11-04),
+# and "Result two minus result one" with no result held, routed by the frozen "minus".
+# question <TAB> lang <TAB> holds_results <TAB> expected <TAB> routes
+Donne-moi le max des ventes de septembre.	fr	false	true	true
+C'est quoi le min sur cette colonne ?	fr	false	true	true
+Le maximum et le minimum des températures, s'il te plaît.	fr	false	true	true
+Euh, quel est le montant maximum dans ce tableau ?	fr	false	true	true
+Le min et le max des notes de la classe.	fr	false	true	true
+What's the max of the Q2 column?	en	false	true	true
+Give me the min and the max of these prices.	en	false	true	true
+Uh, what's the maximum monthly spend here?	en	false	true	true
+The minimum and maximum delivery cost on this page.	en	false	true	true
+Max and min of the response times.	en	false	true	true
+Multiplie le résultat deux par quatre.	fr	true	true	true
+Le résultat un moins le résultat trois.	fr	true	true	true
+Divise le premier résultat par 12.	fr	true	true	true
+Ajoute le dernier résultat aux frais de port.	fr	true	true	true
+Prends le résultat numéro 2 et enlève 15 %.	fr	true	true	true
+Le deuxième résultat fois deux.	fr	true	true	true
+Multiply result one by twelve.	en	true	true	true
+Result three minus result two.	en	true	true	true
+Take the second result and divide it by four.	en	true	true	true
+Add the last result to this table's total.	en	true	true	true
+Result number 2 times 1.2.	en	true	true	true
+Subtract result 1 from the total of this column.	en	true	true	true
+Le résultat deux moins le résultat un.	fr	false	false	false
+Result two minus result one.	en	false	false	true
+Explique le résultat 2.	fr	true	false	false
+Traduis le premier résultat en anglais.	fr	true	false	false
+Explain result one in plain words.	en	true	false	false
+What does result two mean?	en	true	false	false
+Qui est Max dans ce mail ?	fr	false	false	true
+Réponds à Max pour lui dire oui.	fr	false	false	true
+Quel est le minimum requis pour candidater, d'après ce texte ?	fr	false	false	true
+Résume ce que dit le premier résultat de la recherche.	fr	false	false	false
+Is Max coming to the meeting?	en	false	false	true
+Reply to Max and say thanks.	en	false	false	true
+What are the minimum requirements listed here?	en	false	false	true
+Open the first search result.	en	false	false	false
+What was the result of the vote?	en	true	false	false
+Le résultat du match, il dit quoi ?	fr	true	false	false
