@@ -92,7 +92,8 @@ public struct PipelineReducer: Sendable {
             context.focus = focus
             return move(.transcribing(context))
 
-        case (.capturing(var context), .triggerUp(let at)):
+        // A typed ask (M15) has no capture to stop: its zero summary would be discarded as too short and the words lost.
+        case (.capturing(var context), .triggerUp(let at)) where context.input == .voice:
             context.releasedAt = at
             return move(.transcribing(context), [.stopCapture(id)])
 
@@ -100,8 +101,19 @@ public struct PipelineReducer: Sendable {
         // now, with a summary that keeps the flag for the log line. The key is still held; its release lands in a
         // later state and is dropped. A limit that lands after the release is dropped too: the stop is already on
         // its way, and only its result carries the audio.
-        case (.capturing(let context), .captureLimitReached):
+        case (.capturing(let context), .captureLimitReached) where context.input == .voice:
             return move(.transcribing(context), [.stopCapture(id)])
+
+        // The first committed character (M15): the microphone stops and its samples are dropped, no transcription
+        // runs, and the state stays `.capturing` so a frame can still be drawn.
+        case (.capturing(var context), .typingStarted) where context.intent.isAsk && context.input == .voice:
+            context.input = .typed
+            return move(.capturing(context), [.cancelCapture(id)])
+
+        // A typed instruction sent: the release is the submit, and the words take the spoken ask's path.
+        case (.capturing(var context), .typed(_, let text, let at)) where context.input == .typed:
+            context.releasedAt = at
+            return askFromWords(context, Transcript(raw: String(text.prefix(Self.maxTypedCharacters)), tier: nil))
 
         case (.transcribing(var context), .captured(_, let summary)) where context.capture == nil:
             context.capture = summary

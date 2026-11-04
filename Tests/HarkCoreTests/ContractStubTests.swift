@@ -79,13 +79,4 @@ private typealias F = Fixture
         #expect(PlanDefect.unknownResult.correction == "refer only to result IDs from the results list")
         #expect(Formula.result(2).results == [2] && Formula.result(2).cells.isEmpty)
     }
-
-    // M15.1's stubs. T1 (M15.2): the two events. Each row goes with the body that lands.
-
-    @Test func typingIsRejectedUntilM15Lands() {
-        let reducer = PipelineReducer()
-        #expect(F.askCapturing.context?.input == .voice)
-        #expect((try? reducer.reduce(F.askCapturing, .typingStarted(F.id)).get()) == nil)
-        #expect((try? reducer.reduce(F.askCapturing, .typed(F.id, "Le total ?", at: F.pressedAt)).get()) == nil)
-    }
 }
