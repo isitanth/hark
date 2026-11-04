@@ -4,9 +4,71 @@ import Foundation
 
 public enum PlanStream {
     /// Each result's `understood` reached so far in a `{"results": [...]}` reply (M14, c2a §4.2), unescaped, the last
-    /// one possibly cut. The contract's stub reads none.
+    /// one possibly cut, at most `PlanSet.maxResults`. Today's flat object gives its one. Nothing of a formula, a unit or
+    /// a label is ever returned.
     public static func understoods(partial: String) -> [String] {
-        []
+        var scanner = PartialJSON(Array(partial.unicodeScalars))
+        scanner.skipPreamble()
+        guard scanner.take("{") else { return [] }
+        while true {
+            scanner.skipSpace()
+            guard case .complete(let key) = scanner.string() else { return [] }
+            scanner.skipSpace()
+            guard scanner.take(":") else { return [] }
+            scanner.skipSpace()
+            switch key {
+            case "results":
+                return results(&scanner)
+            case "understood":
+                switch scanner.string() {
+                case .complete(let value), .partial(let value): return [value]
+                case .absent: return []
+                }
+            default:
+                guard scanner.skipValue() else { return [] }
+            }
+            scanner.skipSpace()
+            guard scanner.take(",") else { return [] }
+        }
+    }
+
+    /// The array's items as far as they go, each `understood` once reached; a cut stops the walk.
+    private static func results(_ scanner: inout PartialJSON) -> [String] {
+        var found: [String] = []
+        guard scanner.take("[") else { return found }
+        while found.count < PlanSet.maxResults {
+            scanner.skipSpace()
+            guard scanner.take("{") else { return found }
+            var closed = false
+            while !closed {
+                scanner.skipSpace()
+                if scanner.take("}") { break }
+                guard case .complete(let key) = scanner.string() else { return found }
+                scanner.skipSpace()
+                guard scanner.take(":") else { return found }
+                scanner.skipSpace()
+                if key == "understood" {
+                    switch scanner.string() {
+                    case .complete(let value): found.append(value)
+                    case .partial(let value):
+                        found.append(value)
+                        return found
+                    case .absent: return found
+                    }
+                } else {
+                    guard scanner.skipValue() else { return found }
+                }
+                scanner.skipSpace()
+                if scanner.take("}") {
+                    closed = true
+                } else if !scanner.take(",") {
+                    return found
+                }
+            }
+            scanner.skipSpace()
+            guard scanner.take(",") else { return found }
+        }
+        return found
     }
 
     /// The `understood` value as far as the partial JSON holds it, unescaped; nil until its opening quote. Nothing

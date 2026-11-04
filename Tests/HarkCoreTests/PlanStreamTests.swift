@@ -77,3 +77,97 @@ private let labelledValue = "Vous voulez la somme du stockage des quatre classes
         }
     }
 }
+
+// M14: each result's `understood`, c2a §4.2's partial states.
+
+private let first = "Vous voulez le total du premier tableau."
+private let setReply = """
+    {"results": [{"understood": "\(first)", "formula": "SUM(C1, C2)", "unit": "EUR", "unit_label": ""}, \
+    {"understood": "Et le total du second.", "formula": "SUM(C3, C4)", "unit": "EUR", "unit_label": ""}]}
+    """
+
+private func understoods(_ partial: String) -> [String] {
+    PlanStream.understoods(partial: partial)
+}
+
+@Suite struct PlanStreamResultsTests {
+    @Test(arguments: [
+        "", "\u{FEFF}", "```json", "{", #"{"res"#, #"{"results""#, #"{"results":"#, #"{"results": ["#,
+        #"{"results": [{"#, #"{"results": [{"underst"#, #"{"results": [{"understood""#,
+        #"{"results": [{"understood": "#, #"{"results": "x"}"#, #"{"results": [{"formula": "C1""#,
+    ])
+    func nothingIsReachedYet(_ partial: String) {
+        #expect(understoods(partial).isEmpty)
+    }
+
+    @Test func theFirstUnderstoodShowsAsItStreams() {
+        #expect(understoods(#"{"results": [{"understood": "Vous vou"#) == ["Vous vou"])
+        #expect(understoods(#"{"results": [{"understood": ""#) == [""])
+    }
+
+    @Test func aCutFormulaKeepsTheFirst() {
+        #expect(understoods(#"{"results": [{"understood": "\#(first)", "formula": "SUM(C1"#) == [first])
+    }
+
+    @Test func aSecondItemOpenedKeepsTheFirst() {
+        let partial = #"{"results": [{"understood": "\#(first)", "formula": "C1", "unit": "EUR"}, {"#
+        #expect(understoods(partial) == [first])
+    }
+
+    @Test func theSecondUnderstoodShowsCut() {
+        let opened = #"{"results": [{"understood": "\#(first)", "formula": "C1", "unit": "EUR"}, "#
+        let partial = opened + #"{"understood": "Et le"#
+        #expect(understoods(partial) == [first, "Et le"])
+    }
+
+    @Test(arguments: [#"Et le \u00e"#, #"Et le \"#, #"Et le \ud83d"#, #"Et le \ud83d\udc"#])
+    func aCutEscapeIsHeldBack(_ tail: String) {
+        let partial = #"{"results": [{"understood": "a", "formula": "C1", "unit": "EUR"}, {"understood": "\#(tail)"#
+        #expect(understoods(partial) == ["a", "Et le "])
+    }
+
+    @Test func aFormulaFirstItemShowsItsUnderstoodOnceReached() {
+        #expect(understoods(#"{"results": [{"formula": "C1", "unit": "EUR", "understood": "Le to"#) == ["Le to"])
+        #expect(
+            understoods(#"{"results": [{"formula": "C1"}, {"formula": "C2", "understood": "b"}]}"#) == ["b"])
+    }
+
+    @Test func anEscapedQuoteInAFormulaMakesNoPhantomResult() {
+        let partial = #"{"results": [{"formula": "\"}, {\"understood\": \"x", "understood": "real"}]}"#
+        #expect(understoods(partial) == ["real"])
+    }
+
+    @Test func aFourthItemIsNeverShown() {
+        let item = { (text: String) in #"{"understood": "\#(text)", "formula": "C1", "unit": "none"}"# }
+        let partial = #"{"results": [\#(item("a")), \#(item("b")), \#(item("c")), \#(item("d"))]}"#
+        #expect(understoods(partial) == ["a", "b", "c"])
+    }
+
+    @Test func todaysFlatObjectGivesItsOne() {
+        #expect(understoods(#"{"understood": "x", "formula": "C1"#) == ["x"])
+        #expect(understoods(#"{"formula": "C1", "understood": "y"#) == ["y"])
+    }
+
+    @Test func anotherTopLevelKeyIsSkipped() {
+        #expect(understoods(#"{"note": {"a": [1, "]"]}, "results": [{"understood": "z""#) == ["z"])
+    }
+
+    @Test func aFencedReplyReads() {
+        #expect(understoods("```json\n" + #"{"results": [{"understood": "f"#) == ["f"])
+    }
+
+    @Test func everyCutIsAPrefixOfTheDecodedSet() throws {
+        let decoded = try PlanSet.decode(setReply, finishReason: "stop").get().results.map(\.understood)
+        #expect(understoods(setReply) == decoded)
+        var previous: [String] = []
+        for count in 0...setReply.count {
+            let shown = understoods(String(setReply.prefix(count)))
+            #expect(shown.count >= previous.count, "cut at \(count)")
+            for (index, text) in shown.enumerated() {
+                #expect(decoded[index].hasPrefix(text), "cut at \(count)")
+                if index < previous.count { #expect(text.count >= previous[index].count) }
+            }
+            previous = shown
+        }
+    }
+}

@@ -47,10 +47,6 @@ private typealias F = Fixture
     // M14.1's stubs. S1: the plan set, the engine over it, the stream, the result words. S3: the anchor, the change,
     // the zone search, the stillness detector. S4: the results' presentation. Each row goes with the body that lands.
 
-    @Test func theStreamReadsNoResultYet() {
-        #expect(PlanStream.understoods(partial: #"{"results":[{"understood":"Le total"#).isEmpty)
-    }
-
     @Test func noResultsArePresented() {
         #expect(AskPresentation.results(nil, locale: Locale(identifier: "en_US_POSIX")) == nil)
     }
