@@ -29,6 +29,19 @@ forbid "the exact-math engine computes in Decimal only" \
     "$(grep -rnE 'NSExpression|JSContext|import[[:space:]]+JavaScriptCore|sqlite3_' Sources || true; grep -rnE 'Decimal\(string:|(^|[^[:alnum:]_])(Double|Float(16|32|64|80)?)([^[:alnum:]_]|$)|\.(double|float)Value([^[:alnum:]_]|$)' Sources/HarkCore/Math | grep -vE '^Sources/HarkCore/Math/(VisionRegionReader|SheetBuilder)\.swift:' || true; grep -rnE '(^|[^[:alnum:]_])(CGFloat|TimeInterval)([^[:alnum:]_]|$)' Sources/HarkCore/Math | grep -vE '^Sources/HarkCore/Math/(VisionRegionReader|SheetBuilder|ReaderVocabulary|RecognizedText)\.swift:' || true)"
 forbid "the number parser reads the document's own separators" \
     "$(grep -n 'Locale(identifier:' Sources/HarkCore/Math/DisplayedNumber.swift 2>/dev/null || true)"
+# The anchored layer (M14): the screen is captured through ScreenCaptureKit in one file, never by the window list's
+# deprecated image calls; the layer draws no copy of the screen; the zone search writes nothing; a kept result is
+# never encoded.
+forbid "CGWindowListCreateImage is deprecated and refused: capture through ScreenRegionCapturer.swift" \
+    "$(grep -rnE 'CGWindowListCreateImage(FromArray)?' Sources || true)"
+forbid "only Sources/HarkApp/Region/ScreenRegionCapturer.swift may use SCScreenshotManager" \
+    "$(grep -rn 'SCScreenshotManager' Sources | grep -v '^Sources/HarkApp/Region/ScreenRegionCapturer\.swift:' || true)"
+forbid "the region layer draws no copy of the screen: no image in RegionLayerPanel.swift or RegionLayerView.swift" \
+    "$(grep -nE '(^|[^[:alnum:]_])(CGImage|NSImage|Image\()' Sources/HarkApp/Region/RegionLayerPanel.swift Sources/HarkApp/Region/RegionLayerView.swift 2>/dev/null || true)"
+forbid "the zone search writes nothing" \
+    "$(grep -nE 'CGImageDestination|FileManager|FileHandle|\.write\(|createFile|fopen' Sources/HarkCore/Region/ZoneRegistration.swift 2>/dev/null || true)"
+forbid "a kept result is never encoded: KeptResult is not Codable" \
+    "$(grep -rnE '(struct|extension)[[:space:]]+KeptResult[^{]*(Codable|Encodable|Decodable)' Sources || true)"
 # An API key lives in the Keychain only. Sources/ holds the default commands.yaml too. A Bearer token or an sk- key
 # written out, or an api_key with a value, fails; "Bearer \(key)" and prose about Bearer do not. In YAML, a profile's
 # key: is keychain or none, nothing else.

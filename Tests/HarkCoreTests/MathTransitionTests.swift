@@ -34,7 +34,7 @@ struct ExactRun {
     var effects: [PipelineEffect] = []
     var all: [PipelineEffect] = []
 
-    typealias Solve = @Sendable (String, String?, CellSheet, String) -> Result<Computation, MathFailure>
+    typealias Solve = PipelineReducer.Solve
 
     init(on: Bool = true, solve: Solve? = nil) {
         reducer = PipelineReducer()
@@ -346,7 +346,7 @@ struct ExactRun {
 
     @Test(arguments: retryable)
     func aRetryableDefectIsAskedAgainOnceWithItsNote(_ defect: PlanDefect) throws {
-        var run = ExactRun(solve: { _, _, _, _ in .failure(.plan(defect)) })
+        var run = ExactRun(solve: { _, _, _, _, _ in .failure(.plan(defect)) })
         try run.ask(read: .success(Exact.sheet))
         #expect(try run.on(.planned(F.id, Exact.summary(), reply: "first")) == ["plan+correction"])
         #expect(run.stage == .planning)
@@ -363,7 +363,7 @@ struct ExactRun {
 
     @Test(arguments: final)
     func aFinalFailureStopsAtOnceAndKeepsItsCell(_ failure: MathFailure) throws {
-        var run = ExactRun(solve: { _, _, _, _ in .failure(failure) })
+        var run = ExactRun(solve: { _, _, _, _, _ in .failure(failure) })
         try run.ask(read: .success(Exact.sheet))
         #expect(try run.on(.planned(F.id, Exact.summary(), reply: "plan")) == [])
         #expect(run.stage == .mathFailed(failure))
@@ -519,7 +519,7 @@ struct Missing: Error {}
 
     @Test(arguments: MathDefect.allCases)
     func theWayOutAfterAMathDefectCarriesIt(_ defect: MathDefect) throws {
-        var run = ExactRun(solve: { _, _, _, _ in .failure(.math(defect, cell: CellID(1))) })
+        var run = ExactRun(solve: { _, _, _, _, _ in .failure(.math(defect, cell: CellID(1))) })
         try run.ask(read: .success(Exact.sheet))
         try run.on(.planned(F.id, Exact.summary(), reply: "plan"))
         #expect(try run.on(.askWithoutExactMath(F.id)) == ["generate+region"])
@@ -569,7 +569,7 @@ struct Missing: Error {}
     }
 
     @Test func cancelAfterAMathDefectLogsIt() throws {
-        var run = ExactRun(solve: { _, _, _, _ in .failure(.math(.divisionByZero, cell: CellID(2))) })
+        var run = ExactRun(solve: { _, _, _, _, _ in .failure(.math(.divisionByZero, cell: CellID(2))) })
         try run.ask(read: .success(Exact.sheet))
         try run.on(.planned(F.id, Exact.summary(), reply: "plan"))
         #expect(try run.on(.cancel) == ["log:failed:math_error:division_by_zero"])

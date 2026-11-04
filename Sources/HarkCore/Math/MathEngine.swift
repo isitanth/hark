@@ -140,7 +140,7 @@ extension Formula {
     /// `X − X` and `X ÷ X` with structurally equal sides, or a cell repeated in COUNT, anywhere in the tree.
     var isDegenerate: Bool {
         switch self {
-        case .cell, .constant: false
+        case .cell, .constant, .result: false
         case .negate(let inner), .rate(let inner), .round(let inner, _): inner.isDegenerate
         case .binary(let operation, let left, let right):
             ((operation == .subtract || operation == .divide) && left == right) || left.isDegenerate
@@ -204,6 +204,9 @@ struct Evaluator {
         switch formula {
         case .constant(let value):
             return (value, .number)
+        case .result:
+            // The contract's stub (M14.1): S1 evaluates a kept result; until then no result is known.
+            throw .plan(.unknownResult)
         case .cell(let id):
             read.append(id)
             guard let cell = sheet[id] else { throw .plan(.unknownCell) }
@@ -433,7 +436,7 @@ struct PercentScales {
 
     mutating func walk(_ formula: Formula, sign: Int, outer: Int) {
         switch formula {
-        case .cell, .constant, .count:
+        case .cell, .constant, .count, .result:
             return
         case .negate(let inner), .rate(let inner), .round(let inner, _):
             walk(inner, sign: sign, outer: outer)
@@ -483,7 +486,7 @@ struct CellRoles {
 
     mutating func walk(_ formula: Formula, coefficient: Int, linear: Bool) {
         switch formula {
-        case .constant:
+        case .constant, .result:
             return
         case .cell(let id):
             let valueSign = linear ? sign(value(formula)) : 1

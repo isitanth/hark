@@ -34,9 +34,17 @@ public struct PipelineReducer: Sendable {
     /// keeps tests deterministic: nothing in HarkCore reads the Mac's locale.
     public var resultLocale = Locale(identifier: "en_US_POSIX")
     public var rounding = RoundingPolicy.standard
-    /// The engine the `.planned` row calls. Only tests set it.
-    public var solve: @Sendable (String, String?, CellSheet, String) -> Result<Computation, MathFailure> = {
-        MathEngine.solve(reply: $0, finishReason: $1, sheet: $2, instruction: $3)
+    /// The engine the `.planned` row calls: the reply, its finish reason, the sheet, the words and the conversation's
+    /// kept results, to one outcome per result or a whole-reply failure (M14). Only tests set it. Until S2, the
+    /// default wraps the one-result engine, and the row reads the first outcome.
+    public typealias Solve =
+        @Sendable (String, String?, CellSheet, String, [KeptResult]) -> Result<
+            [ResultOutcome], MathFailure
+        >
+    public var solve: Solve = { reply, finish, sheet, instruction, _ in
+        MathEngine.solve(reply: reply, finishReason: finish, sheet: sheet, instruction: instruction).map {
+            [.success($0)]
+        }
     }
 
     public init(policy: CapturePolicy = .standard) {
@@ -318,7 +326,9 @@ public struct PipelineReducer: Sendable {
             context.llmMs = Self.sum(context.llmMs, summary.ms)
             context.llmModel = summary.model ?? context.llmModel
             let instruction = context.request ?? transcript.raw
-            switch solve(reply, summary.finishReason, sheet, instruction) {
+            let solved = solve(reply, summary.finishReason, sheet, instruction, context.thread?.keptResults ?? [])
+            let first = solved.flatMap { $0.first ?? .failure(.plan(.json)) }
+            switch first {
             case .success(let computation):
                 math.computation = computation
                 context.math = math

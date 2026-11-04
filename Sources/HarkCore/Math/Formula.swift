@@ -17,6 +17,9 @@ public indirect enum Formula: Sendable, Equatable {
     case round(Formula, digits: Int)
     /// ARGMIN, ARGMAX: the winning arm's value, its label naming the row.
     case pick(Pick, [PickArm])
+    /// `RES1`… (M14): a result the conversation keeps, by its number, evaluated from its exact `Decimal` and unit.
+    /// Never inside COUNT, never a pick label.
+    case result(Int)
 
     /// The formula language of b2 §5.1, by recursive descent: `harness.parse_formula`'s rules and limits.
     public static func parse(_ text: String) -> Result<Formula, PlanDefect> {
@@ -80,13 +83,26 @@ public indirect enum Formula: Sendable, Equatable {
         case .call(_, let arguments): arguments.flatMap(\.cells)
         case .count(let ids): ids
         case .pick(_, let arms): arms.flatMap { $0.value.cells + [$0.label] }
+        case .result: []
+        }
+    }
+
+    /// Every result the formula names (M14), in order, with repeats.
+    public var results: [Int] {
+        switch self {
+        case .result(let number): [number]
+        case .cell, .constant, .count: []
+        case .negate(let inner), .rate(let inner), .round(let inner, _): inner.results
+        case .binary(_, let left, let right): left.results + right.results
+        case .call(_, let arguments): arguments.flatMap(\.results)
+        case .pick(_, let arms): arms.flatMap(\.value.results)
         }
     }
 
     /// Every literal the formula holds, in order; ROUND's digit count is not one.
     public var constants: [Decimal] {
         switch self {
-        case .cell, .count: []
+        case .cell, .count, .result: []
         case .constant(let value): [value]
         case .negate(let inner), .rate(let inner), .round(let inner, _): inner.constants
         case .binary(_, let left, let right): left.constants + right.constants

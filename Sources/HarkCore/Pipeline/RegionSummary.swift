@@ -13,13 +13,19 @@ public struct RegionSummary: Sendable, Equatable {
     public var bytes: Int
     /// `CGDirectDisplayID` of the display the drag began on.
     public var displayID: UInt32
+    /// The window the zone lay on at the mouse-up (M14): the layer follows it. Nil when none qualified, and then
+    /// there is no layer.
+    public var anchor: RegionAnchor?
 
-    public init(rect: CGRect, pixelWidth: Int, pixelHeight: Int, bytes: Int, displayID: UInt32) {
+    public init(
+        rect: CGRect, pixelWidth: Int, pixelHeight: Int, bytes: Int, displayID: UInt32, anchor: RegionAnchor? = nil
+    ) {
         self.rect = rect
         self.pixelWidth = pixelWidth
         self.pixelHeight = pixelHeight
         self.bytes = bytes
         self.displayID = displayID
+        self.anchor = anchor
     }
 }
 

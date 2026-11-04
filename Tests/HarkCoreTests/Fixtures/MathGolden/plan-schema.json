@@ -1,33 +1,45 @@
 {
   "type": "object",
   "properties": {
-    "understood": {
-      "type": "string"
-    },
-    "formula": {
-      "type": "string"
-    },
-    "unit": {
-      "type": "string",
-      "enum": [
-        "EUR",
-        "USD",
-        "GBP",
-        "percent",
-        "count",
-        "hours",
-        "none"
-      ]
-    },
-    "unit_label": {
-      "type": "string"
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "understood": {
+            "type": "string"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "USD",
+              "GBP",
+              "percent",
+              "count",
+              "hours",
+              "none"
+            ]
+          },
+          "unit_label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "understood",
+          "formula",
+          "unit",
+          "unit_label"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
-    "understood",
-    "formula",
-    "unit",
-    "unit_label"
+    "results"
   ],
   "additionalProperties": false
 }

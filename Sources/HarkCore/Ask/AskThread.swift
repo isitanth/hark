@@ -45,6 +45,9 @@ public struct AskThread: Sendable, Equatable {
     /// The answered turns' instructions and replies, in characters.
     public var historyChars: Int { turns.reduce(0) { $0 + $1.instruction.count + $1.reply.count } }
 
+    /// Every result the answered turns kept (M14), in number order. The parked turn's are S2's to add.
+    public var keptResults: [KeptResult] { turns.flatMap(\.results) }
+
     public func appending(_ turn: AskTurn) -> AskThread {
         var thread = self
         thread.turns.append(turn)
@@ -66,10 +69,15 @@ public struct AskTurn: Sendable, Equatable {
     public let sheet: CellSheet?
     /// An exact turn's formula, the plan's text, kept with the turn like `reply`. Never logged.
     public let formula: String?
+    /// An exact turn's formulas (M14), one per computed result, in order. The contract keeps `formula` beside it until
+    /// S2 moves `supersede` to `formulas`.
+    public let formulas: [String]
+    /// The results this turn showed (M14), numbered across the conversation. In memory only, never logged.
+    public let results: [KeptResult]
 
     public init(
         id: UtteranceID, instruction: String, reply: String, region: RegionSummary?, sheet: CellSheet? = nil,
-        formula: String? = nil
+        formula: String? = nil, formulas: [String] = [], results: [KeptResult] = []
     ) {
         self.id = id
         self.instruction = instruction
@@ -77,6 +85,8 @@ public struct AskTurn: Sendable, Equatable {
         self.region = region
         self.sheet = sheet
         self.formula = formula
+        self.formulas = formulas
+        self.results = results
     }
 }
 

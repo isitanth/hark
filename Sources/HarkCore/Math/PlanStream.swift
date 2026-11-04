@@ -3,6 +3,12 @@ import Foundation
 // The partial plan, while it streams (M13, plan §4.3): `IntentSplit`'s twin.
 
 public enum PlanStream {
+    /// Each result's `understood` reached so far in a `{"results": [...]}` reply (M14, c2a §4.2), unescaped, the last
+    /// one possibly cut. The contract's stub reads none.
+    public static func understoods(partial: String) -> [String] {
+        []
+    }
+
     /// The `understood` value as far as the partial JSON holds it, unescaped; nil until its opening quote. Nothing
     /// else of the plan is ever shown. An escape cut at the end is held back, never shown half.
     public static func understood(partial: String) -> String? {

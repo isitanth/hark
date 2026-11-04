@@ -86,7 +86,8 @@ extension MathFailure {
         case .plan(.declaredUnit): L("ask.exact.failure.declaredUnit")
         case .plan(.percentScale): L("ask.exact.failure.percentScale")
         case .plan(.degenerate): L("ask.exact.failure.degenerate")
-        case .plan(.json), .plan(.syntax), .plan(.unknownFunction), .plan(.unknownCell), .plan(.noFormula):
+        case .plan(.json), .plan(.syntax), .plan(.unknownFunction), .plan(.unknownCell), .plan(.unknownResult),
+            .plan(.noFormula):
             L("ask.exact.failure.plan")
         case .math(.noNumber, _):
             cellLine(cellText, empty: L("ask.exact.failure.noNumber.empty")) { text in

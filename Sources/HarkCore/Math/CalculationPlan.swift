@@ -30,41 +30,54 @@ public struct CalculationPlan: Sendable, Equatable {
         self.unitLabel = unitLabel
     }
 
-    /// The schema the server is asked to enforce, named `plan` as measured: `harness.PLAN_SCHEMA`
-    /// (`docs/acceptance/M13-data/bench/plan-schema.json`) with `unit_label` added last for 0.1.0, unmeasured.
+    /// The schema the server is asked to enforce, named `plan` as measured in M14.0
+    /// (`docs/acceptance/M14-data/bench/plan-schema-m14.json`, SHA-256 4c6da70c…): a `results` array of 1 to 3 of
+    /// today's item, no `minItems` or `maxItems`; the count is the decoder's.
     public static let schema = ResponseSchema(
         name: "plan",
         json: """
             {
               "type": "object",
               "properties": {
-                "understood": {
-                  "type": "string"
-                },
-                "formula": {
-                  "type": "string"
-                },
-                "unit": {
-                  "type": "string",
-                  "enum": [
-                    "EUR",
-                    "USD",
-                    "GBP",
-                    "percent",
-                    "count",
-                    "hours",
-                    "none"
-                  ]
-                },
-                "unit_label": {
-                  "type": "string"
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "understood": {
+                        "type": "string"
+                      },
+                      "formula": {
+                        "type": "string"
+                      },
+                      "unit": {
+                        "type": "string",
+                        "enum": [
+                          "EUR",
+                          "USD",
+                          "GBP",
+                          "percent",
+                          "count",
+                          "hours",
+                          "none"
+                        ]
+                      },
+                      "unit_label": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "understood",
+                      "formula",
+                      "unit",
+                      "unit_label"
+                    ],
+                    "additionalProperties": false
+                  }
                 }
               },
               "required": [
-                "understood",
-                "formula",
-                "unit",
-                "unit_label"
+                "results"
               ],
               "additionalProperties": false
             }
@@ -102,6 +115,8 @@ public enum PlanDefect: Error, Sendable, Equatable {
     case syntax
     case unknownFunction
     case unknownCell
+    /// A `RES` reference (M14) that names no result the conversation keeps, or a failed one.
+    case unknownResult
     /// A literal neither spoken nor a conversion, as the model wrote it.
     case unspokenConstant(String)
     /// An empty formula: the model says it is not a calculation.
@@ -125,6 +140,7 @@ public enum PlanDefect: Error, Sendable, Equatable {
         case .syntax: "syntax"
         case .unknownFunction: "unknown_function"
         case .unknownCell: "unknown_cell"
+        case .unknownResult: "unknown_result"
         case .unspokenConstant: "unspoken_constant"
         case .noFormula: "no_formula"
         case .unit, .declaredUnit, .percentScale: "unit"
@@ -135,8 +151,8 @@ public enum PlanDefect: Error, Sendable, Equatable {
     /// One automatic retry, with the defect named (decision 18). Not for an empty formula or a cut reply.
     public var isRetryable: Bool {
         switch self {
-        case .json, .syntax, .unknownFunction, .unknownCell, .unspokenConstant, .unit, .declaredUnit, .percentScale,
-            .degenerate:
+        case .json, .syntax, .unknownFunction, .unknownCell, .unknownResult, .unspokenConstant, .unit, .declaredUnit,
+            .percentScale, .degenerate:
             true
         case .truncated, .noFormula: false
         }
@@ -149,6 +165,7 @@ public enum PlanDefect: Error, Sendable, Equatable {
         case .syntax: "write decimals with a point and use only the listed functions"
         case .unknownFunction: "use only SUM, AVG, MIN, MAX, COUNT, ROUND, ABS, ARGMIN, ARGMAX"
         case .unknownCell: "refer only to IDs from the item list"
+        case .unknownResult: "refer only to result IDs from the results list"
         case .unspokenConstant(let literal): "\(literal) is not a number the user said: refer to its item"
         case .unit(let note), .declaredUnit(let note): note
         case .percentScale: "multiply by 100 for a percent"

@@ -4,9 +4,9 @@ import Foundation
 // of `AskPrompt`, whose strings stay byte for byte.
 
 public struct PlanPrompt: Sendable, Equatable {
-    /// The measured plan prompt, `docs/acceptance/M13-data/bench/plan-prompt.txt`, whose SHA-256
-    /// `docs/acceptance/M13.md` records, with the `unit_label` line added last for 0.1.0, unmeasured. Edit none of the
-    /// rest: a change is a new measurement.
+    /// The measured plan prompt of M14.0 (`docs/acceptance/M14-data/bench/plan-prompt-m14.txt`, SHA-256 d9ebeff2…,
+    /// `docs/acceptance/M14.md`): 0.1.0's prompt byte for byte (the frozen `plan-prompt.txt` and the `unit_label`
+    /// line), then the result rules and the references line. Edit none of it: a change is a new measurement.
     public static let system = """
         You are Hark's calculation planner. The user framed a region of their screen and spoke a question about it.
         You get the image and every text item read from it, each with an ID such as C12, listed by table row.
@@ -34,6 +34,19 @@ public struct PlanPrompt: Sendable, Equatable {
           currency (CHF, CAD, JPY...), write none: Hark shows the currency of the items.
         - "unit_label": the word the result's unit is written with in the items the formula reads (To, Go, vCPU, kg…),
           copied as written; empty for money, a percent, hours or a count of rows. Never a number.
+        - "results": one entry per figure the user asks for, at most 3, in the order asked. "Two results", "the total of A
+          and the total of B", "the average and the maximum" are separate entries; never add or combine them unless the user
+          asks for their sum. A question for one figure is one entry.
+        - Each entry has its own "understood", "formula", "unit" and "unit_label", and its "understood" names only that
+          figure.
+        - If the user asks for more than 3 figures, or for one that the items cannot give, write the entries you can and say
+          in the last "understood" what was left out.
+        - An earlier result is RES1, RES2..., as listed: use its ID when the user names a result (by its number, its position
+          or its figure); never copy its number.
+        - A question for the row that is lowest or highest and its value is one entry: its ARGMIN or ARGMAX gives both.
+          Never add an entry that repeats a figure another entry gives.
+        - RES IDs name only the earlier results listed, never an entry of this reply: write each entry's formula from the
+          item IDs (a total with a 20% VAT is SUM(...) * 1.20, not the first entry plus the second).
         """
 
     /// The user turn's first line: longer than 23 characters and holding no user text, so MTPLX's request log, which

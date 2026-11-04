@@ -28,11 +28,15 @@ public struct AskUpdate: Sendable, Equatable {
     public let text: String
     /// An exact ask's plan as it streams (M13): its `understood` line so far, never the JSON. Nil otherwise.
     public let planText: String?
+    /// Each result's `understood` so far (M14, `PlanStream.understoods`); the panel shows the first while planning.
+    /// The contract keeps `planText` beside it until S2 streams the array.
+    public let planTexts: [String]
 
-    public init(id: UtteranceID, text: String, planText: String? = nil) {
+    public init(id: UtteranceID, text: String, planText: String? = nil, planTexts: [String] = []) {
         self.id = id
         self.text = text
         self.planText = planText
+        self.planTexts = planTexts
     }
 }
 

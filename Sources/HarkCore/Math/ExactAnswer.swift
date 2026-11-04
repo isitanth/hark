@@ -175,6 +175,9 @@ struct WorkingLine {
             return cell(id, absolute: false)
         case .constant(let value):
             return number(value, scale: Self.scale(of: value), grouping: false)
+        case .result(let number):
+            // The contract's stub (M14.1): S1 writes a reference as its number and its shown figure.
+            return "RES\(number)"
         case .negate(let inner):
             return minus + wrapped(inner, below: 3)
         case .rate(let inner):
@@ -279,7 +282,7 @@ extension Formula {
     /// into Tio). Only `SUM` of n terms divided by n keeps the unit, as `AVG` does: the user's decision of 2026-11-03.
     var changesUnit: Bool {
         switch self {
-        case .cell, .constant, .count: false
+        case .cell, .constant, .count, .result: false
         case .negate(let inner), .rate(let inner), .round(let inner, _): inner.changesUnit
         case .binary(.divide, .call(.sum, let terms), let divisor)
         where divisor.stripped == .constant(Decimal(terms.count)):
@@ -294,7 +297,7 @@ extension Formula {
     var containsCount: Bool {
         switch self {
         case .count: true
-        case .cell, .constant: false
+        case .cell, .constant, .result: false
         case .negate(let inner), .rate(let inner), .round(let inner, _): inner.containsCount
         case .binary(_, let left, let right): left.containsCount || right.containsCount
         case .call(_, let arguments): arguments.contains(where: \.containsCount)

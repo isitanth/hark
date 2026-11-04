@@ -241,7 +241,7 @@ struct MathPipelineTests {
     // MARK: Decision 20
 
     @Test func theWayOutAfterAPlanDefectWritesItsReason() async throws {
-        let rig = try Rig(solve: { _, _, _, _ in .failure(.plan(.unit("money and percent"))) })
+        let rig = try Rig(solve: { _, _, _, _, _ in .failure(.plan(.unit("money and percent"))) })
         var snapshots = rig.controller.snapshots.makeAsyncIterator()
         let id = try await Self.start(rig, &snapshots)
         await rig.controller.finishCapture(id)
@@ -295,7 +295,7 @@ struct MathPipelineTests {
     }
 
     @Test func noTextFieldWinsOverThePlanDefect() async throws {
-        let rig = try Rig(solve: { _, _, _, _ in .failure(.plan(.unit("x"))) })
+        let rig = try Rig(solve: { _, _, _, _, _ in .failure(.plan(.unit("x"))) })
         var snapshots = rig.controller.snapshots.makeAsyncIterator()
         let id = try await Self.start(rig, &snapshots)
         await rig.controller.finishCapture(id)

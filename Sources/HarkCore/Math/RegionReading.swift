@@ -7,9 +7,13 @@ import Foundation
 /// the log: the controller alone holds it, as long as its frame. Its description prints the size, never the pixels.
 public struct RegionRaster: Sendable, CustomStringConvertible {
     public let image: CGImage
+    /// The anchored window alone at the frame, in grey (M14): the reference `ZoneRegistration` finds the zone in
+    /// again. In memory as long as the frame, freed with it; nil without an anchor.
+    public let windowReference: CGImage?
 
-    public init(image: CGImage) {
+    public init(image: CGImage, windowReference: CGImage? = nil) {
         self.image = image
+        self.windowReference = windowReference
     }
 
     public var description: String { "RegionRaster(\(image.width) × \(image.height) px)" }

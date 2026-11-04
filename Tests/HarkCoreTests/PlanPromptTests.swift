@@ -36,19 +36,23 @@ enum PlanSheets {
 private typealias S = PlanSheets
 
 @Suite struct PlanPromptTests {
-    /// The frozen `plan-prompt.txt` (2163 characters, SHA-256 178eed04…) with one line added last for 0.1.0, the
-    /// `unit_label` rule; without it the prompt is the measured one byte for byte.
-    @Test func theSystemIsTheFrozenPromptAndTheUnitLabelLine() {
+    /// M14.0's measured prompt (3486 characters, SHA-256 d9ebeff2…, `docs/acceptance/M14.md`): 0.1.0's byte for byte
+    /// (2365 characters, f5e44e53…), itself the frozen `plan-prompt.txt` (2163 characters, 178eed04…) and the
+    /// `unit_label` line, then the result rules and the references line.
+    @Test func theSystemIsTheMeasuredM14Prompt() {
         let line =
             "\n- \"unit_label\": the word the result's unit is written with in the items the formula reads"
             + " (To, Go, vCPU, kg…),\n  copied as written; empty for money, a percent, hours or a count of rows."
             + " Never a number."
-        #expect(PlanPrompt.system.hasSuffix(line))
-        let measured = String(PlanPrompt.system.dropLast(line.count))
-        #expect(sha256(measured) == "178eed0401e83b6ff561bc7b9da3340c6d414249238d3ff7bb91a228b3c30e8b")
-        #expect(measured.count == 2163)
-        #expect(sha256(PlanPrompt.system) == "f5e44e5343c825c271d04137e06835cca93ad5a8c756da7a83a6490638ad2ba0")
-        #expect(PlanPrompt.system.count == 2365)
+        let zeroOne = String(PlanPrompt.system.prefix(2365))
+        #expect(zeroOne.hasSuffix(line))
+        #expect(
+            sha256(String(zeroOne.dropLast(line.count)))
+                == "178eed0401e83b6ff561bc7b9da3340c6d414249238d3ff7bb91a228b3c30e8b")
+        #expect(sha256(zeroOne) == "f5e44e5343c825c271d04137e06835cca93ad5a8c756da7a83a6490638ad2ba0")
+        #expect(PlanPrompt.system.dropFirst(2365).hasPrefix("\n- \"results\": one entry per figure the user asks for"))
+        #expect(sha256(PlanPrompt.system) == "d9ebeff2b7120daaee38c00b5549c37852ccb7c02efddfe048acf7d095e91ca9")
+        #expect(PlanPrompt.system.count == 3486)
         #expect(!PlanPrompt.system.hasSuffix("\n"))
     }
 

@@ -80,18 +80,22 @@ public struct ExactMathContext: Sendable, Equatable {
     /// Plan calls made for this turn: one, or two after a retry.
     public var attempts: Int
     public var computation: Computation?
+    /// Every result of the plan (M14), computed or failed, in the order the model returned them. The contract keeps
+    /// `computation` beside it until S2 moves the reducer to `results`.
+    public var results: [ResultOutcome]
     /// Why the exact path gave way to the model's answer, for the line's `error`. Nil when it did not, and when the
     /// user chose the way out while the reader worked.
     public var fallback: PipelineFailure?
 
     public init(
         reading: ReadingState = .idle, routed: Bool = false, attempts: Int = 0, computation: Computation? = nil,
-        fallback: PipelineFailure? = nil
+        results: [ResultOutcome] = [], fallback: PipelineFailure? = nil
     ) {
         self.reading = reading
         self.routed = routed
         self.attempts = attempts
         self.computation = computation
+        self.results = results
         self.fallback = fallback
     }
 }
