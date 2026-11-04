@@ -36,6 +36,21 @@ let askTransitions: [LegalTransition] =
             name: "capturing an ask, cancel", state: F.askCapturing, event: .cancel, phase: .idle,
             effects: ["cancelCapture", "log:discarded:cancelled"]),
         .init(
+            name: "capturing an ask, the first typed character: the capture is cancelled", state: F.askCapturing,
+            event: .typingStarted(F.id), phase: .capturing, effects: ["cancelCapture"]),
+        .init(
+            name: "typing an ask, the words sent: generate", state: typing(), event: .typed(F.id, "Résume.", at: at),
+            phase: .asking, effects: ["generate"]),
+        .init(
+            name: "typing an ask, blank words sent", state: typing(), event: .typed(F.id, "  ", at: at), phase: .idle,
+            effects: ["log:discarded:empty_transcript"]),
+        .init(
+            name: "typing an ask, cancel", state: typing(), event: .cancel, phase: .idle,
+            effects: ["cancelCapture", "log:discarded:cancelled"]),
+        .init(
+            name: "typing an ask, a capture failure racing the cancel", state: typing(),
+            event: .failed(F.id, .deviceChanged), phase: .idle, effects: ["cancelCapture", "log:failed:device_changed"]),
+        .init(
             name: "transcribing an ask, instruction heard: generate", state: F.askTranscribing,
             event: .transcribed(F.id, F.instruction, ms: 380), phase: .asking, effects: ["generate"]),
         .init(
@@ -121,6 +136,18 @@ let askTransitions: [LegalTransition] =
     + followUpTransitions
 
 let illegalAskTransitions: [IllegalTransition] = [
+    .init(name: "capturing a dictation, a typed character", state: F.capturingFocused, event: .typingStarted(F.id)),
+    .init(name: "capturing a dictation, typed words", state: F.capturingFocused, event: .typed(F.id, "x", at: at)),
+    .init(name: "typing an ask, a second first character", state: typing(), event: .typingStarted(F.id)),
+    .init(name: "capturing a spoken ask, typed words", state: F.askCapturing, event: .typed(F.id, "x", at: at)),
+    .init(name: "transcribing an ask, typed words", state: F.askTranscribing, event: .typed(F.id, "x", at: at)),
+    .init(name: "transcribing an ask, a typed character", state: F.askTranscribing, event: .typingStarted(F.id)),
+    .init(name: "typing an ask, the talk key's latch", state: typing(), event: .triggerUp(at: at)),
+    .init(name: "typing an ask, a queued limit", state: typing(), event: .captureLimitReached(F.id)),
+    .init(name: "typing an ask, a late capture", state: typing(), event: .captured(F.id, F.speech)),
+    .init(name: "typing an ask, a late transcript", state: typing(), event: .transcribed(F.id, F.instruction, ms: 3)),
+    .init(name: "generating, a typed character", state: F.generating, event: .typingStarted(F.id)),
+    .init(name: "reviewing, typed words", state: F.reviewing, event: .typed(F.id, "x", at: at)),
     .init(name: "capturing an ask, a focus probe answers", state: F.askCapturing, event: .focusCaptured(F.id, F.focus)),
     .init(name: "generating, Copy before the end", state: F.generating, event: .askCopy(F.id, F.answer)),
     .init(name: "generating, Retry", state: F.generating, event: .askRetry(F.id)),
@@ -305,6 +332,13 @@ extension AskTransitionTests {
     }
 }
 
+/// An ask whose first character was typed (M15): still capturing, the microphone already cancelled.
+private func typing(_ context: UtteranceContext = F.askContext(released: false)) -> PipelineState {
+    var context = context
+    context.input = .typed
+    return .capturing(context)
+}
+
 private let denied = PipelineState.asking(
     F.regionContext(failure: .screenRecordingDenied), F.instruction, .regionFailed(.screenRecordingDenied))
 private let captureFailed = PipelineState.asking(
@@ -355,6 +389,19 @@ let regionTransitions: [LegalTransition] =
             name: "transcribing an ask, the frame failed: the panel says so",
             state: .transcribing(F.regionContext(failure: .captureFailed)),
             event: .transcribed(F.id, F.instruction, ms: 380), phase: .asking, effects: []),
+        .init(
+            name: "typing an ask with a frame: generate with it", state: typing(F.regionContext(region: F.region)),
+            event: .typed(F.id, "Résume.", at: at), phase: .asking, effects: ["generate+region"]),
+        .init(
+            name: "typing an ask, a drag still open: wait for it", state: typing(F.regionContext(pending: true)),
+            event: .typed(F.id, "Résume.", at: at), phase: .asking, effects: []),
+        .init(
+            name: "typing an ask, the frame failed: the panel says so",
+            state: typing(F.regionContext(failure: .captureFailed)), event: .typed(F.id, "Résume.", at: at),
+            phase: .asking, effects: []),
+        .init(
+            name: "typing an ask, a drag begins", state: typing(F.regionContext(released: false)),
+            event: .regionStarted(F.id), phase: .capturing, effects: []),
         .init(
             name: "awaiting the frame, captured: generate with it", state: F.awaitingRegion,
             event: .regionCaptured(F.id, F.region), phase: .asking, effects: ["generate+region"]),
@@ -604,6 +651,7 @@ private func followUpContext(
 }
 
 private let followUpCapturing = PipelineState.capturing(followUpContext(released: false, captured: false))
+private let followUpTyping = followUpContext(released: false, captured: false)
 private let followUpTranscribing = PipelineState.transcribing(followUpContext())
 private func followUpAsking(_ stage: AskStage, pending: Bool = false, failure: RegionFailure? = nil) -> PipelineState {
     var context = followUpContext()
@@ -676,6 +724,23 @@ let followUpTransitions: [LegalTransition] = [
         name: "a follow-up whose frame failed, Esc: the answer again",
         state: followUpAsking(.regionFailed(.captureFailed), failure: .captureFailed), event: .cancel,
         phase: .asking, effects: ["log:discarded:cancelled"]),
+    .init(
+        name: "a follow-up's first typed character", state: followUpCapturing, event: .typingStarted(uid(2)),
+        phase: .capturing, effects: ["cancelCapture"]),
+    .init(
+        name: "a typed follow-up: the answer is superseded, the request leaves", state: typing(followUpTyping),
+        event: .typed(uid(2), "Plus court.", at: pressAt(4)), phase: .asking,
+        effects: ["log:discarded:followed_up", "generate"]),
+    .init(
+        name: "a typed follow-up with no words: the answer again", state: typing(followUpTyping),
+        event: .typed(uid(2), " ", at: pressAt(4)), phase: .asking, effects: ["log:discarded:empty_transcript"]),
+    .init(
+        name: "a typed follow-up, Esc: the answer again", state: typing(followUpTyping), event: .cancel,
+        phase: .asking, effects: ["cancelCapture", "log:discarded:cancelled"]),
+    .init(
+        name: "a typed follow-up, a capture failure racing the cancel: both lines", state: typing(followUpTyping),
+        event: .failed(uid(2), .deviceChanged), phase: .idle,
+        effects: ["cancelCapture", "log:failed:device_changed", "log:discarded:cancelled"]),
     .init(
         name: "a follow-up's capture fails: both lines",
         state: followUpCapturing, event: .failed(uid(2), .deviceChanged), phase: .idle,

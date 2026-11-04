@@ -131,3 +131,99 @@ extension ExactRun {
         #expect(run.lines.first?.durationMs == 3_000)
     }
 }
+
+// MARK: Late events, and the frame
+
+extension TypedAskTests {
+    /// The talk key's latch, Done, a queued limit, or the capture's own end and its words: none lands after typing.
+    static let lateEvents: [PipelineEvent] = [
+        .triggerUp(at: Typed.at), .captureLimitReached(F.id), .captured(F.id, F.speech), .captured(F.id, F.short),
+        .captured(F.id, F.silent), .captured(F.id, F.maxed), .transcribed(F.id, F.instruction, ms: 400),
+    ]
+
+    @Test(arguments: lateEvents)
+    func aLateCaptureEventAfterTypingIsRejected(_ event: PipelineEvent) throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: F.ask))
+        try run.on(.typingStarted(F.id))
+        #expect(run.rejects(event))
+    }
+
+    @Test(arguments: lateEvents)
+    func aLateCaptureEventAfterTheSubmitIsRejected(_ event: PipelineEvent) throws {
+        var run = ExactRun(on: false)
+        try run.typed()
+        #expect(run.rejects(event))
+    }
+
+    @Test func aSpokenAskStillStopsItsCapture() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: F.ask))
+        #expect(try run.on(.triggerUp(at: Typed.at)) == ["stopCapture"])
+        var limited = ExactRun()
+        try limited.on(.triggerDown(F.id, at: F.pressedAt, intent: F.ask))
+        #expect(try limited.on(.captureLimitReached(F.id)) == ["stopCapture"])
+    }
+
+    @Test func aTypedAskNeverLogsACaptureReason() throws {
+        var run = ExactRun(on: false)
+        try run.typed()
+        for event in Self.lateEvents { _ = run.rejects(event) }
+        try run.on(.cancel)
+        let errors = run.lines.map(\.error)
+        #expect(errors == ["cancelled"])
+        #expect(!errors.contains { ["too_short", "no_speech", "max_duration"].contains($0) })
+    }
+
+    @Test func aFramedTypedAskWhoseWordsComputeWaitsForTheReader() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        try run.on(.regionCaptured(F.id, F.region))
+        try run.on(.typingStarted(F.id))
+        try run.on(.typed(F.id, Exact.compute.raw, at: Typed.at))
+        #expect(run.stage == .reading && run.math?.routed == true)
+        try run.on(.regionRead(F.id, Exact.sheet))
+        #expect(run.stage == .planning && run.labels == ["plan"])
+    }
+
+    @Test func aFramedTypedAskWhoseWordsComputeIsPlannedOverItsSheet() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        try run.on(.regionCaptured(F.id, F.region))
+        try run.on(.regionRead(F.id, Exact.sheet))
+        try run.on(.typingStarted(F.id))
+        #expect(try run.on(.typed(F.id, Exact.compute.raw, at: Typed.at)) == ["plan"])
+        #expect(run.stage == .planning)
+    }
+
+    @Test func aFramedTypedAskWhoseWordsDoNotComputeGoesToTheModel() throws {
+        var run = ExactRun()
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        try run.on(.regionCaptured(F.id, F.region))
+        try run.on(.regionRead(F.id, Exact.sheet))
+        try run.on(.typingStarted(F.id))
+        try run.on(.typed(F.id, Exact.free.raw, at: Typed.at))
+        #expect(run.stage == .generating && run.labels == ["generate+region"])
+    }
+
+    @Test func aTypedSubmitWithTheDragStillOpenAwaitsTheFrame() throws {
+        var run = ExactRun(on: false)
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        try run.on(.regionStarted(F.id))
+        try run.on(.typingStarted(F.id))
+        try run.on(.typed(F.id, Typed.words, at: Typed.at))
+        #expect(run.stage == .awaitingRegion)
+        try run.on(.regionCaptured(F.id, F.region))
+        #expect(run.stage == .generating && run.labels == ["generate+region"])
+    }
+
+    @Test func aFrameDrawnWhileTypingIsKept() throws {
+        var run = ExactRun(on: false)
+        try run.on(.triggerDown(F.id, at: F.pressedAt, intent: Exact.assist))
+        try run.on(.typingStarted(F.id))
+        try run.on(.regionCaptured(F.id, F.region))
+        #expect(run.state.phase == .capturing && run.context?.input == .typed && run.context?.region != nil)
+        try run.on(.typed(F.id, Typed.words, at: Typed.at))
+        #expect(run.labels == ["generate+region"])
+    }
+}
