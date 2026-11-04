@@ -45,8 +45,12 @@ public struct AskThread: Sendable, Equatable {
     /// The answered turns' instructions and replies, in characters.
     public var historyChars: Int { turns.reduce(0) { $0 + $1.instruction.count + $1.reply.count } }
 
-    /// Every result the answered turns kept (M14), in number order. The parked turn's are S2's to add.
+    /// Every result the answered turns kept (M14), in number order. The parked turn's are in its context until it is
+    /// superseded (`UtteranceContext.keptResults`).
     public var keptResults: [KeptResult] { turns.flatMap(\.results) }
+
+    /// The highest result number the answered turns gave, a failed result's included; 0 when none.
+    public var lastResultNumber: Int { turns.flatMap(\.numbers).max() ?? 0 }
 
     public func appending(_ turn: AskTurn) -> AskThread {
         var thread = self
@@ -74,10 +78,12 @@ public struct AskTurn: Sendable, Equatable {
     public let formulas: [String]
     /// The results this turn showed (M14), numbered across the conversation. In memory only, never logged.
     public let results: [KeptResult]
+    /// Every number this turn gave (M14), a failed result's included, so a later turn counts on and never reuses one.
+    public let numbers: [Int]
 
     public init(
         id: UtteranceID, instruction: String, reply: String, region: RegionSummary?, sheet: CellSheet? = nil,
-        formula: String? = nil, formulas: [String] = [], results: [KeptResult] = []
+        formula: String? = nil, formulas: [String] = [], results: [KeptResult] = [], numbers: [Int]? = nil
     ) {
         self.id = id
         self.instruction = instruction
@@ -87,6 +93,7 @@ public struct AskTurn: Sendable, Equatable {
         self.formula = formula
         self.formulas = formulas
         self.results = results
+        self.numbers = numbers ?? results.map(\.number)
     }
 }
 

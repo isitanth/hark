@@ -285,7 +285,7 @@ public struct PipelineReducer: Sendable {
             // The frame is gone, and the cells read from it with it: a later follow-up never plans over them.
             context.math?.reading = .idle
             context.math?.routed = false
-            context.math?.computation = nil
+            context.math?.clearResults()
             let request = send(&context, transcript)
             return move(.asking(context, transcript, .generating), request)
 
@@ -315,7 +315,7 @@ public struct PipelineReducer: Sendable {
             context.llmModel = nil
             context.llmMs = nil
             context.math?.routed = false
-            context.math?.computation = nil
+            context.math?.clearResults()
             context.math?.fallback = failure.pipelineFailure
             let request = send(&context, transcript)
             return move(.asking(context, transcript, .generating), request)
@@ -326,23 +326,46 @@ public struct PipelineReducer: Sendable {
             context.llmMs = Self.sum(context.llmMs, summary.ms)
             context.llmModel = summary.model ?? context.llmModel
             let instruction = context.request ?? transcript.raw
-            let solved = solve(reply, summary.finishReason, sheet, instruction, context.thread?.keptResults ?? [])
-            let first = solved.flatMap { $0.first ?? .failure(.plan(.json)) }
-            switch first {
-            case .success(let computation):
-                math.computation = computation
+            let solved = solve(reply, summary.finishReason, sheet, instruction, context.keptResults)
+            if math.attempts == 1, let note = Self.retryNote(solved) {
+                math.attempts = 2
                 context.math = math
-                let composed = ExactAnswer(computation, sheet: sheet, policy: rounding, fallback: resultLocale).reply
+                let request = plan(&context, transcript, sheet, correction: PlanCorrection(reply: reply, note: note))
+                return move(.asking(context, transcript, .planning), [request])
+            }
+            switch solved {
+            case .success(let outcomes) where outcomes.contains(where: { (try? $0.get()) != nil }):
+                let numbers = outcomes.indices.map { context.nextResultNumber + $0 }
+                let answers = outcomes.map { outcome in
+                    outcome.map { ExactAnswer($0, sheet: sheet, policy: rounding, fallback: resultLocale) }
+                }
+                math.results = outcomes
+                math.numbers = numbers
+                math.kept = zip(numbers, zip(outcomes, answers)).compactMap { number, pair in
+                    guard case .success(let computation) = pair.0, case .success(let answer) = pair.1 else {
+                        return nil
+                    }
+                    return KeptResult(
+                        number: number, computation: computation, answer: answer, sheet: sheet, policy: rounding,
+                        turn: id)
+                }
+                math.computation = outcomes.lazy.compactMap { try? $0.get() }.first
+                context.math = math
+                let composed = Self.composedReply(answers, numbers: numbers)
                 context.reply = composed
                 context.pin = summary.pin ?? context.pin
                 return move(.asking(context, transcript, .reviewing), [.publishAnswer(id, composed)])
-            case .failure(.plan(let defect)) where defect.isRetryable && math.attempts == 1:
-                math.attempts = 2
+            case .success(let outcomes):
+                // Every result failed: the first failure is the turn's, as one result's was in 0.1.0.
+                let failure =
+                    outcomes.lazy.compactMap { outcome -> MathFailure? in
+                        if case .failure(let failure) = outcome { return failure }
+                        return nil
+                    }.first ?? .plan(.json)
                 context.math = math
-                let correction = PlanCorrection(reply: reply, note: defect.correction)
-                let request = plan(&context, transcript, sheet, correction: correction)
-                return move(.asking(context, transcript, .planning), [request])
+                return move(.asking(context, transcript, .mathFailed(failure)))
             case .failure(let failure):
+                context.math = math
                 return move(.asking(context, transcript, .mathFailed(failure)))
             }
 
@@ -537,15 +560,21 @@ public struct PipelineReducer: Sendable {
         guard let parked = context.parked, let thread = context.thread else { return [] }
         let turn = parked.context
         var sheet: CellSheet?
-        var formula: String?
+        var formulas: [String] = []
+        var results: [KeptResult] = []
+        var numbers: [Int] = []
         if let math = turn.math, let computation = math.computation, case .read(let read) = math.reading {
             sheet = read
-            formula = computation.plan.formula
+            let computed = math.results.compactMap { try? $0.get() }
+            formulas = (computed.isEmpty ? [computation] : computed).map(\.plan.formula)
+            results = math.kept
+            numbers = math.numbers
         }
         context.thread = thread.appending(
             AskTurn(
                 id: turn.id, instruction: turn.request ?? parked.transcript.raw, reply: turn.reply ?? "",
-                region: turn.region, sheet: sheet, formula: formula))
+                region: turn.region, sheet: sheet, formula: formulas.first, formulas: formulas, results: results,
+                numbers: numbers))
         context.parked = nil
         return [log(turn, parked.transcript, .discarded(.followedUp))]
     }
@@ -722,5 +751,83 @@ public struct PipelineReducer: Sendable {
 
     private func reject(_ state: PipelineState, _ event: PipelineEvent) -> Result<Transition, Rejection> {
         .failure(Rejection(phase: state.phase, event: event))
+    }
+}
+
+// M14: the retry note, the composed reply and the kept results of a plan of one to three results.
+extension PipelineReducer {
+    /// The whole reply's `json` note when the model wrote no usable results array ([SETTLED] 2).
+    public static let resultsJSONNote =
+        "reply with one JSON object with a results array of 1 to 3 entries, each with understood, formula, unit and "
+        + "unit_label only"
+    /// After the notes of a retry that names some results by position.
+    public static let keepNote = "Keep the other results as they were"
+
+    /// The retry's note, or nil when nothing in the reply is worth a second call: a whole-reply defect, a reply of one
+    /// entry with 0.1.0's note unchanged, or each retryable result by position.
+    public static func retryNote(_ solved: Result<[ResultOutcome], MathFailure>) -> String? {
+        switch solved {
+        case .failure(.plan(let defect)) where defect.isRetryable:
+            return defect == .json ? resultsJSONNote : defect.correction
+        case .failure:
+            return nil
+        case .success(let outcomes):
+            let bad = outcomes.enumerated().compactMap { index, outcome -> (Int, PlanDefect)? in
+                guard case .failure(.plan(let defect)) = outcome, defect.isRetryable else { return nil }
+                return (index, defect)
+            }
+            guard let first = bad.first else { return nil }
+            if outcomes.count == 1 { return first.1.correction }
+            return bad.map { "result \($0.0 + 1): \($0.1.correction)" }.joined(separator: "; ") + ". " + keepNote
+        }
+    }
+
+    /// ①…⑳: a result's number as the panel and the reply write it.
+    public static func circled(_ number: Int) -> String {
+        guard (1...20).contains(number), let scalar = Unicode.Scalar(0x2460 + number - 1) else { return "(\(number))" }
+        return String(Character(scalar))
+    }
+
+    /// The reply a turn keeps (plan §4.3, [SETTLED] 2). One result: 0.1.0's, byte for byte. Several: one `%%` line with
+    /// each `understood` after its number, then each result's working line and figure led by its number, "not
+    /// computed" for a failed one. The `Formula RES<n>:` lines are the prompt's, added when the turn's sheet is current.
+    public static func composedReply(_ answers: [Result<ExactAnswer, MathFailure>], numbers: [Int]) -> String {
+        if answers.count == 1, case .success(let answer) = answers[0] { return answer.reply }
+        let numbered = zip(numbers, answers)
+        let head = numbered.map { number, answer in
+            let understood = (try? answer.get())?.understood ?? ""
+            return circled(number) + " " + understood
+        }
+        var lines: [String] = []
+        for (number, answer) in numbered {
+            let mark = circled(number)
+            switch answer {
+            case .success(let answer):
+                if let working = answer.working { lines.append(mark + " " + working) }
+                lines.append(mark + " " + answer.shownResult)
+            case .failure:
+                lines.append(mark + " not computed")
+            }
+        }
+        return IntentSplit.marker + " " + head.joined(separator: " ") + "\n\n" + lines.joined(separator: "\n")
+    }
+}
+
+extension KeptResult {
+    /// A result as the panel showed it (plan §4.2): its exact value, its displayed unit and label, its decimals.
+    init(
+        number: Int, computation: Computation, answer: ExactAnswer, sheet: CellSheet, policy: RoundingPolicy,
+        turn: UtteranceID
+    ) {
+        let plan = computation.plan
+        let unit = RoundingPolicy.displayUnit(computation.unit, declared: plan.unit, value: computation.value)
+        let shownValue = policy.round(computation.value, unit: unit, read: computation.read, sheet: sheet)
+        let scale =
+            policy.decimals(for: unit, read: computation.read, sheet: sheet)?.maximum
+            ?? max(0, -Int(shownValue.exponent))
+        self.init(
+            number: number, value: computation.value, unit: unit,
+            unitLabel: UnitLabel.kept(plan.unitLabel, computation: computation, sheet: sheet), scale: scale,
+            shown: answer.result, understood: plan.understood, turn: turn)
     }
 }

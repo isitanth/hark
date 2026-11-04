@@ -83,20 +83,34 @@ public struct ExactMathContext: Sendable, Equatable {
     /// Every result of the plan (M14), computed or failed, in the order the model returned them. The contract keeps
     /// `computation` beside it until S2 moves the reducer to `results`.
     public var results: [ResultOutcome]
+    /// Each result's number (M14), given once on `planned` → `reviewing`, in `results`' order, failed ones included.
+    public var numbers: [Int]
+    /// The computed results as the panel showed them, numbered: what a later `RES<n>` reads. In memory only.
+    public var kept: [KeptResult]
     /// Why the exact path gave way to the model's answer, for the line's `error`. Nil when it did not, and when the
     /// user chose the way out while the reader worked.
     public var fallback: PipelineFailure?
 
     public init(
         reading: ReadingState = .idle, routed: Bool = false, attempts: Int = 0, computation: Computation? = nil,
-        results: [ResultOutcome] = [], fallback: PipelineFailure? = nil
+        results: [ResultOutcome] = [], numbers: [Int] = [], kept: [KeptResult] = [], fallback: PipelineFailure? = nil
     ) {
         self.reading = reading
         self.routed = routed
         self.attempts = attempts
         self.computation = computation
         self.results = results
+        self.numbers = numbers
+        self.kept = kept
         self.fallback = fallback
+    }
+
+    /// The plan's results gone, with their numbers: a turn that ends without review gives none.
+    public mutating func clearResults() {
+        computation = nil
+        results = []
+        numbers = []
+        kept = []
     }
 }
 
@@ -193,4 +207,16 @@ public enum PipelinePhase: String, Sendable, CaseIterable {
     case inserting
     case copying
     case asking
+}
+
+extension UtteranceContext {
+    /// Every result the conversation keeps (M14): the answered turns', then the parked turn's, in number order.
+    public var keptResults: [KeptResult] {
+        (thread?.keptResults ?? []) + (parked?.context.math?.kept ?? [])
+    }
+
+    /// The number the next result gets: one after every number the conversation gave, the parked turn's included.
+    var nextResultNumber: Int {
+        max(thread?.lastResultNumber ?? 0, parked?.context.math?.numbers.max() ?? 0) + 1
+    }
 }
