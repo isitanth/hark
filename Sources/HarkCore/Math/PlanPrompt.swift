@@ -108,8 +108,112 @@ public struct PlanPrompt: Sendable, Equatable {
             thread.turns.count, instruction: current.instruction, selection: thread.selection,
             maxSelectionChars: maxSelectionChars)
         if thread.turns.isEmpty { truncated = cut }
-        messages.append(userMessage(lines + listingLines(sheet), image: current.image))
+        messages.append(
+            userMessage(lines + listingLines(sheet) + resultsBlock(thread.keptResults), image: current.image))
         return PlanPrompt(messages: messages, truncated: truncated)
+    }
+
+    /// The results block's first line (M14.0, c2b §5.5).
+    public static let resultsLine = "Earlier results, computed by Hark:"
+    /// How much of a result's `understood` the block keeps.
+    static let understoodCap = 80
+    /// The whole-reply `json` note of a reply under the M14 schema.
+    public static let jsonNote =
+        "reply with one JSON object with a results array of 1 to 3 entries, each with understood, formula, unit and "
+        + "unit_label only"
+    /// What follows the per-result notes of a retry over several results.
+    public static let keepNote = "Keep the other results as they were"
+
+    /// In the current turn after the listing, only while the conversation keeps a result: an empty line, the results
+    /// line, then `RES<n> = <figure> <unit> "<understood>"` per kept result. A failed result is never kept, so never
+    /// listed.
+    public static func resultsBlock(_ kept: [KeptResult]) -> [String] {
+        guard !kept.isEmpty else { return [] }
+        return ["", resultsLine]
+            + kept.map { result in
+                let understood = escaped(String(result.understood.prefix(understoodCap)))
+                return "RES\(result.number) = \(point(result)) \(unitCode(result.unit)) \"\(understood)\""
+            }
+    }
+
+    /// The figure with a point, rounded to the decimals shown, no grouping.
+    static func point(_ result: KeptResult) -> String {
+        let scale = max(0, result.scale)
+        let rounded = RoundingPolicy.round(result.value, scale: scale, rule: .halfUp)
+        let negative = rounded < 0
+        let text = (negative ? -rounded : rounded).description
+        let parts = text.split(separator: ".", omittingEmptySubsequences: false)
+        let integer = String(parts.first ?? "0")
+        var fraction = parts.count > 1 ? String(parts[1]) : ""
+        fraction += String(repeating: "0", count: max(0, scale - fraction.count))
+        return (negative ? "-" : "") + integer + (scale > 0 ? "." + fraction : "")
+    }
+
+    /// The plan's unit code for a result's shown unit: `EUR`, `USD`, `GBP`, `percent`, `hours`, `count`, else `none`.
+    static func unitCode(_ unit: MathUnit) -> String {
+        switch unit {
+        case .money(let currency):
+            ResultUnit(rawValue: currency.code).map(\.rawValue) ?? ResultUnit.none.rawValue
+        case .percent: ResultUnit.percent.rawValue
+        case .hours: ResultUnit.hours.rawValue
+        case .count: ResultUnit.count.rawValue
+        case .number: ResultUnit.none.rawValue
+        }
+    }
+
+    /// One result of a composed reply: its number, the model's `understood`, and the answer when it was computed.
+    public struct ComposedResult: Sendable, Equatable {
+        public let number: Int
+        public let understood: String
+        public let answer: ExactAnswer?
+
+        public init(number: Int, understood: String, answer: ExactAnswer?) {
+            self.number = number
+            self.understood = understood
+            self.answer = answer
+        }
+    }
+
+    /// The reply a turn keeps ([SETTLED] 2). One result: 0.1.0's, `ExactAnswer.reply`. Several: one `%%` line with
+    /// each `understood` after its number, an empty line, then each result's working and figure led by its number,
+    /// `not computed` for a failed one. The `Formula RES<n>:` lines are added by the thread when the turn read the
+    /// current sheet.
+    public static func composedReply(_ results: [ComposedResult]) -> String {
+        if results.count == 1, let only = results.first {
+            return only.answer?.reply ?? IntentSplit.marker + " " + only.understood + "\n\nnot computed"
+        }
+        let head = results.map { ResultMark.circled($0.number) + " " + $0.understood }.joined(separator: " ")
+        var lines: [String] = []
+        for result in results {
+            let mark = ResultMark.circled(result.number)
+            guard let answer = result.answer else {
+                lines.append(mark + " not computed")
+                continue
+            }
+            if let working = answer.working { lines.append(mark + " " + working) }
+            lines.append(mark + " " + answer.shownResult)
+        }
+        return IntentSplit.marker + " " + head + "\n\n" + lines.joined(separator: "\n")
+    }
+
+    /// The retry's note ([SETTLED] 2), nil when nothing is retried: a whole-reply defect's note (`jsonNote` for
+    /// `json`); one entry, 0.1.0's note unchanged; several, each retryable result by position, then `keepNote`.
+    public static func retryNote(_ solved: Result<[ResultOutcome], MathFailure>) -> String? {
+        switch solved {
+        case .failure(.plan(let defect)):
+            guard defect.isRetryable else { return nil }
+            return defect == .json ? jsonNote : defect.correction
+        case .failure:
+            return nil
+        case .success(let outcomes):
+            let notes = outcomes.enumerated().compactMap { index, outcome -> (Int, String)? in
+                guard case .failure(.plan(let defect)) = outcome, defect.isRetryable else { return nil }
+                return (index + 1, defect.correction)
+            }
+            guard let first = notes.first else { return nil }
+            if outcomes.count == 1 { return first.1 }
+            return notes.map { "result \($0.0): \($0.1)" }.joined(separator: "; ") + ". " + keepNote
+        }
     }
 
     /// The retry (decision 18, b2 §9.5): the same messages, the rejected reply as the model's, then the note that names
@@ -155,13 +259,17 @@ public struct PlanPrompt: Sendable, Equatable {
 
     /// `C12 "text"`, the text escaped so it cannot close its quotes or start a line of its own.
     private static func item(_ cell: Cell) -> String {
-        let escaped = cell.text
+        "\(cell.id) \"\(escaped(cell.text))\""
+    }
+
+    /// A text that cannot close its quotes or start a line of its own.
+    private static func escaped(_ text: String) -> String {
+        text
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
             .replacingOccurrences(of: "\r\n", with: "\\n")
             .replacingOccurrences(of: "\n", with: "\\n")
             .replacingOccurrences(of: "\r", with: "\\n")
-        return "\(cell.id) \"\(escaped)\""
     }
 
     /// The empty line, the items line and the listing, as measured.
@@ -171,9 +279,24 @@ public struct PlanPrompt: Sendable, Equatable {
 
     /// An exact turn's reply is the composed one (the `%%` line, then Hark's answer), with `Formula:` when it read the
     /// current sheet; a free turn's is its reply.
+    /// A turn of several results (its `%%` line opens with ①…) adds one `Formula RES<n>:` line per computed result.
     private static func reply(of turn: AskTurn, sheet: CellSheet) -> String {
-        guard let formula = turn.formula, turn.sheet == sheet else { return turn.reply }
+        guard turn.sheet == sheet else { return turn.reply }
+        if numbered(turn.reply), !turn.formulas.isEmpty {
+            let lines = zip(turn.results, turn.formulas).map { "Formula RES\($0.number): \($1)" }
+            return ([turn.reply] + lines).joined(separator: "\n")
+        }
+        guard let formula = turn.formula ?? turn.formulas.first else { return turn.reply }
         return turn.reply + "\nFormula: " + formula
+    }
+
+    /// Whether a composed reply is one of several results: its `%%` line opens with a result's number.
+    static func numbered(_ reply: String) -> Bool {
+        let prefix = IntentSplit.marker + " "
+        guard reply.hasPrefix(prefix), let next = reply.dropFirst(prefix.count).unicodeScalars.first else {
+            return false
+        }
+        return (0x2460...0x2473).contains(next.value)
     }
 
     /// Turn `index`'s lines: the lead line, the words, and turn 1's selection.

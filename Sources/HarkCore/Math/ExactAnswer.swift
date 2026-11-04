@@ -39,12 +39,19 @@ public struct ExactAnswer: Sendable, Equatable {
     public let figures: [UnderstoodFigure]
 
     /// `fallback` is the user's format for the result (decision 8): the system's Language & Region format, passed in.
-    public init(_ computation: Computation, sheet: CellSheet, policy: RoundingPolicy, fallback: Locale) {
+    /// `kept` is the conversation's kept results (M14): a reference shows as its number and figure, and its scale
+    /// joins the cells'.
+    public init(
+        _ computation: Computation, sheet: CellSheet, policy: RoundingPolicy, fallback: Locale,
+        kept: [KeptResult] = []
+    ) {
         let plan = computation.plan
         understood = plan.understood.isEmpty ? nil : plan.understood
         let unit = RoundingPolicy.displayUnit(computation.unit, declared: plan.unit, value: computation.value)
-        let decimals = policy.decimals(for: unit, read: computation.read, sheet: sheet)
-        let shown = policy.round(computation.value, unit: unit, read: computation.read, sheet: sheet)
+        let referenced = kept.filter { computation.formula.results.contains($0.number) }
+        let decimals = policy.decimals(for: unit, read: computation.read, sheet: sheet, referenced: referenced)
+        let shown = policy.round(
+            computation.value, unit: unit, read: computation.read, sheet: sheet, referenced: referenced)
         let snapped = RoundingPolicy.round(computation.value, scale: RoundingPolicy.snapScale, rule: .halfUp)
         let label = UnitLabel.kept(plan.unitLabel, computation: computation, sheet: sheet)
         result = ResultFormat.string(shown, unit: unit, decimals: decimals, locale: fallback, label: label)
@@ -58,7 +65,7 @@ public struct ExactAnswer: Sendable, Equatable {
             : ResultFormat.string(
                 snapped, unit: unit, decimals: (RoundingPolicy.snapScale, decimals?.minimum ?? 0), locale: fallback,
                 label: label)
-        working = WorkingLine(sheet: sheet).line(computation.formula)
+        working = WorkingLine(sheet: sheet, kept: kept).line(computation.formula)
         figures = understood.map { UnderstoodFigures.figures(in: $0, computation: computation, sheet: sheet) } ?? []
     }
 
@@ -145,6 +152,8 @@ enum UnitLabel {
 /// minus. No words: numbers, operators and signs only.
 struct WorkingLine {
     let sheet: CellSheet
+    /// The kept results a `RES` leaf is written from (M14).
+    var kept: [KeptResult] = []
     var convention: NumberConvention { sheet.convention }
     static let maxTerms = 12
 
@@ -176,8 +185,9 @@ struct WorkingLine {
         case .constant(let value):
             return number(value, scale: Self.scale(of: value), grouping: false)
         case .result(let number):
-            // The contract's stub (M14.1): S1 writes a reference as its number and its shown figure.
-            return "RES\(number)"
+            // « ① 89,67 € »: its number, then the figure as the panel showed it.
+            let mark = ResultMark.circled(number)
+            return kept.first { $0.number == number }.map { mark + " " + $0.shown } ?? mark
         case .negate(let inner):
             return minus + wrapped(inner, below: 3)
         case .rate(let inner):
@@ -355,5 +365,15 @@ enum UnderstoodFigures {
             if !glued(start - 1, step: -1), !glued(start + pattern.count, step: 1) { return true }
         }
         return false
+    }
+}
+
+/// ①…⑳, the number a result is given (M14); past ⑳, `(21)`.
+public enum ResultMark {
+    public static func circled(_ number: Int) -> String {
+        guard (1...20).contains(number), let scalar = Unicode.Scalar(0x2460 + UInt32(number - 1)) else {
+            return "(\(number))"
+        }
+        return String(Character(scalar))
     }
 }

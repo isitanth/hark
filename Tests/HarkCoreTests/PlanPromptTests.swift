@@ -270,3 +270,211 @@ private typealias S = PlanSheets
         #expect(retry.messages.last.map { !$0.content.contains(marker) } == true)
     }
 }
+
+// M14: the results block, the composed reply and the retry, byte for byte against `multi.py`'s model.
+
+private typealias Item = MathFixtures.Item
+
+private let fr = Locale(identifier: "fr_FR")
+
+/// m01's two price columns, as the exact-cell listing numbers them.
+private let m01Sheet = MathFixtures.sheet(
+    ["12,99 €", "9,99 €", "17,49 €", "49,20 €"].enumerated().map {
+        Item(id: "C\($0.offset + 1)", text: $0.element, table: 0, row: $0.offset + 1, column: 2)
+    }
+        + ["4,50 €", "3,20 €", "11,90 €", "6,75 €", "2,99 €"].enumerated().map {
+            Item(id: "C\($0.offset + 5)", text: $0.element, table: 1, row: $0.offset + 1, column: 1)
+        })
+/// m04's net amounts.
+private let m04Sheet = MathFixtures.sheet(
+    ["120,00 €", "45,50 €", "310,00 €", "18,90 €", "76,35 €"].enumerated().map {
+        Item(id: "C\($0.offset + 1)", text: $0.element, table: 0, row: $0.offset + 1, column: 1)
+    })
+
+private func entry(_ understood: String, _ formula: String, _ unit: String = "EUR") -> String {
+    #"{"understood": "\#(understood)", "formula": "\#(formula)", "unit": "\#(unit)", "unit_label": ""}"#
+}
+
+/// The composed results of a reply over `sheet`, numbered from `first`.
+private func composed(
+    _ entries: [String], sheet: CellSheet, instruction: String, first: Int = 1, kept: [KeptResult] = []
+) throws -> (results: [PlanPrompt.ComposedResult], outcomes: [ResultOutcome]) {
+    let reply = #"{"results": [\#(entries.joined(separator: ", "))]}"#
+    let plans = try PlanSet.decode(reply, finishReason: "stop").get().results
+    let outcomes = try MathEngine.solveAll(
+        reply: reply, finishReason: "stop", sheet: sheet, instruction: instruction, kept: kept
+    ).get()
+    let results = zip(plans, outcomes).enumerated().map { index, pair in
+        PlanPrompt.ComposedResult(
+            number: first + index, understood: pair.0.understood,
+            answer: (try? pair.1.get()).map {
+                ExactAnswer($0, sheet: sheet, policy: .standard, fallback: fr, kept: kept)
+            })
+    }
+    return (results, outcomes)
+}
+
+private func keptResult(_ number: Int, _ value: String, _ understood: String, scale: Int = 2) -> KeptResult {
+    KeptResult(
+        number: number, value: Decimal(string: value) ?? .nan, unit: .money(.eur), unitLabel: nil, scale: scale,
+        shown: value.replacingOccurrences(of: ".", with: ",") + "\u{00A0}€", understood: understood,
+        turn: UtteranceID(1))
+}
+
+@Suite struct PlanPromptResultsTests {
+    static let m01Question =
+        "La somme de tous les prix par mois du premier tableau ainsi que tous les prix mensuels du deuxième."
+
+    @Test func m01sComposedReplyIsTheModels() throws {
+        let (results, _) = try composed(
+            [
+                entry("Le total du premier tableau.", "SUM(C1, C2, C3, C4)"),
+                entry("Le total du deuxième tableau.", "SUM(C5, C6, C7, C8, C9)"),
+            ], sheet: m01Sheet, instruction: Self.m01Question)
+        #expect(
+            PlanPrompt.composedReply(results)
+                == "%% ① Le total du premier tableau. ② Le total du deuxième tableau.\n\n"
+                + "① 12,99 € + 9,99 € + 17,49 € + 49,20 € =\n① 89,67\u{00A0}€\n"
+                + "② 4,50 € + 3,20 € + 11,90 € + 6,75 € + 2,99 € =\n② 29,34\u{00A0}€")
+    }
+
+    @Test func m01sTurnAddsItsFormulasOnTheSameSheet() throws {
+        let (results, _) = try composed(
+            [
+                entry("Le total du premier tableau.", "SUM(C1, C2, C3, C4)"),
+                entry("Le total du deuxième tableau.", "SUM(C5, C6, C7, C8, C9)"),
+            ], sheet: m01Sheet, instruction: Self.m01Question)
+        let reply = PlanPrompt.composedReply(results)
+        let turn = AskTurn(
+            id: UtteranceID(1), instruction: Self.m01Question, reply: reply, region: PlanPromptThreadTests.region,
+            sheet: m01Sheet, formula: "SUM(C1, C2, C3, C4)",
+            formulas: ["SUM(C1, C2, C3, C4)", "SUM(C5, C6, C7, C8, C9)"],
+            results: [keptResult(1, "89.67", "a"), keptResult(2, "29.34", "b")])
+        let thread = AskThread(
+            rootID: UtteranceID(1), kind: .assistant, selection: nil, pin: PlanPromptThreadTests.pin, turns: [turn])
+        let images = [UtteranceID(1): PlanPromptThreadTests.image(1)]
+        let same = try #require(
+            PlanPrompt.thread(thread, current: ("encore", nil), sheet: m01Sheet, images: images))
+        #expect(
+            same.messages[2].content
+                == reply + "\nFormula RES1: SUM(C1, C2, C3, C4)\nFormula RES2: SUM(C5, C6, C7, C8, C9)")
+        let other = try #require(
+            PlanPrompt.thread(thread, current: ("encore", nil), sheet: m04Sheet, images: images))
+        #expect(other.messages[2].content == reply)
+    }
+
+    @Test func m04sFailedResultIsNotComputed() throws {
+        let (results, _) = try composed(
+            [
+                entry("Le total HT.", "SUM(C1, C2, C3, C4, C5)"), entry("La TVA à 20 %.", "C9 * 20%"),
+                entry("Le total TTC.", "SUM(C1, C2, C3, C4, C5) * 1.20"),
+            ], sheet: m04Sheet, instruction: "Le total HT, la TVA à 20 % et le total TTC.")
+        #expect(results[1].answer == nil)
+        let third = try #require(results[2].answer?.working)
+        // The model's working line for ③ is its own sketch (`multi.working`); Hark's is `WorkingLine`'s.
+        #expect(
+            PlanPrompt.composedReply(results)
+                == "%% ① Le total HT. ② La TVA à 20 %. ③ Le total TTC.\n\n"
+                + "① 120,00 € + 45,50 € + 310,00 € + 18,90 € + 76,35 € =\n① 570,75\u{00A0}€\n② not computed\n"
+                + "③ \(third)\n③ 684,90\u{00A0}€")
+    }
+
+    @Test func oneResultIsTodaysReplyByteForByte() throws {
+        let (results, outcomes) = try composed(
+            [entry("Le total du premier tableau.", "SUM(C1, C2, C3, C4)")], sheet: m01Sheet,
+            instruction: Self.m01Question)
+        let today = ExactAnswer(try outcomes[0].get(), sheet: m01Sheet, policy: .standard, fallback: fr)
+        #expect(PlanPrompt.composedReply(results) == today.reply)
+        #expect(
+            PlanPrompt.composedReply(results)
+                == "%% Le total du premier tableau.\n\n12,99 € + 9,99 € + 17,49 € + 49,20 € =\n89,67\u{00A0}€")
+    }
+
+    @Test func m09sRequestCarriesTheResultsBlock() throws {
+        let kept = [
+            keptResult(1, "89.67", "Le total du premier tableau."),
+            keptResult(2, "29.34", "Le \"deuxième\"\ntableau, " + String(repeating: "x", count: 90)),
+        ]
+        #expect(
+            PlanPrompt.resultsBlock(kept) == [
+                "", "Earlier results, computed by Hark:", #"RES1 = 89.67 EUR "Le total du premier tableau.""#,
+                #"RES2 = 29.34 EUR "Le \"deuxième\"\ntableau, "#
+                    + String(repeating: "x", count: 57) + "\"",
+            ])
+        let turn = AskTurn(
+            id: UtteranceID(1), instruction: "q", reply: "%% ① a ② b\n\n① 1\n② 2", region: nil, sheet: m01Sheet,
+            formulas: ["C1", "C2"], results: kept)
+        let thread = AskThread(
+            rootID: UtteranceID(1), kind: .assistant, selection: nil, pin: PlanPromptThreadTests.pin, turns: [turn])
+        let prompt = try #require(
+            PlanPrompt.thread(
+                thread, current: ("Multiplie le résultat un par 12.", nil), sheet: m01Sheet, images: [:]))
+        let last = try #require(prompt.messages.last?.content)
+        let block = PlanPrompt.resultsBlock(kept).joined(separator: "\n")
+        #expect(last.hasSuffix(PlanPrompt.listing(m01Sheet) + "\n" + block))
+    }
+
+    @Test func noBlockWithoutAKeptResult() {
+        #expect(PlanPrompt.resultsBlock([]).isEmpty)
+    }
+
+    @Test func theFigureHasAPointTheShownDecimalsAndNoGrouping() {
+        let average = KeptResult(
+            number: 2, value: (Decimal(string: "157353.05") ?? 0) / 3, unit: .money(.usd), unitLabel: nil, scale: 2,
+            shown: "$52,451.02", understood: "avg", turn: UtteranceID(1))
+        let count = KeptResult(
+            number: 3, value: 3, unit: .count, unitLabel: nil, scale: 0, shown: "3", understood: "n",
+            turn: UtteranceID(1))
+        let pct = KeptResult(
+            number: 4, value: Decimal(string: "-12.5") ?? 0, unit: .percent, unitLabel: nil, scale: 2,
+            shown: "−12,50 %", understood: "p", turn: UtteranceID(1))
+        let even = keptResult(5, "1000", "e")
+        #expect(
+            PlanPrompt.resultsBlock([average, count, pct, even]).dropFirst(2) == [
+                #"RES2 = 52451.02 USD "avg""#, #"RES3 = 3 count "n""#, #"RES4 = -12.50 percent "p""#,
+                #"RES5 = 1000.00 EUR "e""#,
+            ])
+    }
+
+    @Test func aReferenceIsWrittenAsItsNumberAndFigure() throws {
+        let kept = [keptResult(1, "89.67", "a")]
+        let (results, _) = try composed(
+            [entry("Le résultat un fois douze.", "RES1 * 12")], sheet: m01Sheet,
+            instruction: "Multiplie le résultat un par 12.", kept: kept)
+        let answer = try #require(results[0].answer)
+        #expect(answer.working == "① 89,67\u{00A0}€ × 12 =")
+        #expect(answer.result == "1\u{202F}076,04\u{00A0}€")
+    }
+
+    @Test func oneEntrysRetryKeepsTodaysNote() {
+        #expect(PlanPrompt.retryNote(.success([.failure(.plan(.unknownCell))])) == PlanDefect.unknownCell.correction)
+        #expect(PlanPrompt.retryNote(.success([.failure(.plan(.noFormula))])) == nil)
+        #expect(PlanPrompt.retryNote(.success([.failure(.math(.garbled, cell: nil))])) == nil)
+    }
+
+    @Test func severalEntriesAreRetriedByPosition() throws {
+        let computed = try MathEngine.solve(
+            reply: planReply("SUM(C1, C2)", unit: "EUR"), finishReason: "stop", sheet: m01Sheet, instruction: "x"
+        ).get()
+        let outcomes: [ResultOutcome] = [
+            .success(computed), .failure(.plan(.unknownCell)), .failure(.plan(.unspokenConstant("4.5"))),
+        ]
+        #expect(
+            PlanPrompt.retryNote(.success(outcomes))
+                == "result 2: refer only to IDs from the item list; result 3: 4.5 is not a number the user said: "
+                + "refer to its item. Keep the other results as they were")
+        #expect(PlanPrompt.retryNote(.success([.success(computed), .failure(.math(.noNumber, cell: nil))])) == nil)
+        #expect(PlanPrompt.retryNote(.success([.success(computed)])) == nil)
+    }
+
+    @Test func aWholeReplyDefectHasItsOwnNote() {
+        #expect(
+            PlanPrompt.retryNote(.failure(.plan(.json)))
+                == "reply with one JSON object with a results array of 1 to 3 entries, each with understood, formula, "
+                + "unit and unit_label only")
+        #expect(PlanPrompt.retryNote(.failure(.plan(.truncated))) == nil)
+        #expect(
+            PlanPrompt.retryLine(PlanPrompt.retryNote(.failure(.plan(.json))) ?? "")
+                .hasPrefix("Hark could not use that plan: reply with one JSON object with a results array"))
+    }
+}
