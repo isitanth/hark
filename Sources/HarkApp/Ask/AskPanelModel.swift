@@ -24,6 +24,10 @@ final class AskPanelModel {
     private(set) var state = AskPanelState.closed
     /// The spoken instruction, once transcribed.
     private(set) var instruction: String?
+    /// The instruction typed into the listening field (M15), until it is sent.
+    var typed = ""
+    /// The ask went on typed: its capture is cancelled and Return sends the field.
+    private(set) var typing = false
     /// The selection's opening words; empty for the assistant, which has none.
     private(set) var quote = ""
     /// Replace, Insert, or Copy alone, from the utterance's intent and the focus at the press.
@@ -187,6 +191,7 @@ final class AskPanelModel {
             }
         }
         if let utterance = snapshot.utterance, utterance.id == id {
+            if utterance.input == .typed { typing = true }
             // The assistant's focus arrives with the probe, after the press.
             apply = AskPresentation.apply(utterance)
             allowsReplace = AskPresentation.allowsReplace(utterance)
@@ -258,6 +263,8 @@ final class AskPanelModel {
 
     private func resetTurn() {
         instruction = nil
+        typed = ""
+        typing = false
         reply = ""
         reviewedReply = ""
         streamed = ""
@@ -500,6 +507,28 @@ final class AskPanelModel {
         }
     }
 
+    // MARK: - Typing (M15)
+
+    /// The field's text changed: its first committed character turns the ask typed. Not while an accent is being
+    /// composed (a dead key's ^, the press-and-hold popover): that text is marked, and Esc must still reach it.
+    func typedChanged() {
+        if typed.count > PipelineReducer.maxTypedCharacters {
+            typed = String(typed.prefix(PipelineReducer.maxTypedCharacters))
+        }
+        guard !pinned, !typing, let id, state == .listening, !typed.isEmpty, !panel.holdsMarkedText else { return }
+        typing = true
+        Task { [controller] in await controller.startTyping(id) }
+    }
+
+    /// Return, Send or the Ask key while typing: the field's text goes. Before any typing it is Done, as in 0.1.0.
+    func submitTyped() {
+        guard let id else { return }
+        guard typing else { return done() }
+        guard !typed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let text = typed
+        Task { [controller] in await controller.submitTyped(id, text) }
+    }
+
     // MARK: - The buttons
 
     func done() {
@@ -612,7 +641,9 @@ extension AskPanelModel {
             return
         }
         let pinnedState: AskPanelState? =
-            if names.contains("ask-listening") || names.contains("assistant-listening") {
+            if names.contains("ask-listening") || names.contains("assistant-listening")
+                || names.contains("ask-typing") || names.contains("ask-listening-field")
+            {
                 .listening
             } else if names.contains("ask-thinking") {
                 .thinking
@@ -638,6 +669,11 @@ extension AskPanelModel {
         if names.contains("ask-remote") {
             pinnedRemote = true
             remoteHost = "api.example.com"
+        }
+        // `ask-typing` (M15): the field holds a typed request, the panel says so; `ask-listening-field`: empty.
+        if names.contains("ask-typing") {
+            typed = french ? "Résume ce paragraphe en deux phrases." : "Summarize this paragraph in two sentences."
+            typing = true
         }
         state = pinnedState
         panel.open(at: rememberedTopLeft)

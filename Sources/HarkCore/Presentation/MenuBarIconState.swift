@@ -52,3 +52,16 @@ public enum MenuBarIconState: String, Sendable, CaseIterable {
         }
     }
 }
+
+extension PipelineSnapshot {
+    /// Whether the microphone is live (M15): capturing a dictation or a spoken ask. A typed ask stays `.capturing` with
+    /// its capture cancelled, so nothing is recorded and other sound needs no ducking.
+    public var isRecordingVoice: Bool {
+        phase == .capturing && utterance?.input != .typed
+    }
+
+    /// The phase the menu bar icon shows: a typed ask is an ask being written, not a recording.
+    public var iconPhase: PipelinePhase {
+        phase == .capturing && utterance?.input == .typed ? .asking : phase
+    }
+}

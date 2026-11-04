@@ -174,7 +174,8 @@ final class AppModel {
 
     var iconState: MenuBarIconState {
         pinnedIcon
-            ?? MenuBarIconState(phase: snapshot.phase, isLatched: isLatched, health: health, dismissed: outcome != nil)
+            ?? MenuBarIconState(
+                phase: snapshot.iconPhase, isLatched: isLatched, health: health, dismissed: outcome != nil)
     }
 
     /// The icon of the state, moved by the frame of the animation playing, if any.
@@ -362,6 +363,7 @@ final class AppModel {
         Task { [audio] in await audio.prepare() }
         hotkeys.start(
             driving: controller, onAskDown: { [weak self] in await self?.startAskFromKey() },
+            onAskSubmit: { [askPanel] in askPanel.submitTyped() },
             onLatchChange: { [weak self, hudModel] latched in
                 hudModel.setLatched(latched)
                 if self?.isLatched != latched { self?.isLatched = latched }
@@ -604,6 +606,10 @@ final class AppModel {
         if snapshot.phase == .capturing, self.snapshot.phase != .capturing {
             // Polling stops once both permissions are granted; a press is when a revoked grant starts to matter.
             refreshPermissions()
+        }
+        // Other sound is lowered while the microphone is live: a typed ask (M15) cancels its capture at the first
+        // character, so the sound comes back then, though the phase stays `.capturing`.
+        if snapshot.isRecordingVoice, !self.snapshot.isRecordingVoice {
             let enabled = preferences.lowerOtherAudio
             let input = inputChoice?.device.transport
             let systemDefault = systemDefaultInput?.transport
@@ -613,9 +619,10 @@ final class AppModel {
                 await ducker.begin(enabled: enabled, input: input, systemDefault: systemDefault)
             }
         }
-        // Every end of a capture leaves `.capturing`: key up, the limit, a cancel, a failure. The sound comes back
-        // then, while a long clip may still be transcribing. The setting turned off meanwhile still restores.
-        if snapshot.phase != .capturing, self.snapshot.phase == .capturing {
+        // Every end of a capture leaves `.capturing` (key up, the limit, a cancel, a failure) or turns it typed. The
+        // sound comes back then, while a long clip may still be transcribing. The setting turned off meanwhile still
+        // restores.
+        if !snapshot.isRecordingVoice, self.snapshot.isRecordingVoice {
             let previous = duckerControl
             duckerControl = Task { [ducker] in
                 await previous?.value

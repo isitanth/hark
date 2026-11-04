@@ -26,7 +26,8 @@ final class HotkeyBridge {
     /// `onAskDown` starts an ask from the Ask key: reading the selection needs the app, not the bridge.
     func start(
         driving controller: PipelineController, onAskDown: @escaping @MainActor () async -> Void,
-        onLatchChange: @escaping @MainActor (Bool) -> Void, defaults: UserDefaults = .standard
+        onAskSubmit: @escaping @MainActor () -> Void, onLatchChange: @escaping @MainActor (Bool) -> Void,
+        defaults: UserDefaults = .standard
     ) {
         guard listeners.isEmpty else { return }
         migrateInitialShortcuts(defaults)
@@ -81,7 +82,12 @@ final class HotkeyBridge {
                         // The key-up waited behind the selection read; a tap must not count that wait as a hold.
                         gate.restartHold(at: .now)
                     case .stop:
-                        await controller.triggerUp()
+                        // A typed ask (M15) has no capture to stop: the key sends what the field holds.
+                        if await controller.capturingInput == .typed {
+                            onAskSubmit()
+                        } else {
+                            await controller.triggerUp()
+                        }
                     case .ignore:
                         continue
                     }

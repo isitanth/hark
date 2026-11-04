@@ -6002,19 +6002,104 @@
         }
       }
     },
+    "ask.typing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous écrivez"
+          }
+        }
+      }
+    },
+    "ask.typing.placeholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or type your request…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou écrivez votre demande…"
+          }
+        }
+      }
+    },
+    "ask.typing.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return to send · ⌥Return for a new line · Esc to cancel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour pour envoyer · ⌥Retour pour une nouvelle ligne · Échap pour annuler"
+          }
+        }
+      }
+    },
+    "ask.typing.hint.followUp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return to send · ⌥Return for a new line · Esc goes back to the answer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour pour envoyer · ⌥Retour pour une nouvelle ligne · Échap revient à la réponse"
+          }
+        }
+      }
+    },
+    "ask.button.send": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer"
+          }
+        }
+      }
+    },
     "ask.listening.hint": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Say what to do with the selection, then press Return."
+            "value": "Say or type what to do with the selection, then press Return."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dites quoi faire de la sélection, puis appuyez sur Retour."
+            "value": "Dites ou écrivez quoi faire de la sélection, puis appuyez sur Retour."
           }
         }
       }
@@ -6025,13 +6110,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Say what to do with the selection and the frame, then press Return. Drag again to replace the frame."
+            "value": "Say or type what to do with the selection and the frame, then press Return. Drag again to replace the frame."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dites quoi faire de la sélection et du cadre, puis appuyez sur Retour. Faites glisser à nouveau pour remplacer le cadre."
+            "value": "Dites ou écrivez quoi faire de la sélection et du cadre, puis appuyez sur Retour. Faites glisser à nouveau pour remplacer le cadre."
           }
         }
       }
@@ -6042,13 +6127,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Say what to change or ask next, then press Return. Esc goes back to the answer."
+            "value": "Say or type what to change or ask next, then press Return. Esc goes back to the answer."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dites quoi changer ou demander ensuite, puis appuyez sur Retour. Échap revient à la réponse."
+            "value": "Dites ou écrivez quoi changer ou demander ensuite, puis appuyez sur Retour. Échap revient à la réponse."
           }
         }
       }
@@ -6059,13 +6144,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Say what to do with this frame, then press Return. Drag again to replace it; Esc goes back to the answer."
+            "value": "Say or type what to do with this frame, then press Return. Drag again to replace it; Esc goes back to the answer."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dites quoi faire de ce cadre, puis appuyez sur Retour. Faites glisser à nouveau pour le remplacer ; Échap revient à la réponse."
+            "value": "Dites ou écrivez quoi faire de ce cadre, puis appuyez sur Retour. Faites glisser à nouveau pour le remplacer ; Échap revient à la réponse."
           }
         }
       }
@@ -6076,13 +6161,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask a question or say what to write, then press Return."
+            "value": "Ask a question or say what to write, aloud or typed, then press Return."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Posez une question ou dites quoi rédiger, puis appuyez sur Retour."
+            "value": "Posez une question ou dites quoi rédiger, à voix haute ou par écrit, puis appuyez sur Retour."
           }
         }
       }
@@ -6093,13 +6178,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Say what to do with the frame, then press Return. Drag again to replace it."
+            "value": "Say or type what to do with the frame, then press Return. Drag again to replace it."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dites quoi faire du cadre, puis appuyez sur Retour. Faites glisser à nouveau pour le remplacer."
+            "value": "Dites ou écrivez quoi faire du cadre, puis appuyez sur Retour. Faites glisser à nouveau pour le remplacer."
           }
         }
       }

@@ -104,7 +104,24 @@ final class AskPanel: NSPanel, NSWindowDelegate {
         model.cancel()
     }
 
+    /// The first responder holds marked text (M15): a dead key's ^ or the press-and-hold popover's accent.
+    var holdsMarkedText: Bool {
+        (firstResponder as? any NSTextInputClient)?.hasMarkedText() ?? false
+    }
+
     override func sendEvent(_ event: NSEvent) {
+        let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        // Esc while an accent is being composed cancels the composition, not the ask (measured in M15.0).
+        if event.type == .keyDown, event.keyCode == 53, holdsMarkedText {
+            super.sendEvent(event)
+            return
+        }
+        // ⌃⌥ held is the frame's (M11): its keys are never text in the listening field.
+        if event.type == .keyDown, flags.contains([.control, .option]), firstResponder is NSTextView,
+            model.state == .listening
+        {
+            return
+        }
         if event.type == .keyDown, event.keyCode == 53 {
             // A follow-up waiting for its frame goes back to the previous answer (M12). Otherwise Esc while a frame is
             // being dragged drops that drag and keeps the ask, ⌃⌥ held or not.

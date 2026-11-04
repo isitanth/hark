@@ -7,6 +7,8 @@ import SwiftUI
 struct AskView: View {
     @Bindable var model: AskPanelModel
     @FocusState private var editing: Bool
+    /// The listening field (M15).
+    @FocusState private var typingFocused: Bool
     /// "Thinking…" has stood alone long enough to name the server it waits for.
     @State private var namesServer = false
     /// The frame has been read for `slowReadAfter`: the line says a first read can take up to a minute.
@@ -187,6 +189,25 @@ struct AskView: View {
 
     private var hasRegion: Bool { model.regionThumbnail != nil || model.regionPixelSize != nil }
 
+    /// While typing (M15): Return sends; in a follow-up Esc goes back to the answer.
+    private var typingHint: LocalizedStringResource {
+        model.isFollowUp ? L("ask.typing.hint.followUp") : L("ask.typing.hint")
+    }
+
+    /// The listening field (M15): speak, or type here. Its focus is set once the panel is key, after it opens.
+    private var typedField: some View {
+        TextField(text: $model.typed, axis: .vertical) { Text(L("ask.typing.placeholder")) }
+            .textFieldStyle(.plain)
+            .lineLimit(1...6)
+            .focused($typingFocused)
+            .onChange(of: model.typed) { model.typedChanged() }
+            .onSubmit { model.submitTyped() }
+            .padding(.top, 6)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { typingFocused = true }
+            }
+    }
+
     /// What to say while listening: about the selection, the frame, both, or neither (the assistant).
     private var listeningHint: LocalizedStringResource {
         // A follow-up changes the last answer, and Esc goes back to it.
@@ -325,15 +346,16 @@ struct AskView: View {
         case .listening:
             VStack(alignment: .leading, spacing: 4) {
                 Label {
-                    Text(L("ask.listening"))
+                    Text(model.typing ? L("ask.typing") : L("ask.listening"))
                 } icon: {
-                    Image(systemName: "waveform")
+                    Image(systemName: model.typing ? "keyboard" : "waveform")
                 }
                 .font(.body.weight(.medium))
-                Text(listeningHint)
+                Text(model.typing ? typingHint : listeningHint)
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                typedField
                 preflight
             }
         case .transcribing:
@@ -580,6 +602,11 @@ struct AskView: View {
     private var footerLayout: FooterLayout {
         switch model.state {
         case .listening:
+            // Typing (M15), Return is the field's: Send takes no key, Done's default key would end the ask unsent.
+            if model.typing {
+                return FooterLayout(
+                    primary: FooterAction(id: "send", title: L("ask.button.send"), action: model.submitTyped))
+            }
             return FooterLayout(
                 primary: FooterAction(
                     id: "done", title: L("ask.button.done"), action: model.done, shortcut: .defaultAction))
