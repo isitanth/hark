@@ -514,6 +514,8 @@ final class AskPanelModel {
 
     private func showLens(_ highlights: CellHighlights, animated: Bool) {
         guard !pinned, let lensOverlay else { return }
+        // A pick moves the layer to another block at once: the earlier block's note never shows under it.
+        layerNote = nil
         let shownIn = state
         lensOverlay.showCells(highlights, animated: animated) { [weak self] in self?.state == shownIn }
     }

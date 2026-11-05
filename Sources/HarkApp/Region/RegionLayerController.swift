@@ -47,7 +47,13 @@ final class RegionLayerController {
         var generation = 0
         /// The band of the window the last search looked at, window-local points: a cell shows only inside it.
         var matchedBand: CGRect?
-        var buttonDown = false
+        /// The buttons pressed in the zone and still held, by number: the detector waits for the last release.
+        var zonePresses: Set<Int> = []
+        /// The buttons pressed elsewhere in the window and still held, by number, with the poll's move count at the
+        /// press: the release hides the tints unless the window moved in between (a title-bar drag).
+        var windowPresses: [Int: Int] = [:]
+        /// Bumped by the poll on every move or resize of the window.
+        var moves = 0
         let started = ContinuousClock.now
 
         init(
@@ -107,6 +113,8 @@ final class RegionLayerController {
     /// Finds the zone on the live window and draws the cells in view. `current` is asked right before drawing.
     func show(_ highlights: CellHighlights, animated: Bool, current: @escaping @MainActor () -> Bool) {
         end(note: nil, announce: false)
+        // The note of an earlier show (another block's) never shows under this one.
+        onNote?(nil)
         guard let anchor = anchor?(highlights.frameID) else {
             Self.logger.info("no window under the frame: no layer")
             onNote?(.noWindow)
@@ -137,7 +145,8 @@ final class RegionLayerController {
     }
 
     /// The layer ends: the panel goes, the poll and the monitors stop, the reference is let go. `note` is said when
-    /// given; `announce` tells the panel the cells went.
+    /// given; `announce` tells the panel the cells went, and says the note even when nil, so no earlier note stays
+    /// under a block while nothing shows.
     private func end(note: LayerNote?, announce: Bool) {
         request?.cancel()
         request = nil
@@ -151,7 +160,7 @@ final class RegionLayerController {
         for observer in observers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
         observers = []
         panel.orderOut(nil)
-        if let note { onNote?(note) }
+        if announce || note != nil { onNote?(note) }
         // Said even when nothing was drawn, so the panel's button never reads Hide Cells over nothing.
         if announce { onShownChanged?(false) }
     }
@@ -183,14 +192,25 @@ final class RegionLayerController {
         let search = Search(session: session)
         let generation = session.generation
         request?.cancel()
-        request = Task { [weak self] in
+        // The session is held weakly: once the layer ends, nothing here keeps its reference alive. The search's own
+        // copy of the reference and the capture go with the detached search, which does not start once cancelled.
+        request = Task { [weak self, weak session] in
             let capture = await ScreenRegionCapturer.recapture(windowID: anchor.windowID, band: band)
             guard let capture, !Task.isCancelled else {
-                if !Task.isCancelled { self?.found(.notFound, capture: nil, for: session, generation: generation) }
+                if !Task.isCancelled, let session {
+                    self?.found(.notFound, capture: nil, for: session, generation: generation)
+                }
                 return
             }
-            let match = await Task.detached(priority: .userInitiated) { search.run(capture) }.value
-            guard !Task.isCancelled else { return }
+            let job = Task.detached(priority: .userInitiated) { () -> ZoneMatch? in
+                Task.isCancelled ? nil : search.run(capture)
+            }
+            let match = await withTaskCancellationHandler {
+                await job.value
+            } onCancel: {
+                job.cancel()
+            }
+            guard let match, !Task.isCancelled, let session, self?.session === session else { return }
             self?.found(match, capture: capture, for: session, generation: generation)
         }
     }
@@ -244,9 +264,12 @@ final class RegionLayerController {
         let first = !session.drawn
         if first {
             guard session.current() else {
-                end(note: nil, announce: false)
+                // The panel moved on: nothing is drawn, and its button never reads Hide Cells over nothing.
+                end(note: nil, announce: true)
                 return
             }
+            // A window over the zone keeps the layer hidden from the first draw, not from the poll's first tick.
+            session.covered = WindowList.covers(session.zone, above: session.anchor.windowID, harkPID: harkPID)
         }
         let shifted = visible.map { cell in
             HighlightedCell(id: cell.id, box: session.local(cell), role: cell.role, uncertain: cell.uncertain)
@@ -302,7 +325,9 @@ final class RegionLayerController {
         }
         // A flick's momentum goes on over Hark's own windows (the Ask panel), which a global monitor never sees.
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
-            let record = Self.input(event).map { InputEvent(kind: $0.kind, at: $0.at, tail: $0.tail, local: true) }
+            let record = Self.input(event).map {
+                InputEvent(kind: $0.kind, at: $0.at, tail: $0.tail, local: true, button: $0.button)
+            }
             MainActor.assumeIsolated { self?.input(record) }
             return event
         }
@@ -347,10 +372,12 @@ final class RegionLayerController {
         case .moved:
             // A move does not move the page: the layer comes back at the new place once still, with no capture.
             session.windowBounds = bounds ?? session.windowBounds
+            session.moves += 1
             session.moving = true
             session.stillSince = now
         case .resized:
             session.windowBounds = bounds ?? session.windowBounds
+            session.moves += 1
             session.needsRecapture = true
             session.generation += 1
             session.stillSince = now
@@ -388,6 +415,8 @@ final class RegionLayerController {
         let at: CGPoint
         var tail = false
         var local = false
+        /// A button event's button number.
+        var button = 0
     }
 
     /// What an event says to the stillness detector, read off the event at once. A scroll leaves momentum running only
@@ -408,17 +437,21 @@ final class RegionLayerController {
             let tail = !momentum.isEmpty || phase.contains(.ended) || phase.contains(.cancelled)
             return InputEvent(kind: .scroll(momentumEnded: ended), at: point, tail: tail)
         case .keyDown: return InputEvent(kind: .key, at: point)
-        case .leftMouseDown, .rightMouseDown, .otherMouseDown: return InputEvent(kind: .buttonDown, at: point)
-        case .leftMouseUp, .rightMouseUp, .otherMouseUp: return InputEvent(kind: .buttonUp, at: point)
+        case .leftMouseDown, .rightMouseDown, .otherMouseDown:
+            return InputEvent(kind: .buttonDown, at: point, button: event.buttonNumber)
+        case .leftMouseUp, .rightMouseUp, .otherMouseUp:
+            return InputEvent(kind: .buttonUp, at: point, button: event.buttonNumber)
         default: return nil
         }
     }
 
     /// A scroll over the window, a key while its app is in front, a button in the zone: the page may move. Once the
-    /// detector waits, a scroll's tail counts wherever the pointer went, so a flick's momentum ends it.
+    /// detector waits, a scroll's tail counts wherever the pointer went, so a flick's momentum ends it. A button
+    /// pressed elsewhere in the window counts at its release, unless the window moved meanwhile (plan §4.5).
     private func input(_ record: InputEvent?) {
         guard let session, let record else { return }
         let window = LayerGeometry.cocoa(session.windowBounds)
+        var kind = record.kind
         let relevant: Bool
         switch record.kind {
         case .scroll:
@@ -426,16 +459,30 @@ final class RegionLayerController {
             relevant = record.local ? tailWhileWaiting : window.contains(record.at) || tailWhileWaiting
         case .key: relevant = NSWorkspace.shared.frontmostApplication?.processIdentifier == session.anchor.ownerPID
         case .buttonDown:
-            relevant = LayerGeometry.cocoa(session.zone).contains(record.at)
-            session.buttonDown = relevant
+            if LayerGeometry.cocoa(session.zone).contains(record.at) {
+                session.zonePresses.insert(record.button)
+                relevant = true
+            } else {
+                if window.contains(record.at) { session.windowPresses[record.button] = session.moves }
+                relevant = false
+            }
         case .buttonUp:
-            relevant = session.buttonDown
-            session.buttonDown = false
+            if session.zonePresses.remove(record.button) != nil {
+                // The detector holds while any press in the zone is down: only the last release lets it go.
+                relevant = session.zonePresses.isEmpty
+            } else if let moves = session.windowPresses.removeValue(forKey: record.button) {
+                // A click elsewhere in the window may change the page: hide now, recapture once still. A key, for
+                // the detector, is an event with no held state, so a press still held in the zone keeps it waiting.
+                relevant = moves == session.moves
+                kind = .key
+            } else {
+                relevant = false
+            }
         }
         guard relevant else { return }
-        // A button's release moves nothing and arms no trigger: it leaves a recapture under way alone.
-        if record.kind != .buttonUp { session.generation += 1 }
-        let action = session.detector.record(InputRecord(kind: record.kind, at: ContinuousClock.now - session.started))
+        // A zone button's release moves nothing and arms no trigger: it leaves a recapture under way alone.
+        if kind != .buttonUp { session.generation += 1 }
+        let action = session.detector.record(InputRecord(kind: kind, at: ContinuousClock.now - session.started))
         if action == .hide {
             session.waiting = true
             session.pageMoving = true
