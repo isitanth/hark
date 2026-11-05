@@ -753,11 +753,12 @@ final class AppModel {
     }
 
     /// `-HarkDebugPreview ask…` or `assistant…`: the Ask panel pinned in one state, for screenshots; `overlay` adds the
-    /// framing overlay with a sample frame.
+    /// framing overlay with a sample frame, `overlay-layer` the anchored layer over a stand-in window.
     func showAskPreview() {
         askPanel.configure(config.config.effectiveLLM)
         askPanel.showPreview(debugPreview)
         if debugPreview.contains("overlay") { framing.showPreview() }
+        if debugPreview.contains("overlay-layer") { framing.showLayerPreview() }
     }
 
     /// The cross for a second after an utterance that came to nothing, the animations, and the end of a latch.

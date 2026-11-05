@@ -54,6 +54,11 @@ final class RegionFraming {
     /// the frame does.
     private var anchors: [UtteranceID: RegionAnchor] = [:]
 
+    /// `-HarkDebugPreview overlay-layer`.
+    func showLayerPreview() {
+        overlay.layer.showPreview()
+    }
+
     /// `-HarkDebugPreview overlay`.
     func showPreview() {
         overlay.showPreview()

@@ -241,6 +241,22 @@ final class RegionLayerController {
         panel.orderFrontRegardless()
     }
 
+    // MARK: - Preview
+
+    /// The stand-in window, while the preview shows.
+    private var standIn: NSWindow?
+
+    /// `-HarkDebugPreview overlay-layer`: the tints over a stand-in window, placed without a capture or a search.
+    func showPreview() {
+        let window = RegionLayerSample.standIn()
+        standIn = window
+        guard let content = window.contentView else { return }
+        let zone = window.convertToScreen(content.convert(content.bounds, to: nil))
+        panel.draw(cells: RegionLayerSample.cells, zoneSize: zone.size, animated: true)
+        panel.place(zone: zone)
+        panel.orderFrontRegardless()
+    }
+
     // MARK: - While it shows
 
     /// The poll, the input monitor and today's hide rules, for this show only.
