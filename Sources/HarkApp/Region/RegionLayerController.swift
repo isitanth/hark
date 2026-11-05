@@ -108,7 +108,14 @@ final class RegionLayerController {
         }
         let reference = reference
         request = Task { [weak self] in
-            guard let image = await reference?(highlights.frameID), !Task.isCancelled, let self else { return }
+            let image = await reference?(highlights.frameID)
+            guard !Task.isCancelled, let self else { return }
+            guard let image else {
+                // The frame kept no reference: the window moved before the capture, or the frame is gone.
+                self.onNote?(.noWindow)
+                self.onShownChanged?(false)
+                return
+            }
             let session = Session(
                 highlights: highlights, anchor: anchor, reference: image, animated: animated, current: current)
             self.session = session
