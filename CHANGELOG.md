@@ -11,6 +11,24 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
   follow-up), start typing in its field: the microphone stops at the first character, Return sends, ⌥Return starts a
   new line, and the Ask key sends too. A frame drawn with ⌃⌥ still goes with what you type. Accents from a dead key or
   a held key work, and Esc closes an accent before it cancels the ask. Speaking works as before.
+- Several exact results in one ask. Ask for up to three figures over a framed table (a total, an average and the
+  largest line, say): Hark computes each one on its own and numbers them ①②③ across the conversation. A figure that
+  cannot be trusted shows its number and why, and the others stay. Copy and Insert take the figures one per line.
+- Reuse a result in a follow-up: "multiply result 1 by 12" computes from the exact value Hark kept, and the working
+  line shows "① €89.67 × 12 =".
+- The cells a result used light up on the window itself, not on a copy of the screen. Click a result's number, or press
+  ⌘1 to ⌘3, to light up its cells. They hide while the page may move (a scroll, a key, a click in the frame, a move or
+  a resize of the window) and come back once Hark finds them again; if it cannot be sure, the panel says so.
+
+### Changed
+
+- The working line names its functions in words, as VoiceOver reads them: "highest (38, 79.19, 47.29) =" instead of
+  MAX(…).
+
+### Fixed
+
+- Cells a result only counted or compared are outlined in blue: their grey outline faded to nothing over a white page
+  in dark mode.
 
 ## [0.1.0] - 2026-11-04
 
