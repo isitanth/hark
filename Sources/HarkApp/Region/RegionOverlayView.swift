@@ -12,8 +12,6 @@ struct RegionOverlayState: Equatable {
     var blocked: Bool
     /// The display's backing scale: the label shows the frame's size in pixels, as it goes to the model.
     var scale: CGFloat = 2
-    /// An exact answer's cells over the frame (M13): drawn instead of the framing, with no dim.
-    var lens: RegionLens?
 }
 
 /// The framing overlay, drawn from a value and computing nothing: the screen dimmed outside the frame, the frame's
@@ -29,9 +27,7 @@ struct RegionOverlayView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            if let lens = state.lens {
-                RegionLensView(lens: lens, scale: state.scale)
-            } else if let rect = state.rect {
+            if let rect = state.rect {
                 dimming(around: rect)
                 border(rect)
                 label(rect)

@@ -43,9 +43,16 @@ final class RegionFraming {
         overlay.onFramed = { [weak self] geometry, display in self?.framed(geometry, display: display) }
         overlay.onAbandoned = { [weak self] in self?.abandoned() }
         panel.dropDrag = { [weak self] in self?.overlay.cancelDrag() ?? false }
-        // The lens is the overlay's display mode (M13): the panel shows and hides it.
+        // The panel shows and hides the cells through the overlay (M14 amendment); the layer reads a frame's anchor
+        // from the latest snapshot and its reference from the controller's frame store, each freed with the frame.
         panel.lensOverlay = overlay
+        overlay.layer.anchor = { [weak self] id in self?.anchors[id] }
+        overlay.layer.reference = { [controller] id in await controller.raster(for: id)?.windowReference }
     }
+
+    /// The anchors of the frames the ask in flight holds, by turn: the latest snapshot's, so a frame's anchor goes when
+    /// the frame does.
+    private var anchors: [UtteranceID: RegionAnchor] = [:]
 
     /// `-HarkDebugPreview overlay`.
     func showPreview() {
@@ -53,6 +60,7 @@ final class RegionFraming {
     }
 
     func update(_ snapshot: PipelineSnapshot) {
+        anchors = Self.anchors(in: snapshot.utterance)
         current = snapshot.phase != .idle && snapshot.utterance?.intent.isAsk == true ? snapshot.utterance?.id : nil
         let live = snapshot.phase == .capturing && snapshot.utterance?.intent.isAsk == true
         framesFull = live && snapshot.utterance?.acceptsFrame == false
@@ -65,6 +73,15 @@ final class RegionFraming {
         } else {
             modifiers.stop()
         }
+    }
+
+    private static func anchors(in context: UtteranceContext?) -> [UtteranceID: RegionAnchor] {
+        guard let context else { return [:] }
+        var anchors: [UtteranceID: RegionAnchor] = [:]
+        for turn in context.thread?.turns ?? [] { anchors[turn.id] = turn.region?.anchor }
+        if let parked = context.parked?.context { anchors[parked.id] = parked.region?.anchor }
+        anchors[context.id] = context.region?.anchor
+        return anchors
     }
 
     private func arm(_ armed: Bool) {

@@ -22,20 +22,15 @@ final class RegionOverlayController {
     private var drag: (panel: RegionOverlayPanel, start: CGPoint)?
     /// The overlays were disarmed during the drag: they go once it ends.
     private var hideAfterDrag = false
-    /// The lens went, for any reason but `showLens` itself: the panel's button turns back to "Show Cells".
-    var onLensDismissed: (() -> Void)?
-    /// The panel showing the lens, and what takes the lens down while it shows.
-    private var lensPanel: RegionOverlayPanel?
-    private var lensHighlights: CellHighlights?
-    private var lensMonitor: Any?
-    private var lensObservers: [any NSObjectProtocol] = []
-    /// The app in front when the lens showed: the caller, during review. Its own activation keeps the lens.
-    private var lensCaller: pid_t?
+    /// The anchored layer (M14): the cells over the live window, in a panel of its own.
+    let layer = RegionLayerController()
 
     private static let logger = Logger(subsystem: "com.anthonychambet.hark", category: "region")
 
     init() {
         rebuild()
+        layer.onShownChanged = { [weak self] shown in self?.onCellsShownChanged?(shown) }
+        layer.onNote = { [weak self] note in self?.onLayerNote?(note) }
         Task { [weak self] in
             for await _ in NotificationCenter.default.notifications(
                 named: NSApplication.didChangeScreenParametersNotification)
@@ -49,8 +44,8 @@ final class RegionOverlayController {
 
     /// In front of every display, the dot at the pointer. `blocked`: framing cannot work, and the dot says so.
     func show(blocked: Bool) {
-        // ⌃⌥ armed: framing takes priority over the lens.
-        hideLens()
+        // ⌃⌥ armed: framing takes priority over the cells.
+        hideCells()
         self.blocked = blocked
         hideAfterDrag = false
         let pointer = NSEvent.mouseLocation
@@ -96,128 +91,30 @@ final class RegionOverlayController {
 
     // MARK: - The cells, as the Ask panel asks for them (M14 amendment)
 
-    /// The frame's pixels the M13 lens copies, set through the panel from `AppModel`. M14.5 draws on the live window
-    /// instead and removes it.
+    /// Unused since the layer draws on the live window (M14.5); it goes with the panel model's `lensImage`.
     var frameImage: ((UtteranceID) async -> CGImage?)?
     /// The cells showed (true) or went (false), for any reason: the panel's button reads "Hide Cells" or "Show Cells".
     var onCellsShownChanged: ((Bool) -> Void)?
-    /// Why the cells cannot show, or not all of them, for the panel's one line; nil once they show in full. Not called
-    /// by the M13 lens; M14.5's layer calls it.
+    /// Why the cells cannot show, or not all of them, for the panel's one line; nil once they show in full.
     var onLayerNote: ((LayerNote?) -> Void)?
-    private var cellsRequest: Task<Void, Never>?
 
-    var cellsShown: Bool { isLensShown }
+    var cellsShown: Bool { layer.isShown }
 
-    /// Shows the cells over the screen. `current` is asked right before anything is drawn: false (the panel moved on)
-    /// draws nothing.
+    /// Shows the cells over the window the zone was framed on, once a fresh capture finds the zone there. `current` is
+    /// asked right before anything is drawn: false (the panel moved on) draws nothing. Nothing while framing is armed.
     func showCells(_ highlights: CellHighlights, animated: Bool, current: @escaping @MainActor () -> Bool) {
-        cellsRequest?.cancel()
-        guard let frameImage else { return }
-        cellsRequest = Task { [weak self] in
-            guard let image = await frameImage(highlights.frameID), !Task.isCancelled, let self, current() else {
-                return
-            }
-            self.showLens(highlights, image: image, animated: animated)
-            self.onCellsShownChanged?(self.isLensShown)
-        }
+        guard !isShown else { return }
+        layer.show(highlights, animated: animated, current: current)
     }
 
-    /// The cells go, and any request on its way with them.
+    /// The cells go, and any search on its way with them.
     func hideCells() {
-        cellsRequest?.cancel()
-        cellsRequest = nil
-        hideLens()
+        layer.hide()
     }
-
-    // MARK: - The lens (M13)
-
-    var isLensShown: Bool { lensPanel != nil }
 
     /// Whether a display with this ID is connected: "Show Cells" is disabled when not.
     func hasDisplay(_ displayID: UInt32) -> Bool {
         panels.contains { $0.displayID == displayID }
-    }
-
-    /// The cells over their frame, on the frame's display only, under the Ask panel and click-through. Nothing while
-    /// framing is armed.
-    func showLens(_ highlights: CellHighlights, image: CGImage, animated: Bool) {
-        guard !isShown, let panel = panels.first(where: { $0.displayID == highlights.displayID }) else { return }
-        removeLens()
-        panel.setLens(true)
-        panel.state.lens = RegionLens(highlights: highlights, image: image, animated: animated)
-        panel.orderFrontRegardless()
-        lensPanel = panel
-        lensHighlights = highlights
-        lensCaller = NSWorkspace.shared.frontmostApplication?.processIdentifier
-        lensMonitor = NSEvent.addGlobalMonitorForEvents(
-            matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
-        ) { [weak self] _ in
-            self?.pointerActed(at: NSEvent.mouseLocation)
-        }
-        let workspace = NSWorkspace.shared.notificationCenter
-        lensObservers = [
-            workspace.addObserver(
-                forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
-            ) { [weak self] note in
-                let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-                let pid = app?.processIdentifier
-                MainActor.assumeIsolated { self?.activated(pid) }
-            },
-            workspace.addObserver(
-                forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main
-            ) { [weak self] _ in
-                MainActor.assumeIsolated { self?.hideLens() }
-            },
-        ]
-        Self.logger.info(
-            "lens on display \(highlights.displayID, privacy: .public), \(highlights.cells.count, privacy: .public) cells"
-        )
-    }
-
-    /// The lens goes and its image with it; the panel hears of it.
-    func hideLens() {
-        guard lensPanel != nil else { return }
-        removeLens()
-        onLensDismissed?()
-        onCellsShownChanged?(false)
-    }
-
-    private func removeLens() {
-        if let lensMonitor { NSEvent.removeMonitor(lensMonitor) }
-        lensMonitor = nil
-        for observer in lensObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
-        lensObservers = []
-        if let panel = lensPanel {
-            panel.state.lens = nil
-            panel.orderOut(nil)
-            panel.setLens(false)
-        }
-        lensPanel = nil
-        lensHighlights = nil
-        lensCaller = nil
-    }
-
-    /// A click or a scroll on the frame: what lies under it is about to change.
-    private func pointerActed(at point: CGPoint) {
-        guard let panel = lensPanel, let highlights = lensHighlights,
-            highlights.contains(cocoaPoint: point, displayFrame: panel.displayFrame)
-        else { return }
-        hideLens()
-    }
-
-    /// Another app came forward: neither Hark nor the caller.
-    private func activated(_ pid: pid_t?) {
-        guard lensPanel != nil, pid != ProcessInfo.processInfo.processIdentifier, pid != lensCaller else { return }
-        hideLens()
-    }
-
-    /// `-HarkDebugPreview overlay-lens`: c01's tints over a sample table on the main display, for screenshots.
-    func showLensPreview() {
-        guard let panel = panels.first else { return }
-        let size = panel.displayFrame.size
-        let frame = CGRect(x: (size.width - 700) / 2, y: (size.height - 600) / 2, width: 700, height: 600).integral
-        guard let image = RegionLensSample.image(size: frame.size, scale: panel.scale) else { return }
-        showLens(RegionLensSample.highlights(frame: frame, displayID: panel.displayID), image: image, animated: true)
     }
 
     /// Esc while the mouse is down: the drag frames nothing and the ask goes on. False when no drag is under way.
@@ -284,8 +181,8 @@ final class RegionOverlayController {
             self.drag = nil
             onAbandoned?()
         }
-        // The displays changed: the lens stays hidden until "Show Cells".
-        hideLens()
+        // The displays changed: the cells stay hidden until "Show Cells".
+        hideCells()
         for panel in panels { panel.orderOut(nil) }
         panels = NSScreen.screens.map { RegionOverlayPanel(display: $0, owner: self) }
         if wasShown { show(blocked: blocked) }
@@ -340,19 +237,6 @@ private final class RegionOverlayPanel: NSPanel {
 
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
-
-    /// The lens's arrangement: under the Ask panel, on this Space only, click-through. Off, framing's exactly.
-    func setLens(_ on: Bool) {
-        if on {
-            level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue - 1)
-            collectionBehavior = [.fullScreenAuxiliary, .ignoresCycle]
-            ignoresMouseEvents = true
-        } else {
-            level = .screenSaver
-            collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
-            ignoresMouseEvents = false
-        }
-    }
 
     /// A Cocoa global point in this overlay's own points, from its top-left corner, as the view draws.
     func local(_ global: CGPoint) -> CGPoint {
