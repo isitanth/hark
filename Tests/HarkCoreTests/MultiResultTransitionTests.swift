@@ -78,6 +78,24 @@ enum Multi {
         #expect(published == expected)
     }
 
+    @Test func eachResultKeepsThePlansUnderstoodInOrder() throws {
+        var run = ExactRun(solve: Multi.stub([Multi.total, Multi.zero]))
+        try run.ask(read: .success(Exact.sheet))
+        let reply =
+            #"{"results": [{"understood": "the total", "formula": "SUM(C1,C2)", "unit": "none"}, "#
+            + #"{"understood": "a ratio\nof ② and ③", "formula": "C1 / 0", "unit": "none"}]}"#
+        try run.on(.planned(F.id, Exact.summary(), reply: reply))
+        #expect(run.stage == .reviewing)
+        #expect(run.math?.understoods == ["the total", "a ratio\nof ② and ③"])
+    }
+
+    @Test func anUndecodedPlanKeepsTheComputedUnderstoodsOnly() throws {
+        var run = ExactRun(solve: Multi.stub([Multi.total, Multi.zero]))
+        try run.ask(read: .success(Exact.sheet))
+        try run.on(.planned(F.id, Exact.summary(), reply: "first"))
+        #expect(run.math?.understoods == ["the total", ""])
+    }
+
     @Test func theCircledDigitsGoToTwenty() {
         #expect(ResultMark.circled(1) == "①")
         #expect(ResultMark.circled(3) == "③")

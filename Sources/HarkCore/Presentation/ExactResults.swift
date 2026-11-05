@@ -91,7 +91,12 @@ extension AskPresentation {
         else { return nil }
         let lone = math.results.count == 1 && math.numbers.first == 1
         let kept = utterance.keptResults
-        let understoods = composedUnderstoods(utterance.reply ?? "", numbers: math.numbers)
+        // The plan's own words per result; the composed reply's `%%` line only for a state that has none.
+        let understoods: [Int: String] =
+            math.understoods.isEmpty
+            ? composedUnderstoods(utterance.reply ?? "", numbers: math.numbers)
+            : Dictionary(
+                zip(math.numbers, math.understoods).filter { !$0.1.isEmpty }, uniquingKeysWith: { first, _ in first })
         let blocks = zip(math.numbers, math.results).enumerated().map { index, pair in
             let (number, outcome) = pair
             switch outcome {

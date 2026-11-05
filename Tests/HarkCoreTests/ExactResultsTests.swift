@@ -124,6 +124,43 @@ private func kept(_ number: Int, _ shown: String, _ understood: String, turn: Ut
         #expect(announcement.items.map(\.number) == [1])
     }
 
+    @Test func aFailedBlockReadsItsUnderstoodFromThePlanNotTheReply() throws {
+        let solved = try outcomes([entry("C2 + C4", "The total."), entry("C6 / 0", "A ratio.")])
+        var context = reviewing(solved, understood: ["The total.", "A ratio."])
+        context.math?.understoods = ["The total.", "A ratio\nof ② over ③."]
+        let results = try #require(AskPresentation.results(context, locale: us))
+        #expect(results.blocks[1].understood == "A ratio\nof ② over ③.")
+    }
+
+    @Test func withoutThePlansUnderstoodsAFailedBlockFallsBackToTheReply() throws {
+        let solved = try outcomes([entry("C2 + C4", "The total."), entry("C6 / 0", "A ratio.")])
+        let context = reviewing(solved, understood: ["The total.", "A ratio."])
+        #expect(context.math?.understoods == [])
+        let results = try #require(AskPresentation.results(context, locale: us))
+        #expect(results.blocks[1].understood == "A ratio.")
+    }
+
+    @Test func aLoneResultOfSpokenConstantsLightsNoCellAndIsOtherwiseTheOneResultView() throws {
+        let solved = try MathEngine.solveAll(
+            reply: #"{"results": [{"understood": "12 times 3.", "formula": "12 * 3", "unit": "none"}]}"#,
+            finishReason: "stop", sheet: sheet, instruction: "What is 12 times 3?", kept: []
+        ).get()
+        let context = reviewing(solved, understood: ["12 times 3."])
+        let results = try #require(AskPresentation.results(context, locale: us))
+        #expect(AskPresentation.highlights(context) == nil)
+        #expect(results.blocks.count == 1)
+        #expect(results.blocks[0].number == nil)
+        #expect(results.blocks[0].highlights == nil)
+        #expect(!results.blocks[0].readsCells)
+        #expect(!results.numbered)
+        #expect(results.announcement == nil)
+        let exact = try #require(AskPresentation.exact(context, locale: us))
+        #expect(exact.result == "36")
+        #expect(exact.cellsUsed == 0)
+        #expect(results.blocks[0].answer == exact)
+        #expect(results.copyText == AskPresentation.exactAnswer(context, locale: us)?.result)
+    }
+
     @Test func aFollowUpCountsOnAndReadsAKeptResult() throws {
         let root = UtteranceID(41)
         let first = kept(1, "30", "The total.", turn: root)

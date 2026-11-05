@@ -87,6 +87,9 @@ public struct ExactMathContext: Sendable, Equatable {
     public var results: [ResultOutcome]
     /// Each result's number (M14), given once on `planned` → `reviewing`, in `results`' order, failed ones included.
     public var numbers: [Int]
+    /// Each result's `understood` as the plan said it (M14), in `results`' order, failed ones included: a failed
+    /// result's « Compris » line. Empty when the plan was not decoded.
+    public var understoods: [String]
     /// The computed results as the panel showed them, numbered: what a later `RES<n>` reads. In memory only.
     public var kept: [KeptResult]
     /// Why the exact path gave way to the model's answer, for the line's `error`. Nil when it did not, and when the
@@ -95,7 +98,8 @@ public struct ExactMathContext: Sendable, Equatable {
 
     public init(
         reading: ReadingState = .idle, routed: Bool = false, attempts: Int = 0, computation: Computation? = nil,
-        results: [ResultOutcome] = [], numbers: [Int] = [], kept: [KeptResult] = [], fallback: PipelineFailure? = nil
+        results: [ResultOutcome] = [], numbers: [Int] = [], understoods: [String] = [], kept: [KeptResult] = [],
+        fallback: PipelineFailure? = nil
     ) {
         self.reading = reading
         self.routed = routed
@@ -103,6 +107,7 @@ public struct ExactMathContext: Sendable, Equatable {
         self.computation = computation
         self.results = results
         self.numbers = numbers
+        self.understoods = understoods
         self.kept = kept
         self.fallback = fallback
     }
@@ -112,6 +117,7 @@ public struct ExactMathContext: Sendable, Equatable {
         computation = nil
         results = []
         numbers = []
+        understoods = []
         kept = []
     }
 }

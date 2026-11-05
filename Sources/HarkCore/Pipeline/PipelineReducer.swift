@@ -362,15 +362,15 @@ public struct PipelineReducer: Sendable {
                         turn: id)
                 }
                 math.computation = outcomes.lazy.compactMap { try? $0.get() }.first
-                context.math = math
-                // A failed result keeps its `understood` in the composed reply ([SETTLED] 2): it comes from the plan.
+                // A failed result keeps its `understood` ([SETTLED] 2): it comes from the plan, one per result.
                 let plans = (try? PlanSet.decode(reply, finishReason: summary.finishReason).get())?.results ?? []
+                math.understoods = answers.enumerated().map { index, answer in
+                    index < plans.count ? plans[index].understood : ((try? answer.get())?.understood ?? "")
+                }
+                context.math = math
                 let composed = PlanPrompt.composedReply(
-                    zip(numbers, answers).enumerated().map { index, pair in
-                        let answer = try? pair.1.get()
-                        let understood =
-                            index < plans.count ? plans[index].understood : (answer?.understood ?? "")
-                        return PlanPrompt.ComposedResult(number: pair.0, understood: understood, answer: answer)
+                    zip(numbers, zip(answers, math.understoods)).map { number, pair in
+                        PlanPrompt.ComposedResult(number: number, understood: pair.1, answer: try? pair.0.get())
                     })
                 context.reply = composed
                 context.pin = summary.pin ?? context.pin
