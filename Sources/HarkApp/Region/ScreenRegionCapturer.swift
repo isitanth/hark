@@ -10,6 +10,19 @@ struct CapturedRegion: @unchecked Sendable {
     let encoded: EncodedRegion
     let thumbnail: CGImage?
     let raster: CGImage?
+    /// The window the zone lay on (M14), kept only when the capture's own window list shows it where the mouse-up saw
+    /// it; nil otherwise, and then there is no layer.
+    let anchor: RegionAnchor?
+    /// The anchored window alone at the frame, over its search band, in grey: the layer's reference, for an exact ask
+    /// with an anchor only.
+    let windowReference: CGImage?
+}
+
+/// A fresh capture of the anchored window's band, in grey, and the band it covers in window-local points.
+struct WindowBandCapture: @unchecked Sendable {
+    let image: CGImage
+    let band: CGRect
+    let scale: CGFloat
 }
 
 /// The capture of a framed region, in memory only: ScreenCaptureKit takes the display-local rect with every Hark window
@@ -37,7 +50,8 @@ enum ScreenRegionCapturer {
     /// captures the display's own pixels, and the encoder caps the model's copy; otherwise ScreenCaptureKit captures
     /// at the cap, as before.
     nonisolated static func capture(
-        _ geometry: CaptureGeometry, display: CGDirectDisplayID, cap: Int, native: Bool = false
+        _ geometry: CaptureGeometry, display: CGDirectDisplayID, cap: Int, native: Bool = false,
+        anchor: RegionAnchor? = nil
     ) async -> Result<CapturedRegion, RegionFailure> {
         guard ScreenRecordingPermission.isGranted else { return .failure(.screenRecordingDenied) }
         let clock = ContinuousClock()
@@ -82,8 +96,78 @@ enum ScreenRegionCapturer {
         logger.info(
             "captured \(encoded.pixelWidth, privacy: .public)×\(encoded.pixelHeight, privacy: .public) px, \(encoded.image.data.count, privacy: .public) bytes in \(ms.seconds * 1000 + ms.attoseconds / 1_000_000_000_000_000, privacy: .public) ms\(raster, privacy: .public)"
         )
+        let held = anchor.flatMap { anchor in
+            content.windows.first { $0.windowID == anchor.windowID }.flatMap { window in
+                AnchorChange.classify(old: anchor.windowBounds, new: window.frame, onScreen: window.isOnScreen)
+                    == .still ? (anchor, window) : nil
+            }
+        }
+        if anchor != nil, held == nil { logger.info("the anchored window moved before the capture: no layer") }
+        var reference: CGImage?
+        if native, let (anchor, window) = held {
+            let zone = CGRect(origin: anchor.offset, size: anchor.size)
+            let band = LayerGeometry.band(zone: zone, windowSize: anchor.windowBounds.size)
+            reference = await windowBand(window, band: band)?.image
+        }
         return .success(
-            CapturedRegion(encoded: encoded, thumbnail: thumbnail(of: image), raster: native ? image : nil))
+            CapturedRegion(
+                encoded: encoded, thumbnail: thumbnail(of: image), raster: native ? image : nil, anchor: held?.0,
+                windowReference: reference))
+    }
+
+    /// The anchored window again, over the band its zone lies in now (M14): the layer finds the zone in it. Nil when the
+    /// window is gone from the shareable content or the capture fails.
+    nonisolated static func recapture(windowID: UInt32, band: CGRect) async -> WindowBandCapture? {
+        guard ScreenRecordingPermission.isGranted else { return nil }
+        let content: SCShareableContent
+        do {
+            content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+        } catch {
+            logger.error("the shareable content failed: \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+        guard let window = content.windows.first(where: { $0.windowID == windowID }) else { return nil }
+        return await windowBand(window, band: band)
+    }
+
+    /// The window alone (`desktopIndependentWindow`: no Hark window, nothing in front of it), opaque, without its
+    /// shadow, its child windows included from macOS 14.2, over `band` in window-local points, at native resolution,
+    /// turned grey at once.
+    nonisolated private static func windowBand(_ window: SCWindow, band: CGRect) async -> WindowBandCapture? {
+        let filter = SCContentFilter(desktopIndependentWindow: window)
+        let scale = CGFloat(filter.pointPixelScale)
+        let clipped = band.intersection(CGRect(origin: .zero, size: filter.contentRect.size))
+        guard !clipped.isNull, clipped.width >= 1, clipped.height >= 1 else { return nil }
+        let configuration = SCStreamConfiguration()
+        configuration.sourceRect = clipped
+        configuration.width = Int((clipped.width * scale).rounded())
+        configuration.height = Int((clipped.height * scale).rounded())
+        configuration.captureResolution = .best
+        configuration.showsCursor = false
+        configuration.shouldBeOpaque = true
+        configuration.ignoreShadowsSingleWindow = true
+        if #available(macOS 14.2, *) { configuration.includeChildWindows = true }
+        configuration.colorSpaceName = CGColorSpace.sRGB
+        let image: CGImage
+        do {
+            image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration)
+        } catch {
+            logger.error("the window capture failed: \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+        guard let grey = grey(image) else { return nil }
+        return WindowBandCapture(image: grey, band: clipped, scale: scale)
+    }
+
+    /// 8-bit grey, drawn in memory: the colour copy goes with the caller's scope.
+    nonisolated private static func grey(_ image: CGImage) -> CGImage? {
+        guard
+            let context = CGContext(
+                data: nil, width: image.width, height: image.height, bitsPerComponent: 8, bytesPerRow: 0,
+                space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        else { return nil }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        return context.makeImage()
     }
 
     /// A small copy for the panel's chip, in memory, drawn rather than encoded.

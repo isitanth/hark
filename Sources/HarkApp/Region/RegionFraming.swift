@@ -110,18 +110,25 @@ final class RegionFraming {
         guard id == current else { return }
         let cap = RegionImageEncoder.cap(for: api)
         let native = id == exact
+        // The anchor (M14), synchronously at the mouse-up: the window list as it stands, before anything moves.
+        let origin = LayerGeometry.displayOrigin(display)
+        let zone = geometry.sourceRect.offsetBy(dx: origin.x, dy: origin.y)
+        let anchor = RegionAnchor.choose(
+            zone: zone, windows: WindowList.candidates(), harkPID: ProcessInfo.processInfo.processIdentifier)
         Task { [weak self, panel] in
-            let result = await ScreenRegionCapturer.capture(geometry, display: display, cap: cap, native: native)
+            let result = await ScreenRegionCapturer.capture(
+                geometry, display: display, cap: cap, native: native, anchor: anchor)
             switch result {
             case .success(let region):
                 let summary = RegionSummary(
                     rect: geometry.sourceRect, pixelWidth: region.encoded.pixelWidth,
                     pixelHeight: region.encoded.pixelHeight, bytes: region.encoded.image.data.count,
-                    displayID: display)
+                    displayID: display, anchor: region.anchor)
                 panel.showRegion(thumbnail: region.thumbnail, for: id)
                 let image = region.encoded.image
-                // The raster lives in this Task until the controller holds it: nothing app-side keeps a reference.
-                let raster = region.raster.map { RegionRaster(image: $0) }
+                // The raster and the window's reference live in this Task until the controller holds them: nothing
+                // app-side keeps a reference.
+                let raster = region.raster.map { RegionRaster(image: $0, windowReference: region.windowReference) }
                 self?.send { await $0.attachRegion(image, summary: summary, for: id, raster: raster) }
             case .failure(let failure):
                 if failure == .screenRecordingDenied { panel.setFramingBlocked(.noScreenRecording) }
