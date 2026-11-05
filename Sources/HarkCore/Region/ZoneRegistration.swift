@@ -49,8 +49,14 @@ public enum ZoneRegistration {
     /// The coarse peaks, each refined at 1/2 then at full resolution and checked cell by cell; one entry per place.
     static func candidates(reference: CGImage, recapture: CGImage, zone: CGRect, cells: [CGRect]) -> [Candidate] {
         guard let template = Template(reference: reference, zone: zone, cells: cells),
-            let band = GreyPlane(recapture)
+            let window = GreyPlane(recapture)
         else { return [] }
+        // The search band (c3b §3.2): the zone's column and one zone width on each side, over the window's height. The
+        // coarse correlation's cost grows with the band's width, and a thin zone gets a small coarse factor.
+        let left = max(0, Int((zone.minX - zone.width).rounded(.down)))
+        let right = min(window.width, Int((zone.maxX + zone.width).rounded(.up)))
+        guard right > left else { return [] }
+        let band = window.crop(x: left, y: 0, width: right - left, height: window.height)
         let factor = template.coarseFactor
         let bandPyramid = Pyramid(band, coarseFactor: factor)
         let radius = max(1, Int((template.rowHeight / 2 / Double(factor)).rounded()))
@@ -74,7 +80,8 @@ public enum ZoneRegistration {
             let check = cellCheck(template, bandPyramid.full, at: full.offset)
             result.append(
                 Candidate(
-                    shift: CGVector(dx: full.offset.x - template.origin.x, dy: full.offset.y - template.origin.y),
+                    shift: CGVector(
+                        dx: full.offset.x + left - template.origin.x, dy: full.offset.y - template.origin.y),
                     ncc: full.ncc, visible: full.visible, visibleCells: check.visible, meanMAD: check.mean,
                     worstMAD: check.worst))
         }

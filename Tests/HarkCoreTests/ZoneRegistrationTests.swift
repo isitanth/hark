@@ -130,6 +130,25 @@ import Testing
         #expect(Self.find(reference, try Self.page([])) == .notFound)
     }
 
+    /// c3b §8: a recapture of uniform noise, from a fixed generator, is never found.
+    @Test func uniformNoiseIsNotFound() throws {
+        let reference = try Self.page(Self.ledger)
+        var state: UInt32 = 0x9E37_79B9
+        var bytes = [UInt8](repeating: 0, count: Self.width * Self.height)
+        for index in bytes.indices {
+            state = state &* 1_664_525 &+ 1_013_904_223
+            bytes[index] = UInt8(truncatingIfNeeded: state >> 24)
+        }
+        let provider = try #require(CGDataProvider(data: Data(bytes) as CFData))
+        let noise = try #require(
+            CGImage(
+                width: Self.width, height: Self.height, bitsPerComponent: 8, bitsPerPixel: 8, bytesPerRow: Self.width,
+                space: CGColorSpaceCreateDeviceGray(),
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue),
+                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent))
+        #expect(Self.find(reference, noise) == .notFound)
+    }
+
     @Test func aRecaptureSmallerThanTheZoneIsNotFound() throws {
         let reference = try Self.page(Self.ledger)
         #expect(Self.find(reference, try Self.page(Self.ledger, width: 300, height: 120)) == .notFound)
