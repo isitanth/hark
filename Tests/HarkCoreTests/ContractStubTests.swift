@@ -51,7 +51,7 @@ private typealias F = Fixture
         #expect(AskPresentation.results(nil, locale: Locale(identifier: "en_US_POSIX")) == nil)
     }
 
-    @Test func theZoneIsNeverFoundAndNothingIsStill() throws {
+    @Test func theZoneIsNeverFound() throws {
         let bitmap = try #require(
             CGContext(
                 data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 1,
@@ -59,9 +59,6 @@ private typealias F = Fixture
         let image = try #require(bitmap.makeImage())
         let zone = CGRect(x: 0, y: 0, width: 1, height: 1)
         #expect(ZoneRegistration.find(reference: image, recapture: image, zone: zone, cells: [zone]) == .notFound)
-        var detector = StillnessDetector()
-        #expect(detector.record(InputRecord(kind: .scroll(momentumEnded: false), at: .zero)) == .none)
-        #expect(detector.tick(at: .seconds(1)) == .none)
     }
 
     /// Not a stub: the contract's new defect, retried with its note.

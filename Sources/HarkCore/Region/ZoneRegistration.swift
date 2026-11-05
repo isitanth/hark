@@ -44,7 +44,9 @@ public struct InputRecord: Sendable, Equatable {
 }
 
 /// Hide on the first event that may move the page, recapture once it is still: 250 ms with no event, momentum ended,
-/// no button down (c3b §3, the quiet delay M14.0 B3 sets). A pure reducer over timed records, with a test clock.
+/// no button down (c3b §2.3, the quiet delay M14.0 B3 sets). A pure reducer over timed records, with a test clock.
+/// `momentumEnded` is true on any scroll that leaves no momentum running (a wheel's notch, a trackpad's last momentum
+/// event); a scroll with momentum still to come keeps the detector waiting for one that ends it.
 public struct StillnessDetector: Sendable, Equatable {
     public static let quiet: Duration = .milliseconds(250)
 
@@ -55,15 +57,36 @@ public struct StillnessDetector: Sendable, Equatable {
         case recapture
     }
 
+    /// Hidden and waiting for stillness.
+    private var waiting = false
+    private var lastEvent: Duration?
+    private var buttonDown = false
+    private var momentum = false
+
     public init() {}
 
-    /// The contract's stub does nothing.
     public mutating func record(_ event: InputRecord) -> Action {
-        .none
+        lastEvent = event.at
+        switch event.kind {
+        case .buttonUp:
+            buttonDown = false
+            return .none
+        case .buttonDown:
+            buttonDown = true
+        case .key:
+            break
+        case .scroll(let momentumEnded):
+            momentum = !momentumEnded
+        }
+        guard !waiting else { return .none }
+        waiting = true
+        return .hide
     }
 
-    /// Called on the clock; the contract's stub does nothing.
+    /// Called on the clock: `.recapture` once, when the page has been still for `quiet`.
     public mutating func tick(at: Duration) -> Action {
-        .none
+        guard waiting, !buttonDown, !momentum, let lastEvent, at - lastEvent >= Self.quiet else { return .none }
+        waiting = false
+        return .recapture
     }
 }
