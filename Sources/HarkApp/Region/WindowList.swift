@@ -18,11 +18,19 @@ enum WindowList {
         return entries(CGWindowListCopyWindowInfo(options, kCGNullWindowID)).compactMap(candidate)
     }
 
-    /// The anchored window alone, wherever it is: nil once the server no longer lists it.
+    /// The anchored window alone, wherever it is: nil once the server no longer lists it. The single-window query leaves
+    /// out a window minimised to the Dock (M14.7, measured: `.optionIncludingWindow` returned nothing while `.optionAll`
+    /// listed it off screen at its own bounds), so the whole list is read when it finds nothing, and only a closed
+    /// window reads as gone.
     static func entry(_ windowID: UInt32) -> Entry? {
-        guard let info = entries(CGWindowListCopyWindowInfo([.optionIncludingWindow], windowID)).first,
-            let candidate = candidate(info), candidate.windowID == windowID
-        else { return nil }
+        entry(windowID, in: CGWindowListCopyWindowInfo([.optionIncludingWindow], windowID))
+            ?? entry(windowID, in: CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID))
+    }
+
+    private static func entry(_ windowID: UInt32, in list: CFArray?) -> Entry? {
+        guard let candidate = entries(list).lazy.compactMap(candidate).first(where: { $0.windowID == windowID }) else {
+            return nil
+        }
         return Entry(bounds: candidate.bounds, ownerPID: candidate.ownerPID, onScreen: candidate.onScreen)
     }
 
