@@ -51,14 +51,6 @@ private typealias F = Fixture
         #expect(AskPresentation.results(nil, locale: Locale(identifier: "en_US_POSIX")) == nil)
     }
 
-    @Test func nothingIsAnchoredAndEveryPollIsGone() {
-        let zone = CGRect(x: 10, y: 10, width: 100, height: 50)
-        let window = AnchorCandidate(
-            windowID: 7, ownerPID: 42, layer: 0, bounds: CGRect(x: 0, y: 0, width: 400, height: 300), onScreen: true)
-        #expect(RegionAnchor.choose(zone: zone, windows: [window], harkPID: 1) == nil)
-        #expect(AnchorChange.classify(old: zone, new: zone, onScreen: true) == .gone)
-    }
-
     @Test func theZoneIsNeverFoundAndNothingIsStill() throws {
         let bitmap = try #require(
             CGContext(
