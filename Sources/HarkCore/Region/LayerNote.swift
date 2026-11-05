@@ -1,3 +1,5 @@
+import CoreGraphics
+
 /// Why the anchored layer shows no cells, or not all of them, for the Ask panel's one line (M14, plan §4.5; a contract
 /// amendment after M14.0 B, 2026-11-05). nil when the cells show in full or nothing is asked. The layer (M14.5)
 /// decides; the panel (S4) says it, in English and French.
@@ -14,4 +16,12 @@ public enum LayerNote: Sendable, Equatable {
     case windowClosed
     /// The window went to a display of another backing scale: no cells for the rest of the turn.
     case otherScale
+
+    /// The note for a zone not found (M14.7): none once drawn when the window shrank to a strip thumbnail's size, as
+    /// Stage Manager lists a minimised window (a capture there is the thumbnail as drawn, shrunk and skewed, so no
+    /// search can match): the layer ends as for a minimise, and Show Cells tries again once the window is back.
+    /// Otherwise `notFound`. A window brought that small another way (a script, a tile) ends silently too.
+    public static func miss(framedWindow: CGSize, window: CGSize, drawn: Bool) -> LayerNote? {
+        drawn && AnchorChange.shrankToAThumbnail(from: framedWindow, to: window) ? nil : .notFound
+    }
 }

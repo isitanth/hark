@@ -106,6 +106,19 @@ public enum AnchorChange: Sendable, Equatable {
     /// Minimised, hidden or on another Space.
     case offscreen
 
+    /// The largest side a strip thumbnail is taken to have: Stage Manager lists a minimised window at its thumbnail in
+    /// the strip, whatever the window's own size (M14.7, measured on this Mac: 110 × 157, 108 × 144, 121 × 144,
+    /// 135 × 141, 140 × 156 and 133 × 149 pt), with room above the largest.
+    public static let thumbnailSide: CGFloat = 200
+
+    /// Shrunk to a thumbnail's size: no larger than `thumbnailSide` either way, and smaller than before on at least one
+    /// side (a window framed smaller than its thumbnail on one side is taller or wider there, the strip skews it). How
+    /// Stage Manager lists a minimised window; a zoom back, a tile or a resize by hand usually leaves a larger one, and
+    /// one brought that small ends silently too (`LayerNote.miss`). Measured on this Mac's display only.
+    public static func shrankToAThumbnail(from old: CGSize, to new: CGSize) -> Bool {
+        new.width <= thumbnailSide && new.height <= thumbnailSide && (new.width < old.width || new.height < old.height)
+    }
+
     /// `new` nil is a window the server no longer lists; a change of 0.25 pt or less is still.
     public static func classify(old: CGRect, new: CGRect?, onScreen: Bool) -> AnchorChange {
         guard let new else { return .gone }

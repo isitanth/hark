@@ -203,4 +203,52 @@ import Testing
         let match = Self.find(reference, recapture)
         #expect(match == .found(CGVector(dx: 0, dy: 40)) || match == .found(CGVector(dx: 0, dy: 41)))
     }
+
+    // MARK: - A band too small to show the zone (M14.7, Stage Manager)
+
+    /// M14.7's frame (781 × 252 pt) can be found in a band of its 985 × 825 pt window; not in the strip thumbnail the
+    /// window server and ScreenCaptureKit gave for that window under Stage Manager (110 × 157 pt), nor in an empty band.
+    @Test func theStripThumbnailCannotShowTheZone() {
+        let zone = CGSize(width: 781, height: 252)
+        #expect(ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 985, height: 825)))
+        #expect(!ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 110, height: 157)))
+        #expect(!ZoneRegistration.canFind(zoneSize: zone, inBandOf: .zero))
+    }
+
+    /// Exactly half the zone at best is the search's own floor: found; just under half is not.
+    @Test func halfTheZoneAtBestIsTheFloor() {
+        let zone = CGSize(width: 400, height: 200)
+        #expect(ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 200, height: 900)))
+        #expect(ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 900, height: 100)))
+        #expect(!ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 199, height: 900)))
+        #expect(!ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 900, height: 99)))
+    }
+
+    /// A band cut on both sides multiplies the cuts: 0.75 × 0.75 of the zone is still enough, 0.7 × 0.7 is not.
+    @Test func cutsOnBothSidesMultiply() {
+        let zone = CGSize(width: 400, height: 200)
+        #expect(ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 300, height: 150)))
+        #expect(!ZoneRegistration.canFind(zoneSize: zone, inBandOf: CGSize(width: 280, height: 140)))
+    }
+
+    /// The template is the part of the frame that lay on the window: a 900 pt frame with 540 pt on its window keeps a
+    /// 540 pt template, which a 400 pt band can still show at 74 %, where the whole frame would not.
+    @Test func theTemplateNotTheWholeFrameIsMeasured() {
+        let band = CGSize(width: 400, height: 825)
+        #expect(ZoneRegistration.canFind(zoneSize: CGSize(width: 540, height: 200), inBandOf: band))
+        #expect(!ZoneRegistration.canFind(zoneSize: CGSize(width: 900, height: 200), inBandOf: band))
+    }
+
+    /// A small zone in a thumbnail-sized band can be shown whole: the search runs there, as before.
+    @Test func aSmallZoneFitsASmallBand() {
+        let thumbnail = CGSize(width: 110, height: 157)
+        #expect(ZoneRegistration.canFind(zoneSize: CGSize(width: 90, height: 80), inBandOf: thumbnail))
+    }
+
+    /// No zone can never be found.
+    @Test func anEmptyZoneCannotBeFound() {
+        let band = CGSize(width: 985, height: 825)
+        #expect(!ZoneRegistration.canFind(zoneSize: .zero, inBandOf: band))
+        #expect(!ZoneRegistration.canFind(zoneSize: CGSize(width: 0, height: 50), inBandOf: band))
+    }
 }

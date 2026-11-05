@@ -132,6 +132,64 @@ import Testing
         #expect(AnchorChange.classify(old: Self.old, new: new, onScreen: true) == change)
     }
 
+    // MARK: - Shrunk to a thumbnail (M14.7, Stage Manager)
+
+    private static let framed = CGSize(width: 985, height: 825)
+
+    /// Stage Manager lists a minimised window at its strip thumbnail: 985 × 825 pt became 110 × 157 pt.
+    @Test func theStripThumbnailIsAShrinkToAThumbnail() {
+        #expect(AnchorChange.shrankToAThumbnail(from: Self.framed, to: CGSize(width: 110, height: 157)))
+    }
+
+    /// A small window shrinks to a thumbnail too: the strip's size does not depend on the window's.
+    @Test func aSmallWindowShrinksToAThumbnailToo() {
+        let small = CGSize(width: 480, height: 300)
+        #expect(AnchorChange.shrankToAThumbnail(from: small, to: CGSize(width: 110, height: 157)))
+    }
+
+    /// The bound is the thumbnail side, inclusive.
+    @Test func theThumbnailSideIsInclusive() {
+        #expect(AnchorChange.shrankToAThumbnail(from: Self.framed, to: CGSize(width: 200, height: 200)))
+        #expect(!AnchorChange.shrankToAThumbnail(from: Self.framed, to: CGSize(width: 201, height: 150)))
+        #expect(!AnchorChange.shrankToAThumbnail(from: Self.framed, to: CGSize(width: 150, height: 201)))
+    }
+
+    /// A window framed smaller than its thumbnail on one side still shrinks to one: the strip skews it, so it is
+    /// smaller on the other side only.
+    @Test func aWindowSmallerThanItsThumbnailOnOneSideStillShrinksToOne() {
+        let tiny = CGSize(width: 150, height: 150)
+        #expect(AnchorChange.shrankToAThumbnail(from: tiny, to: CGSize(width: 110, height: 157)))
+    }
+
+    /// A zoom back, a tile or a resize by hand leaves a larger window; a window that did not shrink, or grew, is none.
+    @Test(arguments: [
+        (CGSize(width: 1_500, height: 900), CGSize(width: 740, height: 440)),
+        (Self.framed, CGSize(width: 380, height: 400)),
+        (Self.framed, CGSize(width: 350, height: 825)),
+        (CGSize(width: 180, height: 180), CGSize(width: 180, height: 180)),
+        (CGSize(width: 110, height: 157), Self.framed),
+        (CGSize(width: 110, height: 157), CGSize(width: 120, height: 160)),
+    ])
+    func otherSizeChangesAreNoThumbnail(_ old: CGSize, _ new: CGSize) {
+        #expect(!AnchorChange.shrankToAThumbnail(from: old, to: new))
+    }
+
+    // MARK: - The note for a miss (M14.7)
+
+    /// Once drawn, a window shrunk to a thumbnail ends without a note, as a minimise does.
+    @Test func aDrawnLayerOnAThumbnailEndsSilently() {
+        #expect(LayerNote.miss(framedWindow: Self.framed, window: CGSize(width: 110, height: 157), drawn: true) == nil)
+    }
+
+    /// Before the first draw, or on a window of any other size, a miss says so.
+    @Test(arguments: [
+        (CGSize(width: 110, height: 157), false), (Self.framed, true), (CGSize(width: 740, height: 440), true),
+        (Self.framed, false),
+    ])
+    func otherMissesSaySo(_ window: CGSize, _ drawn: Bool) {
+        #expect(LayerNote.miss(framedWindow: Self.framed, window: window, drawn: drawn) == .notFound)
+    }
+
     // MARK: - Off screen, or closing (M14.7)
 
     private static func ms(_ value: Int) -> Duration { .milliseconds(value) }

@@ -81,6 +81,15 @@ final class RegionLayerController {
             cell.box.offsetBy(dx: -highlights.frame.minX, dy: -highlights.frame.minY)
         }
 
+        /// The search's template, window points: the part of the frame that lay on the window at the frame. The band
+        /// gate and the search both read it, so the gate stays a bound on the search.
+        var templateRect: CGRect {
+            CGRect(origin: anchor.offset, size: anchor.size).intersection(
+                CGRect(origin: .zero, size: anchor.windowBounds.size))
+        }
+
+        var templateSize: CGSize { templateRect.isNull ? .zero : templateRect.size }
+
         /// The zone now, global points, top-left origin.
         var zone: CGRect {
             CGRect(
@@ -116,6 +125,9 @@ final class RegionLayerController {
 
     /// Finds the zone on the live window and draws the cells in view. `current` is asked right before drawing.
     func show(_ highlights: CellHighlights, animated: Bool, current: @escaping @MainActor () -> Bool) {
+        // The window as the last poll read it, when this show replaces one on the same window: a size it took long ago
+        // is no reason to wait for stillness again (M14.7: a pick after a resize).
+        let carried = session.map { (windowID: $0.anchor.windowID, bounds: $0.windowBounds) }
         end(note: nil, announce: false)
         // The note of an earlier show (another block's) never shows under this one.
         onNote?(nil)
@@ -137,6 +149,7 @@ final class RegionLayerController {
             }
             let session = Session(
                 highlights: highlights, anchor: anchor, reference: image, animated: animated, current: current)
+            if let carried, carried.windowID == anchor.windowID { session.windowBounds = carried.bounds }
             self.session = session
             self.start(session)
             self.recapture(session)
@@ -187,13 +200,30 @@ final class RegionLayerController {
             waitOffscreen(session)
             return
         }
+        let previous = session.windowBounds
         session.windowBounds = entry.bounds
         guard session.sameScale(LayerGeometry.scale(of: entry.bounds)) else {
             end(note: .otherScale, announce: true)
             return
         }
+        if AnchorChange.classify(old: previous, new: entry.bounds, onScreen: true) == .resized {
+            // The size changed since it was last read, maybe mid-animation (a window coming back from Stage Manager's
+            // strip, a resize under way): the zone is looked for once the window is still (M14.7).
+            session.recapturing = false
+            session.moves += 1
+            session.needsRecapture = true
+            session.stillSince = ContinuousClock.now
+            updateVisibility()
+            return
+        }
         let zoneInWindow = CGRect(origin: session.zoneOffset, size: session.highlights.frame.size)
         let band = LayerGeometry.band(zone: zoneInWindow, windowSize: entry.bounds.size)
+        guard ZoneRegistration.canFind(zoneSize: session.templateSize, inBandOf: band.isNull ? .zero : band.size) else {
+            // No search could find the zone in what the window shows now: it ends as a search that missed would.
+            Self.logger.info("no search: the zone cannot show in the window's band")
+            end(note: missNote(session), announce: true)
+            return
+        }
         let search = Search(session: session)
         let generation = session.generation
         request?.cancel()
@@ -230,22 +260,39 @@ final class RegionLayerController {
             updateVisibility()
             return
         }
-        if capture == nil {
-            // The capture failed: the window may be closing or leaving the screen (M14.7). Gone says so; listed off
-            // screen, the poll's watch tells which.
-            let entry = WindowList.entry(session.anchor.windowID)
-            guard let entry, entry.ownerPID == session.anchor.ownerPID else {
-                end(note: .windowClosed, announce: true)
-                return
-            }
-            if !entry.onScreen {
-                waitOffscreen(session)
-                return
-            }
+        // The window as it is now: the capture and the search may have run while it closed, left the screen, changed size
+        // or moved (M14.7). Gone says so; listed off screen, the poll's watch tells a close from a minimise.
+        let entry = WindowList.entry(session.anchor.windowID)
+        guard let entry, entry.ownerPID == session.anchor.ownerPID else {
+            end(note: .windowClosed, announce: true)
+            return
+        }
+        guard entry.onScreen else {
+            waitOffscreen(session)
+            return
+        }
+        switch AnchorChange.classify(old: session.windowBounds, new: entry.bounds, onScreen: true) {
+        case .resized:
+            // A size change, as in a minimise's animation under Stage Manager: the answer is let go, and the zone is
+            // looked for again once the window is still.
+            session.windowBounds = entry.bounds
+            session.moves += 1
+            session.needsRecapture = true
+            session.stillSince = ContinuousClock.now
+            updateVisibility()
+            return
+        case .moved:
+            // A move does not move the page: the answer holds, and the layer shows at the new place once still.
+            session.windowBounds = entry.bounds
+            session.moves += 1
+            session.moving = true
+            session.stillSince = ContinuousClock.now
+        case .still, .gone, .offscreen:
+            break
         }
         guard case .found(let offset) = match, let capture else {
             Self.logger.info("the zone was not found again: \(String(describing: match), privacy: .public)")
-            end(note: .notFound, announce: true)
+            end(note: missNote(session), announce: true)
             return
         }
         guard session.sameScale(capture.scale) else {
@@ -276,7 +323,7 @@ final class RegionLayerController {
             band.contains(session.local(cell).offsetBy(dx: session.zoneOffset.x, dy: session.zoneOffset.y))
         }
         guard !visible.isEmpty else {
-            end(note: .notFound, announce: true)
+            end(note: missNote(session), announce: true)
             return
         }
         let first = !session.drawn
@@ -438,7 +485,11 @@ final class RegionLayerController {
         case .still:
             break
         }
-        // While a recapture runs, neither trigger is used up: each waits for it to end, and runs then.
+        // While a recapture runs, neither trigger is used up: each waits for it to end, and runs then. A window is not
+        // still while a mouse button is held (a resize paused mid-drag): the quiet counts from the release, when the
+        // page may still be redrawn. The detector waits for the window's bounds to settle, so no search reads a window
+        // still changing size, as in a minimise's animation (M14.7).
+        if NSEvent.pressedMouseButtons != 0, session.stillSince != nil { session.stillSince = now }
         if !session.recapturing, let since = session.stillSince, now - since >= StillnessDetector.quiet {
             session.stillSince = nil
             guard session.sameScale(LayerGeometry.scale(of: session.windowBounds)) else {
@@ -452,7 +503,9 @@ final class RegionLayerController {
                 return
             }
         }
-        if !session.recapturing, session.detector.tick(at: now - session.started) == .recapture {
+        if !session.recapturing, session.stillSince == nil,
+            session.detector.tick(at: now - session.started) == .recapture
+        {
             session.waiting = false
             session.pageMoving = false
             recapture(session)
@@ -460,6 +513,13 @@ final class RegionLayerController {
         }
         session.covered = WindowList.covers(session.zone, above: session.anchor.windowID, harkPID: harkPID)
         updateVisibility()
+    }
+
+    /// The note for a zone not found: none once drawn on a window shrunk to a strip thumbnail, as a Stage Manager
+    /// minimise ends (M14.7); otherwise the miss says so.
+    private func missNote(_ session: Session) -> LayerNote? {
+        LayerNote.miss(
+            framedWindow: session.anchor.windowBounds.size, window: session.windowBounds.size, drawn: session.drawn)
     }
 
     /// On screen again after reading off screen: the page may have changed meanwhile, so the zone is looked for again
@@ -579,9 +639,8 @@ final class RegionLayerController {
                     height: rect.height * scale
                 ).integral
             }
-            let window = CGRect(origin: .zero, size: anchor.windowBounds.size)
             reference = session.reference
-            zone = pixels(CGRect(origin: anchor.offset, size: anchor.size).intersection(window))
+            zone = pixels(session.templateRect)
             cells = session.highlights.cells.map { cell in
                 pixels(session.local(cell).offsetBy(dx: anchor.offset.x, dy: anchor.offset.y))
             }

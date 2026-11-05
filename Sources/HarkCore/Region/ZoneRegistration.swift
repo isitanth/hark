@@ -94,6 +94,17 @@ public enum ZoneRegistration {
     static let meanMADCeiling: Float = 4
     static let worstMADCeiling: Float = 8
     static let minVisible: Float = 0.5
+
+    /// Whether a search could find a zone whose template is `zoneSize` (the part of the frame that lay on the window) in
+    /// a band of `bandSize`: at best the template shows `min` of each side there, and a search needs `minVisible` of it
+    /// in view, so false means no search can pass and none is run. Under Stage Manager a minimised window stays listed
+    /// on screen at its strip thumbnail's size (M14.7, measured: the window server and ScreenCaptureKit both give
+    /// 110 × 157 pt for a 985 × 825 pt window), and the band built in it is too small or empty.
+    public static func canFind(zoneSize: CGSize, inBandOf bandSize: CGSize) -> Bool {
+        guard zoneSize.width > 0, zoneSize.height > 0 else { return false }
+        let shown = max(0, min(zoneSize.width, bandSize.width)) * max(0, min(zoneSize.height, bandSize.height))
+        return Float(shown) >= minVisible * Float(zoneSize.width * zoneSize.height)
+    }
 }
 
 /// One input event over the anchored window, as the stillness detector reads it (c3b §3): never its content.
