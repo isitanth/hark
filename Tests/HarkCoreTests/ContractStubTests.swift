@@ -44,13 +44,6 @@ private typealias F = Fixture
         #expect(state.context?.math == nil)
     }
 
-    // M14.1's stubs. S1: the plan set, the engine over it, the stream, the result words. S3: the anchor, the change,
-    // the zone search, the stillness detector. S4: the results' presentation. Each row goes with the body that lands.
-
-    @Test func noResultsArePresented() {
-        #expect(AskPresentation.results(nil, locale: Locale(identifier: "en_US_POSIX")) == nil)
-    }
-
     /// Not a stub: the contract's new defect, retried with its note.
     @Test func anUnknownResultIsRetriedWithItsNote() {
         #expect(PlanDefect.unknownResult.code == "unknown_result")

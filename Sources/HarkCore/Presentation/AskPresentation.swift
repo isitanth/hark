@@ -110,13 +110,21 @@ public struct AskTurnRow: Sendable, Equatable, Identifiable {
     public let answer: String
     /// The frame this turn brought; the panel finds its thumbnail by the row's id.
     public let region: RegionSummary?
+    /// An exact turn's numbered results (M14), rebuilt from what it kept, failed ones in their place; empty when the
+    /// conversation numbers no result. When set, `restatement` and `answer` are empty: the row never carries the
+    /// composed reply.
+    public let results: [AskTurnResult]
 
-    public init(id: UtteranceID, instruction: String, restatement: String?, answer: String, region: RegionSummary?) {
+    public init(
+        id: UtteranceID, instruction: String, restatement: String?, answer: String, region: RegionSummary?,
+        results: [AskTurnResult] = []
+    ) {
         self.id = id
         self.instruction = instruction
         self.restatement = restatement
         self.answer = answer
         self.region = region
+        self.results = results
     }
 
     /// The line the folded row shows: the answer's first line with words. Under the image rules (a turn with a
@@ -124,6 +132,9 @@ public struct AskTurnRow: Sendable, Equatable, Identifiable {
     /// line holds a figure and is not a list's last item ("- Launch on October 14"), the row shows it instead of the
     /// working's first line.
     public var foldedLine: String {
+        if !results.isEmpty {
+            return results.map { ResultMark.circled($0.number) + " " + ($0.figure ?? "—") }.joined(separator: " · ")
+        }
         let lines = answer.split(whereSeparator: \.isNewline)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
@@ -133,6 +144,22 @@ public struct AskTurnRow: Sendable, Equatable, Identifiable {
             return last
         }
         return lines.first ?? ""
+    }
+}
+
+/// One result of an earlier exact turn, as the transcript rebuilds it from the kept result (M14).
+public struct AskTurnResult: Sendable, Equatable, Identifiable {
+    public let number: Int
+    /// The figure as the panel showed it; nil for a failed result, which the conversation does not keep.
+    public let figure: String?
+    public let understood: String?
+
+    public var id: Int { number }
+
+    public init(number: Int, figure: String?, understood: String?) {
+        self.number = number
+        self.figure = figure
+        self.understood = understood
     }
 }
 
@@ -160,26 +187,46 @@ extension AskPresentation {
     /// first framed turn on, every reply carries a `%%` restatement, which the row shows apart.
     public static func earlierTurns(_ utterance: UtteranceContext?) -> [AskTurnRow] {
         guard let utterance else { return [] }
+        let given =
+            (utterance.thread?.turns.flatMap(\.numbers) ?? []) + (utterance.parked?.context.math?.numbers ?? [])
+            + (utterance.math?.numbers ?? [])
+        let numbered = given.count > 1
         var framed = false
         var rows: [AskTurnRow] = []
         for turn in utterance.thread?.turns ?? [] {
             framed = framed || turn.region != nil
-            rows.append(row(turn.id, turn.instruction, turn.reply, turn.region, framed: framed))
+            let results = numbered ? turnResults(numbers: turn.numbers, kept: turn.results) : []
+            rows.append(row(turn.id, turn.instruction, turn.reply, turn.region, framed: framed, results: results))
         }
         if let parked = utterance.parked {
             let context = parked.context
             framed = framed || context.region != nil
+            let math = context.math
+            let results = numbered ? turnResults(numbers: math?.numbers ?? [], kept: math?.kept ?? []) : []
             rows.append(
                 row(
                     context.id, context.request ?? parked.transcript.raw, context.reply ?? "", context.region,
-                    framed: framed))
+                    framed: framed, results: results))
         }
         return rows
     }
 
+    /// Every number a turn gave, its kept figure or none for a failed one.
+    static func turnResults(numbers: [Int], kept: [KeptResult]) -> [AskTurnResult] {
+        numbers.map { number in
+            let result = kept.first { $0.number == number }
+            return AskTurnResult(number: number, figure: result?.shown, understood: result?.understood)
+        }
+    }
+
     private static func row(
-        _ id: UtteranceID, _ instruction: String, _ reply: String, _ region: RegionSummary?, framed: Bool
+        _ id: UtteranceID, _ instruction: String, _ reply: String, _ region: RegionSummary?, framed: Bool,
+        results: [AskTurnResult]
     ) -> AskTurnRow {
+        if !results.isEmpty {
+            return AskTurnRow(
+                id: id, instruction: instruction, restatement: nil, answer: "", region: region, results: results)
+        }
         guard framed else {
             return AskTurnRow(id: id, instruction: instruction, restatement: nil, answer: reply, region: region)
         }
@@ -353,9 +400,13 @@ extension AskPresentation {
     /// The cells an exact answer read, for the lens; nil without one. In a follow-up, the frame of the turn whose
     /// sheet was planned over.
     public static func highlights(_ utterance: UtteranceContext?) -> CellHighlights? {
-        guard let utterance, let computation = utterance.math?.computation,
-            let (sheet, frameID, region) = framedSheet(utterance)
-        else { return nil }
+        guard let utterance, let computation = utterance.math?.computation else { return nil }
+        return highlights(computation, utterance: utterance)
+    }
+
+    /// The cells one computation read, on the frame its sheet came from; nil when it read none (references only).
+    static func highlights(_ computation: Computation, utterance: UtteranceContext) -> CellHighlights? {
+        guard !computation.read.isEmpty, let (sheet, frameID, region) = framedSheet(utterance) else { return nil }
         let cells = computation.read.compactMap { id -> HighlightedCell? in
             guard let cell = sheet[id] else { return nil }
             return HighlightedCell(
@@ -378,7 +429,8 @@ extension AskPresentation {
     public static func exactAnswer(_ utterance: UtteranceContext?, locale: Locale) -> ExactAnswer? {
         guard let math = utterance?.math, let computation = math.computation, case .read(let sheet) = math.reading
         else { return nil }
-        return ExactAnswer(computation, sheet: sheet, policy: .standard, fallback: locale)
+        return ExactAnswer(
+            computation, sheet: sheet, policy: .standard, fallback: locale, kept: utterance?.keptResults ?? [])
     }
 
     /// The panel's exact answer; nil unless the live turn has a computation. `locale` is the user's Language & Region.
@@ -386,6 +438,11 @@ extension AskPresentation {
         guard let math = utterance?.math, let computation = math.computation, case .read(let sheet) = math.reading,
             let answer = exactAnswer(utterance, locale: locale)
         else { return nil }
+        return presentation(computation, answer: answer, sheet: sheet)
+    }
+
+    /// One computed result as the panel shows it.
+    static func presentation(_ computation: Computation, answer: ExactAnswer, sheet: CellSheet) -> ExactPresentation {
         let roles = computation.read.map { computation.roles[$0] ?? .added }
         let check = understoodCheck(answer.figures)
         let shown = checks(computation.warnings, limit: maxChecks - (check == nil ? 0 : 1))
