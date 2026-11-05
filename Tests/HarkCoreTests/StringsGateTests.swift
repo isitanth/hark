@@ -69,6 +69,7 @@ import Testing
     static let m14Keys = [
         "ask.exact.number.a11y %lld", "ask.exact.result.numbered.a11y %lld %@", "ask.exact.failed.a11y %lld",
         "ask.exact.pick.help", "ask.exact.pick.a11y %lld", "ask.exact.announce.many %lld %@",
+        "ask.exact.announce.one %@",
         "ask.exact.announce.partial %lld %lld %@", "ask.exact.announce.item %lld %@", "ask.exact.announce.separator",
         "ask.exact.notComputed", "ask.turn.results.a11y %@", "ask.exact.failed.plan", "ask.exact.failed.truncated",
         "ask.exact.failed.constant %@", "ask.exact.failed.unit", "ask.exact.failed.declaredUnit",

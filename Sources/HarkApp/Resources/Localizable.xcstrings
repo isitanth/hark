@@ -8229,6 +8229,23 @@
         }
       }
     },
+    "ask.exact.announce.one %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 result: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 résultat : %@"
+          }
+        }
+      }
+    },
     "ask.exact.announce.partial %lld %lld %@": {
       "extractionState": "manual",
       "localizations": {
@@ -8524,13 +8541,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No window to show the cells on: the rows list them."
+            "value": "Hark found no window to show the cells on."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune fenêtre où montrer les cellules : la liste les donne."
+            "value": "Hark n’a trouvé aucune fenêtre où montrer les cellules."
           }
         }
       }

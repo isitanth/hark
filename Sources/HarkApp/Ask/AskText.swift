@@ -184,8 +184,11 @@ extension ResultsAnnouncement {
             let spoken = item.spoken
             return String(localized: L("ask.exact.announce.item \(number) \(spoken)"))
         }.joined(separator: separator)
-        return count == total
-            ? String(localized: L("ask.exact.announce.many \(count) \(list)"))
-            : String(localized: L("ask.exact.announce.partial \(count) \(total) \(list)"))
+        guard count == total else {
+            return String(localized: L("ask.exact.announce.partial \(count) \(total) \(list)"))
+        }
+        return count == 1
+            ? String(localized: L("ask.exact.announce.one \(list)"))
+            : String(localized: L("ask.exact.announce.many \(count) \(list)"))
     }
 }
