@@ -413,12 +413,18 @@ struct AskView: View {
                     .foregroundStyle(.orange)
             }
         case .mathFailed(let failure):
-            Label {
-                Text(failure.popupText(cellText: model.failureCellText))
-                    .fixedSize(horizontal: false, vertical: true)
-            } icon: {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 6) {
+                Label {
+                    Text(failure.popupText(cellText: model.failureCellText))
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                }
+                // The red cell's layer: why it cannot show.
+                if let note = model.layerNote {
+                    AskLayerNoteLine(note: note)
+                }
             }
         case .streaming, .reviewing, .closed:
             EmptyView()

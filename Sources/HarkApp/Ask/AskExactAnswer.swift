@@ -23,6 +23,9 @@ struct AskExactAnswer: View {
                     rows
                 }
                 checks
+                if let note = model.layerNote {
+                    AskLayerNoteLine(note: note)
+                }
             }
             .padding(5)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -314,6 +317,22 @@ struct AskExactResults: View {
     }
 }
 
+/// Why the cells cannot show, or not all of them: one line under the answer or the block whose cells the layer holds.
+struct AskLayerNoteLine: View {
+    let note: LayerNote
+
+    var body: some View {
+        Label {
+            Text(note.text)
+                .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            Image(systemName: "info.circle")
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+    }
+}
+
 /// One result's block: its number, then its figure, « Compris » line, working, cells and checks; or for a failed
 /// result, a dash, its reason and its « Compris » line. Picked, it has a tint that changes no size.
 struct AskExactBlock: View {
@@ -332,14 +351,7 @@ struct AskExactBlock: View {
                 failed
             }
             if model.layerBlock == position, let note = model.layerNote {
-                Label {
-                    Text(note.text)
-                        .fixedSize(horizontal: false, vertical: true)
-                } icon: {
-                    Image(systemName: "info.circle")
-                }
-                .font(.callout)
-                .foregroundStyle(.secondary)
+                AskLayerNoteLine(note: note)
             }
         }
         .padding(6)
