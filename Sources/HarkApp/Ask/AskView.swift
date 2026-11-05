@@ -55,7 +55,7 @@ struct AskView: View {
                     model: model, maxHeight: model.maxAnswerHeight * Self.transcriptShare,
                     shownHeight: $transcriptHeight)
             }
-            if let intent = model.intent {
+            if let intent = model.intent, model.results == nil || model.state != .reviewing {
                 AskRestatement(text: intent)
             } else if model.state == .planning, let understood = model.planUnderstood {
                 AskRestatement(text: understood)
@@ -171,7 +171,9 @@ struct AskView: View {
         case .streaming:
             answer(editable: false)
         case .reviewing:
-            if let exact = model.exact {
+            if let results = model.results {
+                AskExactResults(model: model, results: results, cap: answerCap)
+            } else if let exact = model.exact {
                 AskExactAnswer(model: model, exact: exact, cap: answerCap)
             } else {
                 answer(editable: true)

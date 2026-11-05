@@ -63,8 +63,11 @@ struct AskTranscript: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text(L("ask.turn.label \(number)")))
-            .accessibilityValue(Text(verbatim: turn.instruction))
-            if open {
+            .accessibilityValue(value(turn))
+            if open, !turn.results.isEmpty {
+                results(turn.results)
+                    .padding(.leading, 18)
+            } else if open {
                 VStack(alignment: .leading, spacing: 4) {
                     if let restatement = turn.restatement {
                         AskRestatement(text: restatement)
@@ -80,6 +83,47 @@ struct AskTranscript: View {
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 2)
+    }
+
+    /// The instruction, then for an exact turn the results it numbered, "result 1, 89,67 €; result 2, …".
+    private func value(_ turn: AskTurnRow) -> Text {
+        guard !turn.results.isEmpty else { return Text(verbatim: turn.instruction) }
+        let separator = String(localized: L("ask.exact.announce.separator"))
+        let list = turn.results.map { result in
+            let figure = result.figure ?? String(localized: L("ask.exact.notComputed"))
+            return String(localized: L("ask.exact.announce.item \(result.number) \(figure)"))
+        }.joined(separator: separator)
+        return Text(verbatim: turn.instruction + ". ") + Text(L("ask.turn.results.a11y \(list)"))
+    }
+
+    /// An earlier exact turn unfolded (M14): each result rebuilt from what the conversation kept, never the reply.
+    private func results(_ results: [AskTurnResult]) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(results) { result in
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(verbatim: ResultMark.circled(result.number))
+                            .foregroundStyle(.secondary)
+                            .accessibilityHidden(true)
+                        if let figure = result.figure {
+                            Text(verbatim: figure)
+                                .monospacedDigit()
+                                .textSelection(.enabled)
+                        } else {
+                            Text(verbatim: "—")
+                                .foregroundStyle(.secondary)
+                                .accessibilityHidden(true)
+                            Text(L("ask.exact.notComputed"))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .font(.callout)
+                    if let understood = result.understood {
+                        AskRestatement(text: understood)
+                    }
+                }
+            }
+        }
     }
 
     /// A follow-up's own frame; turn 1's stays on its fixed chip above.

@@ -8126,6 +8126,499 @@
           }
         }
       }
+    },
+    "ask.exact.number.a11y %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Result %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultat %lld"
+          }
+        }
+      }
+    },
+    "ask.exact.result.numbered.a11y %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Result %1$lld: %2$@, computed by Hark"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultat %1$lld : %2$@, calculé par Hark"
+          }
+        }
+      }
+    },
+    "ask.exact.failed.a11y %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Result %lld not computed:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultat %lld non calculé :"
+          }
+        }
+      }
+    },
+    "ask.exact.pick.help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show this result’s cells on the screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Montrer les cellules de ce résultat à l’écran"
+          }
+        }
+      }
+    },
+    "ask.exact.pick.a11y %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the cells of result %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Montrer les cellules du résultat %lld"
+          }
+        }
+      }
+    },
+    "ask.exact.announce.many %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld results: %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld résultats : %2$@"
+          }
+        }
+      }
+    },
+    "ask.exact.announce.partial %lld %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Results computed: %1$lld of %2$lld. %3$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultats calculés : %1$lld sur %2$lld. %3$@"
+          }
+        }
+      }
+    },
+    "ask.exact.announce.item %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "result %1$lld, %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "résultat %1$lld, %2$@"
+          }
+        }
+      }
+    },
+    "ask.exact.notComputed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not computed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non calculé"
+          }
+        }
+      }
+    },
+    "ask.turn.results.a11y %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Results: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultats : %@"
+          }
+        }
+      }
+    },
+    "ask.exact.failed.plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The model’s plan for it was not valid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le plan du modèle n’était pas valide."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.truncated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The model’s plan was cut off."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le plan du modèle a été coupé."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.constant %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It uses %@, a number you did not say."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il utilise %@, un nombre que vous n’avez pas dit."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.unit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It mixes units that do not go together."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il mélange des unités incompatibles."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.declaredUnit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The unit the model gave does not match the cells."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’unité donnée par le modèle ne correspond pas aux cellules."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.percentScale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Its percent is not multiplied by 100 exactly once."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son pourcentage n’est pas multiplié par 100 exactement une fois."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.degenerate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It sets a cell against itself."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il oppose une cellule à elle-même."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.noNumber %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No number in a cell it needs: “%@”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de nombre dans une cellule nécessaire : « %@ »."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.noNumber.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A cell it needs reads as empty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une cellule nécessaire semble vide."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.garbled %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@”, in a cell it needs, is not a clean number."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ », dans une cellule nécessaire, n’est pas un nombre net."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.unreadCell": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No number could be read in a cell it needs."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun nombre lisible dans une cellule nécessaire."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.zero": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It divides by zero."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il divise par zéro."
+          }
+        }
+      }
+    },
+    "ask.exact.failed.overflow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Its numbers grow too large."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses nombres deviennent trop grands."
+          }
+        }
+      }
+    },
+    "ask.layer.noWindow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No window to show the cells on: the rows list them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune fenêtre où montrer les cellules : la liste les donne."
+          }
+        }
+      }
+    },
+    "ask.layer.notFound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark can no longer find the framed cells on the page. Show Cells tries once more."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hark ne retrouve plus les cellules cadrées sur la page. Montrer les cellules réessaie."
+          }
+        }
+      }
+    },
+    "ask.layer.outOfView %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cells out of view: %1$lld of %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cellules hors de vue : %1$lld sur %2$lld"
+          }
+        }
+      }
+    },
+    "ask.layer.windowClosed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The framed window is closed: its cells can no longer show."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La fenêtre cadrée est fermée : ses cellules ne s’affichent plus."
+          }
+        }
+      }
+    },
+    "ask.layer.otherScale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The window moved to another display: its cells cannot show."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La fenêtre est passée sur un autre écran : ses cellules ne peuvent pas s’afficher."
+          }
+        }
+      }
+    },
+    "ask.exact.announce.separator": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "; "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " ; "
+          }
+        }
+      }
     }
   },
   "version": "1.0"

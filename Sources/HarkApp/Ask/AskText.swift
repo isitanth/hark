@@ -121,3 +121,71 @@ extension FramingBlock {
         }
     }
 }
+
+extension MathFailure {
+    /// A failed result's one line in its block (M14): no word of a red outline, the layer shows the cell on a pick.
+    func blockText(cellText: String?) -> LocalizedStringResource {
+        switch self {
+        case .reader(.vision): L("ask.exact.failure.reader")
+        case .reader(.timeout): L("ask.exact.failure.timeout")
+        case .plan(.truncated): L("ask.exact.failed.truncated")
+        case .plan(.unspokenConstant(let literal)): L("ask.exact.failed.constant \(literal)")
+        case .plan(.unit): L("ask.exact.failed.unit")
+        case .plan(.declaredUnit): L("ask.exact.failed.declaredUnit")
+        case .plan(.percentScale): L("ask.exact.failed.percentScale")
+        case .plan(.degenerate): L("ask.exact.failed.degenerate")
+        case .plan(.json), .plan(.syntax), .plan(.unknownFunction), .plan(.unknownCell), .plan(.unknownResult),
+            .plan(.noFormula):
+            L("ask.exact.failed.plan")
+        case .math(.noNumber, _):
+            blockCellLine(cellText, empty: L("ask.exact.failed.noNumber.empty")) { text in
+                L("ask.exact.failed.noNumber \(text)")
+            }
+        case .math(.garbled, _):
+            blockCellLine(cellText, empty: L("ask.exact.failed.unreadCell")) { text in
+                L("ask.exact.failed.garbled \(text)")
+            }
+        case .math(.divisionByZero, _): L("ask.exact.failed.zero")
+        case .math(.overflow, _): L("ask.exact.failed.overflow")
+        }
+    }
+
+    private func blockCellLine(
+        _ text: String?, empty: LocalizedStringResource, named: (String) -> LocalizedStringResource
+    ) -> LocalizedStringResource {
+        guard let text else { return L("ask.exact.failed.unreadCell") }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? empty : named(trimmed)
+    }
+}
+
+extension LayerNote {
+    /// The panel's one line under the picked block: why the cells cannot show, or not all of them.
+    var text: LocalizedStringResource {
+        switch self {
+        case .noWindow: return L("ask.layer.noWindow")
+        case .notFound: return L("ask.layer.notFound")
+        case .outOfView(let visible, let total):
+            let hidden = total - visible
+            return L("ask.layer.outOfView \(hidden) \(total)")
+        case .windowClosed: return L("ask.layer.windowClosed")
+        case .otherScale: return L("ask.layer.otherScale")
+        }
+    }
+}
+
+extension ResultsAnnouncement {
+    /// One sentence for every computed result (plan §4.4): "2 results: result 1, 89,67 €; result 2, 29,34 €", or the
+    /// partial form when some failed. The items join with "; ", " ; " in French.
+    func sentence(of total: Int) -> String {
+        let separator = String(localized: L("ask.exact.announce.separator"))
+        let list = items.map { item in
+            let number = item.number
+            let spoken = item.spoken
+            return String(localized: L("ask.exact.announce.item \(number) \(spoken)"))
+        }.joined(separator: separator)
+        return count == total
+            ? String(localized: L("ask.exact.announce.many \(count) \(list)"))
+            : String(localized: L("ask.exact.announce.partial \(count) \(total) \(list)"))
+    }
+}

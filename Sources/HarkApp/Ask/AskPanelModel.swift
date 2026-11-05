@@ -82,6 +82,14 @@ final class AskPanelModel {
     private(set) var planUnderstood: String?
     /// The answer Hark computed for the live turn; nil for an answer the model wrote.
     private(set) var exact: ExactPresentation?
+    /// Several results, or a result numbered after an earlier one (M14): one block each; nil for 0.1.0's one-result
+    /// view, which `exact` shows.
+    private(set) var results: ExactResultsPresentation?
+    /// The block whose cells the layer shows, by its position in the turn: the number's button and ⌘1 to ⌘3 pick it.
+    private(set) var picked: Int?
+    @ObservationIgnored private var pickedTurn: UtteranceID?
+    /// Each failed block's cell, as read, for its line; by the block's position.
+    private(set) var failedCellTexts: [Int: String] = [:]
     /// The text of the cell a math failure names, as read; nil when no single cell is at fault.
     private(set) var failureCellText: String?
     /// The cells the exact answer read, for the lens; nil for an answer the model wrote.
@@ -211,7 +219,27 @@ final class AskPanelModel {
             regionThumbnails = regionThumbnails.filter { framed.contains($0.key) }
             regionPixelSize = utterance.region.map { CGSize(width: $0.pixelWidth, height: $0.pixelHeight) }
             exact = AskPresentation.exact(utterance, locale: .autoupdatingCurrent)
-            highlights = exact == nil ? nil : AskPresentation.highlights(utterance)
+            let numbered = AskPresentation.results(utterance, locale: .autoupdatingCurrent).flatMap {
+                $0.numbered ? $0 : nil
+            }
+            if pickedTurn != utterance.id {
+                picked = nil
+                pickedTurn = utterance.id
+            }
+            results = numbered
+            failedCellTexts = Dictionary(
+                uniqueKeysWithValues: (numbered?.blocks ?? []).compactMap { block in
+                    block.failure.flatMap { AskPresentation.failureCellText($0, utterance: utterance) }
+                        .map { (block.id, $0) }
+                })
+            if let numbered {
+                let position = picked ?? numbered.blocks.firstIndex { $0.readsCells } ?? 0
+                picked = position
+                highlights = numbered.block(at: position)?.highlights
+            } else {
+                picked = nil
+                highlights = exact == nil ? nil : AskPresentation.highlights(utterance)
+            }
             let failure: MathFailure? =
                 if case .mathFailed(let failure)? = snapshot.ask?.stage { failure } else { nil }
             failureCellText = failure.flatMap { AskPresentation.failureCellText($0, utterance: utterance) }
@@ -280,6 +308,8 @@ final class AskPanelModel {
         intent = nil
         planUnderstood = nil
         exact = nil
+        results = nil
+        picked = nil
         failureCellText = nil
         highlights = nil
         failureHighlights = nil
@@ -422,7 +452,8 @@ final class AskPanelModel {
         followLens()
         if next == .reviewing, let exact, announced != id {
             announced = id
-            AccessibilityNotification.Announcement(exact.spokenResult).post()
+            let sentence = results.flatMap { results in results.announcement?.sentence(of: results.blocks.count) }
+            AccessibilityNotification.Announcement(sentence ?? exact.spokenResult).post()
         }
         if next == .closed, wasOpen {
             close()
@@ -449,6 +480,18 @@ final class AskPanelModel {
         } else if let highlights {
             showLens(highlights, animated: false)
         }
+    }
+
+    /// A failed block's cell as read, for its one line.
+    func blockCellText(_ block: ExactResultBlock) -> String? { failedCellTexts[block.id] }
+
+    /// Picks a result's block (M14): its cells show on the layer, which comes back if it was hidden. A block that
+    /// reads no cell leaves the layer as it is. A pick changes no height.
+    func pick(_ position: Int) {
+        guard state == .reviewing, let block = results?.block(at: position) else { return }
+        picked = position
+        highlights = block.highlights
+        if let highlights = block.highlights { showLens(highlights, animated: false) }
     }
 
     /// On entering review with an exact answer, its cells; in a math failure, its red cell; elsewhere, none. A
@@ -609,7 +652,7 @@ final class AskPanelModel {
     /// An exact answer sends its result alone (decision 7).
     func copy() {
         guard let id else { return }
-        let text = exact?.result ?? answer
+        let text = results?.copyText ?? exact?.result ?? answer
         Task { [controller] in await controller.copyAnswer(text, for: id) }
     }
 
@@ -617,7 +660,7 @@ final class AskPanelModel {
     /// Insert is the same path: the check expects nothing selected, and the answer goes in at the caret.
     func replace() {
         guard let id else { return }
-        let text = exact?.result ?? answer
+        let text = results?.copyText ?? exact?.result ?? answer
         Task { [controller] in await controller.replaceSelection(with: text, for: id) }
     }
 

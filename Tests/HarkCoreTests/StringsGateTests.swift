@@ -64,6 +64,35 @@ import Testing
         }
     }
 
+    /// M14's panel strings: each in both languages, and the French puts U+00A0 before « : ; ! ? » and inside « »,
+    /// which `frenchSpacing` does not require (it only refuses an ordinary space).
+    static let m14Keys = [
+        "ask.exact.number.a11y %lld", "ask.exact.result.numbered.a11y %lld %@", "ask.exact.failed.a11y %lld",
+        "ask.exact.pick.help", "ask.exact.pick.a11y %lld", "ask.exact.announce.many %lld %@",
+        "ask.exact.announce.partial %lld %lld %@", "ask.exact.announce.item %lld %@", "ask.exact.announce.separator",
+        "ask.exact.notComputed", "ask.turn.results.a11y %@", "ask.exact.failed.plan", "ask.exact.failed.truncated",
+        "ask.exact.failed.constant %@", "ask.exact.failed.unit", "ask.exact.failed.declaredUnit",
+        "ask.exact.failed.percentScale", "ask.exact.failed.degenerate", "ask.exact.failed.noNumber %@",
+        "ask.exact.failed.noNumber.empty", "ask.exact.failed.garbled %@", "ask.exact.failed.unreadCell",
+        "ask.exact.failed.zero", "ask.exact.failed.overflow", "ask.layer.noWindow", "ask.layer.notFound",
+        "ask.layer.outOfView %lld %lld", "ask.layer.windowClosed", "ask.layer.otherScale",
+    ]
+
+    @Test(arguments: m14Keys) func anM14StringIsInBothLanguagesWithNoBreakSpaces(_ key: String) throws {
+        let catalog = try Self.catalog("Sources/HarkApp/Resources/Localizable.xcstrings", under: Self.root)
+        let english = try #require(catalog.value(key, "en"))
+        let french = try #require(catalog.value(key, "fr"))
+        #expect(!english.isEmpty && !french.isEmpty)
+        for (index, character) in french.enumerated() where ":;!?»".contains(character) {
+            let before = french[french.index(french.startIndex, offsetBy: index - 1)]
+            #expect(index > 0 && before == "\u{00A0}", "\(key): \(character) at \(index)")
+        }
+        if let open = french.firstIndex(of: "«") {
+            #expect(french[french.index(after: open)] == "\u{00A0}", "\(key)")
+        }
+        #expect(!english.contains("red") && !french.contains("rouge"), "\(key) speaks of a red outline")
+    }
+
     /// The Services menu's "Ask Hark", keyed by its NSMenuItem title in Info.plist.
     @Test func theServicesMenuStringsAreComplete() throws {
         let catalog = try Self.catalog("Support/ServicesMenu.xcstrings", under: Self.root)
