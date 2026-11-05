@@ -88,6 +88,9 @@ final class AskPanelModel {
     /// The block whose cells the layer shows, by its position in the turn: the number's button and ⌘1 to ⌘3 pick it.
     private(set) var picked: Int?
     @ObservationIgnored private var pickedTurn: UtteranceID?
+    /// The block whose cells are on the layer, by position: a pick of a block that reads no cell leaves it, and the
+    /// layer's note shows under it only.
+    private(set) var layerBlock: Int?
     /// Each failed block's cell, as read, for its line; by the block's position.
     private(set) var failedCellTexts: [Int: String] = [:]
     /// The text of the cell a math failure names, as read; nil when no single cell is at fault.
@@ -107,12 +110,7 @@ final class AskPanelModel {
         didSet {
             lensOverlay?.onCellsShownChanged = { [weak self] shown in self?.lensShown = shown }
             lensOverlay?.onLayerNote = { [weak self] note in self?.layerNote = note }
-            lensOverlay?.frameImage = lensImage
         }
-    }
-    /// Set by `AppModel`: the frame's pixels, handed to the overlay for the M13 lens; M14.5 removes it.
-    @ObservationIgnored var lensImage: ((UtteranceID) async -> CGImage?)? {
-        didSet { lensOverlay?.frameImage = lensImage }
     }
     /// Set by `AppModel`: `GET /models` on the active profile, run when an ask opens.
     @ObservationIgnored var preflight: (() async -> LLMProbeResult?)?
@@ -224,6 +222,7 @@ final class AskPanelModel {
             }
             if pickedTurn != utterance.id {
                 picked = nil
+                layerBlock = nil
                 pickedTurn = utterance.id
             }
             results = numbered
@@ -236,8 +235,10 @@ final class AskPanelModel {
                 let position = picked ?? numbered.blocks.firstIndex { $0.readsCells } ?? 0
                 picked = position
                 highlights = numbered.block(at: position)?.highlights
+                if highlights != nil { layerBlock = position }
             } else {
                 picked = nil
+                layerBlock = nil
                 highlights = exact == nil ? nil : AskPresentation.highlights(utterance)
             }
             let failure: MathFailure? =
@@ -310,6 +311,7 @@ final class AskPanelModel {
         exact = nil
         results = nil
         picked = nil
+        layerBlock = nil
         failureCellText = nil
         highlights = nil
         failureHighlights = nil
@@ -491,7 +493,10 @@ final class AskPanelModel {
         guard state == .reviewing, let block = results?.block(at: position) else { return }
         picked = position
         highlights = block.highlights
-        if let highlights = block.highlights { showLens(highlights, animated: false) }
+        if let highlights = block.highlights {
+            layerBlock = position
+            showLens(highlights, animated: false)
+        }
     }
 
     /// On entering review with an exact answer, its cells; in a math failure, its red cell; elsewhere, none. A
@@ -935,6 +940,7 @@ extension AskPanelModel {
         }
         exact = results?.blocks.first?.answer
         picked = kind == "ask-exact-picked" ? 1 : 0
+        layerBlock = picked
         let text = results?.copyText ?? ""
         streamed = text
         answer = text

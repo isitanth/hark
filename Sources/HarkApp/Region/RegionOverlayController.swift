@@ -91,8 +91,6 @@ final class RegionOverlayController {
 
     // MARK: - The cells, as the Ask panel asks for them (M14 amendment)
 
-    /// Unused since the layer draws on the live window (M14.5); it goes with the panel model's `lensImage`.
-    var frameImage: ((UtteranceID) async -> CGImage?)?
     /// The cells showed (true) or went (false), for any reason: the panel's button reads "Hide Cells" or "Show Cells".
     var onCellsShownChanged: ((Bool) -> Void)?
     /// Why the cells cannot show, or not all of them, for the panel's one line; nil once they show in full.

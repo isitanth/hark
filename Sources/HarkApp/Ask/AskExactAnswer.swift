@@ -331,7 +331,7 @@ struct AskExactBlock: View {
             } else {
                 failed
             }
-            if isPicked, let note = model.layerNote {
+            if model.layerBlock == position, let note = model.layerNote {
                 Label {
                     Text(note.text)
                         .fixedSize(horizontal: false, vertical: true)
@@ -447,6 +447,12 @@ struct AskExactBlock: View {
             }
             if let understood = block.understood {
                 AskRestatement(text: understood)
+            }
+            if block.highlights != nil {
+                HStack(spacing: 8) {
+                    Spacer(minLength: 0)
+                    lensButton
+                }
             }
         }
     }
