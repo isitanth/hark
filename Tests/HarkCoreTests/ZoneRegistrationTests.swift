@@ -16,7 +16,8 @@ import Testing
 
     /// A page of `rows` text rows, its content moved by (dx, dy) pixels and its type scaled by `zoom`.
     private static func page(
-        _ rows: [String], dx: Int = 0, dy: Int = 0, zoom: CGFloat = 1, edit: (row: Int, text: String)? = nil,
+        _ rows: [String], dx: Int = 0, dy: Int = 0, subpixel: CGFloat = 0, zoom: CGFloat = 1,
+        edit: (row: Int, text: String)? = nil,
         width: Int = width, height: Int = height
     ) throws -> CGImage {
         let context = try #require(
@@ -38,7 +39,7 @@ import Testing
                 ])
             let line = CTLineCreateWithAttributedString(string)
             // Top-left coordinates, at 2x: the row's baseline sits 34 px below its top.
-            let rowTop = (CGFloat(top + index * rowHeight)) * zoom + CGFloat(dy)
+            let rowTop = (CGFloat(top + index * rowHeight)) * zoom + CGFloat(dy) + subpixel
             let baseline = rowTop + 34 * zoom
             context.textPosition = CGPoint(x: CGFloat(left) * zoom + CGFloat(dx), y: CGFloat(height) - baseline)
             CTLineDraw(line, context)
@@ -174,5 +175,13 @@ import Testing
             Self.find(reference, recapture, zone: zone, cells: cells)
                 == Self.find(
                     reference, recapture, zone: zone, cells: cells))
+    }
+
+    /// Antialiasing differs half a pixel away: still found, a pixel either side, within the measured MAD.
+    @Test func aHalfPixelShiftIsStillFound() throws {
+        let reference = try Self.page(Self.ledger)
+        let recapture = try Self.page(Self.ledger, dy: 40, subpixel: 0.5)
+        let match = Self.find(reference, recapture)
+        #expect(match == .found(CGVector(dx: 0, dy: 40)) || match == .found(CGVector(dx: 0, dy: 41)))
     }
 }
