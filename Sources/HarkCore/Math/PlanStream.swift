@@ -70,30 +70,6 @@ public enum PlanStream {
         }
         return found
     }
-
-    /// The `understood` value as far as the partial JSON holds it, unescaped; nil until its opening quote. Nothing
-    /// else of the plan is ever shown. An escape cut at the end is held back, never shown half.
-    public static func understood(partial: String) -> String? {
-        var scanner = PartialJSON(Array(partial.unicodeScalars))
-        scanner.skipPreamble()
-        guard scanner.take("{") else { return nil }
-        while true {
-            scanner.skipSpace()
-            guard case .complete(let key) = scanner.string() else { return nil }
-            scanner.skipSpace()
-            guard scanner.take(":") else { return nil }
-            scanner.skipSpace()
-            if key == "understood" {
-                switch scanner.string() {
-                case .complete(let value), .partial(let value): return value
-                case .absent: return nil
-                }
-            }
-            guard scanner.skipValue() else { return nil }
-            scanner.skipSpace()
-            guard scanner.take(",") else { return nil }
-        }
-    }
 }
 
 /// A cursor over a JSON text that may stop anywhere.

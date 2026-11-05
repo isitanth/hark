@@ -49,8 +49,7 @@ private func reviewing(
         try? outcome.map { ExactAnswer($0, sheet: sheet, policy: .standard, fallback: us) }.get()
     }
     context.math = ExactMathContext(
-        reading: .read(sheet), routed: true, attempts: 1, computation: results.lazy.compactMap { try? $0.get() }.first,
-        results: results, numbers: numbers)
+        reading: .read(sheet), routed: true, attempts: 1, results: results, numbers: numbers)
     context.reply = PlanPrompt.composedReply(
         zip(numbers, zip(understood, answers)).map {
             PlanPrompt.ComposedResult(number: $0.0, understood: $0.1.0, answer: $0.1.1)

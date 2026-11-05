@@ -368,9 +368,9 @@ final class AskPanelModel {
 
     func update(_ update: AskUpdate) {
         guard !pinned, update.id == id else { return }
-        // A plan streams its understood line only: its JSON never reaches the answer.
-        if let planText = update.planText {
-            planUnderstood = planText.isEmpty ? nil : planText
+        // A plan streams its understood lines only, the first shown: its JSON never reaches the answer.
+        if let understood = update.planTexts.first {
+            planUnderstood = understood.isEmpty ? nil : understood
             return
         }
         reply = update.text

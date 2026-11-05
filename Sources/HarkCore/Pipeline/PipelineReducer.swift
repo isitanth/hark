@@ -361,7 +361,6 @@ public struct PipelineReducer: Sendable {
                         number: number, computation: computation, answer: answer, sheet: sheet, policy: rounding,
                         turn: id)
                 }
-                math.computation = outcomes.lazy.compactMap { try? $0.get() }.first
                 // A failed result keeps its `understood` ([SETTLED] 2): it comes from the plan, one per result.
                 let plans = (try? PlanSet.decode(reply, finishReason: summary.finishReason).get())?.results ?? []
                 math.understoods = answers.enumerated().map { index, answer in

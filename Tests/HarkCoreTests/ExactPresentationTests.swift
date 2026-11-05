@@ -49,7 +49,8 @@ private func exactContext(
     intent: CaptureIntent = F.ask
 ) -> UtteranceContext {
     var context = F.regionContext(intent: intent, region: region)
-    context.math = ExactMathContext(reading: .read(sheet), routed: true, attempts: 1, computation: computation)
+    context.math = ExactMathContext(
+        reading: .read(sheet), routed: true, attempts: 1, results: computation.map { [.success($0)] } ?? [])
     return context
 }
 

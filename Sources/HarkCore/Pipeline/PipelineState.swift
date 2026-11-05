@@ -81,9 +81,7 @@ public struct ExactMathContext: Sendable, Equatable {
     public var routed: Bool
     /// Plan calls made for this turn: one, or two after a retry.
     public var attempts: Int
-    public var computation: Computation?
-    /// Every result of the plan (M14), computed or failed, in the order the model returned them. The contract keeps
-    /// `computation` beside it until S2 moves the reducer to `results`.
+    /// Every result of the plan (M14), computed or failed, in the order the model returned them.
     public var results: [ResultOutcome]
     /// Each result's number (M14), given once on `planned` → `reviewing`, in `results`' order, failed ones included.
     public var numbers: [Int]
@@ -97,14 +95,12 @@ public struct ExactMathContext: Sendable, Equatable {
     public var fallback: PipelineFailure?
 
     public init(
-        reading: ReadingState = .idle, routed: Bool = false, attempts: Int = 0, computation: Computation? = nil,
-        results: [ResultOutcome] = [], numbers: [Int] = [], understoods: [String] = [], kept: [KeptResult] = [],
-        fallback: PipelineFailure? = nil
+        reading: ReadingState = .idle, routed: Bool = false, attempts: Int = 0, results: [ResultOutcome] = [],
+        numbers: [Int] = [], understoods: [String] = [], kept: [KeptResult] = [], fallback: PipelineFailure? = nil
     ) {
         self.reading = reading
         self.routed = routed
         self.attempts = attempts
-        self.computation = computation
         self.results = results
         self.numbers = numbers
         self.understoods = understoods
@@ -112,9 +108,11 @@ public struct ExactMathContext: Sendable, Equatable {
         self.fallback = fallback
     }
 
+    /// The first computed result, read from `results`: what the one-result view, its cells and a superseded turn read.
+    public var computation: Computation? { results.lazy.compactMap { try? $0.get() }.first }
+
     /// The plan's results gone, with their numbers: a turn that ends without review gives none.
     public mutating func clearResults() {
-        computation = nil
         results = []
         numbers = []
         understoods = []

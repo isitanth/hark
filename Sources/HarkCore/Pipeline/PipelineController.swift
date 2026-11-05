@@ -26,16 +26,13 @@ public struct PipelineSnapshot: Sendable, Equatable {
 public struct AskUpdate: Sendable, Equatable {
     public let id: UtteranceID
     public let text: String
-    /// An exact ask's plan as it streams (M13): its `understood` line so far, never the JSON. Nil otherwise.
-    public let planText: String?
-    /// Each result's `understood` so far (M14, `PlanStream.understoods`); the panel shows the first while planning.
-    /// The contract keeps `planText` beside it until S2 streams the array.
+    /// An exact ask's plan as it streams: each result's `understood` line so far (M14, `PlanStream.understoods`,
+    /// today's flat object giving its one), never the JSON; the panel shows the first while planning. Empty otherwise.
     public let planTexts: [String]
 
-    public init(id: UtteranceID, text: String, planText: String? = nil, planTexts: [String] = []) {
+    public init(id: UtteranceID, text: String, planTexts: [String] = []) {
         self.id = id
         self.text = text
-        self.planText = planText
         self.planTexts = planTexts
     }
 }
@@ -499,11 +496,8 @@ public actor PipelineController {
                     case .text(let piece):
                         text += piece
                         // Each result's understood line so far; the first is the one line the panel showed in 0.1.0.
-                        let texts = PlanStream.understoods(partial: text)
                         askContinuation.yield(
-                            AskUpdate(
-                                id: id, text: "", planText: texts.first ?? PlanStream.understood(partial: text),
-                                planTexts: texts))
+                            AskUpdate(id: id, text: "", planTexts: PlanStream.understoods(partial: text)))
                     case .finished(let summary):
                         send(.planned(id, summary, reply: text))
                     case .failed(let failure, let summary):

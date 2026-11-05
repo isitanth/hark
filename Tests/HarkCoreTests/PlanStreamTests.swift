@@ -14,13 +14,18 @@ private let labelledReply =
     #"{"understood": "Vous voulez la somme du stockage des quatre classes.", "formula": "SUM(C4, C8, C12, C16)", "unit": "none", "unit_label": "To"}"#
 private let labelledValue = "Vous voulez la somme du stockage des quatre classes."
 
+/// Today's flat object read as a plan of one: its one `understood`, nil until its opening quote.
+private func flat(_ partial: String) -> String? {
+    PlanStream.understoods(partial: partial).first
+}
+
 @Suite struct PlanStreamTests {
     @Test(arguments: [(openAIReply, openAIValue), (anthropicReply, anthropicValue), (labelledReply, labelledValue)])
     func everyCutGivesAPrefixOfTheFinalValue(_ reply: String, _ value: String) {
         var last = ""
         var started = false
         for count in 0...reply.count {
-            let shown = PlanStream.understood(partial: String(reply.prefix(count)))
+            let shown = flat(String(reply.prefix(count)))
             if let shown {
                 started = true
                 #expect(value.hasPrefix(shown), "cut at \(count): \(shown)")
@@ -31,48 +36,48 @@ private let labelledValue = "Vous voulez la somme du stockage des quatre classes
             }
         }
         #expect(last == value)
-        #expect(PlanStream.understood(partial: reply) == value)
+        #expect(flat(reply) == value)
     }
 
     @Test func nilUntilTheOpeningQuote() {
-        #expect(PlanStream.understood(partial: "") == nil)
-        #expect(PlanStream.understood(partial: "{\"underst") == nil)
-        #expect(PlanStream.understood(partial: "{\"understood\": ") == nil)
-        #expect(PlanStream.understood(partial: "{\"understood\": \"") == "")
+        #expect(flat("") == nil)
+        #expect(flat("{\"underst") == nil)
+        #expect(flat("{\"understood\": ") == nil)
+        #expect(flat("{\"understood\": \"") == "")
     }
 
     @Test func aFormulaFirstStillShowsItsUnderstoodLater() {
         let reply = #"{"formula": "SUM(C1, C2)", "unit": "EUR", "understood": "You want the total."}"#
-        #expect(PlanStream.understood(partial: String(reply.prefix(30))) == nil)
-        #expect(PlanStream.understood(partial: reply) == "You want the total.")
+        #expect(flat(String(reply.prefix(30))) == nil)
+        #expect(flat(reply) == "You want the total.")
     }
 
     @Test func aFencedReplyAndABOM() {
-        #expect(PlanStream.understood(partial: "```json\n{\"understood\": \"Total") == "Total")
-        #expect(PlanStream.understood(partial: "\u{FEFF} {\"understood\": \"Total\"") == "Total")
+        #expect(flat("```json\n{\"understood\": \"Total") == "Total")
+        #expect(flat("\u{FEFF} {\"understood\": \"Total\"") == "Total")
     }
 
     @Test func aKeyInsideAStringNeverMatches() {
         let reply = #"{"formula": "the \"understood\": \"no\" trap", "understood": "yes"}"#
-        #expect(PlanStream.understood(partial: reply) == "yes")
-        #expect(PlanStream.understood(partial: String(reply.prefix(40))) == nil)
+        #expect(flat(reply) == "yes")
+        #expect(flat(String(reply.prefix(40))) == nil)
     }
 
     @Test func anEmptyValueAndNoUnderstoodAtAll() {
-        #expect(PlanStream.understood(partial: #"{"understood": "", "formula": "C1""#) == "")
-        #expect(PlanStream.understood(partial: #"{"formula": "C1", "unit": "EUR"}"#) == nil)
-        #expect(PlanStream.understood(partial: "not json") == nil)
+        #expect(flat(#"{"understood": "", "formula": "C1""#) == "")
+        #expect(flat(#"{"formula": "C1", "unit": "EUR"}"#) == nil)
+        #expect(flat("not json") == nil)
     }
 
     @Test func aLongValueStreamsWhole() {
         let value = String(repeating: "abcdé ", count: 100)
         #expect(value.count == 600)
-        #expect(PlanStream.understood(partial: "{\"understood\": \"\(value)\", \"formula\": \"C1\"}") == value)
+        #expect(flat("{\"understood\": \"\(value)\", \"formula\": \"C1\"}") == value)
     }
 
     @Test func neverAnythingOfTheFormulaOrTheUnit() {
         for count in 0...anthropicReply.count {
-            let shown = PlanStream.understood(partial: String(anthropicReply.prefix(count))) ?? ""
+            let shown = flat(String(anthropicReply.prefix(count))) ?? ""
             #expect(!shown.contains("SUM") && !shown.contains("USD"))
         }
     }
