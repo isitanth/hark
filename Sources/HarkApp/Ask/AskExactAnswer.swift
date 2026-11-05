@@ -370,9 +370,10 @@ struct AskExactBlock: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(isPicked ? Color.accentColor.opacity(0.12) : Color.clear)
         )
-        .onChange(of: model.layerNote, initial: true) { _, note in
-            // No window to show the cells on: the rows list them instead (plan §4.5).
-            if note == .noWindow, holdsLayer { showsRows = true }
+        // No window to show the cells on: the rows list them instead (plan §4.5), also when a pick makes this block
+        // the holder while the note stays (it goes nil and back within one turn, which no change of the note shows).
+        .onChange(of: holdsLayer && model.layerNote == .noWindow, initial: true) { _, lists in
+            if lists { showsRows = true }
         }
     }
 

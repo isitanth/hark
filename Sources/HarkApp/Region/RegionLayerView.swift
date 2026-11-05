@@ -105,7 +105,7 @@ final class RegionLayerView: NSView {
         outline.fillColor = nil
         outline.strokeColor = style.stroke.cgColor
         outline.lineWidth = style.width
-        if style.dotted || (withoutColor && cell.role == .rate) {
+        if style.dotted || (withoutColor && cell.role == .rate && !cell.uncertain) {
             outline.lineCap = .round
             outline.lineDashPattern = [0.5, 3]
         } else if style.dashed {

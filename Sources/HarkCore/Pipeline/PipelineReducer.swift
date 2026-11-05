@@ -584,10 +584,9 @@ public struct PipelineReducer: Sendable {
         var formulas: [String] = []
         var results: [KeptResult] = []
         var numbers: [Int] = []
-        if let math = turn.math, let computation = math.computation, case .read(let read) = math.reading {
+        if let math = turn.math, math.computation != nil, case .read(let read) = math.reading {
             sheet = read
-            let computed = math.results.compactMap { try? $0.get() }
-            formulas = (computed.isEmpty ? [computation] : computed).map(\.plan.formula)
+            formulas = math.results.compactMap { try? $0.get() }.map(\.plan.formula)
             results = math.kept
             numbers = math.numbers
         }

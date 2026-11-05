@@ -127,9 +127,11 @@ final class AskPanelModel {
     @ObservationIgnored private var reply = ""
     /// The answer as the reply gave it when review began, so text that lands after can follow until the user edits.
     @ObservationIgnored private var reviewedReply = ""
-    /// The turn a follow-up parked, as the panel left it: Esc during the follow-up's capture brings it back, edits
-    /// included.
+    /// The turn a follow-up parked, as the panel left it: Esc during the follow-up's capture brings it back, edits,
+    /// pick and hidden cells included.
     @ObservationIgnored private var parkedTurn: (id: UtteranceID, turn: TurnText)?
+    /// A turn brought back by Esc whose cells were hidden: its return to review leaves the layer down, once.
+    @ObservationIgnored private var keepsLensDown = false
     @ObservationIgnored private var nudge: Task<Void, Never>?
 
     @ObservationIgnored private let controller: PipelineController
@@ -279,7 +281,7 @@ final class AskPanelModel {
         id = utterance.id
         if let parked = parkedTurn, parked.id == utterance.id {
             parkedTurn = nil
-            restore(parked.turn)
+            restore(parked.turn, id: parked.id)
         } else {
             resetTurn()
         }
@@ -288,10 +290,10 @@ final class AskPanelModel {
     private var turnText: TurnText {
         TurnText(
             instruction: instruction, reply: reply, reviewedReply: reviewedReply, streamed: streamed, answer: answer,
-            intent: intent)
+            intent: intent, picked: picked, layerBlock: layerBlock, lensShown: lensShown)
     }
 
-    private func restore(_ turn: TurnText) {
+    private func restore(_ turn: TurnText, id: UtteranceID) {
         resetTurn()
         instruction = turn.instruction
         reply = turn.reply
@@ -299,6 +301,10 @@ final class AskPanelModel {
         streamed = turn.streamed
         answer = turn.answer
         intent = turn.intent
+        picked = turn.picked
+        layerBlock = turn.layerBlock
+        pickedTurn = id
+        keepsLensDown = !turn.lensShown
     }
 
     private func resetTurn() {
@@ -321,6 +327,7 @@ final class AskPanelModel {
         failureHighlights = nil
         regionPixelSize = nil
         footerHint = nil
+        keepsLensDown = false
         isFraming = false
         framingBlocked = visionVerdict == false ? .modelCannotSee : nil
     }
@@ -513,7 +520,11 @@ final class AskPanelModel {
     private func followLens() {
         switch state {
         case .reviewing where highlights != nil:
-            if let highlights { showLens(highlights, animated: true) }
+            if keepsLensDown {
+                keepsLensDown = false
+            } else if let highlights {
+                showLens(highlights, animated: true)
+            }
         case .mathFailed where failureHighlights != nil:
             if let failureHighlights { showLens(failureHighlights, animated: true) }
         default:
@@ -1157,7 +1168,7 @@ private struct ThreadPreviewSample {
     }
 }
 
-/// A turn's words as the panel showed them, kept while a follow-up is captured.
+/// A turn's words as the panel showed them, its pick and whether its cells showed, kept while a follow-up is captured.
 private struct TurnText {
     let instruction: String?
     let reply: String
@@ -1165,6 +1176,9 @@ private struct TurnText {
     let streamed: String
     let answer: String
     let intent: String?
+    let picked: Int?
+    let layerBlock: Int?
+    let lensShown: Bool
 }
 
 /// The Visual Context preview's sample: the invoices of the M11 plan, sample text, not catalog strings.
