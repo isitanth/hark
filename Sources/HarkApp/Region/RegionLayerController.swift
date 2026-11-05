@@ -134,7 +134,6 @@ final class RegionLayerController {
     private func end(note: LayerNote?, announce: Bool) {
         request?.cancel()
         request = nil
-        let wasShown = session?.drawn == true
         session = nil
         timer?.invalidate()
         timer = nil
@@ -144,7 +143,8 @@ final class RegionLayerController {
         observers = []
         panel.orderOut(nil)
         if let note { onNote?(note) }
-        if announce, wasShown || note != nil { onShownChanged?(false) }
+        // Said even when nothing was drawn, so the panel's button never reads Hide Cells over nothing.
+        if announce { onShownChanged?(false) }
     }
 
     // MARK: - Finding the zone
@@ -160,7 +160,8 @@ final class RegionLayerController {
             return
         }
         guard entry.onScreen else {
-            end(note: nil, announce: true)
+            // Minimised, its app hidden or on another Space: Show Cells tries again once it is back.
+            end(note: .notFound, announce: true)
             return
         }
         session.windowBounds = entry.bounds
