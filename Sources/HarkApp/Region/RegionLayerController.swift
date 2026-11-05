@@ -41,6 +41,12 @@ final class RegionLayerController {
         var recapturing = false
         var stillSince: ContinuousClock.Instant?
         var detector = StillnessDetector()
+        /// The detector hid the layer and waits for stillness.
+        var waiting = false
+        /// Bumped on every event that may move the page: a recapture started before it is let go unread.
+        var generation = 0
+        /// The band of the window the last search looked at, window-local points: a cell shows only inside it.
+        var matchedBand: CGRect?
         var buttonDown = false
         let started = ContinuousClock.now
 
@@ -86,6 +92,7 @@ final class RegionLayerController {
     private var request: Task<Void, Never>?
     private var timer: Timer?
     private var monitor: Any?
+    private var localMonitor: Any?
     private var observers: [any NSObjectProtocol] = []
     private let harkPID = ProcessInfo.processInfo.processIdentifier
 
@@ -139,6 +146,8 @@ final class RegionLayerController {
         timer = nil
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
+        if let localMonitor { NSEvent.removeMonitor(localMonitor) }
+        localMonitor = nil
         for observer in observers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
         observers = []
         panel.orderOut(nil)
@@ -172,23 +181,30 @@ final class RegionLayerController {
         let zoneInWindow = CGRect(origin: session.zoneOffset, size: session.highlights.frame.size)
         let band = LayerGeometry.band(zone: zoneInWindow, windowSize: entry.bounds.size)
         let search = Search(session: session)
+        let generation = session.generation
         request?.cancel()
         request = Task { [weak self] in
             let capture = await ScreenRegionCapturer.recapture(windowID: anchor.windowID, band: band)
             guard let capture, !Task.isCancelled else {
-                if !Task.isCancelled { self?.found(.notFound, capture: nil, for: session) }
+                if !Task.isCancelled { self?.found(.notFound, capture: nil, for: session, generation: generation) }
                 return
             }
             let match = await Task.detached(priority: .userInitiated) { search.run(capture) }.value
             guard !Task.isCancelled else { return }
-            self?.found(match, capture: capture, for: session)
+            self?.found(match, capture: capture, for: session, generation: generation)
         }
     }
 
     /// The search's answer, on the main actor: the zone's new place, the cells in view, or a note.
-    private func found(_ match: ZoneMatch, capture: WindowBandCapture?, for session: Session) {
+    private func found(_ match: ZoneMatch, capture: WindowBandCapture?, for session: Session, generation: Int) {
         guard self.session === session else { return }
         session.recapturing = false
+        guard session.generation == generation else {
+            // The page may have moved during the capture or the search: the answer is stale. The trigger kept pending
+            // (the detector's, or a resize's) captures again once still.
+            updateVisibility()
+            return
+        }
         guard case .found(let offset) = match, let capture else {
             Self.logger.info("the zone was not found again: \(String(describing: match), privacy: .public)")
             end(note: .notFound, announce: true)
@@ -207,16 +223,19 @@ final class RegionLayerController {
             y: session.referenceBand.minY + search.zone.minY / session.referenceScale)
         session.zoneOffset = CGPoint(
             x: session.anchor.offset.x + origin.x - previous.x, y: session.anchor.offset.y + origin.y - previous.y)
+        session.matchedBand = capture.band
         draw(session)
     }
 
-    /// The cells whose box lies in the window, drawn at the zone's place now; the note says how many show.
+    /// The cells whose whole box lies in the band the search matched, drawn at the zone's place now; the note says how
+    /// many show. Those are the cells the search checked pixel by pixel: one under the title bar or the toolbar fails
+    /// the check, and one cut by the band's edge is not drawn.
     private func draw(_ session: Session) {
-        let window = CGRect(origin: .zero, size: session.windowBounds.size)
+        guard let matched = session.matchedBand else { return }
+        let band = matched.insetBy(dx: -0.5, dy: -0.5)
         let cells = session.highlights.cells
         let visible = cells.filter { cell in
-            let box = session.local(cell).offsetBy(dx: session.zoneOffset.x, dy: session.zoneOffset.y)
-            return window.contains(CGPoint(x: box.midX, y: box.midY))
+            band.contains(session.local(cell).offsetBy(dx: session.zoneOffset.x, dy: session.zoneOffset.y))
         }
         guard !visible.isEmpty else {
             end(note: .notFound, announce: true)
@@ -281,6 +300,12 @@ final class RegionLayerController {
             let record = Self.input(event)
             MainActor.assumeIsolated { self?.input(record) }
         }
+        // A flick's momentum goes on over Hark's own windows (the Ask panel), which a global monitor never sees.
+        localMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+            let record = Self.input(event).map { InputEvent(kind: $0.kind, at: $0.at, tail: $0.tail, local: true) }
+            MainActor.assumeIsolated { self?.input(record) }
+            return event
+        }
         let workspace = NSWorkspace.shared.notificationCenter
         observers = [
             workspace.addObserver(
@@ -306,7 +331,7 @@ final class RegionLayerController {
 
     /// One tick: the window's bounds against the last poll, a cover over the zone, the page's stillness.
     private func poll() {
-        guard let session, session.drawn || session.recapturing else { return }
+        guard let session else { return }
         let now = ContinuousClock.now
         let entry = WindowList.entry(session.anchor.windowID)
         let bounds = entry?.ownerPID == session.anchor.ownerPID ? entry?.bounds : nil
@@ -326,24 +351,27 @@ final class RegionLayerController {
         case .resized:
             session.windowBounds = bounds ?? session.windowBounds
             session.needsRecapture = true
+            session.generation += 1
             session.stillSince = now
         case .still:
             break
         }
-        if let since = session.stillSince, now - since >= StillnessDetector.quiet {
+        // While a recapture runs, neither trigger is used up: each waits for it to end, and runs then.
+        if !session.recapturing, let since = session.stillSince, now - since >= StillnessDetector.quiet {
             session.stillSince = nil
             guard session.sameScale(LayerGeometry.scale(of: session.windowBounds)) else {
                 end(note: .otherScale, announce: true)
                 return
             }
             session.moving = false
-            if session.needsRecapture, !session.recapturing {
+            if session.needsRecapture {
                 session.needsRecapture = false
                 recapture(session)
                 return
             }
         }
-        if session.detector.tick(at: now - session.started) == .recapture, !session.recapturing {
+        if !session.recapturing, session.detector.tick(at: now - session.started) == .recapture {
+            session.waiting = false
             session.pageMoving = false
             recapture(session)
             return
@@ -352,35 +380,46 @@ final class RegionLayerController {
         updateVisibility()
     }
 
-    /// What a global event says to the stillness detector, read off the event at once.
-    nonisolated private static func input(_ event: NSEvent) -> (kind: InputRecord.Kind, at: CGPoint)? {
+    /// An event as the layer reads it: its kind for the detector, where the pointer was, whether it is a scroll's tail
+    /// (a momentum event or a finger's lift), and whether it reached one of Hark's own windows.
+    private struct InputEvent {
+        let kind: InputRecord.Kind
+        let at: CGPoint
+        var tail = false
+        var local = false
+    }
+
+    /// What an event says to the stillness detector, read off the event at once. A scroll leaves momentum running only
+    /// while a trackpad's momentum is under way (its momentum phase begun or changing); a wheel's notch, a finger's
+    /// scroll and a momentum's last event leave none.
+    nonisolated private static func input(_ event: NSEvent) -> InputEvent? {
         let point = NSEvent.mouseLocation
         switch event.type {
         case .scrollWheel:
-            let ended: Bool
-            if !event.momentumPhase.isEmpty {
-                ended = event.momentumPhase.contains(.ended) || event.momentumPhase.contains(.cancelled)
-            } else if !event.phase.isEmpty {
-                ended = event.phase.contains(.ended) || event.phase.contains(.cancelled)
-            } else {
-                // A wheel's notch: no momentum to come.
-                ended = true
-            }
-            return (.scroll(momentumEnded: ended), point)
-        case .keyDown: return (.key, point)
-        case .leftMouseDown, .rightMouseDown, .otherMouseDown: return (.buttonDown, point)
-        case .leftMouseUp, .rightMouseUp, .otherMouseUp: return (.buttonUp, point)
+            let momentum = event.momentumPhase
+            let phase = event.phase
+            // A finger resting on the trackpad moves nothing.
+            if momentum.isEmpty, phase == .mayBegin { return nil }
+            let ended = momentum.isEmpty || momentum.contains(.ended) || momentum.contains(.cancelled)
+            let tail = !momentum.isEmpty || phase.contains(.ended) || phase.contains(.cancelled)
+            return InputEvent(kind: .scroll(momentumEnded: ended), at: point, tail: tail)
+        case .keyDown: return InputEvent(kind: .key, at: point)
+        case .leftMouseDown, .rightMouseDown, .otherMouseDown: return InputEvent(kind: .buttonDown, at: point)
+        case .leftMouseUp, .rightMouseUp, .otherMouseUp: return InputEvent(kind: .buttonUp, at: point)
         default: return nil
         }
     }
 
-    /// A scroll over the window, a key while its app is in front, a button in the zone: the page may move.
-    private func input(_ record: (kind: InputRecord.Kind, at: CGPoint)?) {
+    /// A scroll over the window, a key while its app is in front, a button in the zone: the page may move. Once the
+    /// detector waits, a scroll's tail counts wherever the pointer went, so a flick's momentum ends it.
+    private func input(_ record: InputEvent?) {
         guard let session, let record else { return }
         let window = LayerGeometry.cocoa(session.windowBounds)
         let relevant: Bool
         switch record.kind {
-        case .scroll: relevant = window.contains(record.at)
+        case .scroll:
+            let tailWhileWaiting = session.waiting && record.tail
+            relevant = record.local ? tailWhileWaiting : window.contains(record.at) || tailWhileWaiting
         case .key: relevant = NSWorkspace.shared.frontmostApplication?.processIdentifier == session.anchor.ownerPID
         case .buttonDown:
             relevant = LayerGeometry.cocoa(session.zone).contains(record.at)
@@ -390,8 +429,11 @@ final class RegionLayerController {
             session.buttonDown = false
         }
         guard relevant else { return }
+        // A button's release moves nothing and arms no trigger: it leaves a recapture under way alone.
+        if record.kind != .buttonUp { session.generation += 1 }
         let action = session.detector.record(InputRecord(kind: record.kind, at: ContinuousClock.now - session.started))
         if action == .hide {
+            session.waiting = true
             session.pageMoving = true
             updateVisibility()
         }
