@@ -361,10 +361,12 @@ struct AskExactBlock: View {
                 .fill(isPicked ? Color.accentColor.opacity(0.12) : Color.clear))
     }
 
+    /// The block's number, a button that picks it. ⌘ and the digit row pick it too, by the key's place: the panel reads
+    /// them (`AskPanel.sendEvent`), as a shortcut bound to the character 1 misses AZERTY's « & » key (M14.7).
     @ViewBuilder
     private var numberButton: some View {
         if let number = block.number {
-            let button = Button {
+            Button {
                 model.pick(position)
             } label: {
                 Text(verbatim: ResultMark.circled(number))
@@ -376,11 +378,6 @@ struct AskExactBlock: View {
             .accessibilityLabel(Text(L("ask.exact.number.a11y \(number)")))
             .accessibilityHint(Text(L("ask.exact.pick.a11y \(number)")))
             .accessibilityAddTraits(isPicked ? .isSelected : [])
-            if position < 9 {
-                button.keyboardShortcut(KeyEquivalent(Character(String(position + 1))), modifiers: .command)
-            } else {
-                button
-            }
         }
     }
 

@@ -146,7 +146,26 @@ final class AskPanel: NSPanel, NSWindowDelegate {
         {
             return
         }
+        // ⌘ and the digit row pick a block by the key's place (M14.7): on AZERTY ⌘ with the 1 key carries « & ». A held
+        // key's repeats change nothing: each pick would capture the window and search again.
+        if event.type == .keyDown,
+            let position = ResultPickKey.position(keyCode: event.keyCode, modifiers: Self.modifiers(flags)),
+            model.canPick(position)
+        {
+            if !event.isARepeat { model.pick(position) }
+            return
+        }
         super.sendEvent(event)
+    }
+
+    /// ⌘, ⇧, ⌥ and ⌃ as HarkCore reads them; Caps Lock and fn are left out.
+    private static func modifiers(_ flags: NSEvent.ModifierFlags) -> KeyModifiers {
+        var modifiers: KeyModifiers = []
+        if flags.contains(.command) { modifiers.insert(.command) }
+        if flags.contains(.shift) { modifiers.insert(.shift) }
+        if flags.contains(.option) { modifiers.insert(.option) }
+        if flags.contains(.control) { modifiers.insert(.control) }
+        return modifiers
     }
 
     /// Esc: a follow-up waiting for its frame, a drag, then a pending accent's, then the ask's (M15.4).

@@ -487,10 +487,15 @@ final class AskPanelModel {
     /// A failed block's cell as read, for its one line.
     func blockCellText(_ block: ExactResultBlock) -> String? { failedCellTexts[block.id] }
 
+    /// Whether the live turn has a block to pick at this position, in review.
+    func canPick(_ position: Int) -> Bool {
+        state == .reviewing && results?.block(at: position) != nil
+    }
+
     /// Picks a result's block (M14): its cells show on the layer, which comes back if it was hidden. A block that
     /// reads no cell leaves the layer as it is. A pick changes no height.
     func pick(_ position: Int) {
-        guard state == .reviewing, let block = results?.block(at: position) else { return }
+        guard canPick(position), let block = results?.block(at: position) else { return }
         picked = position
         highlights = block.highlights
         if let highlights = block.highlights {
