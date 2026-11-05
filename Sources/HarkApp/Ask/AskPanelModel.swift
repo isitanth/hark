@@ -130,7 +130,10 @@ final class AskPanelModel {
     /// The turn a follow-up parked, as the panel left it: Esc during the follow-up's capture brings it back, edits,
     /// pick and hidden cells included.
     @ObservationIgnored private var parkedTurn: (id: UtteranceID, turn: TurnText)?
-    /// A turn brought back by Esc whose cells were hidden: its return to review leaves the layer down, once.
+    /// The user pressed Hide Cells in this turn, and has not shown or picked cells since: not the layer drawing or
+    /// not, which a search under way or a layer that ended by itself (a note) also leave false.
+    @ObservationIgnored private var cellsHiddenByUser = false
+    /// A turn brought back by Esc whose cells the user had hidden: its return to review leaves them down, once.
     @ObservationIgnored private var keepsLensDown = false
     @ObservationIgnored private var nudge: Task<Void, Never>?
 
@@ -290,7 +293,7 @@ final class AskPanelModel {
     private var turnText: TurnText {
         TurnText(
             instruction: instruction, reply: reply, reviewedReply: reviewedReply, streamed: streamed, answer: answer,
-            intent: intent, picked: picked, layerBlock: layerBlock, lensShown: lensShown)
+            intent: intent, picked: picked, layerBlock: layerBlock, cellsHiddenByUser: cellsHiddenByUser)
     }
 
     private func restore(_ turn: TurnText, id: UtteranceID) {
@@ -304,7 +307,8 @@ final class AskPanelModel {
         picked = turn.picked
         layerBlock = turn.layerBlock
         pickedTurn = id
-        keepsLensDown = !turn.lensShown
+        cellsHiddenByUser = turn.cellsHiddenByUser
+        keepsLensDown = turn.cellsHiddenByUser
     }
 
     private func resetTurn() {
@@ -327,6 +331,7 @@ final class AskPanelModel {
         failureHighlights = nil
         regionPixelSize = nil
         footerHint = nil
+        cellsHiddenByUser = false
         keepsLensDown = false
         isFraming = false
         framingBlocked = visionVerdict == false ? .modelCannotSee : nil
@@ -489,8 +494,10 @@ final class AskPanelModel {
     /// "Show Cells" or "Hide Cells".
     func toggleLens() {
         if lensShown {
+            cellsHiddenByUser = true
             hideLens()
         } else if let highlights {
+            cellsHiddenByUser = false
             showLens(highlights, animated: false)
         }
     }
@@ -512,19 +519,19 @@ final class AskPanelModel {
         guard let highlights = block.highlights else { return }
         self.highlights = highlights
         layerBlock = position
+        cellsHiddenByUser = false
         showLens(highlights, animated: false)
     }
 
     /// On entering review with an exact answer, its cells; in a math failure, its red cell; elsewhere, none. A
     /// follow-up's capture takes the lens down, and its own exact answer shows its own cells.
     private func followLens() {
+        // Spent by the first change of state after the restore, the return to review, whatever it shows.
+        let keepsDown = keepsLensDown
+        keepsLensDown = false
         switch state {
         case .reviewing where highlights != nil:
-            if keepsLensDown {
-                keepsLensDown = false
-            } else if let highlights {
-                showLens(highlights, animated: true)
-            }
+            if !keepsDown, let highlights { showLens(highlights, animated: true) }
         case .mathFailed where failureHighlights != nil:
             if let failureHighlights { showLens(failureHighlights, animated: true) }
         default:
@@ -1168,7 +1175,8 @@ private struct ThreadPreviewSample {
     }
 }
 
-/// A turn's words as the panel showed them, its pick and whether its cells showed, kept while a follow-up is captured.
+/// A turn's words as the panel showed them, its pick and whether the user hid its cells, kept while a follow-up is
+/// captured.
 private struct TurnText {
     let instruction: String?
     let reply: String
@@ -1178,7 +1186,7 @@ private struct TurnText {
     let intent: String?
     let picked: Int?
     let layerBlock: Int?
-    let lensShown: Bool
+    let cellsHiddenByUser: Bool
 }
 
 /// The Visual Context preview's sample: the invoices of the M11 plan, sample text, not catalog strings.
