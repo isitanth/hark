@@ -131,4 +131,84 @@ import Testing
     func aPollIsClassifiedAtAQuarterPoint(_ new: CGRect, _ change: AnchorChange) {
         #expect(AnchorChange.classify(old: Self.old, new: new, onScreen: true) == change)
     }
+
+    // MARK: - Off screen, or closing (M14.7)
+
+    private static func ms(_ value: Int) -> Duration { .milliseconds(value) }
+
+    /// A window no longer listed is closed at once, whether or not a poll saw it off screen first.
+    @Test func aWindowNoLongerListedIsClosedAtOnce() {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(.gone, at: Self.ms(0)) == .closed)
+    }
+
+    /// Preview's close, as measured: off screen for about 275 ms, then dropped. The watch says closed, not off screen.
+    @Test func aCloseSeenOffScreenFirstIsClosed() {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(.offscreen, at: Self.ms(0)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(100)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(200)) == .waiting)
+        #expect(watch.observe(.gone, at: Self.ms(300)) == .closed)
+    }
+
+    /// Off screen for the whole grace, still listed: minimised, hidden or on another Space.
+    @Test func offScreenForTheWholeGraceIsOffscreen() {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(.offscreen, at: Self.ms(1_000)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(1_599)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(1_600)) == .offscreen)
+    }
+
+    /// The grace outlasts the measured close with room to spare.
+    @Test func theGraceOutlastsTheMeasuredClose() {
+        #expect(OffscreenWatch.grace >= Self.ms(2 * 275))
+    }
+
+    /// Back on screen within the grace: look for the zone again, once; later polls say nothing.
+    @Test(arguments: [AnchorChange.still, .moved(CGVector(dx: 5, dy: 0)), .resized])
+    func backOnScreenWithinTheGraceLooksAgainOnce(_ change: AnchorChange) {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(.offscreen, at: Self.ms(0)) == .waiting)
+        #expect(watch.observe(change, at: Self.ms(200)) == .back)
+        #expect(watch.observe(change, at: Self.ms(300)) == .none)
+    }
+
+    /// Off screen again after coming back: the grace starts over.
+    @Test func theGraceStartsOverAfterComingBack() {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(.offscreen, at: Self.ms(0)) == .waiting)
+        #expect(watch.observe(.still, at: Self.ms(200)) == .back)
+        #expect(watch.observe(.offscreen, at: Self.ms(300)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(800)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(900)) == .offscreen)
+    }
+
+    /// A window on screen says nothing, whatever it does.
+    @Test(arguments: [AnchorChange.still, .moved(CGVector(dx: 0, dy: 3)), .resized])
+    func aWindowOnScreenSaysNothing(_ change: AnchorChange) {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(change, at: Self.ms(0)) == .none)
+        #expect(watch.observe(change, at: Self.ms(5_000)) == .none)
+    }
+
+    /// `closed` ends the wait: a later poll starts afresh, on screen or off.
+    @Test func afterClosedTheWatchStartsAfresh() {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(.offscreen, at: Self.ms(0)) == .waiting)
+        #expect(watch.observe(.gone, at: Self.ms(300)) == .closed)
+        #expect(watch.observe(.still, at: Self.ms(400)) == .none)
+        #expect(watch.observe(.offscreen, at: Self.ms(500)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(1_000)) == .waiting)
+    }
+
+    /// `offscreen` ends the wait too: on screen afterwards is no `back`, and off screen again waits a whole grace.
+    @Test func afterOffscreenTheWatchStartsAfresh() {
+        var watch = OffscreenWatch()
+        #expect(watch.observe(.offscreen, at: Self.ms(0)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(600)) == .offscreen)
+        #expect(watch.observe(.still, at: Self.ms(700)) == .none)
+        #expect(watch.observe(.offscreen, at: Self.ms(800)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(1_399)) == .waiting)
+        #expect(watch.observe(.offscreen, at: Self.ms(1_400)) == .offscreen)
+    }
 }

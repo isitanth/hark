@@ -54,6 +54,10 @@ final class RegionLayerController {
         var windowPresses: [Int: Int] = [:]
         /// Bumped by the poll on every move or resize of the window.
         var moves = 0
+        /// Reads the window off screen over the polls: a closing window shows off screen a moment before it goes.
+        var offscreenWatch = OffscreenWatch()
+        /// Off screen for less than the watch's grace: hidden while it tells a close from a minimise.
+        var offscreenWaiting = false
         let started = ContinuousClock.now
 
         init(
@@ -90,7 +94,7 @@ final class RegionLayerController {
             return abs(scale - referenceScale) < 0.05
         }
 
-        var hidden: Bool { moving || needsRecapture || covered || pageMoving || recapturing }
+        var hidden: Bool { moving || needsRecapture || covered || pageMoving || recapturing || offscreenWaiting }
     }
 
     private let panel = RegionLayerPanel()
@@ -178,8 +182,9 @@ final class RegionLayerController {
             return
         }
         guard entry.onScreen else {
-            // Minimised, its app hidden or on another Space: Show Cells tries again once it is back.
-            end(note: .notFound, announce: true)
+            // Off screen, or closing (M14.7): the poll's watch tells which. A close says so; minimised, its app hidden
+            // or on another Space, the layer ends after the grace, and Show Cells tries again once it is back.
+            waitOffscreen(session)
             return
         }
         session.windowBounds = entry.bounds
@@ -224,6 +229,19 @@ final class RegionLayerController {
             // (the detector's, or a resize's) captures again once still.
             updateVisibility()
             return
+        }
+        if capture == nil {
+            // The capture failed: the window may be closing or leaving the screen (M14.7). Gone says so; listed off
+            // screen, the poll's watch tells which.
+            let entry = WindowList.entry(session.anchor.windowID)
+            guard let entry, entry.ownerPID == session.anchor.ownerPID else {
+                end(note: .windowClosed, announce: true)
+                return
+            }
+            if !entry.onScreen {
+                waitOffscreen(session)
+                return
+            }
         }
         guard case .found(let offset) = match, let capture else {
             Self.logger.info("the zone was not found again: \(String(describing: match), privacy: .public)")
@@ -343,7 +361,7 @@ final class RegionLayerController {
             workspace.addObserver(
                 forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main
             ) { [weak self] _ in
-                MainActor.assumeIsolated { self?.hide() }
+                MainActor.assumeIsolated { self?.endForGood() }
             },
         ]
     }
@@ -351,6 +369,21 @@ final class RegionLayerController {
     /// Another app came forward: neither Hark nor the window's owner.
     private func activated(_ pid: pid_t?) {
         guard let session, pid != harkPID, pid != session.anchor.ownerPID else { return }
+        endForGood()
+    }
+
+    /// The layer ends for good (another app came forward, the Space changed). A framed window already gone says it
+    /// closed: an app that quits with its last window brings another app forward as it closes it.
+    private func endForGood() {
+        guard let session else {
+            hide()
+            return
+        }
+        let entry = WindowList.entry(session.anchor.windowID)
+        guard let entry, entry.ownerPID == session.anchor.ownerPID else {
+            end(note: .windowClosed, announce: true)
+            return
+        }
         hide()
     }
 
@@ -360,14 +393,35 @@ final class RegionLayerController {
         let now = ContinuousClock.now
         let entry = WindowList.entry(session.anchor.windowID)
         let bounds = entry?.ownerPID == session.anchor.ownerPID ? entry?.bounds : nil
-        switch AnchorChange.classify(old: session.windowBounds, new: bounds, onScreen: entry?.onScreen ?? false) {
-        case .gone:
+        let change = AnchorChange.classify(old: session.windowBounds, new: bounds, onScreen: entry?.onScreen ?? false)
+        switch session.offscreenWatch.observe(change, at: now - session.started) {
+        case .closed:
             end(note: .windowClosed, announce: true)
             return
         case .offscreen:
             // Minimised, hidden or on another Space: Show Cells once it is back. Before the first draw the panel says
-            // why nothing showed, as `recapture`'s own off-screen path does.
+            // why nothing showed.
             end(note: session.drawn ? nil : .notFound, announce: true)
+            return
+        case .waiting:
+            // Off screen, or closing: a close keeps the window listed off screen for its animation (M14.7). Hidden
+            // until the watch knows which, so a close says so. A recapture under way reads a window that is leaving:
+            // its answer is let go unread.
+            if !session.offscreenWaiting {
+                session.offscreenWaiting = true
+                session.generation += 1
+            }
+            updateVisibility()
+            return
+        case .back:
+            comeBack(session, at: now)
+        case .none:
+            // Read off screen by a capture, not by the poll, and on screen again by now.
+            if session.offscreenWaiting { comeBack(session, at: now) }
+        }
+        switch change {
+        case .gone, .offscreen:
+            // The watch has answered both.
             return
         case .moved:
             // A move does not move the page: the layer comes back at the new place once still, with no capture.
@@ -405,6 +459,24 @@ final class RegionLayerController {
             return
         }
         session.covered = WindowList.covers(session.zone, above: session.anchor.windowID, harkPID: harkPID)
+        updateVisibility()
+    }
+
+    /// On screen again after reading off screen: the page may have changed meanwhile, so the zone is looked for again
+    /// once still.
+    private func comeBack(_ session: Session, at now: ContinuousClock.Instant) {
+        session.offscreenWaiting = false
+        session.needsRecapture = true
+        session.generation += 1
+        session.stillSince = now
+    }
+
+    /// A capture read the window off screen (one about to start, or one that failed): hidden, and the poll's watch tells
+    /// a close from a minimise (M14.7). Once it is back the zone is looked for again.
+    private func waitOffscreen(_ session: Session) {
+        session.recapturing = false
+        session.offscreenWaiting = true
+        session.needsRecapture = true
         updateVisibility()
     }
 

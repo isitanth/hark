@@ -118,3 +118,51 @@ public enum AnchorChange: Sendable, Equatable {
         return .still
     }
 }
+
+/// Off screen, or closing (M14.7): the window server keeps a closing window listed, off screen, for its close animation
+/// (Preview: about 275 ms, measured 3 times) before it drops it, so one poll that reads off screen cannot tell a close
+/// from a minimised window, a hidden app or another Space. The watch waits `grace` before it calls the window off
+/// screen; a window dropped meanwhile is closed. Under Stage Manager a minimised window stays on screen, in the strip.
+public struct OffscreenWatch: Sendable, Equatable {
+    /// Twice the measured close, and more.
+    public static let grace: Duration = .milliseconds(600)
+
+    public enum Verdict: Sendable, Equatable {
+        /// Nothing off screen: the poll goes on.
+        case none
+        /// Off screen for less than `grace`: hide, and wait.
+        case waiting
+        /// On screen again while waiting: the page may have changed meanwhile, so look for the zone again.
+        case back
+        /// No longer listed: closed.
+        case closed
+        /// Off screen for `grace` or longer: minimised, hidden or on another Space.
+        case offscreen
+    }
+
+    /// When the window was first read off screen, on the caller's clock; nil while it is on screen, and again once a
+    /// verdict ended the wait (`closed`, `offscreen`), so the next poll starts afresh.
+    private var since: Duration?
+
+    public init() {}
+
+    public mutating func observe(_ change: AnchorChange, at now: Duration) -> Verdict {
+        switch change {
+        case .gone:
+            since = nil
+            return .closed
+        case .offscreen:
+            guard let since else {
+                self.since = now
+                return .waiting
+            }
+            guard now - since >= Self.grace else { return .waiting }
+            self.since = nil
+            return .offscreen
+        case .still, .moved, .resized:
+            guard since != nil else { return .none }
+            since = nil
+            return .back
+        }
+    }
+}
