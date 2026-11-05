@@ -340,8 +340,9 @@ final class RegionLayerController {
             end(note: .windowClosed, announce: true)
             return
         case .offscreen:
-            // Minimised, hidden or on another Space: Show Cells once it is back.
-            end(note: nil, announce: true)
+            // Minimised, hidden or on another Space: Show Cells once it is back. Before the first draw the panel says
+            // why nothing showed, as `recapture`'s own off-screen path does.
+            end(note: session.drawn ? nil : .notFound, announce: true)
             return
         case .moved:
             // A move does not move the page: the layer comes back at the new place once still, with no capture.
@@ -398,8 +399,11 @@ final class RegionLayerController {
         case .scrollWheel:
             let momentum = event.momentumPhase
             let phase = event.phase
-            // A finger resting on the trackpad moves nothing.
+            // A finger resting on the trackpad, or lifted again without scrolling, moves nothing.
             if momentum.isEmpty, phase == .mayBegin { return nil }
+            if momentum.isEmpty, phase.contains(.cancelled), event.scrollingDeltaX == 0, event.scrollingDeltaY == 0 {
+                return nil
+            }
             let ended = momentum.isEmpty || momentum.contains(.ended) || momentum.contains(.cancelled)
             let tail = !momentum.isEmpty || phase.contains(.ended) || phase.contains(.cancelled)
             return InputEvent(kind: .scroll(momentumEnded: ended), at: point, tail: tail)
