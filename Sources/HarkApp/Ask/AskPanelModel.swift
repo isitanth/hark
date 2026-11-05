@@ -829,6 +829,7 @@ extension AskPanelModel {
     /// `ask-long` (a framed answer taller than the cap, its result on the last line). `ask-exact-unit` is a walk's three
     /// days instead: a result with the unit word every cell bears (0.1.0).
     fileprivate func showExactPreview(_ names: Set<String>, french: Bool) -> Bool {
+        if showResultsPreview(names, french: french) { return true }
         let pinnedState: AskPanelState
         if names.contains("ask-reading") {
             pinnedState = .reading
@@ -882,6 +883,156 @@ extension AskPanelModel {
         state = pinnedState
         panel.open(at: rememberedTopLeft)
         return true
+    }
+}
+
+extension AskPanelModel {
+    /// The numbered results' pins (M14): `ask-exact-multi` (① ②, the first picked), `ask-exact-multi3` (three with a
+    /// check line each, past the cap on a small screen), `ask-exact-partial` (② failed, dividing by zero),
+    /// `ask-exact-picked` (`ask-exact-multi` with ② picked) and `ask-exact-followup` (turn 2: the transcript row
+    /// "① · ②", the live ③ computed from ① alone, with no cells).
+    fileprivate func showResultsPreview(_ names: Set<String>, french: Bool) -> Bool {
+        let kinds = [
+            "ask-exact-multi", "ask-exact-multi3", "ask-exact-partial", "ask-exact-picked", "ask-exact-followup",
+        ]
+        guard let kind = kinds.first(where: names.contains) else { return false }
+        pinned = true
+        let sample = ResultsPreviewSample(french: french)
+        quote = ""
+        apply = .insert
+        allowsReplace = false
+        sentFrame = true
+        previewLive = UtteranceID(kind == "ask-exact-followup" ? 2 : 1)
+        regionThumbnails[UtteranceID(1)] = RegionPreviewSample.thumbnail()
+        regionPixelSize = CGSize(width: 1400, height: 1200)
+        visionVerdict = true
+        instruction = sample.instruction
+        switch kind {
+        case "ask-exact-multi3":
+            results = ExactResultsPresentation(blocks: [sample.first(1), sample.second(2), sample.third(3)])
+        case "ask-exact-partial":
+            results = ExactResultsPresentation(blocks: [sample.first(1), sample.failed(2), sample.third(3)])
+        case "ask-exact-followup":
+            instruction = sample.followUpInstruction
+            threadRoot = UtteranceID(1)
+            turns = [
+                AskTurnRow(
+                    id: UtteranceID(1), instruction: sample.instruction, restatement: nil, answer: "",
+                    region: sample.highlights.map { _ in
+                        RegionSummary(
+                            rect: CGRect(x: 120, y: 80, width: 700, height: 600), pixelWidth: 1400,
+                            pixelHeight: 1200, bytes: 412_000, displayID: 1)
+                    },
+                    results: [
+                        AskTurnResult(number: 1, figure: sample.firstFigure, understood: sample.firstUnderstood),
+                        AskTurnResult(number: 2, figure: sample.secondFigure, understood: sample.secondUnderstood),
+                    ])
+            ]
+            results = ExactResultsPresentation(blocks: [sample.reference(3)])
+            footerHint = .followUp(turn: 2, of: AskThread.maxTurns)
+        default:
+            results = ExactResultsPresentation(blocks: [sample.first(1), sample.second(2)])
+        }
+        exact = results?.blocks.first?.answer
+        picked = kind == "ask-exact-picked" ? 1 : 0
+        let text = results?.copyText ?? ""
+        streamed = text
+        answer = text
+        if server.isEmpty { server = "127.0.0.1:8002" }
+        state = .reviewing
+        panel.open(at: rememberedTopLeft)
+        return true
+    }
+}
+
+/// The numbered results' sample: two tables of subscriptions, sample text, not catalog strings.
+private struct ResultsPreviewSample {
+    let instruction: String
+    let followUpInstruction: String
+    let firstFigure: String
+    let firstUnderstood: String
+    let secondFigure: String
+    let secondUnderstood: String
+    let thirdUnderstood: String
+    let referenceUnderstood: String
+    let french: Bool
+    /// Stand-in cells so the blocks have a cells line; the lens stays off in a preview.
+    let highlights: CellHighlights?
+
+    init(french: Bool) {
+        self.french = french
+        instruction =
+            french
+            ? "Combien je paie par mois pour chaque tableau, et la différence ?"
+            : "How much do I pay a month for each table, and the difference?"
+        followUpInstruction = french ? "Et le résultat 1 sur un an ?" : "And result 1 over a year?"
+        firstFigure = french ? "89,67\u{00A0}€" : "€89.67"
+        firstUnderstood = french ? "Le total mensuel du tableau 1." : "The monthly total of table 1."
+        secondFigure = french ? "29,34\u{00A0}€" : "€29.34"
+        secondUnderstood = french ? "Le total mensuel du tableau 2." : "The monthly total of table 2."
+        thirdUnderstood = french ? "L’écart entre les deux tableaux." : "The gap between the two tables."
+        referenceUnderstood = french ? "Le résultat 1 sur douze mois." : "Result 1 over twelve months."
+        highlights = CellHighlights(
+            frameID: UtteranceID(1), displayID: 1, frame: CGRect(x: 120, y: 80, width: 700, height: 600), cells: [])
+    }
+
+    private func rows(_ texts: [(String, String)], start: Int) -> [ExactCellRow] {
+        texts.enumerated().map { index, row in
+            ExactCellRow(
+                id: CellID(start + index * 2), role: .added, text: row.1, label: row.0, uncertain: false)
+        }
+    }
+
+    private func answer(
+        _ understood: String, result: String, working: String, rows: [ExactCellRow], checks: [MathWarning] = []
+    ) -> ExactPresentation {
+        ExactPresentation(
+            understood: understood, understoodCheck: nil, result: result, exact: nil, working: working,
+            cellsUsed: rows.count, added: rows.count, subtracted: 0, rows: rows, checks: checks, named: [:])
+    }
+
+    func first(_ number: Int) -> ExactResultBlock {
+        let cells = rows([("Music", "€10.99"), ("Video", "€17.99"), ("Cloud", "€9.99"), ("Phone", "€50.70")], start: 2)
+        return ExactResultBlock(
+            id: number - 1, number: number,
+            answer: answer(
+                firstUnderstood, result: firstFigure, working: "€10.99 + €17.99 + €9.99 + €50.70 =", rows: cells),
+            failure: nil, highlights: highlights)
+    }
+
+    func second(_ number: Int) -> ExactResultBlock {
+        let cells = rows([("News", "€9.99"), ("Gym", "€19.35")], start: 12)
+        return ExactResultBlock(
+            id: number - 1, number: number,
+            answer: answer(
+                secondUnderstood, result: secondFigure, working: "€9.99 + €19.35 =", rows: cells,
+                checks: [.approximate]),
+            failure: nil, highlights: highlights)
+    }
+
+    func third(_ number: Int) -> ExactResultBlock {
+        let cells = rows([("Total 1", "€89.67"), ("Total 2", "€29.34")], start: 20)
+        return ExactResultBlock(
+            id: number - 1, number: number,
+            answer: answer(
+                thirdUnderstood, result: french ? "60,33\u{00A0}€" : "€60.33", working: "€89.67 − €29.34 =",
+                rows: cells, checks: [.assumedConvention]),
+            failure: nil, highlights: highlights)
+    }
+
+    func failed(_ number: Int) -> ExactResultBlock {
+        ExactResultBlock(
+            id: number - 1, number: number, answer: nil, failure: .math(.divisionByZero, cell: nil), highlights: nil,
+            failedUnderstood: french ? "La part de la musique par jour." : "The music's share per day.")
+    }
+
+    func reference(_ number: Int) -> ExactResultBlock {
+        ExactResultBlock(
+            id: 0, number: number,
+            answer: answer(
+                referenceUnderstood, result: french ? "1\u{202F}076,04\u{00A0}€" : "€1,076.04",
+                working: (french ? "① 89,67\u{00A0}€" : "① €89.67") + " × 12 =", rows: []),
+            failure: nil, highlights: nil)
     }
 }
 
