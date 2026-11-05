@@ -297,12 +297,13 @@ struct AskView: View {
         switch hint {
         case .full:
             return L("ask.footer.full")
-        case .followUp(let turn, let max):
+        case .followUp(let turn, let max, let naming):
             guard let key = KeyboardShortcuts.getShortcut(for: .ask) else {
                 return L("ask.footer.followUp.unset \(turn) \(max)")
             }
             let held = key.description
-            return L("ask.footer.followUp \(held) \(turn) \(max)")
+            guard naming else { return L("ask.footer.followUp \(held) \(turn) \(max)") }
+            return L("ask.footer.followUp.reuse \(held) \(turn) \(max)")
         }
     }
 
@@ -415,15 +416,15 @@ struct AskView: View {
         case .mathFailed(let failure):
             VStack(alignment: .leading, spacing: 6) {
                 Label {
-                    Text(failure.popupText(cellText: model.failureCellText))
+                    mathFailureText(failure)
                         .fixedSize(horizontal: false, vertical: true)
                 } icon: {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
                 }
-                // The red cell's layer: why it cannot show.
+                // The red cell's layer: why it cannot show. This view has no Show Cells to try again with.
                 if let note = model.layerNote {
-                    AskLayerNoteLine(note: note)
+                    AskLayerNoteLine(note: note, retries: false)
                 }
             }
         case .streaming, .reviewing, .closed:
@@ -454,6 +455,13 @@ struct AskView: View {
             Text(text)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    /// Why the exact path stopped, and that its cell is outlined in red, unless a note says the cells cannot show.
+    private func mathFailureText(_ failure: MathFailure) -> Text {
+        let reason = Text(failure.popupText(cellText: model.failureCellText))
+        guard failure.outlinesCell(cellText: model.failureCellText), model.layerNote == nil else { return reason }
+        return reason + Text(verbatim: " ") + Text(L("ask.exact.failure.outlined"))
     }
 
     /// The answer, as tall as its text up to 60% of the screen, then scrolling. Read-only while it streams, pinned to

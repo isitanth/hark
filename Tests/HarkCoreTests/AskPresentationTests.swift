@@ -200,6 +200,23 @@ private func snapshot(_ state: PipelineState) -> PipelineSnapshot {
                 == nil)
     }
 
+    /// The footer names results only once the conversation holds a computed one a follow-up may name (c4 §6).
+    @Test func theFooterNamesResultsOnceTheConversationHoldsOne() {
+        let first = KeptResult(
+            number: 1, value: 30, unit: .number, unitLabel: nil, scale: 0, shown: "30", understood: "The total.",
+            turn: UtteranceID(11))
+        var live = Self.live([])
+        live.math = ExactMathContext(reading: .idle, routed: true, kept: [first])
+        #expect(AskPresentation.footerHint(Self.reviewing(live)) == .followUp(turn: 1, of: 6, naming: true))
+        let exactTurn = AskTurn(
+            id: UtteranceID(11), instruction: "Total ?", reply: "%% The total.\n\n30", region: F.region,
+            results: [first])
+        #expect(
+            AskPresentation.footerHint(Self.reviewing(Self.live([exactTurn])))
+                == .followUp(turn: 2, of: 6, naming: true))
+        #expect(AskPresentation.footerHint(Self.reviewing(Self.live([Self.framedTurn]))) == .followUp(turn: 2, of: 6))
+    }
+
     /// Full at the sixth turn, not the fifth; and full early when the history reaches its cap.
     @Test func theFooterSaysWhenTheConversationIsFull() {
         let five = Array(repeating: Self.turn1, count: 5)

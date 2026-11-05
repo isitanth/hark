@@ -5,7 +5,7 @@ import QuartzCore
 /// The layer's drawing (M14): the cells' tints, the zone's border and a failure's red cell, as Core Animation shapes in
 /// one layer-backed view, built once per show; following the window moves the panel and redraws nothing. No copy of the
 /// screen, no image type at all (a check.sh gate). Fixed system colours, never the accent: blue adds, orange subtracts,
-/// a neutral outline for the rest, red only for the failure's cell.
+/// a blue outline with no fill for the rest (b4 §6.2), red only for the failure's cell.
 final class RegionLayerView: NSView {
     /// Each cell starts this long after the one above it, the whole fade within `maxStagger`.
     static let stagger = 0.02
@@ -40,9 +40,10 @@ final class RegionLayerView: NSView {
         let fade = animated && !workspace.accessibilityDisplayShouldReduceMotion
         let ordered = cells.sorted { ($0.box.minY, $0.box.minX) < ($1.box.minY, $1.box.minX) }
         let now = CACurrentMediaTime()
+        let scale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 2
         for (index, cell) in ordered.enumerated() {
             let box = cell.box.offsetBy(dx: margin, dy: margin)
-            let tint = Self.tint(cell, in: box, increased: increased, withoutColor: withoutColor)
+            let tint = Self.tint(cell, in: box, increased: increased, withoutColor: withoutColor, scale: scale)
             root.addSublayer(tint)
             guard fade else { continue }
             let animation = CABasicAnimation(keyPath: "opacity")
@@ -60,6 +61,17 @@ final class RegionLayerView: NSView {
         CATransaction.commit()
     }
 
+    /// The minus badges' text follows the display the panel is on.
+    override func viewDidChangeBackingProperties() {
+        super.viewDidChangeBackingProperties()
+        guard let scale = window?.backingScaleFactor else { return }
+        for group in layer?.sublayers ?? [] {
+            for case let text as CATextLayer in group.sublayers ?? [] {
+                text.contentsScale = scale
+            }
+        }
+    }
+
     private static func stroke(_ rect: CGRect, color: NSColor, width: CGFloat) -> CAShapeLayer {
         let shape = CAShapeLayer()
         shape.path = CGPath(rect: rect, transform: nil)
@@ -71,7 +83,9 @@ final class RegionLayerView: NSView {
 
     /// One cell: its fill, its outline, and with Differentiate Without Color a hatch and a minus badge on a subtracted
     /// one, a dotted outline on a rate.
-    private static func tint(_ cell: HighlightedCell, in box: CGRect, increased: Bool, withoutColor: Bool) -> CALayer {
+    private static func tint(
+        _ cell: HighlightedCell, in box: CGRect, increased: Bool, withoutColor: Bool, scale: CGFloat
+    ) -> CALayer {
         let group = CALayer()
         group.frame = box
         let bounds = CGRect(origin: .zero, size: box.size)
@@ -84,7 +98,7 @@ final class RegionLayerView: NSView {
         group.addSublayer(fill)
         if withoutColor, cell.role == .subtracted {
             group.addSublayer(hatch(bounds, clip: path))
-            group.addSublayer(badge(at: CGPoint(x: bounds.maxX + 4, y: -4)))
+            group.addSublayer(badge(at: CGPoint(x: bounds.maxX + 4, y: -4), scale: scale))
         }
         let outline = CAShapeLayer()
         outline.path = path
@@ -121,7 +135,7 @@ final class RegionLayerView: NSView {
     }
 
     /// The "−" badge at a subtracted cell's top-right corner, its centre at `corner` less its half width.
-    private static func badge(at corner: CGPoint) -> CALayer {
+    private static func badge(at corner: CGPoint, scale: CGFloat) -> CALayer {
         let size = CGSize(width: 12, height: 12)
         let text = CATextLayer()
         text.string = "−"
@@ -131,7 +145,7 @@ final class RegionLayerView: NSView {
         text.foregroundColor = NSColor.white.cgColor
         text.backgroundColor = NSColor.systemOrange.cgColor
         text.cornerRadius = size.height / 2
-        text.contentsScale = NSScreen.main?.backingScaleFactor ?? 2
+        text.contentsScale = scale
         text.frame = CGRect(x: corner.x - size.width, y: corner.y, width: size.width, height: size.height)
         return text
     }
@@ -154,8 +168,10 @@ final class RegionLayerView: NSView {
                 dashed = uncertain
                 dotted = false
             case .counted?, .compared?, .rate?:
+                // A fixed colour: a dynamic grey resolves against Hark's appearance, not the page under the layer,
+                // and faded to nothing over a white page in dark mode (M14.7).
                 fill = nil
-                stroke = .secondaryLabelColor
+                stroke = .systemBlue
                 width = increased ? 2 : 1
                 dashed = uncertain
                 dotted = role == .rate && !uncertain

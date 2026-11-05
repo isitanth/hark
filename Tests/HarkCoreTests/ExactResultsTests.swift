@@ -124,6 +124,20 @@ private func kept(_ number: Int, _ shown: String, _ understood: String, turn: Ut
         #expect(announcement.items.map(\.number) == [1])
     }
 
+    /// Plan §4.4: a computed result's number picks it; a failed one's only when its failure names a cell to show.
+    @Test func aNumberPicksAComputedResultOrAFailureThatNamesACell() throws {
+        let solved = try outcomes([
+            entry("C2 + C4", "The total."), entry("C2 + C1", "A label as a number."), entry("C6 / 0", "A ratio."),
+        ])
+        let context = reviewing(solved, understood: ["The total.", "A label as a number.", "A ratio."])
+        let results = try #require(AskPresentation.results(context, locale: us))
+        #expect(results.blocks[0].answer != nil && results.blocks[0].isPickable)
+        #expect(results.blocks[1].failure != nil && results.blocks[1].highlights?.cells.map(\.id) == [CellID("C1")!])
+        #expect(results.blocks[1].isPickable)
+        #expect(results.blocks[2].failure != nil && results.blocks[2].highlights == nil)
+        #expect(!results.blocks[2].isPickable)
+    }
+
     @Test func aFailedBlockReadsItsUnderstoodFromThePlanNotTheReply() throws {
         let solved = try outcomes([entry("C2 + C4", "The total."), entry("C6 / 0", "A ratio.")])
         var context = reviewing(solved, understood: ["The total.", "A ratio."])
@@ -178,6 +192,7 @@ private func kept(_ number: Int, _ shown: String, _ understood: String, turn: Ut
         #expect(results.blocks[0].answer?.result == "20")
         #expect(results.blocks[0].highlights == nil)
         #expect(!results.blocks[0].readsCells)
+        #expect(results.blocks[0].isPickable)
         #expect(results.announcement?.items.map(\.spoken) == ["20"])
     }
 

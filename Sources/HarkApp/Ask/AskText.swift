@@ -109,6 +109,17 @@ extension MathFailure {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? empty : named(trimmed)
     }
+
+    /// Whether `popupText` names a cell the layer outlines in red, so the popup may add that it is outlined (M14.7: not
+    /// while a note says the cells cannot show).
+    func outlinesCell(cellText: String?) -> Bool {
+        guard let text = cellText?.trimmingCharacters(in: .whitespacesAndNewlines) else { return false }
+        switch self {
+        case .math(.noNumber, _): return true
+        case .math(.garbled, _): return !text.isEmpty
+        default: return false
+        }
+    }
 }
 
 extension FramingBlock {
@@ -160,8 +171,14 @@ extension MathFailure {
 }
 
 extension LayerNote {
-    /// The panel's one line under the picked block: why the cells cannot show, or not all of them.
-    var text: LocalizedStringResource {
+    /// The panel's one line under the block whose cells the layer holds: why the cells cannot show, or not all of them.
+    /// Not found says that Show Cells tries again only where the button is (`retries`).
+    func text(retries: Bool) -> Text {
+        guard self == .notFound, retries else { return Text(text) }
+        return Text(text) + Text(verbatim: " ") + Text(L("ask.layer.notFound.retry"))
+    }
+
+    private var text: LocalizedStringResource {
         switch self {
         case .noWindow: return L("ask.layer.noWindow")
         case .notFound: return L("ask.layer.notFound")
@@ -176,8 +193,14 @@ extension LayerNote {
 
 extension ResultsAnnouncement {
     /// One sentence for every computed result (plan §4.4): "2 results: result 1, 89,67 €; result 2, 29,34 €", or the
-    /// partial form when some failed. The items join with "; ", " ; " in French.
+    /// partial form when some failed, its list a sentence of its own. A lone numbered result reads as its block does,
+    /// "Result 3: 1 076,04 €, computed by Hark". The items join with "; ", " ; " in French.
     func sentence(of total: Int) -> String {
+        if count == total, total == 1, let item = items.first {
+            let number = item.number
+            let spoken = item.spoken
+            return String(localized: L("ask.exact.result.numbered.a11y \(number) \(spoken)"))
+        }
         let separator = String(localized: L("ask.exact.announce.separator"))
         let list = items.map { item in
             let number = item.number
@@ -185,10 +208,9 @@ extension ResultsAnnouncement {
             return String(localized: L("ask.exact.announce.item \(number) \(spoken)"))
         }.joined(separator: separator)
         guard count == total else {
-            return String(localized: L("ask.exact.announce.partial \(count) \(total) \(list)"))
+            let sentence = list.prefix(1).localizedUppercase + list.dropFirst()
+            return String(localized: L("ask.exact.announce.partial \(count) \(total) \(sentence)"))
         }
-        return count == 1
-            ? String(localized: L("ask.exact.announce.one \(list)"))
-            : String(localized: L("ask.exact.announce.many \(count) \(list)"))
+        return String(localized: L("ask.exact.announce.many \(count) \(list)"))
     }
 }

@@ -6988,6 +6988,23 @@
         }
       }
     },
+    "ask.footer.followUp.reuse %@ %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ to follow up, naming a result by its number · request %2$lld of %3$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ pour enchaîner en nommant un résultat par son numéro · demande %2$lld sur %3$lld"
+          }
+        }
+      }
+    },
     "ask.footer.full": {
       "extractionState": "manual",
       "localizations": {
@@ -7980,13 +7997,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark could not read a number in a cell the calculation needs: “%@”. It is outlined in red on the screen."
+            "value": "Hark could not read a number in a cell the calculation needs: “%@”."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark n’a pas pu lire de nombre dans une cellule dont le calcul a besoin : « %@ ». Elle est entourée en rouge à l’écran."
+            "value": "Hark n’a pas pu lire de nombre dans une cellule dont le calcul a besoin : « %@ »."
           }
         }
       }
@@ -7997,13 +8014,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A cell the calculation needs reads as empty. It is outlined in red on the screen."
+            "value": "A cell the calculation needs reads as empty."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une cellule dont le calcul a besoin semble vide. Elle est entourée en rouge à l’écran."
+            "value": "Une cellule dont le calcul a besoin semble vide."
           }
         }
       }
@@ -8014,13 +8031,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark read “%@” in a cell the calculation needs, which is not a clean number. It is outlined in red on the screen."
+            "value": "Hark read “%@” in a cell the calculation needs, which is not a clean number."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark a lu « %@ » dans une cellule dont le calcul a besoin, et ce n’est pas un nombre net. Elle est entourée en rouge à l’écran."
+            "value": "Hark a lu « %@ » dans une cellule dont le calcul a besoin, et ce n’est pas un nombre net."
+          }
+        }
+      }
+    },
+    "ask.exact.failure.outlined": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is outlined in red on the screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elle est entourée en rouge à l’écran."
           }
         }
       }
@@ -8195,23 +8229,6 @@
         }
       }
     },
-    "ask.exact.pick.a11y %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show the cells of result %lld"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Montrer les cellules du résultat %lld"
-          }
-        }
-      }
-    },
     "ask.exact.announce.many %lld %@": {
       "extractionState": "manual",
       "localizations": {
@@ -8225,23 +8242,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld résultats : %2$@"
-          }
-        }
-      }
-    },
-    "ask.exact.announce.one %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 result: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 résultat : %@"
           }
         }
       }
@@ -8276,6 +8276,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "résultat %1$lld, %2$@"
+          }
+        }
+      }
+    },
+    "ask.exact.announce.failedItem %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "result %lld not computed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "résultat %lld non calculé"
           }
         }
       }
@@ -8320,7 +8337,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The model’s plan for it was not valid."
+            "value": "The model’s plan was not valid."
           }
         },
         "fr": {
@@ -8354,13 +8371,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It uses %@, a number you did not say."
+            "value": "The calculation uses %@, a number you did not say."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il utilise %@, un nombre que vous n’avez pas dit."
+            "value": "Le calcul utilise %@, un nombre que vous n’avez pas dit."
           }
         }
       }
@@ -8371,13 +8388,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It mixes units that do not go together."
+            "value": "The calculation mixes units that do not go together."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il mélange des unités incompatibles."
+            "value": "Le calcul mélange des unités incompatibles."
           }
         }
       }
@@ -8405,13 +8422,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Its percent is not multiplied by 100 exactly once."
+            "value": "The percent is not multiplied by 100 exactly once."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Son pourcentage n’est pas multiplié par 100 exactement une fois."
+            "value": "Le pourcentage n’est pas multiplié par 100 exactement une fois."
           }
         }
       }
@@ -8422,13 +8439,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It sets a cell against itself."
+            "value": "The calculation sets a cell against itself."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il oppose une cellule à elle-même."
+            "value": "Le calcul oppose une cellule à elle-même."
           }
         }
       }
@@ -8439,7 +8456,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No number in a cell it needs: “%@”."
+            "value": "No number in a cell the calculation needs: “%@”."
           }
         },
         "fr": {
@@ -8456,7 +8473,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A cell it needs reads as empty."
+            "value": "A cell the calculation needs reads as empty."
           }
         },
         "fr": {
@@ -8473,7 +8490,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@”, in a cell it needs, is not a clean number."
+            "value": "“%@”, in a cell the calculation needs, is not a clean number."
           }
         },
         "fr": {
@@ -8490,7 +8507,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No number could be read in a cell it needs."
+            "value": "No number could be read in a cell the calculation needs."
           }
         },
         "fr": {
@@ -8507,13 +8524,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It divides by zero."
+            "value": "The calculation divides by zero."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il divise par zéro."
+            "value": "Le calcul divise par zéro."
           }
         }
       }
@@ -8524,13 +8541,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Its numbers grow too large."
+            "value": "The numbers grow too large."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ses nombres deviennent trop grands."
+            "value": "Les nombres deviennent trop grands."
           }
         }
       }
@@ -8558,13 +8575,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark can no longer find the framed cells on the page. Show Cells tries once more."
+            "value": "Hark can no longer find the framed cells on the page."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hark ne retrouve plus les cellules cadrées sur la page. Montrer les cellules réessaie."
+            "value": "Hark ne retrouve plus les cellules cadrées sur la page."
+          }
+        }
+      }
+    },
+    "ask.layer.notFound.retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Cells tries once more."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Montrer les cellules réessaie."
           }
         }
       }

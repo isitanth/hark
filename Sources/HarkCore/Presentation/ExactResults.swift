@@ -34,6 +34,10 @@ public struct ExactResultBlock: Sendable, Equatable, Identifiable {
 
     /// The block reads cells: it has a cells line, Show/Hide, and its pick moves the layer.
     public var readsCells: Bool { highlights != nil }
+
+    /// Its number picks it (plan §4.4): a computed result, or a failed one whose failure names a cell to show in red.
+    /// A failure that names none has nothing to show, so its number is not a control.
+    public var isPickable: Bool { answer != nil || highlights != nil }
 }
 
 /// What VoiceOver says of several results (plan §4.4): the app builds the sentence from catalog keys.

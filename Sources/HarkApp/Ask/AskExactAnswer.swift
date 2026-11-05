@@ -43,7 +43,11 @@ struct AskExactAnswer: View {
         .padding(6)
         .askFill(.background.opacity(reduceTransparency ? 1 : 0.6), minimum: AskGlass.innerRadius)
         .onAppear {
-            showsRows = model.opensRows
+            // No window to show the cells on: the rows list them instead (plan §4.5).
+            showsRows = model.opensRows || model.layerNote == .noWindow
+        }
+        .onChange(of: model.layerNote) { _, note in
+            if note == .noWindow { showsRows = true }
         }
     }
 
@@ -78,18 +82,18 @@ struct AskExactAnswer: View {
     }
 
     private func workingLine(_ working: String) -> some View {
-        Text(verbatim: working)
+        Self.inWords(working)
             .font(.callout)
             .foregroundStyle(.secondary)
             .monospacedDigit()
             .lineLimit(3)
             .truncationMode(.tail)
             .textSelection(.enabled)
-            .help(working)
+            .help(Self.inWords(working))
             // An element of its own, as the result is: a label set on the selectable text itself sent a read of it
             // round between SwiftUI and AppKit until the stack ran out, as the answer came in (measured 2026-11-03).
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Self.spoken(working))
+            .accessibilityLabel(Self.inWords(working))
             .accessibilityAddTraits(.isStaticText)
     }
 
@@ -132,7 +136,7 @@ struct AskExactAnswer: View {
             .controlSize(.small)
             .askButtonStyle(prominent: false)
             .askAppearsActive()
-            .disabled(model.lensAvailable == false)
+            .disabled(model.lensAvailable == false || model.layerNote == .noWindow)
             .optionalHelp(model.lensAvailable == false ? Text(L("ask.exact.show.noDisplay")) : nil)
             .accessibilityLabel(Text(shown ? L("ask.exact.hide.a11y") : L("ask.exact.show.a11y")))
         }
@@ -216,8 +220,9 @@ struct AskExactAnswer: View {
         return text
     }
 
-    /// The working with its function names in words; − and × read as minus and times by themselves.
-    static func spoken(_ working: String) -> Text {
+    /// The working with its function names in words, as the panel shows it and VoiceOver reads it (the user's
+    /// decision of 2026-11-05: « plus grand (38 ; 79,19) = », not MAX); − and × read as minus and times by themselves.
+    static func inWords(_ working: String) -> Text {
         var text = Text(verbatim: "")
         var rest = Substring(working)
         while let match = rest.firstMatch(of: /\b(ARGMIN|ARGMAX|MIN|MAX|ROUND|COUNT|AVG)\(/) {
@@ -270,7 +275,9 @@ struct AskExactResults: View {
     @State private var height: CGFloat = 0
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
-    /// Kept free on the trailing side whether the scroller shows or not, so the text never rewraps near the cap.
+    /// Kept free on the trailing side whether the scroller shows or not, so the text does not rewrap near the cap with
+    /// overlay scrollers (Hark's default). With scroll bars always shown, the legacy scroller takes its own width once
+    /// the content passes the cap: the text rewraps once, taller, so it stays past the cap and settles.
     static let scrollerReserve: CGFloat = 12
 
     var body: some View {
@@ -320,10 +327,12 @@ struct AskExactResults: View {
 /// Why the cells cannot show, or not all of them: one line under the answer or the block whose cells the layer holds.
 struct AskLayerNoteLine: View {
     let note: LayerNote
+    /// Show Cells is beside it, to try again with.
+    var retries = true
 
     var body: some View {
         Label {
-            Text(note.text)
+            note.text(retries: retries)
                 .fixedSize(horizontal: false, vertical: true)
         } icon: {
             Image(systemName: "info.circle")
@@ -342,6 +351,7 @@ struct AskExactBlock: View {
     @State private var showsRows = false
 
     private var isPicked: Bool { model.picked == position }
+    private var holdsLayer: Bool { model.layerBlock == position }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -358,7 +368,12 @@ struct AskExactBlock: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(isPicked ? Color.accentColor.opacity(0.12) : Color.clear))
+                .fill(isPicked ? Color.accentColor.opacity(0.12) : Color.clear)
+        )
+        .onChange(of: model.layerNote, initial: true) { _, note in
+            // No window to show the cells on: the rows list them instead (plan §4.5).
+            if note == .noWindow, holdsLayer { showsRows = true }
+        }
     }
 
     /// The block's number, a button that picks it. ⌘ and the digit row pick it too, by the key's place: the panel reads
@@ -366,18 +381,24 @@ struct AskExactBlock: View {
     @ViewBuilder
     private var numberButton: some View {
         if let number = block.number {
-            Button {
-                model.pick(position)
-            } label: {
-                Text(verbatim: ResultMark.circled(number))
-                    .font(.title2.weight(isPicked ? .bold : .regular))
-                    .foregroundStyle(isPicked ? Color.accentColor : Color.secondary)
+            let mark = Text(verbatim: ResultMark.circled(number))
+                .font(.title2.weight(isPicked ? .bold : .regular))
+                .foregroundStyle(isPicked ? Color.accentColor : Color.secondary)
+            if block.isPickable {
+                // No hint: the help says what a pick does, and only where it shows cells (c4 §7).
+                Button {
+                    model.pick(position)
+                } label: {
+                    mark
+                }
+                .buttonStyle(.plain)
+                .optionalHelp(block.readsCells ? Text(L("ask.exact.pick.help")) : nil)
+                .accessibilityLabel(Text(L("ask.exact.number.a11y \(number)")))
+                .accessibilityAddTraits(isPicked ? .isSelected : [])
+            } else {
+                mark
+                    .accessibilityLabel(Text(L("ask.exact.number.a11y \(number)")))
             }
-            .buttonStyle(.plain)
-            .help(Text(L("ask.exact.pick.help")))
-            .accessibilityLabel(Text(L("ask.exact.number.a11y \(number)")))
-            .accessibilityHint(Text(L("ask.exact.pick.a11y \(number)")))
-            .accessibilityAddTraits(isPicked ? .isSelected : [])
         }
     }
 
@@ -390,8 +411,10 @@ struct AskExactBlock: View {
                     .monospacedDigit()
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
+                    .optionalHelp(exact.exact.map { value in Text(L("ask.exact.exact \(value)")) })
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(resultLabel(exact))
+                    .optionalAccessibilityValue(exact.exact)
                     .accessibilityAddTraits(.isHeader)
                 Spacer(minLength: 0)
             }
@@ -399,16 +422,16 @@ struct AskExactBlock: View {
                 AskRestatement(text: understood)
             }
             if let working = exact.working {
-                Text(verbatim: working)
+                AskExactAnswer.inWords(working)
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
                     .lineLimit(3)
                     .truncationMode(.tail)
                     .textSelection(.enabled)
-                    .help(working)
+                    .help(AskExactAnswer.inWords(working))
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(AskExactAnswer.spoken(working))
+                    .accessibilityLabel(AskExactAnswer.inWords(working))
                     .accessibilityAddTraits(.isStaticText)
             }
             if block.readsCells, exact.cellsUsed > 0 {
@@ -453,15 +476,13 @@ struct AskExactBlock: View {
                         .accessibilityLabel(failedLabel(failure))
                 }
                 Spacer(minLength: 0)
+                // Beside the reason that names the cell, so no row waits empty for it (M14.7).
+                if block.readsCells {
+                    lensButton
+                }
             }
             if let understood = block.understood {
                 AskRestatement(text: understood)
-            }
-            if block.highlights != nil {
-                HStack(spacing: 8) {
-                    Spacer(minLength: 0)
-                    lensButton
-                }
             }
         }
     }
@@ -498,7 +519,8 @@ struct AskExactBlock: View {
         }
     }
 
-    /// Show/Hide Cells, on the picked block only; its slot keeps its size on every block, so a pick moves nothing.
+    /// Show/Hide Cells, on the block whose cells the layer holds: the picked one, or the last picked that read cells
+    /// when the pick reads none. Its slot keeps its size on every block, so a pick moves nothing.
     private var lensButton: some View {
         let shown = model.lensShown
         return Button {
@@ -509,10 +531,11 @@ struct AskExactBlock: View {
         .controlSize(.small)
         .askButtonStyle(prominent: false)
         .askAppearsActive()
-        .disabled(model.lensAvailable != true)
-        .opacity(isPicked ? 1 : 0)
-        .allowsHitTesting(isPicked)
-        .accessibilityHidden(!isPicked)
+        .disabled(model.lensAvailable != true || model.layerNote == .noWindow)
+        .optionalHelp(model.lensAvailable == false ? Text(L("ask.exact.show.noDisplay")) : nil)
+        .opacity(holdsLayer ? 1 : 0)
+        .allowsHitTesting(holdsLayer)
+        .accessibilityHidden(!holdsLayer)
         .accessibilityLabel(Text(shown ? L("ask.exact.hide.a11y") : L("ask.exact.show.a11y")))
     }
 
@@ -570,5 +593,11 @@ extension View {
     @ViewBuilder
     fileprivate func optionalHelp(_ text: Text?) -> some View {
         if let text { help(text) } else { self }
+    }
+
+    /// An accessibility value only when there is one: a block's exact figure when rounding changed it (c4 §7).
+    @ViewBuilder
+    fileprivate func optionalAccessibilityValue(_ value: String?) -> some View {
+        if let value { accessibilityValue(Text(verbatim: value)) } else { self }
     }
 }

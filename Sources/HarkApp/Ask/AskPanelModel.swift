@@ -232,10 +232,14 @@ final class AskPanelModel {
                         .map { (block.id, $0) }
                 })
             if let numbered {
-                let position = picked ?? numbered.blocks.firstIndex { $0.readsCells } ?? 0
+                let position =
+                    picked ?? numbered.blocks.firstIndex { $0.readsCells }
+                    ?? numbered.blocks.firstIndex { $0.isPickable } ?? 0
                 picked = position
-                highlights = numbered.block(at: position)?.highlights
-                if highlights != nil { layerBlock = position }
+                // The layer keeps the cells of the last block that read some: a pick of one that reads none leaves it.
+                let holder = numbered.block(at: position)?.readsCells == true ? position : layerBlock
+                highlights = holder.flatMap { numbered.block(at: $0)?.highlights }
+                layerBlock = highlights != nil ? holder : nil
             } else {
                 picked = nil
                 layerBlock = nil
@@ -487,21 +491,21 @@ final class AskPanelModel {
     /// A failed block's cell as read, for its one line.
     func blockCellText(_ block: ExactResultBlock) -> String? { failedCellTexts[block.id] }
 
-    /// Whether the live turn has a block to pick at this position, in review.
+    /// Whether the live turn has a block to pick at this position, in review: a failure that names no cell has none.
     func canPick(_ position: Int) -> Bool {
-        state == .reviewing && results?.block(at: position) != nil
+        state == .reviewing && results?.block(at: position)?.isPickable == true
     }
 
     /// Picks a result's block (M14): its cells show on the layer, which comes back if it was hidden. A block that
-    /// reads no cell leaves the layer as it is. A pick changes no height.
+    /// reads no cell leaves the layer as it is, and Show/Hide stays on the block whose cells it holds. A pick changes
+    /// no height.
     func pick(_ position: Int) {
         guard canPick(position), let block = results?.block(at: position) else { return }
         picked = position
-        highlights = block.highlights
-        if let highlights = block.highlights {
-            layerBlock = position
-            showLens(highlights, animated: false)
-        }
+        guard let highlights = block.highlights else { return }
+        self.highlights = highlights
+        layerBlock = position
+        showLens(highlights, animated: false)
     }
 
     /// On entering review with an exact answer, its cells; in a math failure, its red cell; elsewhere, none. A
@@ -941,7 +945,9 @@ extension AskPanelModel {
                     ])
             ]
             results = ExactResultsPresentation(blocks: [sample.reference(3)])
-            footerHint = .followUp(turn: 2, of: AskThread.maxTurns)
+            // Words only: no frame of its own, so no second chip beside turn 1's.
+            regionPixelSize = nil
+            footerHint = .followUp(turn: 2, of: AskThread.maxTurns, naming: true)
         default:
             results = ExactResultsPresentation(blocks: [sample.first(1), sample.second(2)])
         }
@@ -989,10 +995,10 @@ private struct ResultsPreviewSample {
             frameID: UtteranceID(1), displayID: 1, frame: CGRect(x: 120, y: 80, width: 700, height: 600), cells: [])
     }
 
-    private func rows(_ texts: [(String, String)], start: Int) -> [ExactCellRow] {
+    private func rows(_ texts: [(String, String)], start: Int, uncertain: Int? = nil) -> [ExactCellRow] {
         texts.enumerated().map { index, row in
             ExactCellRow(
-                id: CellID(start + index * 2), role: .added, text: row.1, label: row.0, uncertain: false)
+                id: CellID(start + index * 2), role: .added, text: row.1, label: row.0, uncertain: index == uncertain)
         }
     }
 
@@ -1001,7 +1007,8 @@ private struct ResultsPreviewSample {
     ) -> ExactPresentation {
         ExactPresentation(
             understood: understood, understoodCheck: nil, result: result, exact: nil, working: working,
-            cellsUsed: rows.count, added: rows.count, subtracted: 0, rows: rows, checks: checks, named: [:])
+            cellsUsed: rows.count, added: rows.count, subtracted: 0, rows: rows, checks: checks,
+            named: Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0.text) }))
     }
 
     func first(_ number: Int) -> ExactResultBlock {
@@ -1014,12 +1021,12 @@ private struct ResultsPreviewSample {
     }
 
     func second(_ number: Int) -> ExactResultBlock {
-        let cells = rows([("News", "€9.99"), ("Gym", "€19.35")], start: 12)
+        let cells = rows([("News", "€9.99"), ("Gym", "€19.35")], start: 12, uncertain: 1)
         return ExactResultBlock(
             id: number - 1, number: number,
             answer: answer(
                 secondUnderstood, result: secondFigure, working: "€9.99 + €19.35 =", rows: cells,
-                checks: [.approximate]),
+                checks: [.suspiciousCell(CellID(14))]),
             failure: nil, highlights: highlights)
     }
 
@@ -1029,14 +1036,14 @@ private struct ResultsPreviewSample {
             id: number - 1, number: number,
             answer: answer(
                 thirdUnderstood, result: french ? "60,33\u{00A0}€" : "€60.33", working: "€89.67 − €29.34 =",
-                rows: cells, checks: [.assumedConvention]),
+                rows: cells, checks: [.doubt(CellID(22))]),
             failure: nil, highlights: highlights)
     }
 
     func failed(_ number: Int) -> ExactResultBlock {
         ExactResultBlock(
             id: number - 1, number: number, answer: nil, failure: .math(.divisionByZero, cell: nil), highlights: nil,
-            failedUnderstood: french ? "La part de la musique par jour." : "The music's share per day.")
+            failedUnderstood: french ? "La part de la musique par jour." : "The music’s share per day.")
     }
 
     func reference(_ number: Int) -> ExactResultBlock {

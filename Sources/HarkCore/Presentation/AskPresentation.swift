@@ -165,8 +165,9 @@ public struct AskTurnResult: Sendable, Equatable, Identifiable {
 
 /// The footer's line while an answer is in review.
 public enum AskFooterHint: Sendable, Equatable {
-    /// The Ask key asks again in the same conversation; `turn` of `of` turns are taken.
-    case followUp(turn: Int, of: Int)
+    /// The Ask key asks again in the same conversation; `turn` of `of` turns are taken. `naming`: the conversation
+    /// holds a computed result a follow-up may name by its number (M14, c4 §6).
+    case followUp(turn: Int, of: Int, naming: Bool = false)
     /// The conversation holds as many turns, or as much history, as it may: Copy, Replace or Esc end it.
     case full
 }
@@ -265,7 +266,8 @@ extension AskPresentation {
     public static func footerHint(_ snapshot: PipelineSnapshot) -> AskFooterHint? {
         guard state(snapshot, streamed: true) == .reviewing, let utterance = snapshot.utterance else { return nil }
         if utterance.conversationFull(instruction: snapshot.ask?.instruction ?? "") { return .full }
-        return .followUp(turn: utterance.conversationTurns, of: AskThread.maxTurns)
+        let naming = !utterance.keptResults.isEmpty || utterance.math?.kept.isEmpty == false
+        return .followUp(turn: utterance.conversationTurns, of: AskThread.maxTurns, naming: naming)
     }
 }
 

@@ -85,15 +85,20 @@ struct AskTranscript: View {
         .padding(.horizontal, 2)
     }
 
-    /// The instruction, then for an exact turn the results it numbered, "result 1, 89,67 €; result 2, …".
+    /// The instruction, then for an exact turn the results it numbered, "result 1, 89,67 €; result 2 not computed".
     private func value(_ turn: AskTurnRow) -> Text {
         guard !turn.results.isEmpty else { return Text(verbatim: turn.instruction) }
         let separator = String(localized: L("ask.exact.announce.separator"))
         let list = turn.results.map { result in
-            let figure = result.figure ?? String(localized: L("ask.exact.notComputed"))
-            return String(localized: L("ask.exact.announce.item \(result.number) \(figure)"))
+            let number = result.number
+            guard let figure = result.figure else {
+                return String(localized: L("ask.exact.announce.failedItem \(number)"))
+            }
+            return String(localized: L("ask.exact.announce.item \(number) \(figure)"))
         }.joined(separator: separator)
-        return Text(verbatim: turn.instruction + ". ") + Text(L("ask.turn.results.a11y \(list)"))
+        // A spoken question already ends its sentence.
+        let ended = turn.instruction.last.map { ".?!…".contains($0) } ?? true
+        return Text(verbatim: turn.instruction + (ended ? " " : ". ")) + Text(L("ask.turn.results.a11y \(list)"))
     }
 
     /// An earlier exact turn unfolded (M14): each result rebuilt from what the conversation kept, never the reply.

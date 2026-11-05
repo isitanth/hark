@@ -68,14 +68,14 @@ import Testing
     /// which `frenchSpacing` does not require (it only refuses an ordinary space).
     static let m14Keys = [
         "ask.exact.number.a11y %lld", "ask.exact.result.numbered.a11y %lld %@", "ask.exact.failed.a11y %lld",
-        "ask.exact.pick.help", "ask.exact.pick.a11y %lld", "ask.exact.announce.many %lld %@",
-        "ask.exact.announce.one %@",
-        "ask.exact.announce.partial %lld %lld %@", "ask.exact.announce.item %lld %@", "ask.exact.announce.separator",
+        "ask.exact.pick.help", "ask.exact.announce.many %lld %@", "ask.exact.announce.partial %lld %lld %@",
+        "ask.exact.announce.item %lld %@", "ask.exact.announce.failedItem %lld", "ask.exact.announce.separator",
         "ask.exact.notComputed", "ask.turn.results.a11y %@", "ask.exact.failed.plan", "ask.exact.failed.truncated",
         "ask.exact.failed.constant %@", "ask.exact.failed.unit", "ask.exact.failed.declaredUnit",
         "ask.exact.failed.percentScale", "ask.exact.failed.degenerate", "ask.exact.failed.noNumber %@",
         "ask.exact.failed.noNumber.empty", "ask.exact.failed.garbled %@", "ask.exact.failed.unreadCell",
         "ask.exact.failed.zero", "ask.exact.failed.overflow", "ask.layer.noWindow", "ask.layer.notFound",
+        "ask.layer.notFound.retry", "ask.footer.followUp.reuse %@ %lld %lld",
         "ask.layer.outOfView %lld %lld", "ask.layer.windowClosed", "ask.layer.otherScale",
     ]
 
