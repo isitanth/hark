@@ -94,6 +94,41 @@ final class RegionOverlayController {
         isShown = true
     }
 
+    // MARK: - The cells, as the Ask panel asks for them (M14 amendment)
+
+    /// The frame's pixels the M13 lens copies, set through the panel from `AppModel`. M14.5 draws on the live window
+    /// instead and removes it.
+    var frameImage: ((UtteranceID) async -> CGImage?)?
+    /// The cells showed (true) or went (false), for any reason: the panel's button reads "Hide Cells" or "Show Cells".
+    var onCellsShownChanged: ((Bool) -> Void)?
+    /// Why the cells cannot show, or not all of them, for the panel's one line; nil once they show in full. Not called
+    /// by the M13 lens; M14.5's layer calls it.
+    var onLayerNote: ((LayerNote?) -> Void)?
+    private var cellsRequest: Task<Void, Never>?
+
+    var cellsShown: Bool { isLensShown }
+
+    /// Shows the cells over the screen. `current` is asked right before anything is drawn: false (the panel moved on)
+    /// draws nothing.
+    func showCells(_ highlights: CellHighlights, animated: Bool, current: @escaping @MainActor () -> Bool) {
+        cellsRequest?.cancel()
+        guard let frameImage else { return }
+        cellsRequest = Task { [weak self] in
+            guard let image = await frameImage(highlights.frameID), !Task.isCancelled, let self, current() else {
+                return
+            }
+            self.showLens(highlights, image: image, animated: animated)
+            self.onCellsShownChanged?(self.isLensShown)
+        }
+    }
+
+    /// The cells go, and any request on its way with them.
+    func hideCells() {
+        cellsRequest?.cancel()
+        cellsRequest = nil
+        hideLens()
+    }
+
     // MARK: - The lens (M13)
 
     var isLensShown: Bool { lensPanel != nil }
@@ -144,6 +179,7 @@ final class RegionOverlayController {
         guard lensPanel != nil else { return }
         removeLens()
         onLensDismissed?()
+        onCellsShownChanged?(false)
     }
 
     private func removeLens() {

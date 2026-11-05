@@ -92,15 +92,20 @@ final class AskPanelModel {
     private(set) var lensShown = false
     /// `-HarkDebugPreview ask-exact-open`: the exact answer opens with its cells unfolded.
     private(set) var opensRows = false
-    /// Set by `RegionFraming`: the overlay that draws the lens.
+    /// Why the cells cannot show, or not all of them (M14): the panel's one line; nil when nothing is wrong.
+    private(set) var layerNote: LayerNote?
+    /// Set by `RegionFraming`: the overlay that shows the cells (`showCells`, `hideCells`).
     @ObservationIgnored var lensOverlay: RegionOverlayController? {
         didSet {
-            lensOverlay?.onLensDismissed = { [weak self] in self?.lensShown = false }
+            lensOverlay?.onCellsShownChanged = { [weak self] shown in self?.lensShown = shown }
+            lensOverlay?.onLayerNote = { [weak self] note in self?.layerNote = note }
+            lensOverlay?.frameImage = lensImage
         }
     }
-    /// Set by `AppModel`: the frame's pixels, from the controller, each time the lens shows. Nothing here keeps them.
-    @ObservationIgnored var lensImage: ((UtteranceID) async -> CGImage?)?
-    @ObservationIgnored private var lensRequest: Task<Void, Never>?
+    /// Set by `AppModel`: the frame's pixels, handed to the overlay for the M13 lens; M14.5 removes it.
+    @ObservationIgnored var lensImage: ((UtteranceID) async -> CGImage?)? {
+        didSet { lensOverlay?.frameImage = lensImage }
+    }
     /// Set by `AppModel`: `GET /models` on the active profile, run when an ask opens.
     @ObservationIgnored var preflight: (() async -> LLMProbeResult?)?
     /// Set by `AppModel`: Settings › Ask, for Choose another model…
@@ -460,22 +465,15 @@ final class AskPanelModel {
     }
 
     private func showLens(_ highlights: CellHighlights, animated: Bool) {
-        guard !pinned, let lensImage, let lensOverlay else { return }
+        guard !pinned, let lensOverlay else { return }
         let shownIn = state
-        lensRequest?.cancel()
-        lensRequest = Task { [weak self] in
-            guard let image = await lensImage(highlights.frameID), !Task.isCancelled, let self, self.state == shownIn
-            else { return }
-            lensOverlay.showLens(highlights, image: image, animated: animated)
-            self.lensShown = lensOverlay.isLensShown
-        }
+        lensOverlay.showCells(highlights, animated: animated) { [weak self] in self?.state == shownIn }
     }
 
     private func hideLens() {
-        lensRequest?.cancel()
-        lensRequest = nil
-        lensOverlay?.hideLens()
+        lensOverlay?.hideCells()
         lensShown = false
+        layerNote = nil
     }
 
     private func check(_ ask: UtteranceID) {
