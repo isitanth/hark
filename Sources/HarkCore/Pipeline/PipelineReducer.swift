@@ -394,13 +394,14 @@ public struct PipelineReducer: Sendable {
             return move(.asking(context, transcript, .failed(failure)))
 
         // The user chose the clipboard: `chosen`, so the line's error is null.
-        case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text)):
+        case (.asking(var context, let transcript, .reviewing), .askCopy(_, let text, let table)):
             context.answer = text
+            context.answerTable = table
             return move(.copying(context, transcript, .chosen), [copy(context, transcript)])
 
         // Replace for an ask, Insert for the assistant: both write where the caller's selection is, so both check first
         // that it is still the one the press saw, the text asked about or nothing selected.
-        case (.asking(var context, let transcript, .reviewing), .askReplace(_, let text)):
+        case (.asking(var context, let transcript, .reviewing), .askReplace(_, let text, let table)):
             guard var expected = context.intent.expectedSelection else { return reject(state, event) }
             // An image has no text to replace: once a turn of the conversation is framed, a selection is not replaced.
             if case .ask = context.intent, context.region != nil || context.thread?.framed == true {
@@ -409,6 +410,7 @@ public struct PipelineReducer: Sendable {
             // An Ask key pressed with no app known: the probe's app is the one Insert writes into.
             if expected.caller == nil { expected.caller = context.focus?.app }
             context.answer = text
+            context.answerTable = table
             return move(.asking(context, transcript, .replacing), [.checkSelection(id, expected)])
 
         // Intact, the answer goes in as a dictation would, through the same inserter and its fallbacks. Otherwise it is
@@ -762,8 +764,12 @@ public struct PipelineReducer: Sendable {
         return context
     }
 
+    /// An ask's table goes with its answer wherever the answer lands on the clipboard: Copy, or a Replace that could
+    /// not write into a field.
     private func copy(_ context: UtteranceContext, _ transcript: Transcript) -> PipelineEffect {
-        .copyToClipboard(context.id, text(context, transcript), concealed: context.focus?.isSecureInput ?? false)
+        .copyToClipboard(
+            context.id, text(context, transcript), concealed: context.focus?.isSecureInput ?? false,
+            table: context.answerTable)
     }
 
     /// What reaches the field or the clipboard: an ask's answer, or what was said.

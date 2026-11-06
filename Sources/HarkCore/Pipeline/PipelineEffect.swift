@@ -16,8 +16,9 @@ public enum PipelineEffect: Sendable, Equatable {
     /// `clipboardFallback` travels with the text: the inserter borrows the pasteboard for a paste, and whether it
     /// may keep the text there when nothing reads it is the same preference that decides the log line.
     case insert(UtteranceID, String, InsertionPlan, FocusSnapshot?, clipboardFallback: Bool)
-    /// `concealed` when the text came from a secure field: clipboard managers are asked not to record it.
-    case copyToClipboard(UtteranceID, String, concealed: Bool)
+    /// `concealed` when the text came from a secure field: clipboard managers are asked not to record it. `table`:
+    /// several exact figures' HTML table (0.2.1), written in the same item, after the text.
+    case copyToClipboard(UtteranceID, String, concealed: Bool, table: String? = nil)
     /// Streams the model's answer to `instruction` about `selection`, or to the request alone when there is none (the
     /// assistant); the controller publishes the text as it comes and reports only the end. `hasRegion`: the controller
     /// sends the framed region's image, from its private slot, with the request. `thread`: a follow-up's conversation so

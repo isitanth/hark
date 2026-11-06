@@ -215,6 +215,20 @@ private final class Report {
             "pasteboard.keepsUserCopy", !blocked && board.string(forType: .string) == "user copy",
             "restore refused: \(!blocked)")
 
+        // Several exact figures (0.2.1): the text and their table in one item, the text first, so a reader asking for
+        // text gets the lines and a spreadsheet the table.
+        let figures = ["89,67\u{00A0}€", "29,34\u{00A0}€"]
+        let table = ClipboardTable.html(figures)
+        let tabled = await facade.writeText(figures.joined(separator: "\n"), html: table)
+        let items = board.pasteboardItems ?? []
+        let types = items.first?.types.map(\.rawValue) ?? []
+        let html = items.first?.data(forType: .html).map { String(decoding: $0, as: UTF8.self) }
+        check(
+            "pasteboard.table",
+            tabled && items.count == 1 && types.first == NSPasteboard.PasteboardType.string.rawValue
+                && board.string(forType: .string) == figures.joined(separator: "\n") && table != nil && html == table,
+            "\(items.count) item, types \(types.filter { !$0.hasPrefix("dyn.") })")
+
         // The paste's promise: nothing is produced until a reader asks, and the asking is what the paste waits for.
         let reads = OSAllocatedUnfairLock(initialState: 0)
         let promised = await facade.promise("dictated", markers: [PasteboardMarker.transient]) {

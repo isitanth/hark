@@ -99,6 +99,60 @@ private func kept(_ number: Int, _ shown: String, _ understood: String, turn: Ut
         #expect(results.numbered)
     }
 
+    /// 0.2.1: several figures go to the clipboard with their table, the same figures in the same order; a lone result
+    /// goes alone, as 0.1.0 sends it, with no table.
+    @Test func severalFiguresCarryTheirTableAndALoneOneDoesNot() throws {
+        let lone = reviewing(try outcomes([entry("C2 + C4", "The total.")]), understood: ["The total."])
+        let alone = try #require(AskPresentation.results(lone, locale: us))
+        #expect(alone.copyText == "30" && alone.copyTable == nil)
+
+        let three = reviewing(
+            try outcomes([entry("C6 - C2", "The gap."), entry("C2 + C4", "The total."), entry("C2", "The first.")]),
+            understood: ["The gap.", "The total.", "The first."])
+        let results = try #require(AskPresentation.results(three, locale: us))
+        #expect(results.copyText == "20\n30\n10")
+        #expect(results.copyTable == ClipboardTable.html(["20", "30", "10"]))
+    }
+
+    @Test func aFailedResultLeavesNoRowAndOneFigureLeftNoTable() throws {
+        let middle = try outcomes([
+            entry("C2 + C4", "The total."), entry("C6 / 0", "A ratio."), entry("C6 - C2", "Gap."),
+        ])
+        let gapped = try #require(
+            AskPresentation.results(reviewing(middle, understood: ["The total.", "A ratio.", "Gap."]), locale: us))
+        #expect(gapped.copyText == "30\n20")
+        #expect(gapped.copyTable == ClipboardTable.html(["30", "20"]))
+
+        let one = try outcomes([entry("C2 + C4", "The total."), entry("C6 / 0", "A ratio.")])
+        let single = try #require(
+            AskPresentation.results(reviewing(one, understood: ["The total.", "A ratio."]), locale: us))
+        #expect(single.copyText == "30" && single.copyTable == nil)
+    }
+
+    /// A pick's row shows after its figure on the panel and is never copied: the table holds the figure alone, as the
+    /// text does.
+    @Test func aPicksRowStaysOffTheTable() throws {
+        let context = reviewing(
+            try outcomes([entry("ARGMAX(C2 @ C1, C4 @ C3, C6 @ C5)", "The largest."), entry("C2 + C4", "The total.")]),
+            understood: ["The largest.", "The total."])
+        let results = try #require(AskPresentation.results(context, locale: us))
+        #expect(results.blocks[0].answer?.winner == "C")
+        #expect(results.copyText == "30\n30")
+        #expect(results.copyTable == ClipboardTable.html(["30", "30"]))
+    }
+
+    /// The case Numbers split: French figures with a decimal comma, each whole in its row.
+    @Test func frenchFiguresGoInTheTableAsTheyAreCopied() throws {
+        let context = reviewing(
+            try outcomes([entry("C2 / C4", "A half."), entry("C2 / C6", "A third.")]),
+            understood: ["A half.", "A third."])
+        let results = try #require(AskPresentation.results(context, locale: Locale(identifier: "fr_FR")))
+        let lines = results.copyText.components(separatedBy: "\n")
+        #expect(lines.count == 2 && lines.allSatisfy { $0.contains(",") })
+        #expect(lines == results.blocks.compactMap { $0.answer?.result })
+        #expect(results.copyTable == ClipboardTable.html(lines))
+    }
+
     @Test func eachBlockLightsTheCellsItRead() throws {
         let context = reviewing(
             try outcomes([entry("C6 - C2", "The gap."), entry("C4", "The second.")]),

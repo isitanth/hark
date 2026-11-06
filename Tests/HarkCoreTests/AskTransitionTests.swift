@@ -323,6 +323,47 @@ extension AskTransitionTests {
         #expect(record.error == "insertion_failed" && record.actionType == .ask && record.llmMs == 2_610)
     }
 
+    /// 0.2.1: several exact figures' table goes with the answer to the clipboard, and the log line stays as it was.
+    @Test func copyWritesTheTableBesideTheAnswerAndLogsNeither() throws {
+        let table = ClipboardTable.html(["20", "30"])
+        let copying = try reducer.reduce(F.reviewing, .askCopy(F.id, "20\n30", table: table)).get()
+        #expect(copying.effects == [.copyToClipboard(F.id, "20\n30", concealed: false, table: table)])
+        let record = try #require(try reducer.reduce(copying.state, .copied(F.id)).get().effects.first?.record)
+        #expect(record.resolution == .textClipboard && record.error == nil && record.actionType == .ask)
+        let line = record.jsonLine(timeZone: F.paris)
+        #expect(!line.contains("<t") && !line.contains("20\\n30"))
+    }
+
+    /// Replace writes the text alone into a field, as before; wherever the clipboard catches the answer instead (no
+    /// text field, a changed selection, a failed insertion), the table goes with it.
+    @Test func replaceInsertsTheTextAloneAndTheClipboardGetsTheTable() throws {
+        let table = ClipboardTable.html(["20", "30"])
+        let copied = PipelineEffect.copyToClipboard(F.id, "20\n30", concealed: false, table: table)
+        let replacing = try reducer.reduce(F.reviewing, .askReplace(F.id, "20\n30", table: table)).get()
+        #expect(replacing.effects.count == 1 && replacing.state.context?.answerTable == table)
+
+        let field = SelectionCheck(verdict: .intact, focus: F.backInTextEdit, plan: .axInsert)
+        let inserting = try reducer.reduce(replacing.state, .selectionChecked(F.id, field)).get()
+        #expect(inserting.effects == [.insert(F.id, "20\n30", .axInsert, F.backInTextEdit, clipboardFallback: true)])
+        #expect(try reducer.reduce(inserting.state, .failed(F.id, .insertionFailed)).get().effects == [copied])
+
+        let noField = SelectionCheck(verdict: .intact, focus: F.focus)
+        let none = try reducer.reduce(replacing.state, .selectionChecked(F.id, noField)).get()
+        #expect(none.effects == [copied])
+        let record = try #require(try reducer.reduce(none.state, .copied(F.id)).get().effects.first?.record)
+        #expect(record.error == "no_text_field")
+
+        let moved = SelectionCheck(verdict: .otherApp, focus: F.focus)
+        #expect(try reducer.reduce(replacing.state, .selectionChecked(F.id, moved)).get().effects == [copied])
+    }
+
+    /// A model's answer, or a lone figure, carries no table: the clipboard gets the text alone, as before 0.2.1.
+    @Test func anAnswerWithoutATableCopiesTheTextAlone() throws {
+        let copying = try reducer.reduce(F.reviewing, .askCopy(F.id, F.answer)).get()
+        #expect(copying.effects == [.copyToClipboard(F.id, F.answer, concealed: false, table: nil)])
+        #expect(copying.state.context?.answerTable == nil)
+    }
+
     /// A changed selection keeps the caller on the line: the ask was about it, not about the app now in front.
     @Test func aChangedSelectionKeepsTheAnswerAndTheCaller() throws {
         let check = SelectionCheck(verdict: .otherApp, focus: F.focus)

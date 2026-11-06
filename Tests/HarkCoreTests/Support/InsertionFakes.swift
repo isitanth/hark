@@ -7,6 +7,8 @@ final class FakePasteboard: PasteboardFacade {
     struct Write: Equatable {
         let text: String
         let markers: Set<String>
+        /// Several exact figures' table, written beside the text (0.2.1).
+        var html: String?
     }
 
     private struct State {
@@ -27,9 +29,10 @@ final class FakePasteboard: PasteboardFacade {
         state = OSAllocatedUnfairLock(initialState: State(items: items))
     }
 
-    static func item(_ text: String, markers: Set<String> = []) -> PasteboardSnapshot.Item {
+    static func item(_ text: String, html: String? = nil, markers: Set<String> = []) -> PasteboardSnapshot.Item {
         PasteboardSnapshot.Item(
             [PasteboardSnapshot.Representation(type: "public.utf8-plain-text", data: Data(text.utf8))]
+                + (html.map { [PasteboardSnapshot.Representation(type: "public.html", data: Data($0.utf8))] } ?? [])
                 + markers.sorted().map { PasteboardSnapshot.Representation(type: $0, data: Data()) })
     }
 
@@ -59,12 +62,12 @@ final class FakePasteboard: PasteboardFacade {
         }
     }
 
-    func write(_ text: String, markers: Set<String>) async -> Int? {
+    func write(_ text: String, html: String?, markers: Set<String>) async -> Int? {
         state.withLock { state in
             guard !state.failWrites else { return nil }
-            state.items = [Self.item(text, markers: markers)]
+            state.items = [Self.item(text, html: html, markers: markers)]
             state.changeCount += 1
-            state.writes.append(Write(text: text, markers: markers))
+            state.writes.append(Write(text: text, markers: markers, html: html))
             state.onRead = nil
             return state.changeCount
         }

@@ -45,10 +45,12 @@ public enum PipelineEvent: Sendable, Equatable {
     case generationFailed(UtteranceID, LLMFailure, LLMCallSummary)
     /// Retry in the popup after a failure: the same instruction and selection, sent again.
     case askRetry(UtteranceID)
-    /// Copy in the popup: `text` is the suggestion as the user left it.
-    case askCopy(UtteranceID, String)
-    /// Replace in the popup: `text` goes in place of the selection, once it is checked.
-    case askReplace(UtteranceID, String)
+    /// Copy in the popup: `text` is the suggestion as the user left it. `table`, several exact figures' HTML table
+    /// (0.2.1), goes on the clipboard beside it.
+    case askCopy(UtteranceID, String, table: String? = nil)
+    /// Replace in the popup: `text` goes in place of the selection, once it is checked. `table` goes beside it only
+    /// where the answer ends on the clipboard instead; a field never gets it.
+    case askReplace(UtteranceID, String, table: String? = nil)
     case selectionChecked(UtteranceID, SelectionCheck)
     /// During an ask: a drag began on the region overlay. The request waits for its capture.
     case regionStarted(UtteranceID)
@@ -79,7 +81,7 @@ public enum PipelineEvent: Sendable, Equatable {
             .transcribed(let id, _, _), .typingStarted(let id), .typed(let id, _, _),
             .resolved(let id, _, _), .confirmed(let id, _), .focusRestored(let id, _), .actionFinished(let id, _),
             .inserted(let id), .copied(let id), .failed(let id, _), .generated(let id, _, _),
-            .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _), .askReplace(let id, _),
+            .generationFailed(let id, _, _), .askRetry(let id), .askCopy(let id, _, _), .askReplace(let id, _, _),
             .selectionChecked(let id, _), .regionStarted(let id), .regionCaptured(let id, _),
             .regionFailed(let id, _), .regionRemoved(let id), .regionAbandoned(let id),
             .askRetryWithoutRegion(let id), .followUpDown(let id, _), .regionRead(let id, _),

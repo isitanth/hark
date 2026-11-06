@@ -309,6 +309,73 @@ struct MathPipelineTests {
         #expect(record.resolution == .textClipboard && record.error == "no_text_field")
     }
 
+    // MARK: 0.2.1, several figures on the clipboard
+
+    static let twoResults =
+        #"{"results": [{"understood": "The total.", "formula": "SUM(C1,C2)", "unit": "none"}, "#
+        + #"{"understood": "The gap.", "formula": "C1 - C2", "unit": "none"}]}"#
+
+    /// Two results reviewed, and what the panel would copy of them in French.
+    static func reviewedTwo(
+        _ rig: Rig, _ snapshots: inout AsyncStream<PipelineSnapshot>.Iterator
+    ) async throws -> (UtteranceID, ExactResultsPresentation) {
+        let id = try await start(rig, &snapshots)
+        await rig.controller.finishCapture(id)
+        let reviewing = try #require(await next(&snapshots, where: stage(.reviewing)))
+        let results = try #require(AskPresentation.results(reviewing.utterance, locale: Locale(identifier: "fr_FR")))
+        return (id, results)
+    }
+
+    /// Copy of several figures: one item, the lines as text first and their table after; the line keeps its 14 keys and
+    /// holds neither.
+    @Test func copyingSeveralFiguresWritesTheTextAndTheirTableInOneItem() async throws {
+        let rig = try Rig(planner: ScriptedPlanner([([Self.twoResults], Self.finished)]))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let (id, results) = try await Self.reviewedTwo(rig, &snapshots)
+        let table = try #require(results.copyTable)
+        #expect(results.copyText.components(separatedBy: "\n").count == 2)
+
+        await rig.controller.copyAnswer(results.copyText, table: table, for: id)
+        let record = try #require(await Self.next(&snapshots, where: Self.idle)?.lastRecord)
+        #expect(record.resolution == .textClipboard && record.error == nil && record.context == "region+cells")
+        #expect(rig.pasteboard.writes == [.init(text: results.copyText, markers: [], html: table)])
+        #expect(rig.pasteboard.items.count == 1 && rig.pasteboard.text == results.copyText)
+        #expect(rig.pasteboard.items[0].representations.map(\.type) == ["public.utf8-plain-text", "public.html"])
+        let line = try #require(try rig.lines().first)
+        #expect(!line.contains("<table") && !line.contains("<td>"))
+        let keys = try #require(try JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any]).keys
+        #expect(keys.count == 14)
+    }
+
+    /// Insert with no text field to write into: the answer lands on the clipboard, with its table, and the line says
+    /// why, as before.
+    @Test func anInsertCaughtByTheClipboardWritesTheTableToo() async throws {
+        let rig = try Rig(planner: ScriptedPlanner([([Self.twoResults], Self.finished)]))
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let (id, results) = try await Self.reviewedTwo(rig, &snapshots)
+        await rig.controller.replaceSelection(with: results.copyText, table: results.copyTable, for: id)
+        let record = try #require(await Self.next(&snapshots, where: Self.idle)?.lastRecord)
+        #expect(record.resolution == .textClipboard && record.error == "no_text_field")
+        #expect(rig.pasteboard.writes == [.init(text: results.copyText, markers: [], html: results.copyTable)])
+    }
+
+    /// One result is copied as 0.1.0 copies it: its figure alone, plain text only.
+    @Test func aLoneResultIsCopiedAsItsFigureAlone() async throws {
+        let rig = try Rig()
+        var snapshots = rig.controller.snapshots.makeAsyncIterator()
+        let id = try await Self.start(rig, &snapshots)
+        await rig.controller.finishCapture(id)
+        let reviewing = try #require(await Self.next(&snapshots, where: Self.stage(.reviewing)))
+        let results = try #require(AskPresentation.results(reviewing.utterance, locale: Locale(identifier: "fr_FR")))
+        let figure = try #require(AskPresentation.exactAnswer(reviewing.utterance, locale: Locale(identifier: "fr_FR")))
+        #expect(results.copyText == figure.result && results.copyTable == nil)
+
+        await rig.controller.copyAnswer(results.copyText, table: results.copyTable, for: id)
+        _ = await Self.next(&snapshots, where: Self.idle)
+        #expect(rig.pasteboard.writes == [.init(text: figure.result, markers: [])])
+        #expect(rig.pasteboard.items[0].representations.map(\.type) == ["public.utf8-plain-text"])
+    }
+
     // MARK: Quit
 
     @Test func quitWhileReadingCancelsTheRead() async throws {

@@ -72,7 +72,7 @@ final class MainActorWorkspace: Workspace {
 }
 
 struct DiscardingPasteboard: PasteboardFacade {
-    func write(_ text: String, markers: Set<String>) async -> Int? { 1 }
+    func write(_ text: String, html: String?, markers: Set<String>) async -> Int? { 1 }
     func promise(_ text: String, markers: Set<String>, onRead: @escaping @Sendable () -> Void) async -> Int? { 1 }
     func changeCount() async -> Int { 1 }
     func snapshot() async -> PasteboardSnapshot { PasteboardSnapshot(items: [], changeCount: 1) }

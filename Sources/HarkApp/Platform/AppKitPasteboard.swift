@@ -27,9 +27,10 @@ final class AppKitPasteboard: PasteboardFacade {
         return pasteboard.changeCount
     }
 
-    func write(_ text: String, markers: Set<String>) async -> Int? {
+    func write(_ text: String, html: String?, markers: Set<String>) async -> Int? {
         let item = NSPasteboardItem()
         guard item.setString(text, forType: .string) else { return nil }
+        if let html, !item.setData(Data(html.utf8), forType: .html) { return nil }
         for marker in markers.sorted() {
             item.setData(Data(), forType: NSPasteboard.PasteboardType(marker))
         }

@@ -5,6 +5,12 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+### Fixed
+
+- Several exact results pasted onto a Numbers cell keep each figure whole, one per row: Copy, and Insert when the
+  figures land on the clipboard, add a one-column table beside the text, where Numbers split each French figure at its
+  decimal comma (89 | 67,00 €). TextEdit, Notes and Mail paste the figures as a table; one result is copied as before.
+
 ## [0.2.0] - 2026-11-06
 
 Several exact figures from one framed table, numbered and reusable in a follow-up, with the cells they used lit on the

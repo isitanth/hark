@@ -63,7 +63,18 @@ public struct ExactResultsPresentation: Sendable, Equatable {
 
     /// One figure per line, the computed results only, in order; one result is its figure alone, as 0.1.0 sends it.
     public var copyText: String {
-        blocks.compactMap { $0.answer?.result }.joined(separator: "\n")
+        figures.joined(separator: "\n")
+    }
+
+    /// The table Copy puts on the clipboard beside `copyText` (0.2.1): the same figures in the same order, one per row;
+    /// nil for one figure.
+    public var copyTable: String? {
+        ClipboardTable.html(figures)
+    }
+
+    /// The computed results' figures as shown, a failed result leaving none.
+    private var figures: [String] {
+        blocks.compactMap { $0.answer?.result }
     }
 
     /// Several results, numbered: the panel shows blocks. Nil-numbered, it is 0.1.0's one-result view.

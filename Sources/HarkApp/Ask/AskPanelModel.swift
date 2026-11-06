@@ -683,19 +683,23 @@ final class AskPanelModel {
         relaunch?()
     }
 
-    /// An exact answer sends its result alone (decision 7).
+    /// An exact answer sends its result alone (decision 7); several send one figure per line, with their table beside
+    /// them on the clipboard (0.2.1).
     func copy() {
         guard let id else { return }
         let text = results?.copyText ?? exact?.result ?? answer
-        Task { [controller] in await controller.copyAnswer(text, for: id) }
+        let table = results?.copyTable
+        Task { [controller] in await controller.copyAnswer(text, table: table, for: id) }
     }
 
     /// The panel closes and the caller comes back; the pipeline checks the selection, then writes the answer over it.
-    /// Insert is the same path: the check expects nothing selected, and the answer goes in at the caret.
+    /// Insert is the same path: the check expects nothing selected, and the answer goes in at the caret. The table goes
+    /// only where the answer ends on the clipboard.
     func replace() {
         guard let id else { return }
         let text = results?.copyText ?? exact?.result ?? answer
-        Task { [controller] in await controller.replaceSelection(with: text, for: id) }
+        let table = results?.copyTable
+        Task { [controller] in await controller.replaceSelection(with: text, table: table, for: id) }
     }
 
     /// After a failure, the instruction is what the user may want to keep: it goes on the clipboard, and the ask ends

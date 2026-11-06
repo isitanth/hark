@@ -49,9 +49,9 @@ public enum PasteboardMarker {
 
 /// AppKit-backed (NSPasteboard). Async for the same reason as `Workspace`.
 public protocol PasteboardFacade: Sendable {
-    /// Replaces the contents with `text`, plus the transient and concealed markers asked for. Returns the change count
-    /// after the write, or nil when it failed.
-    func write(_ text: String, markers: Set<String>) async -> Int?
+    /// Replaces the contents with one item: `text`, then `html` when there is one, then the transient and concealed
+    /// markers asked for. Returns the change count after the write, or nil when it failed.
+    func write(_ text: String, html: String?, markers: Set<String>) async -> Int?
     /// Like `write`, but the text is a promise: its bytes are produced only when a reader asks for them, and `onRead`
     /// runs the first time one does. That is how a paste learns that an app took the text.
     func promise(_ text: String, markers: Set<String>, onRead: @escaping @Sendable () -> Void) async -> Int?
@@ -64,8 +64,14 @@ public protocol PasteboardFacade: Sendable {
 }
 
 extension PasteboardFacade {
-    /// For text the user is meant to paste: no transient marker, concealed when it came from a secure field.
-    public func writeText(_ text: String, concealed: Bool = false) async -> Bool {
-        await write(text, markers: concealed ? [PasteboardMarker.concealed] : []) != nil
+    /// The text alone.
+    public func write(_ text: String, markers: Set<String>) async -> Int? {
+        await write(text, html: nil, markers: markers)
+    }
+
+    /// For text the user is meant to paste: no transient marker, concealed when it came from a secure field. `html`,
+    /// several exact figures' table (0.2.1), goes in the same item.
+    public func writeText(_ text: String, html: String? = nil, concealed: Bool = false) async -> Bool {
+        await write(text, html: html, markers: concealed ? [PasteboardMarker.concealed] : []) != nil
     }
 }

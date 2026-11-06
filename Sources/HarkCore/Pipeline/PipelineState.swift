@@ -36,6 +36,9 @@ public struct UtteranceContext: Sendable, Equatable {
     /// What an ask's Copy or Replace applies: the suggestion as the user left it in the popup. Never logged; nil for
     /// dictation, where the transcript is the text.
     public var answer: String?
+    /// Several exact figures' HTML table (0.2.1), from the same Copy or Replace as `answer`: written beside it whenever
+    /// it goes to the clipboard, never into a field. Never logged.
+    public var answerTable: String?
     /// The region framed during an ask, once captured: its summary only, never its pixels.
     public var region: RegionSummary?
     /// A drag began and its capture has not arrived yet: the request waits for it.

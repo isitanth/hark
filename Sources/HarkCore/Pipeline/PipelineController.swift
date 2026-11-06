@@ -162,14 +162,16 @@ public actor PipelineController {
         send(.askRetry(id))
     }
 
-    /// Copy in the Ask panel: `text` is the suggestion as the user left it.
-    public func copyAnswer(_ text: String, for id: UtteranceID) {
-        send(.askCopy(id, text))
+    /// Copy in the Ask panel: `text` is the suggestion as the user left it; `table`, several exact figures' HTML table
+    /// (`ExactResultsPresentation.copyTable`), goes on the clipboard beside it.
+    public func copyAnswer(_ text: String, table: String? = nil, for id: UtteranceID) {
+        send(.askCopy(id, text, table: table))
     }
 
-    /// Replace in the Ask panel: `text` goes in place of the caller's selection, once it is checked.
-    public func replaceSelection(with text: String, for id: UtteranceID) {
-        send(.askReplace(id, text))
+    /// Replace in the Ask panel: `text` goes in place of the caller's selection, once it is checked; `table` goes beside
+    /// it only if the answer ends on the clipboard.
+    public func replaceSelection(with text: String, table: String? = nil, for id: UtteranceID) {
+        send(.askReplace(id, text, table: table))
     }
 
     /// The region overlay's mouse-down during an ask: a drag began, and the request waits for its capture.
@@ -428,10 +430,10 @@ public actor PipelineController {
                 }
             }
 
-        case .copyToClipboard(let id, let text, let concealed):
+        case .copyToClipboard(let id, let text, let concealed, let table):
             Task {
                 await env.inserter.releasePasteboard()
-                let copied = await env.pasteboard.writeText(text, concealed: concealed)
+                let copied = await env.pasteboard.writeText(text, html: table, concealed: concealed)
                 send(copied ? .copied(id) : .failed(id, .pasteboardWrite))
             }
 
