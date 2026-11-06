@@ -61,7 +61,7 @@ struct AskExactAnswer: View {
                 .optionalHelp(exact.exact.map { value in Text(L("ask.exact.exact \(value)")) })
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(Text(L("ask.exact.result.a11y \(exact.spokenResult)")))
-                .accessibilityValue(Text(verbatim: exact.exact ?? exact.result))
+                .optionalAccessibilityValue(exact.exact)
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: 8)
             Label {

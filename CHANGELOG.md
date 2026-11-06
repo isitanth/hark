@@ -10,6 +10,8 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 - Several exact results pasted onto a Numbers cell keep each figure whole, one per row: Copy, and Insert when the
   figures land on the clipboard, add a one-column table beside the text, where Numbers split each French figure at its
   decimal comma (89 | 67,00 €). TextEdit, Notes and Mail paste the figures as a table; one result is copied as before.
+- VoiceOver reads an exact result once: it read the figure again as the result line's value. When the figure shown is
+  rounded, the exact value still follows it.
 
 ## [0.2.0] - 2026-11-06
 
