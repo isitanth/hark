@@ -20,15 +20,24 @@
   English", or a question about it. With nothing selected, ask anything or say what to write. The answer streams into
   a panel at the top right: edit it, then replace the selection, insert it at the caret or copy it. Right-click ›
   Services › Ask Hark does the same, and so does a dictation that starts with "Hark, …".
+- **Type your request.** While the Ask panel listens, type in its field instead of speaking: the microphone stops at
+  the first character. Return sends, ⌥Return starts a new line, and ⌃⌥A sends too.
 - **Show it part of your screen.** During an ask, hold ⌃⌥ and drag a frame around what you mean, a table, a chart, an
   error message, and keep talking. The AI first says in one line what it understood, then answers. This needs a model
   that reads images.
+- **Exact figures from a framed table.** Frame a table and ask for a total, an average or the largest line. Hark reads
+  the cells on your Mac, the model only writes the formula, and Hark does the arithmetic, then lights the cells it
+  used on the window itself. On macOS 26 and later; Settings › Ask has the switch.
 - **Conversations.** While an answer shows, press ⌃⌥A again to follow up, in words or with another frame. A
   conversation keeps up to six requests and three frames, and closing the panel ends it.
+- **Several figures, numbered.** Ask for up to three figures in one go (a total, an average and the largest line,
+  say): Hark computes each one and numbers them ①②③. A follow-up can reuse one: "multiply result 1 by 12" or
+  "divise le résultat 1 par 3" computes from the exact value Hark kept.
 - **Your AI server.** Hark has no language model of its own: it talks to the server you choose in Settings › Ask, an
   OpenAI-compatible one on your Mac by default, or Claude with your own API key.
-- **Local transcription.** [whisper.cpp](https://github.com/ggml-org/whisper.cpp) on the GPU, with the Neural Engine
-  for the encoder through Core ML. Three models to choose from: Small, Medium and Large v3.
+- **Local transcription.** [whisper.cpp](https://github.com/ggml-org/whisper.cpp) on the GPU, or with the encoder on
+  the Neural Engine through Core ML, a switch in Settings › Model. Three models to choose from: Small, Medium and
+  Large v3.
 - **English and French.** The language is detected on each utterance, or fixed in Settings. Settings, menus and
   notifications come in both.
 - **The clipboard when there is no field.** If no text field has focus, the text is copied and a notification says
@@ -44,14 +53,14 @@ text lands where you were typing. Other audio is lowered until you stop. The liv
 
 ## Install
 
-1. Download `Hark-0.2.0.dmg` from [Releases](https://github.com/isitanth/hark/releases), open it and drag Hark to
+1. Download `Hark-0.2.2.dmg` from [Releases](https://github.com/isitanth/hark/releases), open it and drag Hark to
    Applications.
 2. Hark is not signed with a Developer ID or notarized, so macOS blocks the first launch. Open System Settings ›
    Privacy & Security and click **Open Anyway** next to the message about Hark, or run
    `xattr -dr com.apple.quarantine /Applications/Hark.app` in Terminal.
 3. Allow the microphone and Accessibility when Hark asks. Without Accessibility, dictated text only goes to the
    clipboard.
-4. Download a model in Settings › Model. Small, 427.5 MB, is a good start.
+4. Download a model in Settings › Model. Small, 264.5 MB, is a good start.
 
 Hark needs macOS 14 or later on Apple Silicon. Each release is signed ad hoc, so macOS treats an update as a new app:
 if dictated text stops reaching fields after one, remove Hark from Privacy & Security › Accessibility and allow it
@@ -104,7 +113,10 @@ One file a day in `~/Library/Application Support/Hark/logs/`, one line per utter
   "action_type": null,
   "exit_code": null,
   "error": null,
-  "model_tier": "small"
+  "model_tier": "small",
+  "llm_model": null,
+  "llm_ms": null,
+  "context": null
 }
 ```
 

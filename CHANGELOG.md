@@ -5,13 +5,17 @@ Each release is also on the [Releases](https://github.com/isitanth/hark/releases
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-06
+
+Several exact figures pasted into Numbers stay whole, one per row, and VoiceOver reads a single exact result once.
+
 ### Fixed
 
 - Several exact results pasted onto a Numbers cell keep each figure whole, one per row: Copy, and Insert when the
   figures land on the clipboard, add a one-column table beside the text, where Numbers split each French figure at its
   decimal comma (89 | 67,00 €). TextEdit, Notes and Mail paste the figures as a table; one result is copied as before.
-- VoiceOver reads an exact result once: it read the figure again as the result line's value. When the figure shown is
-  rounded, the exact value still follows it.
+- VoiceOver reads a single exact result once: it read the figure again as the result line's value. When the figure
+  shown is rounded, the exact value still follows it.
 
 ## [0.2.0] - 2026-11-06
 
@@ -247,7 +251,8 @@ The first public release.
 - Commands in `~/Library/Application Support/Hark/commands.yaml`, edited in Settings › Commands and reloaded when the
   file changes. If an edit breaks it, Hark keeps the last good version and the menu bar icon says so.
 
-[Unreleased]: https://github.com/isitanth/hark/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/isitanth/hark/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/isitanth/hark/compare/v0.2.0...v0.2.2
 [0.2.0]: https://github.com/isitanth/hark/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/isitanth/hark/compare/v0.0.9...v0.1.0
 [0.0.9]: https://github.com/isitanth/hark/compare/v0.0.8...v0.0.9
